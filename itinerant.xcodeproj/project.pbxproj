@@ -7,8 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		72E7F077295F3F6400367612 /* itinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F076295F3F6400367612 /* itinerantApp.swift */; };
-		72E7F079295F3F6400367612 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F078295F3F6400367612 /* ContentView.swift */; };
+		7258974729643C7D00EA782E /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974629643C7D00EA782E /* Stage.swift */; };
+		7258974B2964822900EA782E /* StageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974A2964822900EA782E /* StageActionView.swift */; };
+		7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974C2964827900EA782E /* ItineraryActionView.swift */; };
+		7258974F2964972E00EA782E /* StageRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974E2964972E00EA782E /* StageRowView.swift */; };
+		72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
+		72E7F077295F3F6400367612 /* ItinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F076295F3F6400367612 /* ItinerantApp.swift */; };
+		72E7F079295F3F6400367612 /* ItinerariesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F078295F3F6400367612 /* ItinerariesView.swift */; };
 		72E7F07B295F3F6500367612 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F07A295F3F6500367612 /* Assets.xcassets */; };
 		72E7F07E295F3F6500367612 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F07D295F3F6500367612 /* Preview Assets.xcassets */; };
 		72E7F084295F3F6500367612 /* itinerant Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 72E7F083295F3F6500367612 /* itinerant Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -16,6 +21,8 @@
 		72E7F08B295F3F6500367612 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F08A295F3F6500367612 /* ContentView.swift */; };
 		72E7F08D295F3F6500367612 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F08C295F3F6500367612 /* Assets.xcassets */; };
 		72E7F090295F3F6500367612 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F08F295F3F6500367612 /* Preview Assets.xcassets */; };
+		72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09B295F405300367612 /* ItineraryStore.swift */; };
+		72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09D295F42BE00367612 /* Itinerary.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,9 +50,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7258974629643C7D00EA782E /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
+		7258974A2964822900EA782E /* StageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageActionView.swift; sourceTree = "<group>"; };
+		7258974C2964827900EA782E /* ItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryActionView.swift; sourceTree = "<group>"; };
+		7258974E2964972E00EA782E /* StageRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageRowView.swift; sourceTree = "<group>"; };
+		72E7ADB429636E8400D22D37 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		72E7F073295F3F6400367612 /* itinerant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itinerant.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		72E7F076295F3F6400367612 /* itinerantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
-		72E7F078295F3F6400367612 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		72E7F076295F3F6400367612 /* ItinerantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItinerantApp.swift; sourceTree = "<group>"; };
+		72E7F078295F3F6400367612 /* ItinerariesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItinerariesView.swift; sourceTree = "<group>"; };
 		72E7F07A295F3F6500367612 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		72E7F07D295F3F6500367612 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		72E7F083295F3F6500367612 /* itinerant Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "itinerant Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,6 +65,9 @@
 		72E7F08A295F3F6500367612 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		72E7F08C295F3F6500367612 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		72E7F08F295F3F6500367612 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		72E7F09B295F405300367612 /* ItineraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStore.swift; sourceTree = "<group>"; };
+		72E7F09D295F42BE00367612 /* Itinerary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Itinerary.swift; sourceTree = "<group>"; };
+		72E7F09F295F4ADA00367612 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +91,8 @@
 		72E7F06A295F3F6300367612 = {
 			isa = PBXGroup;
 			children = (
+				72E7ADB429636E8400D22D37 /* Utilities.swift */,
+				72E7F09A295F3F8200367612 /* Models */,
 				72E7F075295F3F6400367612 /* itinerant */,
 				72E7F087295F3F6500367612 /* itinerant Watch App */,
 				72E7F074295F3F6400367612 /* Products */,
@@ -94,10 +111,14 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
-				72E7F076295F3F6400367612 /* itinerantApp.swift */,
-				72E7F078295F3F6400367612 /* ContentView.swift */,
+				72E7F09F295F4ADA00367612 /* Info.plist */,
+				72E7F076295F3F6400367612 /* ItinerantApp.swift */,
+				72E7F078295F3F6400367612 /* ItinerariesView.swift */,
+				7258974C2964827900EA782E /* ItineraryActionView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
+				7258974A2964822900EA782E /* StageActionView.swift */,
+				7258974E2964972E00EA782E /* StageRowView.swift */,
 			);
 			path = itinerant;
 			sourceTree = "<group>";
@@ -127,6 +148,16 @@
 				72E7F08F295F3F6500367612 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		72E7F09A295F3F8200367612 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				72E7F09B295F405300367612 /* ItineraryStore.swift */,
+				72E7F09D295F42BE00367612 /* Itinerary.swift */,
+				7258974629643C7D00EA782E /* Stage.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,8 +262,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				72E7F079295F3F6400367612 /* ContentView.swift in Sources */,
-				72E7F077295F3F6400367612 /* itinerantApp.swift in Sources */,
+				7258974729643C7D00EA782E /* Stage.swift in Sources */,
+				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
+				72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */,
+				72E7F079295F3F6400367612 /* ItinerariesView.swift in Sources */,
+				7258974F2964972E00EA782E /* StageRowView.swift in Sources */,
+				7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */,
+				72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */,
+				7258974B2964822900EA782E /* StageActionView.swift in Sources */,
+				72E7F077295F3F6400367612 /* ItinerantApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,13 +476,14 @@
 				DEVELOPMENT_TEAM = 69G697CP27;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = itinerant/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = itinerant;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -471,13 +510,14 @@
 				DEVELOPMENT_TEAM = 69G697CP27;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = itinerant/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = itinerant;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
