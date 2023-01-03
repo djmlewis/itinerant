@@ -30,8 +30,6 @@ struct ItinerantApp: App {
                 catch { fatalError("Error loading itineraries") }
             }
         }
-    }
-    
-    
+    }    
 }
 
