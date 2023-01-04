@@ -15,7 +15,7 @@ struct Stage: Identifiable, Codable {
     var title: String
     var durationSecsInt: Int
     
-    init(id: UUID = UUID(), title: String = "Stage", durationSecsInt: Int = 0) {
+    init(id: UUID = UUID(), title: String = "Stage #", durationSecsInt: Int = SEC_HOUR * 3 + SEC_MIN * 7 + 37) {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
@@ -24,7 +24,18 @@ struct Stage: Identifiable, Codable {
 
 
 extension Stage {
+    
+    // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage() }
     static func sampleStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     static func emptyStageArray() -> StageArray { [] }
+    
+    // use let when you want a single init for all calls:  let value = Stage.staticLet  <== no ()
+    static let stageDurationFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.allowedUnits = [.hour,.minute,.second]
+        return formatter
+    }()
+
 }

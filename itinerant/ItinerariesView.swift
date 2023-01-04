@@ -10,8 +10,9 @@ import SwiftUI
 struct ItinerariesView: View {
     //  the order of params is relevant !!
     @Binding var itineraries: ItineraryArray
-    let saveAction: ()->Void // this is passed in when we init from App as what to do  to save Store
-    
+    //let saveAction: ()->Void // this is passed in when we init from App as what to do  to save Store
+    @EnvironmentObject var itineraryStore: ItineraryStore
+
     @Environment(\.scenePhase) private var scenePhase
     @State private var isPresentingNewItinView = false
     
@@ -19,15 +20,15 @@ struct ItinerariesView: View {
         List {
             ForEach($itineraries) { $itinerary in
                 NavigationLink(destination: ItineraryActionView(itinerary: $itinerary)) {
-                    VStack {
-                        Text(itinerary.id.uuidString)
+                    VStack(alignment: .leading) {
                         Text(itinerary.title)
                     }
+                    
                 }
             }
         }
         .onChange(of: scenePhase) { phase in
-            if phase == .inactive { saveAction() }
+            if phase == .inactive { itineraryStore.saveStore() }
         }
         .navigationTitle("Itineraries")
         .toolbar {
@@ -50,7 +51,7 @@ extension ItinerariesView {
         itineraries.append(newItin)
         //isPresentingNewItinView = false
         //newScrumData = DailyScrum.Data()
-        saveAction()
+        itineraryStore.saveStore()
     }
     
     
@@ -59,7 +60,7 @@ extension ItinerariesView {
 struct ItinerariesView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ItinerariesView(itineraries: .constant(Itinerary.sampleItineraryArray()), saveAction: {})
+            ItinerariesView(itineraries: .constant(Itinerary.sampleItineraryArray())/*, saveAction: {}*/)
         }
     }
 }

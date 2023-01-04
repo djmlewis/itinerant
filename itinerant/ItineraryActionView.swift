@@ -10,17 +10,19 @@ import SwiftUI
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
     
+    @EnvironmentObject var itineraryStore: ItineraryStore
+    
     @State private var itineraryData = Itinerary.ItineraryData()
     @State private var isPresentingEditView = false
     
     var body: some View {
         
-        VStack {
+        VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    NavigationLink(destination: StageActionView(stage: $stage)) {
-                        StageRowView(stage: $stage)
-                    }
+                    //NavigationLink(destination: StageActionView(stage: $stage)) {
+                        StageActionView(stage: $stage)
+                    //}
                 }
             }
         }
@@ -45,6 +47,7 @@ struct ItineraryActionView: View {
                             Button("Done") {
                                 isPresentingEditView = false
                                 itinerary.updateItineraryData(from: itineraryData)
+                                itineraryStore.saveStore()
                             }
                         }
                     }

@@ -20,7 +20,21 @@ struct ItineraryEditView: View {
                 TextField("Itinerary title", text: $itineraryData.title)
             }
             Section(header: Text("Stages")) {
-                
+                List {
+                    ForEach($itineraryData.stages) { $stage in
+                        NavigationLink(destination: StageEditView(stage: $stage)) {
+                            StageActionView(stage: $stage)
+                        }
+                    }
+                }
+                HStack() {
+                    Spacer()
+                    Button(action: {
+
+                    }) {
+                        Text("Add Stage")
+                    }
+                }
             }
         }
     }

@@ -8,10 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725666772965AFC200B678CB /* ItineraryEditView.swift */; };
+		7256AF952965D53300FBE53E /* StageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF942965D53300FBE53E /* StageEditView.swift */; };
+		7256AF972966063A00FBE53E /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF962966063900FBE53E /* SectionHeaderView.swift */; };
 		7258974729643C7D00EA782E /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974629643C7D00EA782E /* Stage.swift */; };
-		7258974B2964822900EA782E /* StageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974A2964822900EA782E /* StageActionView.swift */; };
 		7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974C2964827900EA782E /* ItineraryActionView.swift */; };
-		7258974F2964972E00EA782E /* StageRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974E2964972E00EA782E /* StageRowView.swift */; };
+		7258974F2964972E00EA782E /* StageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974E2964972E00EA782E /* StageActionView.swift */; };
 		72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
 		72E7F077295F3F6400367612 /* ItinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F076295F3F6400367612 /* ItinerantApp.swift */; };
 		72E7F079295F3F6400367612 /* ItinerariesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F078295F3F6400367612 /* ItinerariesView.swift */; };
@@ -52,10 +53,11 @@
 
 /* Begin PBXFileReference section */
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
+		7256AF942965D53300FBE53E /* StageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageEditView.swift; sourceTree = "<group>"; };
+		7256AF962966063900FBE53E /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		7258974629643C7D00EA782E /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
-		7258974A2964822900EA782E /* StageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageActionView.swift; sourceTree = "<group>"; };
 		7258974C2964827900EA782E /* ItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryActionView.swift; sourceTree = "<group>"; };
-		7258974E2964972E00EA782E /* StageRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageRowView.swift; sourceTree = "<group>"; };
+		7258974E2964972E00EA782E /* StageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageActionView.swift; sourceTree = "<group>"; };
 		72E7ADB429636E8400D22D37 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		72E7F073295F3F6400367612 /* itinerant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itinerant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72E7F076295F3F6400367612 /* ItinerantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItinerantApp.swift; sourceTree = "<group>"; };
@@ -118,8 +120,9 @@
 				72E7F078295F3F6400367612 /* ItinerariesView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
 				725666772965AFC200B678CB /* ItineraryEditView.swift */,
-				7258974A2964822900EA782E /* StageActionView.swift */,
-				7258974E2964972E00EA782E /* StageRowView.swift */,
+				7258974E2964972E00EA782E /* StageActionView.swift */,
+				7256AF942965D53300FBE53E /* StageEditView.swift */,
+				7256AF962966063900FBE53E /* SectionHeaderView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
 			);
@@ -265,16 +268,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7256AF972966063A00FBE53E /* SectionHeaderView.swift in Sources */,
 				725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */,
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
 				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
 				72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */,
 				72E7F079295F3F6400367612 /* ItinerariesView.swift in Sources */,
-				7258974F2964972E00EA782E /* StageRowView.swift in Sources */,
+				7258974F2964972E00EA782E /* StageActionView.swift in Sources */,
 				7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */,
 				72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */,
-				7258974B2964822900EA782E /* StageActionView.swift in Sources */,
 				72E7F077295F3F6400367612 /* ItinerantApp.swift in Sources */,
+				7256AF952965D53300FBE53E /* StageEditView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

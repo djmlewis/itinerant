@@ -8,13 +8,20 @@
 import Foundation
 import SwiftUI
 
-let kItineraryStoreFileName = "itineraryStore_5" + ".data"
+let kItineraryStoreFileName = "itineraryStore_8" + ".data"
 
 
 class ItineraryStore: ObservableObject {
     
     @Published var itineraries: ItineraryArray = []
 
+    func saveStore() -> Void {
+        Task {
+            do { try await ItineraryStore.initiateSaveAsync(itineraries: itineraries) }
+            catch { fatalError("Error saving itineraries") }
+        }
+    }
+    
     
     private static func itineraryStoreFileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory,
@@ -98,8 +105,6 @@ class ItineraryStore: ObservableObject {
             }
         }
     }
-
-    
     
 }
 
