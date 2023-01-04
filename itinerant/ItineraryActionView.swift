@@ -10,6 +10,8 @@ import SwiftUI
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
     
+    @State private var itineraryData = Itinerary.ItineraryData()
+    @State private var isPresentingEditView = false
     
     var body: some View {
         
@@ -21,8 +23,34 @@ struct ItineraryActionView: View {
                     }
                 }
             }
-            .navigationTitle(itinerary.title)
         }
+        .navigationTitle(itinerary.title)
+        .toolbar {
+            Button("Edit") {
+                isPresentingEditView = true
+                itineraryData = itinerary.itineraryData
+            }
+        }
+        .sheet(isPresented: $isPresentingEditView) {
+            NavigationView {
+                ItineraryEditView(itineraryData: $itineraryData)
+                    .navigationTitle(itinerary.title)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                isPresentingEditView = false
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                isPresentingEditView = false
+                                itinerary.updateItineraryData(from: itineraryData)
+                            }
+                        }
+                    }
+            }
+        }
+
     }
 }
 
