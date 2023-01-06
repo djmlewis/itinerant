@@ -21,3 +21,7 @@ func hmsToSecsDouble(hours: Int, mins: Int, secs: Int) -> Double {
     return Double(hmsToSecsInt(hours: hours, mins: mins, secs: secs))
 }
 
+
+enum FieldFocusTag {
+    case title
+}

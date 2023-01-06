@@ -15,20 +15,31 @@ struct ItineraryActionView: View {
     @State private var itineraryData = Itinerary.ItineraryData()
     @State private var isPresentingEditView = false
     
+    @State private var stageActiveIndex = -1
+    @State private var stageActiveUuid = UUID().uuidString
+
+    
     var body: some View {
         
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    //NavigationLink(destination: StageActionView(stage: $stage)) {
-                        StageActionView(stage: $stage)
-                    //}
+                        StageActionView(stage: $stage, stageUuidEnabled: $stageActiveUuid, inEditingMode: false )
                 }
             }
         }
+        .onAppear() {
+            if itinerary.stages.count > 0 {
+                stageActiveIndex = 0
+                stageActiveUuid = itinerary.stages[stageActiveIndex].id.uuidString
+            }
+        }
+        .onChange(of: stageActiveIndex) { index in
+            stageActiveUuid = itinerary.stages[index].id.uuidString
+        }
         .navigationTitle(itinerary.title)
         .toolbar {
-            Button("Edit") {
+            Button("Modify") {
                 isPresentingEditView = true
                 itineraryData = itinerary.itineraryData
             }
@@ -44,7 +55,7 @@ struct ItineraryActionView: View {
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") {
+                            Button("Save") {
                                 isPresentingEditView = false
                                 itinerary.updateItineraryData(from: itineraryData)
                                 itineraryStore.saveStore()
@@ -56,6 +67,8 @@ struct ItineraryActionView: View {
 
     }
 }
+
+
 
 struct ItineraryActionView_Previews: PreviewProvider {
     static var previews: some View {

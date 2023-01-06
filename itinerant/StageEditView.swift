@@ -13,14 +13,16 @@ struct StageEditView: View {
     @State private var hours: Double = 0
     @State private var mins: Double = 0
     @State private var secs: Double = 0
-    
+    @FocusState private var focusedFieldTag: FieldFocusTag?
+
     
     var body: some View {
         Form {
-            Section(header: SectionHeaderView(imageName: "info.circle", title: "Stage Information")) {
-                TextField("Itinerary title", text: $stage.title)
+            Section(header: Text("Title")) {
+                TextField("Stage title", text: $stage.title)
+                    .focused($focusedFieldTag, equals: .title)
             }
-            Section(header: SectionHeaderView(imageName: "clock", title: "Stage Duration")) {
+            Section(header: Text("Duration")) {
                 GeometryReader { metrics in
                     HStack {
                         Text("\(Int(hours))")
@@ -73,6 +75,8 @@ struct StageEditView: View {
             hours = Double(stage.durationSecsInt / SEC_HOUR)
             mins = Double((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
             secs = Double(stage.durationSecsInt % SEC_MIN)
+            focusedFieldTag = .title
+
         }
     }
     
