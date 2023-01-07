@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ItineraryEditView: View {
     
-    @Binding var itineraryData: Itinerary.ItineraryData
+    @Binding var itineraryData: Itinerary.EditableData
     
     @State private var itineraryName: String = ""
     @State private var isPresentingStageEditView = false
@@ -39,7 +39,8 @@ struct ItineraryEditView: View {
                 List {
                     ForEach($itineraryData.stages) { $stage in
                         NavigationLink(destination: StageEditView(stage: $stage)) {
-                            StageActionView(stage: $stage, stageUuidEnabled: .constant(""), inEditingMode: true) // activeStageUuid ignored during edit
+                            // stageUuidEnabled set to "" to make all disabled, activeStageUuid ignored during edit
+                            StageActionView(stage: $stage, stageUuidEnabled: .constant(""), inEditingMode: true)
                         }
                     }
                     .onDelete(perform: { itineraryData.stages.remove(atOffsets: $0) })
@@ -61,7 +62,7 @@ struct ItineraryEditView: View {
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") {
+                            Button("Add") {
                                 itineraryData.stages.append(newStage)
                                 isPresentingStageEditView = false
                             }
@@ -75,6 +76,6 @@ struct ItineraryEditView: View {
 
 struct ItineraryEditView_Previews: PreviewProvider {
     static var previews: some View {
-        ItineraryEditView(itineraryData: .constant(Itinerary.templateItinerary().itineraryData))
+        ItineraryEditView(itineraryData: .constant(Itinerary.templateItinerary().itineraryEditableData))
     }
 }

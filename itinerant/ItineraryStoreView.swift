@@ -7,18 +7,17 @@
 
 import SwiftUI
 
-struct ItinerariesView: View {
+struct ItineraryStoreView: View {
     //  the order of params is relevant !!
     @Binding var itineraries: ItineraryArray
-    //let saveAction: ()->Void // this is passed in when we init from App as what to do  to save Store
-    @EnvironmentObject var itineraryStore: ItineraryStore
     
     @State private var isPresentingItineraryEditView = false
-    @State private var newItineraryData = Itinerary.ItineraryData()
-
-
-    @Environment(\.scenePhase) private var scenePhase
+    @State private var newItineraryData = Itinerary.EditableData()
     @State private var isPresentingNewItinView = false
+
+    @EnvironmentObject var itineraryStore: ItineraryStore
+    
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
         List {
@@ -27,14 +26,16 @@ struct ItinerariesView: View {
                     VStack(alignment: .leading) {
                         Text(itinerary.title)
                     }
-                    
                 }
             }
             .onDelete(perform: {itineraries.remove(atOffsets: $0)})
             .onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
         }
         .onChange(of: scenePhase) { phase in
-            if phase == .inactive { itineraryStore.saveStore() }
+            if phase == .inactive {
+                //itineraryStore.saveStore()
+
+            }
         }
         .navigationTitle("Itineraries")
         //.navigationBarItems(leading: EditButton())
@@ -50,33 +51,34 @@ struct ItinerariesView: View {
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
                 ItineraryEditView(itineraryData: $newItineraryData)
-                    //.navigationTitle(newItinerary.title)
+                //.navigationTitle(newItinerary.title)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
-                                newItineraryData = Itinerary.ItineraryData()
+                                newItineraryData = Itinerary.EditableData()
                                 isPresentingItineraryEditView = false
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                itineraries.append(Itinerary(itineraryData: newItineraryData))
-                                itineraryStore.saveStore()
+                                let newItinerary = Itinerary(editableData: newItineraryData)
+                                itineraries.append(newItinerary)
+                                newItinerary.savePersistentData()
                                 isPresentingItineraryEditView = false
                             }
                         }
                     }
             }
         }
-
+        
     }
 }
 
 
-struct ItinerariesView_Previews: PreviewProvider {
+struct ItineraryStoreView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ItinerariesView(itineraries: .constant(Itinerary.sampleItineraryArray())/*, saveAction: {}*/)
+            ItineraryStoreView(itineraries: .constant(Itinerary.sampleItineraryArray()))
         }
     }
 }

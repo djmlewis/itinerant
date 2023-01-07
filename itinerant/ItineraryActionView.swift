@@ -12,11 +12,10 @@ struct ItineraryActionView: View {
     
     @EnvironmentObject var itineraryStore: ItineraryStore
     
-    @State private var itineraryData = Itinerary.ItineraryData()
+    @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingEditView = false
     
-    @State private var stageActiveIndex = -1
-    @State private var stageActiveUuid = UUID().uuidString
+    @Environment(\.scenePhase) private var scenePhase
 
     
     var body: some View {
@@ -24,24 +23,39 @@ struct ItineraryActionView: View {
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                        StageActionView(stage: $stage, stageUuidEnabled: $stageActiveUuid, inEditingMode: false )
+                    StageActionView(stage: $stage, stageUuidEnabled: $itinerary.uuidActiveStage, inEditingMode: false )
                 }
             }
         }
         .onAppear() {
+            debugPrint("ItineraryActionView onAppear")
             if itinerary.stages.count > 0 {
-                stageActiveIndex = 0
-                stageActiveUuid = itinerary.stages[stageActiveIndex].id.uuidString
+                itinerary.uuidActiveStage = itinerary.stages[0].id.uuidString
             }
         }
-        .onChange(of: stageActiveIndex) { index in
-            stageActiveUuid = itinerary.stages[index].id.uuidString
+        .onDisappear() {
+            debugPrint("ItineraryActionView onDisappear")
+        }
+        .task {
+            debugPrint("ItineraryActionView task")
+        }
+        .onChange(of: scenePhase) { phase in
+            switch phase {
+            case .inactive:
+                debugPrint("ItineraryActionView inactive")
+            case .active:
+                debugPrint("ItineraryActionView active")
+            case .background:
+                debugPrint("ItineraryActionView background")
+            default:
+                debugPrint("ItineraryActionView default")
+            }
         }
         .navigationTitle(itinerary.title)
         .toolbar {
             Button("Modify") {
                 isPresentingEditView = true
-                itineraryData = itinerary.itineraryData
+                itineraryData = itinerary.itineraryEditableData
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
@@ -57,8 +71,7 @@ struct ItineraryActionView: View {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
                                 isPresentingEditView = false
-                                itinerary.updateItineraryData(from: itineraryData)
-                                itineraryStore.saveStore()
+                                itinerary.updateItineraryEditableData(from: itineraryData)
                             }
                         }
                     }

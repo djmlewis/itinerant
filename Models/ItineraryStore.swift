@@ -8,21 +8,58 @@
 import Foundation
 import SwiftUI
 
-let kItineraryStoreFileName = "itineraryStore_8" + ".data"
+let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"
+let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
+
+let kItineraryPerststentDataFileSuffix = "itinerary"
+let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
+let kItineraryPerststentDataFileDirectoryName = "Itinerant"
+let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName
+let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststentDataFileDirectoryName + "/"
+
+
+
 
 
 class ItineraryStore: ObservableObject {
     
     @Published var itineraries: ItineraryArray = []
 
-    func saveStore() -> Void {
-        Task {
-            do { try await ItineraryStore.initiateSaveAsync(itineraries: itineraries) }
-            catch { fatalError("Error saving itineraries") }
+    
+    func loadItineraries() {
+        let path = NSHomeDirectory() + "/Itinerant"
+        if !FileManager.default.fileExists(atPath: path) {
+            try! FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false)
+        }
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: path).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
+            for fileName in files {
+                if let fileData = FileManager.default.contents(atPath: path + "/" + fileName) {
+                    if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
+                        debugPrint("Decode SUCCESS for: \(fileName)")
+                        itineraries.append(Itinerary(persistentData: persistentData))
+                    } else {
+                        debugPrint("Decode failure for: \(fileName)")
+                    }
+                } else {
+                    debugPrint("No fileData for: \(fileName)")
+                }
+            }
         }
     }
     
     
+    
+    
+    
+    
+    /*
+     func saveStore() -> Void {
+         Task {
+             do { try await ItineraryStore.initiateSaveAsync(itineraries: itineraries) }
+             catch { fatalError("Error saving itineraries") }
+         }
+     }
+
     private static func itineraryStoreFileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory,
                                        in: .userDomainMask,
@@ -31,6 +68,8 @@ class ItineraryStore: ObservableObject {
             .appendingPathComponent(kItineraryStoreFileName)
     }
 
+    
+    
     static func initiateLoadAsync() async throws -> ItineraryArray {
         try await withCheckedThrowingContinuation { continuation in
             // note the call to self.completeLoadAsync sending `result` which wraps either an ItineraryArray or Error
@@ -73,7 +112,9 @@ class ItineraryStore: ObservableObject {
             }
         }
     }
+    */
     
+    /*
     @discardableResult
     static func initiateSaveAsync(itineraries: ItineraryArray) async throws -> Int {
         try await withCheckedThrowingContinuation { continuation in
@@ -105,7 +146,7 @@ class ItineraryStore: ObservableObject {
             }
         }
     }
-    
+    */
 }
 
 

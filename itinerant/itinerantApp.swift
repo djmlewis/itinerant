@@ -10,24 +10,22 @@ import SwiftUI
 @main
 struct ItinerantApp: App {
     
+    // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
     @StateObject private var itineraryStore = ItineraryStore()
 
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ItinerariesView(itineraries: $itineraryStore.itineraries) /*{
-                    // this is a trailing closure (outside the () params) to store in let = saveAction to save
-                    Task {
-                        do { try await ItineraryStore.initiateSaveAsync(itineraries: itineraryStore.itineraries) }
-                        catch { fatalError("Error saving itineraries") }
-                    }
-                }*/
+                // we also pass a copy of itineraries to allow the preview of ItineraryStoreView to work nicely
+                ItineraryStoreView(itineraries: $itineraryStore.itineraries)
             }
             .environmentObject(itineraryStore)
             .task {
+                itineraryStore.loadItineraries()
                 // Adds an asynchronous task to initiate before this navview appears
-                do { itineraryStore.itineraries = try await ItineraryStore.initiateLoadAsync() }
-                catch { fatalError("Error loading itineraries") }
+                //debugPrint("ItinerantApp task")
+                //do { itineraryStore.itineraries = try await ItineraryStore.initiateLoadAsync() }
+                //catch { fatalError("Error loading itineraries") }
             }
         }
     }    
