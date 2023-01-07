@@ -20,13 +20,6 @@ struct ItinerantApp: App {
                 ItineraryStoreView(itineraries: $itineraryStore.itineraries)
             }
             .environmentObject(itineraryStore)
-            .task {
-                itineraryStore.loadItineraries()
-                // Adds an asynchronous task to initiate before this navview appears
-                //debugPrint("ItinerantApp task")
-                //do { itineraryStore.itineraries = try await ItineraryStore.initiateLoadAsync() }
-                //catch { fatalError("Error loading itineraries") }
-            }
         }
     }    
 }

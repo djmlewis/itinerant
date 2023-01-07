@@ -17,6 +17,14 @@ struct Itinerary: Identifiable, Codable {
     var uuidRunningStage: String = ""
     
     // these are full inits including UUID which must be done here to be decoded
+    init(id: UUID, title: String, stages: StageArray, uuidActiveStage: String, uuidRunningStage: String) {
+        self.id = id
+        self.title = title
+        self.stages = stages
+        self.uuidActiveStage = uuidActiveStage
+        self.uuidRunningStage = uuidRunningStage
+
+    }
     init(title: String, stages: StageArray = Stage.sampleStageArray()) {
         self.id = UUID()
         // use self here to distinguish from parameters

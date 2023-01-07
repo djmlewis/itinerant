@@ -14,7 +14,8 @@ struct ItineraryStoreView: View {
     @State private var isPresentingItineraryEditView = false
     @State private var newItineraryData = Itinerary.EditableData()
     @State private var isPresentingNewItinView = false
-
+    @State private var isLoadingItineraries = true
+    
     @EnvironmentObject var itineraryStore: ItineraryStore
     
     @Environment(\.scenePhase) private var scenePhase
@@ -31,22 +32,32 @@ struct ItineraryStoreView: View {
             .onDelete(perform: {itineraries.remove(atOffsets: $0)})
             .onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
         }
+        .task {
+            isLoadingItineraries = true
+            itineraryStore.loadItineraries(isLoadingItineraries: &isLoadingItineraries)
+        }
         .onChange(of: scenePhase) { phase in
             if phase == .inactive {
                 //itineraryStore.saveStore()
-
+                
             }
         }
         .navigationTitle("Itineraries")
         //.navigationBarItems(leading: EditButton())
         .toolbar {
-            Button(action: {
-                isPresentingItineraryEditView = true
-            }) {
-                Image(systemName: "plus")
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ProgressView()
+                    .opacity(isLoadingItineraries ? 1.0 : 0.0)
             }
-            .accessibilityLabel("Add Itinerary")
-            EditButton()
+            ToolbarItemGroup() {
+                Button(action: {
+                    isPresentingItineraryEditView = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Add Itinerary")
+                EditButton()
+            }
         }
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
