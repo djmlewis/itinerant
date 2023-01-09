@@ -9,24 +9,27 @@ import SwiftUI
 
 struct ItineraryEditView: View {
     
-    @Binding var itineraryData: Itinerary.EditableData
-    
+    @Binding var itinerary: Itinerary
+    @Binding var itineraryEditableData: Itinerary.EditableData
     @State private var itineraryName: String = ""
     @State private var isPresentingStageEditView = false
-    @State private var newStage = Stage.templateStage()
+    @State private var newStage: Stage = Stage.emptyStage()
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
+    
+    /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
+    /* *** var itinerary is passed-in binding for the StageActionView */
     var body: some View {
         Form {
             Section(header: Text("Title")) {
-                TextField("Itinerary title", text: $itineraryData.title)
+                TextField("Itinerary title", text: $itineraryEditableData.title)
                     .focused($focusedFieldTag, equals: .title)
             }
             Section(header: HStack(){
                 Text("Stages")
                 Spacer()
                 Button(action: {
-                    newStage = Stage.templateStage()
+                    newStage = Stage.emptyStage()
                     isPresentingStageEditView = true
 
                 }) {
@@ -37,20 +40,19 @@ struct ItineraryEditView: View {
                     .textCase(nil)
             }) {
                 List {
-                    ForEach($itineraryData.stages) { $stage in
+                    ForEach($itineraryEditableData.stages) { $stage in
                         NavigationLink(destination: StageEditView(stage: $stage)) {
-                            // stageUuidEnabled set to "" to make all disabled, activeStageUuid ignored during edit
-                            StageActionView(stage: $stage, stageUuidEnabled: .constant(""), inEditingMode: true)
+                            StageActionView(stage: $stage,  itinerary: $itinerary, inEditingMode: true)
                         }
                     }
-                    .onDelete(perform: { itineraryData.stages.remove(atOffsets: $0) })
-                    .onMove { itineraryData.stages.move(fromOffsets: $0, toOffset: $1) }
-                    
+                    .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
+                    .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
                 }
             }
         }
         .onAppear() {
             focusedFieldTag = .title
+            newStage = Stage(title: "", durationSecsInt: 0)
         }
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationView {
@@ -63,7 +65,8 @@ struct ItineraryEditView: View {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Add") {
-                                itineraryData.stages.append(newStage)
+                                // amend the var itineraryEditableData only
+                                itineraryEditableData.stages.append(newStage)
                                 isPresentingStageEditView = false
                             }
                         }
@@ -76,6 +79,8 @@ struct ItineraryEditView: View {
 
 struct ItineraryEditView_Previews: PreviewProvider {
     static var previews: some View {
-        ItineraryEditView(itineraryData: .constant(Itinerary.templateItinerary().itineraryEditableData))
+        ItineraryEditView(itinerary: .constant(Itinerary.templateItinerary()), itineraryEditableData: .constant(Itinerary.templateItinerary().itineraryEditableData))
     }
 }
+
+

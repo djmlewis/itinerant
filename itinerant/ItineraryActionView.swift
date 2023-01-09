@@ -9,58 +9,54 @@ import SwiftUI
 
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
-    
-    @EnvironmentObject var itineraryStore: ItineraryStore
-    
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingEditView = false
     
     @Environment(\.scenePhase) private var scenePhase
-
+    @EnvironmentObject var itineraryStore: ItineraryStore
+    
     
     var body: some View {
         
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, stageUuidEnabled: $itinerary.uuidActiveStage, inEditingMode: false )
+                    StageActionView(stage: $stage, itinerary: $itinerary, inEditingMode: false )
                 }
             }
         }
         .onAppear() {
-            debugPrint("ItineraryActionView onAppear")
+            //debugPrint("ItineraryActionView onAppear \(itineraryStore.itineraries.count)")
             if itinerary.stages.count > 0 {
                 itinerary.uuidActiveStage = itinerary.stages[0].id.uuidString
             }
         }
-        .onDisappear() {
-            debugPrint("ItineraryActionView onDisappear")
-        }
-        .task {
-            debugPrint("ItineraryActionView task")
-        }
-        .onChange(of: scenePhase) { phase in
-            switch phase {
-            case .inactive:
-                debugPrint("ItineraryActionView inactive")
-            case .active:
-                debugPrint("ItineraryActionView active")
-            case .background:
-                debugPrint("ItineraryActionView background")
-            default:
-                debugPrint("ItineraryActionView default")
-            }
-        }
+//        .onDisappear() {
+//            debugPrint("ItineraryActionView onDisappear \(itineraryStore.itineraries.count)")
+//        }
+//        .onChange(of: scenePhase) { phase in
+//            switch phase {
+//            case .inactive:
+//                debugPrint("ItineraryActionView inactive")
+//            case .active:
+//                debugPrint("ItineraryActionView active")
+//            case .background:
+//                debugPrint("ItineraryActionView background")
+//            default:
+//                debugPrint("ItineraryActionView default")
+//            }
+//        }
         .navigationTitle(itinerary.title)
         .toolbar {
             Button("Modify") {
-                isPresentingEditView = true
                 itineraryData = itinerary.itineraryEditableData
+                isPresentingEditView = true
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
             NavigationView {
-                ItineraryEditView(itineraryData: $itineraryData)
+                // pass a BOUND COPY of itineraryData to amend and use to update if necessary
+                ItineraryEditView(itinerary: $itinerary, itineraryEditableData: $itineraryData)
                     .navigationTitle(itinerary.title)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
@@ -70,14 +66,14 @@ struct ItineraryActionView: View {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                isPresentingEditView = false
                                 itinerary.updateItineraryEditableData(from: itineraryData)
+                                isPresentingEditView = false
                             }
                         }
                     }
             }
         }
-
+        
     }
 }
 

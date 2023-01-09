@@ -71,7 +71,7 @@ struct StageEditView: View {
         .onChange(of: secs, perform: {hrs in
             updateDuration()
         })
-        .onAppear {
+        .onAppear() {
             hours = Double(stage.durationSecsInt / SEC_HOUR)
             mins = Double((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
             secs = Double(stage.durationSecsInt % SEC_MIN)

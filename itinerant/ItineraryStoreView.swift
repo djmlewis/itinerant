@@ -12,10 +12,10 @@ struct ItineraryStoreView: View {
     @Binding var itineraries: ItineraryArray
     
     @State private var isPresentingItineraryEditView = false
-    @State private var newItineraryData = Itinerary.EditableData()
-    @State private var isPresentingNewItinView = false
-    @State private var isLoadingItineraries = true
-    
+    @State private var newItinerary = Itinerary(title: "")
+    @State private var isPresentingNewItineraryView = false
+    @State private var newItineraryEditableData = Itinerary.EditableData()
+
     @EnvironmentObject var itineraryStore: ItineraryStore
     
     @Environment(\.scenePhase) private var scenePhase
@@ -29,50 +29,51 @@ struct ItineraryStoreView: View {
                     }
                 }
             }
-            .onDelete(perform: {itineraries.remove(atOffsets: $0)})
-            .onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
+            .onDelete(perform: {
+                itineraryStore.removeItinerariesAtOffsets(offsets: $0)
+            })
+            //.onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
         }
-        .task {
-            isLoadingItineraries = true
-            itineraryStore.loadItineraries(isLoadingItineraries: &isLoadingItineraries)
-        }
-        .onChange(of: scenePhase) { phase in
-            if phase == .inactive {
-                //itineraryStore.saveStore()
-                
-            }
-        }
+        //.onAppear() {debugPrint("Appear \(itineraries.count)")}
+        //.onDisappear() {debugPrint("DisAppear \(itineraries.count)")}
+//        .onChange(of: scenePhase) { phase in
+//            if phase == .inactive {
+//                //itineraryStore.saveStore()
+//
+//            }
+//        }
         .navigationTitle("Itineraries")
         //.navigationBarItems(leading: EditButton())
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 ProgressView()
-                    .opacity(isLoadingItineraries ? 1.0 : 0.0)
+                    .opacity(itineraryStore.isLoadingItineraries ? 1.0 : 0.0)
             }
             ToolbarItemGroup() {
                 Button(action: {
+                    newItinerary = Itinerary(title: "")
+                    newItineraryEditableData = Itinerary.EditableData()
                     isPresentingItineraryEditView = true
                 }) {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Itinerary")
-                EditButton()
+                //EditButton()
             }
         }
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
-                ItineraryEditView(itineraryData: $newItineraryData)
+                ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
                 //.navigationTitle(newItinerary.title)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
-                                newItineraryData = Itinerary.EditableData()
                                 isPresentingItineraryEditView = false
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                let newItinerary = Itinerary(editableData: newItineraryData)
+                                newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
                                 itineraries.append(newItinerary)
                                 newItinerary.savePersistentData()
                                 isPresentingItineraryEditView = false

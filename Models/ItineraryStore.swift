@@ -14,8 +14,8 @@ let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
 let kItineraryPerststentDataFileSuffix = "itinerary"
 let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
 let kItineraryPerststentDataFileDirectoryName = "Itinerant"
-let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName
-let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststentDataFileDirectoryName + "/"
+let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName + "/"
+let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststentDataFileDirectoryName
 
 
 
@@ -24,48 +24,69 @@ let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststent
 class ItineraryStore: ObservableObject {
     
     @Published var itineraries: ItineraryArray = []
-    
+    @Published var permissionToNotify: Bool = false
+    @Published var isLoadingItineraries = false
     
     
     func loadItineraries(isLoadingItineraries: inout Bool) {
-        let path = NSHomeDirectory() + "/Itinerant"
+        func noFilesToLoad() {
+            isLoadingItineraries = false
+            debugPrint("No files to load)")
+        }
+        
+        let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashName
         if !FileManager.default.fileExists(atPath: path) {
             try! FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false)
         }
         if let files = try? FileManager.default.contentsOfDirectory(atPath: path).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
-            for fileName in files {
-                let filePath = path + "/" + fileName
-                if let fileData = FileManager.default.contents(atPath: filePath) {
-                    if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
-                        let newItinerary = Itinerary(persistentData: persistentData)
-                        let newUUIDstr = newItinerary.id.uuidString
-                        if itineraries.filter({ $0.id.uuidString == newUUIDstr}).count > 0 {
-                            try! FileManager.default.removeItem(atPath: filePath)
-                            // make a new UUID()
-                            let cleanItinerary = Itinerary(id: UUID(), title: newItinerary.title, stages: newItinerary.stages, uuidActiveStage: newItinerary.uuidActiveStage, uuidRunningStage: newItinerary.uuidRunningStage)
-                            cleanItinerary.savePersistentData()
-                            itineraries.append(cleanItinerary)
-                            debugPrint("added with new UUID for: \(fileName)")
+            if files.count > 0 {
+                for fileName in files {
+                    let filePath = path + "/" + fileName
+                    if let fileData = FileManager.default.contents(atPath: filePath) {
+                        if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
+                            let newItinerary = Itinerary(persistentData: persistentData)
+                            let newUUIDstr = newItinerary.id.uuidString
+                            if itineraries.filter({ $0.id.uuidString == newUUIDstr}).count > 0 {
+                                try! FileManager.default.removeItem(atPath: filePath)
+                                // make a new UUID()
+                                let cleanItinerary = Itinerary(id: UUID(), title: newItinerary.title, stages: newItinerary.stages, uuidActiveStage: newItinerary.uuidActiveStage, uuidRunningStage: newItinerary.uuidRunningStage)
+                                cleanItinerary.savePersistentData()
+                                itineraries.append(cleanItinerary)
+                                debugPrint("added with new UUID for: \(fileName)")
+                            } else {
+                                debugPrint("added from file for: \(fileName)")
+                                itineraries.append(newItinerary)
+                            }
+                            if itineraries.count >= files.count {
+                                isLoadingItineraries = false
+                            }
                         } else {
-                            debugPrint("added from file for: \(fileName)")
-                            itineraries.append(newItinerary)
-                        }
-                        if itineraries.count >= files.count {
-                            isLoadingItineraries = false
+                            debugPrint("Decode failure for: \(fileName)")
                         }
                     } else {
-                        debugPrint("Decode failure for: \(fileName)")
+                        debugPrint("No fileData for: \(fileName)")
                     }
-                } else {
-                    debugPrint("No fileData for: \(fileName)")
                 }
-            }
-        }
+            } else {noFilesToLoad()}
+        } else {noFilesToLoad()}
     }
     
     
-    
-    
+    func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
+        let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
+        let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashNameSlash
+        for id in idsToDelete {
+            let filePath = path + id + kItineraryPerststentDataFileDotSuffix
+            do {
+                try FileManager.default.removeItem(atPath: filePath)
+            } catch {
+                debugPrint(error.localizedDescription)
+            }
+        }
+        itineraries.remove(atOffsets: offsets)
+        
+    }
+}
     
     
     /*
@@ -163,6 +184,6 @@ class ItineraryStore: ObservableObject {
      }
      }
      */
-}
+
 
 
