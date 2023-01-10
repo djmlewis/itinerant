@@ -13,7 +13,7 @@ struct ItineraryEditView: View {
     @Binding var itineraryEditableData: Itinerary.EditableData
     @State private var itineraryName: String = ""
     @State private var isPresentingStageEditView = false
-    @State private var newStage: Stage = Stage.emptyStage()
+    @State private var newStage: Stage = Stage()
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
     
@@ -29,7 +29,7 @@ struct ItineraryEditView: View {
                 Text("Stages")
                 Spacer()
                 Button(action: {
-                    newStage = Stage.emptyStage()
+                    newStage = Stage()
                     isPresentingStageEditView = true
 
                 }) {

@@ -90,5 +90,6 @@ struct ItineraryStoreView_Previews: PreviewProvider {
         NavigationView {
             ItineraryStoreView(itineraries: .constant(Itinerary.sampleItineraryArray()))
         }
+        .environmentObject(ItineraryStore())
     }
 }

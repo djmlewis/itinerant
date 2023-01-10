@@ -12,12 +12,11 @@ struct Itinerary: Identifiable, Codable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
     var stages: StageArray
-    
-    var uuidActiveStage: String = ""
-    var uuidRunningStage: String = ""
+    var uuidActiveStage: String
+    var uuidRunningStage: String
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID, title: String, stages: StageArray, uuidActiveStage: String, uuidRunningStage: String) {
+    init(id: UUID = UUID(), title: String, stages: StageArray = [], uuidActiveStage: String = "", uuidRunningStage: String = "") {
         self.id = id
         self.title = title
         self.stages = stages
@@ -25,23 +24,12 @@ struct Itinerary: Identifiable, Codable {
         self.uuidRunningStage = uuidRunningStage
 
     }
-    init(title: String, stages: StageArray = Stage.sampleStageArray()) {
-        self.id = UUID()
-        // use self here to distinguish from parameters
-        self.title = title
-        self.stages = stages
-    }
-    init(editableData: EditableData) {
-        id = UUID()
-        title = editableData.title
-        stages = editableData.stages
-    }
     init(persistentData: PersistentData) {
-        id = persistentData.id
-        title = persistentData.title
-        stages = persistentData.stages
-        uuidActiveStage = persistentData.uuidActiveStage
-        uuidRunningStage = persistentData.uuidRunningStage
+        self.id = persistentData.id
+        self.title = persistentData.title
+        self.stages = persistentData.stages
+        self.uuidActiveStage = persistentData.uuidActiveStage
+        self.uuidRunningStage = persistentData.uuidRunningStage
     }
 
     mutating func updateUuidActiveStage(newUuid: String) {
@@ -82,7 +70,7 @@ struct Itinerary: Identifiable, Codable {
 extension Itinerary {
     struct EditableData {
         var title: String = ""
-        var stages: StageArray = Stage.emptyStageArray()
+        var stages: StageArray = []
     }
     
     var itineraryEditableData: EditableData {
@@ -92,7 +80,6 @@ extension Itinerary {
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
         title = itineraryEditableData.title
         stages = itineraryEditableData.stages
-        
         self.savePersistentData()
     }
     
@@ -109,8 +96,6 @@ extension Itinerary {
         let id: UUID
         let uuidActiveStage: String
         let uuidRunningStage: String
-        
-        
     }
     
     
@@ -121,7 +106,7 @@ extension Itinerary {
 typealias ItineraryArray = [Itinerary]
 
 extension Itinerary {
-    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary") }
+    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray()) }
     static func sampleItineraryArray() -> ItineraryArray { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
     static func emptyItineraryArray() -> ItineraryArray { [] }
     

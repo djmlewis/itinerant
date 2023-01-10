@@ -9,13 +9,17 @@ import SwiftUI
 
 struct StageActionView: View {
     
+    
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
-
     var inEditingMode: Bool
     
-    @State private var stageIsRunning = false
+    var timer: Timer?
     
+    
+    @State private var stageIsRunning: Bool = false
+
+
     var body: some View {
         HStack(alignment: .center) {
             if !inEditingMode {
@@ -41,11 +45,12 @@ struct StageActionView: View {
             }
         }
     }
+    
 }
 
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage.templateStage()), itinerary: .constant(Itinerary.templateItinerary()), inEditingMode: false)
+        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), inEditingMode: false)
     }
 }
 
@@ -74,6 +79,7 @@ extension StageActionView {
         }
 
     }
+    
     
     
 }
