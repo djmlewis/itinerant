@@ -11,7 +11,7 @@ struct StageActionView: View {
     
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
-    //@Binding var stageUuidEnabled: String
+
     var inEditingMode: Bool
     
     @State private var stageIsRunning = false

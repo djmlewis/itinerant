@@ -43,7 +43,8 @@ struct ItineraryEditView: View {
                     ForEach($itineraryEditableData.stages) { $stage in
                         NavigationLink(destination: StageEditView(stage: $stage)) {
                             StageActionView(stage: $stage,  itinerary: $itinerary, inEditingMode: true)
-                        }
+                            //StageEditView(stage: $stage)
+                       }
                     }
                     .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
                     .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }

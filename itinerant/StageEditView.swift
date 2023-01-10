@@ -10,11 +10,11 @@ import SwiftUI
 struct StageEditView: View {
     
     @Binding var stage: Stage
-    @State private var hours: Double = 0
-    @State private var mins: Double = 0
-    @State private var secs: Double = 0
+    @State private var hours: Int = 3
+    @State private var mins: Int = 5
+    @State private var secs: Int = 6
     @FocusState private var focusedFieldTag: FieldFocusTag?
-
+    
     
     var body: some View {
         Form {
@@ -23,44 +23,93 @@ struct StageEditView: View {
                     .focused($focusedFieldTag, equals: .title)
             }
             Section(header: Text("Duration")) {
-                GeometryReader { metrics in
+                
+                VStack(spacing: 2) {
                     HStack {
-                        Text("\(Int(hours))")
-                            .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                        Slider(value: $hours, in: 0...23, step: 1) {
+                        Group {
                             Text("Hours")
-                        }
-                        Text("Hours")
-                            .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                            .allowsTightening(true)
-                    }
-                }
-                GeometryReader { metrics in
-                    HStack {
-                        Text("\(Int(mins))")
-                            .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                        Slider(value: $mins, in: 0...59, step: 1) {
+                                .fontWeight(.heavy)
                             Text("Minutes")
-                        }
-                        Text("Mins")
-                            .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                            .allowsTightening(true)
-                    }
-                }
-                GeometryReader { metrics in
-                    HStack {
-                        Text("\(Int(secs))")
-                            .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                        Slider(value: $secs, in: 0...59, step: 1) {
+                                .fontWeight(.heavy)
                             Text("Seconds")
+                                .fontWeight(.heavy)
                         }
-                        Text("Secs")
-                            .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                            .allowsTightening(true)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     }
+                    HStack {
+                        Picker("", selection: $hours) {
+                            ForEach(0..<24) {
+                                Text("\($0)")
+                                    .foregroundColor(.black)
+                                    .fontWeight(.heavy)
+                            }
+                        }
+                        .background(Color(red: 0.4627, green: 0.8392, blue: 1.0))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        Picker("", selection: $mins) {
+                            ForEach(0..<59) {
+                                Text("\($0)")
+                                    .foregroundColor(.black)
+                                    .fontWeight(.heavy)
+                            }
+                        }
+                        .background(Color(red: 0.8392, green: 1.0, blue:0.4627))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        Picker("", selection: $secs) {
+                            ForEach(0..<59) {
+                                Text("\($0)")
+                                    .foregroundColor(.black)
+                                    .fontWeight(.heavy)
+                            }
+                        }
+                        .background(Color(red: 1, green: 1.0, blue:0.4627))
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(maxHeight: 90)
                 }
+                
+                /*
+                 GeometryReader { metrics in
+                 HStack {
+                 Text("\(Int(hours))")
+                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
+                 Slider(value: $hours, in: 0...23, step: 1) {
+                 Text("Hours")
+                 }
+                 Text("Hours")
+                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
+                 .allowsTightening(true)
+                 }
+                 }
+                 GeometryReader { metrics in
+                 HStack {
+                 Text("\(Int(mins))")
+                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
+                 Slider(value: $mins, in: 0...59, step: 1) {
+                 Text("Minutes")
+                 }
+                 Text("Mins")
+                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
+                 .allowsTightening(true)
+                 }
+                 }
+                 GeometryReader { metrics in
+                 HStack {
+                 Text("\(Int(secs))")
+                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
+                 Slider(value: $secs, in: 0...59, step: 1) {
+                 Text("Seconds")
+                 }
+                 Text("Secs")
+                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
+                 .allowsTightening(true)
+                 }
+                 }
+                 */
             }
-
+            
         }
         .onChange(of: hours, perform: {hrs in
             updateDuration()
@@ -72,11 +121,11 @@ struct StageEditView: View {
             updateDuration()
         })
         .onAppear() {
-            hours = Double(stage.durationSecsInt / SEC_HOUR)
-            mins = Double((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
-            secs = Double(stage.durationSecsInt % SEC_MIN)
+            hours = (stage.durationSecsInt / SEC_HOUR)
+            mins = ((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
+            secs = (stage.durationSecsInt % SEC_MIN)
             focusedFieldTag = .title
-
+            
         }
     }
     

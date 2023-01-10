@@ -43,7 +43,6 @@ struct ItineraryStoreView: View {
 //            }
 //        }
         .navigationTitle("Itineraries")
-        //.navigationBarItems(leading: EditButton())
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 ProgressView()
@@ -58,7 +57,6 @@ struct ItineraryStoreView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Itinerary")
-                //EditButton()
             }
         }
         .sheet(isPresented: $isPresentingItineraryEditView) {
