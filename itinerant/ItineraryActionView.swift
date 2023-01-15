@@ -7,28 +7,31 @@
 
 import SwiftUI
 
+let kSceneStoreUuidStrStageActive = "uuidStrStageActive"
+let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
+
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
     @State private var itineraryData = Itinerary.EditableData()
-    @State private var isPresentingEditView = false
+    @State private var isPresentingItineraryEditView = false
     
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
     
-    
+    @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStageActive: String = ""
+    @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStageRunning: String = ""
+
     var body: some View {
-        
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, inEditingMode: false )
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStageActive: $uuidStrStageActive, uuidStrStageRunning: $uuidStrStageRunning)
                 }
             }
         }
         .onAppear() {
-            //debugPrint("ItineraryActionView onAppear \(itineraryStore.itineraries.count)")
             if itinerary.stages.count > 0 {
-                itinerary.uuidActiveStage = itinerary.stages[0].id.uuidString
+                uuidStrStageActive = itinerary.stages[0].id.uuidString
             }
         }
 //        .onDisappear() {
@@ -50,10 +53,10 @@ struct ItineraryActionView: View {
         .toolbar {
             Button("Modify") {
                 itineraryData = itinerary.itineraryEditableData
-                isPresentingEditView = true
+                isPresentingItineraryEditView = true
             }
         }
-        .sheet(isPresented: $isPresentingEditView) {
+        .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
                 ItineraryEditView(itinerary: $itinerary, itineraryEditableData: $itineraryData)
@@ -61,13 +64,13 @@ struct ItineraryActionView: View {
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
-                                isPresentingEditView = false
+                                isPresentingItineraryEditView = false
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
                                 itinerary.updateItineraryEditableData(from: itineraryData)
-                                isPresentingEditView = false
+                                isPresentingItineraryEditView = false
                             }
                         }
                     }

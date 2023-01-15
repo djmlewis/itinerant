@@ -41,10 +41,7 @@ struct ItineraryEditView: View {
             }) {
                 List {
                     ForEach($itineraryEditableData.stages) { $stage in
-                        NavigationLink(destination: StageEditView(stage: $stage)) {
-                            StageActionView(stage: $stage,  itinerary: $itinerary, inEditingMode: true)
-                            //StageEditView(stage: $stage)
-                       }
+                            StageDisplayView(stage: $stage)
                     }
                     .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
                     .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
@@ -54,6 +51,9 @@ struct ItineraryEditView: View {
         .onAppear() {
             focusedFieldTag = .title
             newStage = Stage(title: "", durationSecsInt: 0)
+        }
+        .onDisappear() {
+            focusedFieldTag = .noneFocused
         }
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationView {

@@ -69,47 +69,7 @@ struct StageEditView: View {
                     .pickerStyle(.wheel)
                     .frame(maxHeight: 90)
                 }
-                
-                /*
-                 GeometryReader { metrics in
-                 HStack {
-                 Text("\(Int(hours))")
-                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                 Slider(value: $hours, in: 0...23, step: 1) {
-                 Text("Hours")
-                 }
-                 Text("Hours")
-                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                 .allowsTightening(true)
-                 }
-                 }
-                 GeometryReader { metrics in
-                 HStack {
-                 Text("\(Int(mins))")
-                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                 Slider(value: $mins, in: 0...59, step: 1) {
-                 Text("Minutes")
-                 }
-                 Text("Mins")
-                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                 .allowsTightening(true)
-                 }
-                 }
-                 GeometryReader { metrics in
-                 HStack {
-                 Text("\(Int(secs))")
-                 .frame(width: metrics.size.width * 0.08, alignment: .trailing)
-                 Slider(value: $secs, in: 0...59, step: 1) {
-                 Text("Seconds")
-                 }
-                 Text("Secs")
-                 .frame(width: metrics.size.width * 0.15, alignment: .leading)
-                 .allowsTightening(true)
-                 }
-                 }
-                 */
             }
-            
         }
         .onChange(of: hours, perform: {hrs in
             updateDuration()
@@ -125,7 +85,9 @@ struct StageEditView: View {
             mins = ((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
             secs = (stage.durationSecsInt % SEC_MIN)
             focusedFieldTag = .title
-            
+        }
+        .onDisappear() {
+            focusedFieldTag = .noneFocused
         }
     }
     

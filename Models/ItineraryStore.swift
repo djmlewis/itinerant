@@ -49,7 +49,10 @@ class ItineraryStore: ObservableObject {
                             if itineraries.filter({ $0.id.uuidString == newUUIDstr}).count > 0 {
                                 try! FileManager.default.removeItem(atPath: filePath)
                                 // make a new UUID()
-                                let cleanItinerary = Itinerary(title: newItinerary.title, stages: newItinerary.stages, uuidActiveStage: newItinerary.uuidActiveStage, uuidRunningStage: newItinerary.uuidRunningStage)
+                                let cleanItinerary = Itinerary(title: newItinerary.title, stages: newItinerary.stages
+                                                               //,uuidActiveStage: newItinerary.uuidActiveStage,
+                                                               //uuidRunningStage: newItinerary.uuidRunningStage
+                                )
                                 cleanItinerary.savePersistentData()
                                 itineraries.append(cleanItinerary)
                                 debugPrint("added with new UUID for: \(fileName)")

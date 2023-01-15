@@ -12,26 +12,27 @@ struct Itinerary: Identifiable, Codable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
     var stages: StageArray
-    var uuidActiveStage: String
-    var uuidRunningStage: String
+//    var uuidActiveStage: String
+//    var uuidRunningStage: String
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = [], uuidActiveStage: String = "", uuidRunningStage: String = "") {
+    init(id: UUID = UUID(), title: String, stages: StageArray = []/*, uuidActiveStage: String = "", uuidRunningStage: String = ""*/) {
         self.id = id
         self.title = title
         self.stages = stages
-        self.uuidActiveStage = uuidActiveStage
-        self.uuidRunningStage = uuidRunningStage
+        //self.uuidActiveStage = uuidActiveStage
+        //self.uuidRunningStage = uuidRunningStage
 
     }
     init(persistentData: PersistentData) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
-        self.uuidActiveStage = persistentData.uuidActiveStage
-        self.uuidRunningStage = persistentData.uuidRunningStage
+        //self.uuidActiveStage = persistentData.uuidActiveStage
+        //self.uuidRunningStage = persistentData.uuidRunningStage
     }
 
+    /*
     mutating func updateUuidActiveStage(newUuid: String) {
         uuidActiveStage = newUuid
         self.savePersistentData()
@@ -40,16 +41,17 @@ struct Itinerary: Identifiable, Codable {
         uuidRunningStage = newUuid
         self.savePersistentData()
     }
-    
+    */
     
     
     func savePersistentData() {
         
         let persistendData = Itinerary.PersistentData(title: title,
                                                       stages: stages,
-                                                      id: id,
-                                                      uuidActiveStage: uuidActiveStage,
-                                                      uuidRunningStage: uuidRunningStage)
+                                                      id: id//,
+                                                      //uuidActiveStage: uuidActiveStage,
+                                                      //uuidRunningStage: uuidRunningStage
+        )
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
@@ -94,8 +96,8 @@ extension Itinerary {
         let stages: StageArray
         // persistent
         let id: UUID
-        let uuidActiveStage: String
-        let uuidRunningStage: String
+        //let uuidActiveStage: String
+        //let uuidRunningStage: String
     }
     
     
