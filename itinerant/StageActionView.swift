@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import Combine
+
+let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
 
 struct StageActionView: View {
     
@@ -13,12 +16,15 @@ struct StageActionView: View {
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStageActive: String
     @Binding var uuidStrStageRunning: String
-
-    private var updateUITimer: UpdateUITimer!
+    @State private var timeElapsedAtUpdate: Double = 0.0
+    @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
+    @State private var localtimer = Timer.publish(every: 0.33, on: .main, in: .common)
+    @State private var localTimerCancellor: AnyCancellable?
+    
     private var stageIsRunning: Bool { uuidStrStageRunning == stage.id.uuidString }
+    private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
     
-    
-// MARK: - body
+    // MARK: - body
     var body: some View {
         HStack(alignment: .center) {
             Button(action: {
@@ -39,7 +45,28 @@ struct StageActionView: View {
                     .fontWeight(.bold)
                 Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
             }
+            Spacer()
+            Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
+                .padding(4.0)
+                .foregroundColor(stageRunningOvertime ? Color.black : Color.white)
+                .background(stageRunningOvertime ? Color.clear : Color.red)
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                .onReceive(localtimer) {
+                    if(stageIsRunning) {
+                        timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+                    }
+                }
+            
         }
+        .onAppear() {
+            if(stageIsRunning) {
+                localTimerCancellor = localtimer.connect() as? AnyCancellable
+            }
+        }
+        .onDisappear() {
+            localTimerCancellor?.cancel()
+        }
+
     }
     
     internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActive: Binding<String>, uuidStrStageRunning: Binding<String>) {
@@ -47,9 +74,9 @@ struct StageActionView: View {
         self._itinerary = itinerary
         self._uuidStrStageActive = uuidStrStageActive
         self._uuidStrStageRunning = uuidStrStageRunning
+        
     }
     
-
 }
 
 
@@ -63,11 +90,15 @@ extension StageActionView {
     
     func handleHaltRunning() {
         uuidStrStageRunning = ""
+        localTimerCancellor?.cancel()
     }
     
     func handleStartRunning() {
+        timeStartedRunning = Date().timeIntervalSinceReferenceDate
+        timeElapsedAtUpdate = 0.0
         uuidStrStageRunning = stage.id.uuidString
         postNotification()
+        localTimerCancellor = localtimer.connect() as? AnyCancellable
     }
     
 }
@@ -100,48 +131,7 @@ extension StageActionView {
 
 
 // MARK: - Timer
-extension StageActionView {
-    class UpdateUITimer{
-        var structRef: StageActionView!
-        var timer: Timer!
-        
-        init(_ structRef: StageActionView){
-            self.structRef = structRef;
-            self.timer = Timer.scheduledTimer(
-                timeInterval: Double(structRef.stage.durationSecsInt),
-                target: self,
-                selector: #selector(timerTicked),
-                userInfo: nil,
-                repeats: true)
-        }
-        
-        func stopTimer(){
-            self.timer?.invalidate()
-            self.structRef = nil
-        }
-        
-        @objc private func timerTicked(){
-            self.structRef.updateUITimerTicked()
-        }
-    }
-    
-    mutating func startUpdateUITimer(){
-        self.updateUITimer = UpdateUITimer(self)
-    }
-    
-    func stopUpdateUITimer() {
-        self.updateUITimer.stopTimer()
-    }
-    func updateUITimerTicked(){
-        DispatchQueue.main.async {
-            updateUIAfterTimer()
-        }
-    }
-    
-    func updateUIAfterTimer() {
-        
-    }
-}
+
 
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {

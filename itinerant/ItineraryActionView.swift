@@ -10,17 +10,22 @@ import SwiftUI
 let kSceneStoreUuidStrStageActive = "uuidStrStageActive"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
 
+
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView = false
-    
+
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
     
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStageActive: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStageRunning: String = ""
 
+    var stageRunning: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } }
+    var stageActive: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageActive } }
+
+    
     var body: some View {
         VStack(alignment: .leading) {
             List {
