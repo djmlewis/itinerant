@@ -28,46 +28,40 @@ struct StageEditView: View {
                     HStack {
                         Group {
                             Text("Hours")
-                                .fontWeight(.heavy)
+                                //.fontWeight(.heavy)
                             Text("Minutes")
-                                .fontWeight(.heavy)
+                                //.fontWeight(.heavy)
                             Text("Seconds")
-                                .fontWeight(.heavy)
+                                //.fontWeight(.heavy)
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     }
                     HStack {
-                        Picker("", selection: $hours) {
-                            ForEach(0..<24) {
-                                Text("\($0)")
-                                    .foregroundColor(.black)
-                                    .fontWeight(.heavy)
+                        Group {
+                            Picker("", selection: $hours) {
+                                ForEach(0..<24) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
+                            }
+                            Picker("", selection: $mins) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
+                            }
+                            Picker("", selection: $secs) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
                             }
                         }
-                        .background(Color(red: 0.4627, green: 0.8392, blue: 1.0))
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        Picker("", selection: $mins) {
-                            ForEach(0..<59) {
-                                Text("\($0)")
-                                    .foregroundColor(.black)
-                                    .fontWeight(.heavy)
-                            }
-                        }
-                        .background(Color(red: 0.8392, green: 1.0, blue:0.4627))
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        Picker("", selection: $secs) {
-                            ForEach(0..<59) {
-                                Text("\($0)")
-                                    .foregroundColor(.black)
-                                    .fontWeight(.heavy)
-                            }
-                        }
-                        .background(Color(red: 1, green: 1.0, blue:0.4627))
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     }
-                    .pickerStyle(.wheel)
-                    .frame(maxHeight: 90)
                 }
             }
         }
@@ -81,9 +75,10 @@ struct StageEditView: View {
             updateDuration()
         })
         .onAppear() {
-            hours = (stage.durationSecsInt / SEC_HOUR)
+            debugPrint(stage.durationSecsInt / SEC_HOUR,(stage.durationSecsInt % SEC_HOUR) / SEC_MIN,stage.durationSecsInt % SEC_MIN)
+            hours = stage.durationSecsInt / SEC_HOUR
             mins = ((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
-            secs = (stage.durationSecsInt % SEC_MIN)
+            secs = stage.durationSecsInt % SEC_MIN
             focusedFieldTag = .title
         }
         .onDisappear() {

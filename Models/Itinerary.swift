@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct Itinerary: Identifiable, Codable {
+struct Itinerary: Identifiable, Codable, Hashable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
     var stages: StageArray

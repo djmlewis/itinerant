@@ -7,12 +7,19 @@
 
 import SwiftUI
 
+class AppGlobals: ObservableObject {
+    @Published var selectedID: String?
+}
+
+
+
 @main
 struct ItinerantApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
     @StateObject private var itineraryStore = ItineraryStore()
+    private var appGlobals = AppGlobals()
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +28,7 @@ struct ItinerantApp: App {
                 ItineraryStoreView(itineraries: $itineraryStore.itineraries)
             }
             .environmentObject(itineraryStore)
+            .environmentObject(appGlobals)
             .onAppear() {
                 requestNotificationPermissions()
             }
@@ -56,7 +64,10 @@ extension ItinerantApp {
 
 
 // AppDelegate.swift
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
+    
+    @Published var itineraryID: String?
+    
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
@@ -69,5 +80,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         debugPrint("Notification received with identifier \(notification.request.identifier)")
         // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        debugPrint(userInfo[kItineraryUUIDStr]!)
+        
+        // Always call the completion handler when done.
+        completionHandler()
+
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 typealias StageArray = [Stage]
 
 
-struct Stage: Identifiable, Codable {
+struct Stage: Identifiable, Codable, Hashable {
     let id: UUID
     var title: String
     var durationSecsInt: Int
