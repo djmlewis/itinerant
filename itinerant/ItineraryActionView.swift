@@ -10,6 +10,7 @@ import SwiftUI
 let kSceneStoreUuidStrStageActive = "uuidStrStageActive"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
 
+let kItineraryUUIDStr = "kItineraryUUIDStr"
 
 struct ItineraryActionView: View {
     @Binding var itinerary: Itinerary
@@ -25,7 +26,6 @@ struct ItineraryActionView: View {
     var stageRunning: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } }
     var stageActive: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageActive } }
 
-    
     var body: some View {
         VStack(alignment: .leading) {
             List {

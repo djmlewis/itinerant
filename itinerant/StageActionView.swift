@@ -9,6 +9,17 @@ import SwiftUI
 import Combine
 
 let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
+let kUIUpdateTimerFrequency = 0.2
+
+class CancellingTimer {
+    var cancellor: AnyCancellable?
+    
+    func cancelTimer() {
+        cancellor?.cancel()
+    }
+}
+
+
 
 struct StageActionView: View {
     
@@ -18,8 +29,8 @@ struct StageActionView: View {
     @Binding var uuidStrStageRunning: String
     @State private var timeElapsedAtUpdate: Double = 0.0
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
-    @State private var localtimer = Timer.publish(every: 0.33, on: .main, in: .common)
-    @State private var localTimerCancellor: AnyCancellable?
+    @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+    @State private var uiUpdateTimerCancellor: Cancellable?
     
     private var stageIsRunning: Bool { uuidStrStageRunning == stage.id.uuidString }
     private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
@@ -41,9 +52,9 @@ struct StageActionView: View {
             VStack(alignment: .leading) {
                 Text(stage.title)
                     .font(.title3)
-                    .foregroundColor(.accentColor)
                     .fontWeight(.bold)
                 Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                    .foregroundColor(Color("ColourDarkGrey"))
             }
             Spacer()
             Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
@@ -51,7 +62,9 @@ struct StageActionView: View {
                 .foregroundColor(stageRunningOvertime ? Color.black : Color.white)
                 .background(stageRunningOvertime ? Color.clear : Color.red)
                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                .onReceive(localtimer) {
+                .opacity(stageIsRunning ? 1.0 : 0.0)
+                .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
+                    //debugPrint($0)
                     if(stageIsRunning) {
                         timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
                     }
@@ -60,13 +73,15 @@ struct StageActionView: View {
         }
         .onAppear() {
             if(stageIsRunning) {
-                localTimerCancellor = localtimer.connect() as? AnyCancellable
+                // need to reset the timer to reattach the cancellor
+                uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+                uiUpdateTimerCancellor = uiUpdateTimer.connect()
             }
         }
         .onDisappear() {
-            localTimerCancellor?.cancel()
+            uiUpdateTimerCancellor?.cancel()
         }
-
+        
     }
     
     internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActive: Binding<String>, uuidStrStageRunning: Binding<String>) {
@@ -89,16 +104,19 @@ extension StageActionView {
     }
     
     func handleHaltRunning() {
+        removeNotification()
         uuidStrStageRunning = ""
-        localTimerCancellor?.cancel()
+        uiUpdateTimerCancellor?.cancel()
     }
     
     func handleStartRunning() {
         timeStartedRunning = Date().timeIntervalSinceReferenceDate
-        timeElapsedAtUpdate = 0.0
+        timeElapsedAtUpdate = Double(stage.durationSecsInt)
         uuidStrStageRunning = stage.id.uuidString
         postNotification()
-        localTimerCancellor = localtimer.connect() as? AnyCancellable
+        // need to reset the timer to reattach the cancellor
+        uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+        uiUpdateTimerCancellor = uiUpdateTimer.connect()
     }
     
 }
@@ -117,15 +135,20 @@ extension StageActionView {
             let content = UNMutableNotificationContent()
             content.title = itinerary.title
             content.body = "\(stage.title) has completed"
-            content.userInfo = ["stageuuid":stage.id.uuidString]
+            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString]
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
-            let request = UNNotificationRequest(identifier: itinerary.id.uuidString, content: content, trigger: trigger)
+            let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
             let notificationCenter = UNUserNotificationCenter.current()
             notificationCenter.add(request) { (error) in
                 if error != nil {  debugPrint(error!.localizedDescription) }
             }
         }
         
+    }
+    
+    func removeNotification() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [stage.id.uuidString])
     }
 }
 
