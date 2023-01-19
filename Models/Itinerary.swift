@@ -12,37 +12,26 @@ struct Itinerary: Identifiable, Codable, Hashable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
     var stages: StageArray
-//    var uuidActiveStage: String
-//    var uuidRunningStage: String
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = []/*, uuidActiveStage: String = "", uuidRunningStage: String = ""*/) {
+    init(id: UUID = UUID(), title: String, stages: StageArray = []) {
         self.id = id
         self.title = title
         self.stages = stages
-        //self.uuidActiveStage = uuidActiveStage
-        //self.uuidRunningStage = uuidRunningStage
 
     }
     init(persistentData: PersistentData) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
-        //self.uuidActiveStage = persistentData.uuidActiveStage
-        //self.uuidRunningStage = persistentData.uuidRunningStage
     }
 
-    /*
-    mutating func updateUuidActiveStage(newUuid: String) {
-        uuidActiveStage = newUuid
-        self.savePersistentData()
+    init(id: UUID) {
+        self.id = id
+        self.title = ""
+        self.stages = []
     }
-    mutating func updateUuidRunningStage(newUuid: String) {
-        uuidRunningStage = newUuid
-        self.savePersistentData()
-    }
-    */
-    
+
     
     func savePersistentData() {
         
@@ -55,7 +44,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                try data.write(to: URL(fileURLWithPath: NSHomeDirectory() + "/Itinerant/" + id.uuidString + ".itinerary"))
+                try data.write(to: URL(fileURLWithPath: /*NSHomeDirectory()*/ FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path() + "/Itinerant/" + id.uuidString + ".itinerary"))
             } catch  {
                 debugPrint("Save write failure for: \(title)")
             }
@@ -105,12 +94,12 @@ extension Itinerary {
 }
 
 
-typealias ItineraryArray = [Itinerary]
+//typealias ItineraryArray = [Itinerary]
 
 extension Itinerary {
     static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray()) }
-    static func sampleItineraryArray() -> ItineraryArray { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
-    static func emptyItineraryArray() -> ItineraryArray { [] }
+    static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
+    static func emptyItineraryArray() -> [Itinerary] { [] }
     
     
 }

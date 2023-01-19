@@ -23,7 +23,7 @@ let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststent
 
 class ItineraryStore: ObservableObject {
     
-    @Published var itineraries: ItineraryArray = []
+    @Published var itineraries: [Itinerary] = []
     @Published var permissionToNotify: Bool = false
     @Published var isLoadingItineraries = false
     
@@ -33,8 +33,9 @@ class ItineraryStore: ObservableObject {
             isLoadingItineraries = false
             debugPrint("No files to load)")
         }
-        
-        let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashName
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path()  + kItineraryPerststentDataFileDirectoryName
+        debugPrint(path)
+        //let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashName
         if !FileManager.default.fileExists(atPath: path) {
             try! FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false)
         }
@@ -77,7 +78,8 @@ class ItineraryStore: ObservableObject {
     
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
-        let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashNameSlash
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path()  + kItineraryPerststentDataFileDirectoryName
+        //let path = NSHomeDirectory() + kItineraryPerststentDataFileDirectorySlashNameSlash
         for id in idsToDelete {
             let filePath = path + id + kItineraryPerststentDataFileDotSuffix
             do {
@@ -110,9 +112,9 @@ class ItineraryStore: ObservableObject {
      
      
      
-     static func initiateLoadAsync() async throws -> ItineraryArray {
+     static func initiateLoadAsync() async throws -> [Itinerary] {
      try await withCheckedThrowingContinuation { continuation in
-     // note the call to self.completeLoadAsync sending `result` which wraps either an ItineraryArray or Error
+     // note the call to self.completeLoadAsync sending `result` which wraps either an [Itinerary] or Error
      completeLoadAsync { result in
      switch result {
      case .failure(let error):
@@ -126,7 +128,7 @@ class ItineraryStore: ObservableObject {
      }
      }
      
-     static func completeLoadAsync(completion: @escaping (Result<ItineraryArray, Error>)->Void) {
+     static func completeLoadAsync(completion: @escaping (Result<[Itinerary], Error>)->Void) {
      debugPrint("completeLoadAsync...")
      DispatchQueue.global(qos: .background).async {
      do {
@@ -135,7 +137,7 @@ class ItineraryStore: ObservableObject {
      // first time around there is no file, so return an empty one
      DispatchQueue.main.async {
      debugPrint("completeLoadAsync guard")
-     completion(.success(Itinerary.emptyItineraryArray()))
+     completion(.success(Itinerary.empty[Itinerary]()))
      }
      return
      }
