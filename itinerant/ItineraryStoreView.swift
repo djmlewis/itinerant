@@ -33,9 +33,9 @@ struct ItineraryStoreView: View {
                         Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                     }
                 }
-//                .onDelete(perform: {
-//                    itineraryStore.removeItinerariesAtOffsets(offsets: $0)
-//                })
+                .onDelete(perform: {
+                    itineraryStore.removeItinerariesAtOffsets(offsets: $0)
+                })
                 //.onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
             }
             .navigationDestination(for: String.self) { id in

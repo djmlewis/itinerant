@@ -92,9 +92,8 @@ class ItineraryStore: ObservableObject {
     
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
-        let path = ItineraryStore.appFilesFolderPathNoSlash()
         for id in idsToDelete {
-            let filePath = path + id + kItineraryPerststentDataFileDotSuffix
+            let filePath = ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id)
             do {
                 try FileManager.default.removeItem(atPath: filePath)
             } catch {
