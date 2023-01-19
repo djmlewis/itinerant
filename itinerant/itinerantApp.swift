@@ -34,10 +34,6 @@ struct ItinerantApp: App {
         }
     }
 }
-
-
-
-
 extension ItinerantApp {
     
     func requestNotificationPermissions() {
