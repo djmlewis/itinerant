@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720C092D29741F74000AFFCC /* StageDisplayView.swift */; };
+		72382CB22979D3F900DE76E3 /* itinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72382CB12979D3F900DE76E3 /* itinerantApp.swift */; };
 		725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725666772965AFC200B678CB /* ItineraryEditView.swift */; };
 		7256AF952965D53300FBE53E /* StageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF942965D53300FBE53E /* StageEditView.swift */; };
 		7258974729643C7D00EA782E /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974629643C7D00EA782E /* Stage.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		720C092D29741F74000AFFCC /* StageDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDisplayView.swift; sourceTree = "<group>"; };
+		72382CB12979D3F900DE76E3 /* itinerantApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
 		7256AF942965D53300FBE53E /* StageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageEditView.swift; sourceTree = "<group>"; };
 		7258974629643C7D00EA782E /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
+				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
 				725666772965AFC200B678CB /* ItineraryEditView.swift */,
@@ -268,6 +271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				72382CB22979D3F900DE76E3 /* itinerantApp.swift in Sources */,
 				725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */,
 				720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */,
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
