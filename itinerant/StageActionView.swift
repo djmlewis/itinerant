@@ -135,7 +135,7 @@ extension StageActionView {
             let content = UNMutableNotificationContent()
             content.title = itinerary.title
             content.body = "\(stage.title) has completed"
-            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString]
+            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString, kStageUUIDStr : stage.id.uuidString]
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
             let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
             let notificationCenter = UNUserNotificationCenter.current()

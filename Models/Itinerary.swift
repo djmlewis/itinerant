@@ -44,7 +44,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                try data.write(to: URL(fileURLWithPath: /*NSHomeDirectory()*/ FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path() + "/Itinerant/" + id.uuidString + ".itinerary"))
+                try data.write(to: URL(fileURLWithPath: ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
             } catch  {
                 debugPrint("Save write failure for: \(title)")
             }

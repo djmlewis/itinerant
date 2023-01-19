@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-class AppGlobals: ObservableObject {
-    @Published var selectedID: String?
-}
-
-
 
 @main
 struct ItinerantApp: App {
@@ -19,16 +14,14 @@ struct ItinerantApp: App {
 
     // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
     @StateObject private var itineraryStore = ItineraryStore()
-    private var appGlobals = AppGlobals()
 
     var body: some Scene {
         WindowGroup {
             NavigationView {
                 // we also pass a copy of itineraries to allow the preview of ItineraryStoreView to work nicely
-                ItineraryStoreView(itineraries: $itineraryStore.itineraries)
+                ItineraryStoreView()
             }
             .environmentObject(itineraryStore)
-            .environmentObject(appGlobals)
             .onAppear() {
                 requestNotificationPermissions()
             }
@@ -66,8 +59,9 @@ extension ItinerantApp {
 // AppDelegate.swift
 class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     
-    @Published var itineraryID: String?
-    
+    @Published var unnItineraryID: String?
+    @Published var unnStageID: String?
+
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
@@ -77,15 +71,21 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Here we actually handle the notification
-        debugPrint("Notification received with identifier \(notification.request.identifier)")
-        // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
+        debugPrint("Notification willPresent with identifier \(notification.request.identifier)")
+        guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
+        else { completionHandler([.banner, .sound]); return }
+        unnItineraryID = notifiedItineraryID as? String
+        unnStageID = notification.request.identifier
+       // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        let userInfo = response.notification.request.content.userInfo
-        debugPrint(userInfo[kItineraryUUIDStr]!)
-        
+        debugPrint("Notification received with identifier \(response.notification.request.identifier)")
+        guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
+        else { completionHandler(); return }
+        unnItineraryID = notifiedItineraryID as? String
+        unnStageID = response.notification.request.identifier
         // Always call the completion handler when done.
         completionHandler()
 

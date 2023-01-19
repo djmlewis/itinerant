@@ -11,15 +11,17 @@ let kSceneStoreUuidStrStageActive = "uuidStrStageActive"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
 
 let kItineraryUUIDStr = "kItineraryUUIDStr"
+let kStageUUIDStr = "kStageUUIDStr"
 
 struct ItineraryActionView: View {
-    @Binding var itinerary: Itinerary
+    //var itineraryUUIDstr: String
+    @State var itinerary: Itinerary
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView = false
 
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
-    
+
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStageActive: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStageRunning: String = ""
 
@@ -61,6 +63,7 @@ struct ItineraryActionView: View {
                 isPresentingItineraryEditView = true
             }
         }
+        .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
@@ -89,6 +92,7 @@ struct ItineraryActionView: View {
 
 struct ItineraryActionView_Previews: PreviewProvider {
     static var previews: some View {
-        ItineraryActionView(itinerary: .constant(Itinerary.templateItinerary()))
+        Text("k")
+        //ItineraryActionView(itinerary: .constant(Itinerary.templateItinerary()))
     }
 }
