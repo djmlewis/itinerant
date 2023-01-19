@@ -23,10 +23,11 @@ struct ItineraryStoreView: View {
     
     
     @State private var presentedItineraryID: [String] = []
-    
+
+        
     var body: some View {
         
-        NavigationStack(path: $appDelegate.unnItineraryIDArray) {
+        NavigationStack(path: $presentedItineraryID) {
             List {
                 ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
@@ -40,9 +41,7 @@ struct ItineraryStoreView: View {
             }
             .navigationDestination(for: String.self) { id in
                 ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id))
-                //Text("String Detail \(i)")
             }
-
             .navigationTitle("Itineraries")
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationView {
@@ -79,6 +78,11 @@ struct ItineraryStoreView: View {
                     .accessibilityLabel("Add Itinerary")
                 }
             }
+        }
+        .onChange(of: appDelegate.unnItineraryID) { newValue in
+            //debugPrint("change of " + String(describing: newValue))
+            guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
+            presentedItineraryID = [newValue!]
         }
 
     } /* body */
