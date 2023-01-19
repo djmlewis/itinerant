@@ -26,7 +26,7 @@ struct ItineraryStoreView: View {
     
     var body: some View {
         
-        NavigationStack(path: $presentedItineraryID) {
+        NavigationStack(path: $appDelegate.unnItineraryIDArray) {
             List {
                 ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
@@ -47,7 +47,6 @@ struct ItineraryStoreView: View {
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationView {
                     ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
-                    //.navigationTitle(newItinerary.title)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {
@@ -71,11 +70,6 @@ struct ItineraryStoreView: View {
                 }
                 ToolbarItemGroup() {
                     Button(action: {
-                        presentedItineraryID = ["B93CDEAB-E18E-4941-A9DF-E5421C9B41B1"]
-                    }) {
-                        Image(systemName: "circle")
-                    }
-                    Button(action: {
                         newItinerary = Itinerary(title: "")
                         newItineraryEditableData = Itinerary.EditableData()
                         isPresentingItineraryEditView = true
@@ -85,11 +79,6 @@ struct ItineraryStoreView: View {
                     .accessibilityLabel("Add Itinerary")
                 }
             }
-        }
-        .onChange(of: appDelegate.unnItineraryID) { newValue in
-            //debugPrint("change of " + String(describing: newValue))
-            guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
-            presentedItineraryID = [newValue!]
         }
 
     } /* body */

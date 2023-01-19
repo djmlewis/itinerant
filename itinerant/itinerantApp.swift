@@ -60,7 +60,7 @@ extension ItinerantApp {
 // AppDelegate.swift
 class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     
-    @Published var unnItineraryID: String?
+    @Published var unnItineraryIDArray: [String] = []
     @Published var unnStageID: String?
     
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -71,34 +71,22 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // Here we actually handle the notification
-        //debugPrint("Notification willPresent with identifier \(notification.request.identifier)")
+        // Here we handle the notification received in foreground
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler([.banner, .sound]); return }
-        // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-        unnItineraryID = nil
-        unnStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.unnItineraryID = notifiedItineraryID as? String
-            self.unnStageID = notification.request.identifier
-        }
-        // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
+        self.unnItineraryIDArray = [notifiedItineraryID as! String]
+        self.unnStageID = notification.request.identifier
+        // So we call the completionHandler telling that the notification should display a banner and play the notification sound
         completionHandler([.banner, .sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        //debugPrint("Notification received with identifier \(response.notification.request.identifier)")
+        // Here we handle the notification received in background and tapped
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
-        // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-        unnItineraryID = nil
-        unnStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.unnItineraryID = notifiedItineraryID as? String
-            self.unnStageID = response.notification.request.identifier
-        }
-        unnItineraryID = notifiedItineraryID as? String
-        // Always call the completion handler when done.
+        self.unnItineraryIDArray = [notifiedItineraryID as! String]
+        self.unnStageID = response.notification.request.identifier
+        // Always call the completion handler when done. no need to repeat the banner
         completionHandler()
         
     }
