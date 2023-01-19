@@ -87,6 +87,7 @@ struct ItineraryStoreView: View {
             }
         }
         .onChange(of: appDelegate.unnItineraryID) { newValue in
+            //debugPrint("change of " + String(describing: newValue))
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
