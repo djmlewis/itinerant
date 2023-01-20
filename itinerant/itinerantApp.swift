@@ -8,6 +8,12 @@
 import SwiftUI
 
 
+let kSnoozeIntervalSecs = 5.0
+
+let kNotificationActionOpenApp = "OPEN_APP_ACTION"
+let kNotificationActionSnooze = "SNOOZE_ACTION"
+let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
+
 @main
 struct ItinerantApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -64,15 +70,37 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     @Published var unnStageID: String?
     
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        UNUserNotificationCenter.current().delegate = self
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.delegate = self
+        
+        // Define the custom actions.
+        let openAppAction = UNNotificationAction(identifier: kNotificationActionOpenApp,
+                                                 title: "Open Itinerary",
+                                                 options: [.foreground])
+        let snoozeAction = UNNotificationAction(identifier: kNotificationActionSnooze,
+                                                title: "Snooze",
+                                                options: [])
+        // Define the notification type
+        let stageCompletedCategory =
+        UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
+                               actions: [openAppAction, snoozeAction],
+                               intentIdentifiers: [],
+                               hiddenPreviewsBodyPlaceholder: "",
+                               options: .customDismissAction)
+        // Register the notification type.
+        notificationCenter.setNotificationCategories([stageCompletedCategory])
+        
+        
+        
+        
         return true
     }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // Here we actually handle the notification
-        //debugPrint("Notification willPresent with identifier \(notification.request.identifier)")
+        // The method will be called on the delegate only if the application is in the foreground.
+        debugPrint("Notification willPresent with identifier \(notification.request.identifier)")
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler([.banner, .sound]); return }
         // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
@@ -87,19 +115,51 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        //debugPrint("Notification received with identifier \(response.notification.request.identifier)")
+        // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.         debugPrint("Notification received with identifier \(response.notification.request.identifier)")
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
-        // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-        unnItineraryID = nil
-        unnStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.unnItineraryID = notifiedItineraryID as? String
-            self.unnStageID = response.notification.request.identifier
+        
+        debugPrint("Notification passed thru to switch identifier "+response.notification.request.content.categoryIdentifier)
+
+        if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
+            debugPrint("response.actionIdentifier  " + response.actionIdentifier)
+
+            switch response.actionIdentifier {
+            case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
+                debugPrint("switch  kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier")
+              // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                unnItineraryID = nil
+                unnStageID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.unnItineraryID = notifiedItineraryID as? String
+                    self.unnStageID = response.notification.request.identifier
+                }
+                break
+                
+            case kNotificationActionSnooze:
+                debugPrint("kNotificationActionSnooze")
+                break
+                
+            case UNNotificationDismissActionIdentifier:
+                // * user dismissed the notification
+                debugPrint("UNNotificationDismissActionIdentifier")
+                break
+                
+            default:
+                debugPrint("UNNotification unknown category")
+               break
+            }
         }
-        unnItineraryID = notifiedItineraryID as? String
+        else {
+            // Handle other notification types...
+        }
+        
+        
+        
+        
+        
         // Always call the completion handler when done.
         completionHandler()
-
+        
     }
 }
