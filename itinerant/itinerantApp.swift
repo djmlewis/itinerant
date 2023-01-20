@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-let kSnoozeIntervalSecs = 5.0
+let kSnoozeIntervalSecs = 10.0
 
 let kNotificationActionOpenApp = "OPEN_APP_ACTION"
 let kNotificationActionSnooze = "SNOOZE_ACTION"
@@ -100,7 +100,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // The method will be called on the delegate only if the application is in the foreground.
-        debugPrint("Notification willPresent with identifier \(notification.request.identifier)")
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler([.banner, .sound]); return }
         // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
@@ -119,14 +118,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
         
-        debugPrint("Notification passed thru to switch identifier "+response.notification.request.content.categoryIdentifier)
-
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
-            debugPrint("response.actionIdentifier  " + response.actionIdentifier)
-
             switch response.actionIdentifier {
             case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
-                debugPrint("switch  kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier")
               // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 unnItineraryID = nil
                 unnStageID = nil
@@ -137,26 +131,33 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 break
                 
             case kNotificationActionSnooze:
-                debugPrint("kNotificationActionSnooze")
+                let center = UNUserNotificationCenter.current()
+                center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
+                let content = UNMutableNotificationContent()
+                let userinfo = response.notification.request.content.userInfo
+                content.title = userinfo[kItineraryTitle] as! String
+                content.body = "\(userinfo[kStageTitle] as! String) is snoozing"
+                content.userInfo = userinfo
+                content.categoryIdentifier = kNotificationCategoryStageCompleted
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (kSnoozeIntervalSecs), repeats: false)
+                let request = UNNotificationRequest(identifier: userinfo[kStageUUIDStr] as! String, content: content, trigger: trigger)
+                center.add(request) { (error) in
+                    if error != nil {  debugPrint(error!.localizedDescription) }
+                }
+
                 break
                 
             case UNNotificationDismissActionIdentifier:
                 // * user dismissed the notification
-                debugPrint("UNNotificationDismissActionIdentifier")
                 break
                 
             default:
-                debugPrint("UNNotification unknown category")
                break
             }
         }
         else {
             // Handle other notification types...
         }
-        
-        
-        
-        
         
         // Always call the completion handler when done.
         completionHandler()

@@ -59,7 +59,7 @@ struct StageActionView: View {
             Spacer()
             Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
                 .padding(4.0)
-                .foregroundColor(stageRunningOvertime ? Color.black : Color.white)
+                .foregroundColor(stageRunningOvertime ? Color("ColourElapsed") : Color.white)
                 .background(stageRunningOvertime ? Color.clear : Color.red)
                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .opacity(stageIsRunning ? 1.0 : 0.0)
@@ -135,7 +135,11 @@ extension StageActionView {
             let content = UNMutableNotificationContent()
             content.title = itinerary.title
             content.body = "\(stage.title) has completed"
-            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString, kStageUUIDStr : stage.id.uuidString]
+            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
+                                    kStageUUIDStr : stage.id.uuidString,
+                                      kStageTitle : stage.title,
+                                  kItineraryTitle : itinerary.title
+            ]
             content.categoryIdentifier = kNotificationCategoryStageCompleted
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
             let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)

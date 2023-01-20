@@ -12,6 +12,8 @@ let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
 
 let kItineraryUUIDStr = "kItineraryUUIDStr"
 let kStageUUIDStr = "kStageUUIDStr"
+let kItineraryTitle = "kItineraryTitle"
+let kStageTitle = "kStageTitle"
 
 struct ItineraryActionView: View {
     //var itineraryUUIDstr: String
@@ -27,7 +29,9 @@ struct ItineraryActionView: View {
 
     var stageRunning: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } }
     var stageActive: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageActive } }
-
+    var someStageIsRunning: Bool { uuidStrStageRunning != "" }
+    
+    
     var body: some View {
         VStack(alignment: .leading) {
             List {
@@ -62,6 +66,7 @@ struct ItineraryActionView: View {
                 itineraryData = itinerary.itineraryEditableData
                 isPresentingItineraryEditView = true
             }
+            .disabled(someStageIsRunning)
         }
         .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {
