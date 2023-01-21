@@ -34,43 +34,53 @@ struct StageActionView: View {
     
     private var stageIsRunning: Bool { uuidStrStageRunning == stage.id.uuidString }
     private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
+    private var stageIsActive: Bool { uuidStrStageActive == stage.id.uuidString }
     
     // MARK: - body
     var body: some View {
-        HStack(alignment: .center) {
-            Button(action: {
-                handleStartStopButtonTapped()
-            }) {
-                Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .foregroundColor(stageIsRunning ? .red : .accentColor)
-            }
-            .buttonStyle(BorderlessButtonStyle())
-            .frame(width: 52, alignment: .leading)
-            .disabled(stage.id.uuidString != uuidStrStageActive)
             VStack(alignment: .leading) {
                 Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
-                Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
-                    .foregroundColor(Color("ColourDarkGrey"))
-            }
-            Spacer()
-            Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
-                .padding(4.0)
-                .foregroundColor(stageRunningOvertime ? Color("ColourElapsed") : Color.white)
-                .background(stageRunningOvertime ? Color.clear : Color.red)
-                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                .opacity(stageIsRunning ? 1.0 : 0.0)
-                .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
-                    //debugPrint($0)
-                    if(stageIsRunning) {
-                        timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
-                    }
+                if !stage.details.isEmpty {
+                    Text(stage.details)
+                        .font(.body)
                 }
-            
-        }
+                HStack {
+                    Button(action: {
+                        handleStartStopButtonTapped()
+                    }) {
+                        Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(stageIsRunning ? .red : .accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    .frame(width: 52, alignment: .leading)
+                    .disabled(!stageIsActive)
+                    Spacer()
+                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("ColourDuration"))
+                    Spacer()
+                    Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
+                        .padding(4.0)
+                        .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
+                        .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .opacity(stageIsRunning ? 1.0 : 0.0)
+                        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
+                            //debugPrint($0)
+                            if(stageIsRunning) {
+                                timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+                            }
+                        }
+                }
+            } /* VStack */
+            .padding(6.0)
+            .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color.clear : Color("ColourBackgroundInactive")))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .onAppear() {
             if(stageIsRunning) {
                 // need to reset the timer to reattach the cancellor

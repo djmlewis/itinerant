@@ -12,7 +12,7 @@ import SwiftUI
 
 struct StageDisplayView: View {
     @Binding var stage: Stage
-
+    
     @State private var isPresentingStageEditView = false
     
     var body: some View {
@@ -22,7 +22,12 @@ struct StageDisplayView: View {
                     .font(.title3)
                     .foregroundColor(.accentColor)
                     .fontWeight(.bold)
+                if !stage.details.isEmpty {
+                    Text(stage.details)
+                        .font(.body)
+                }
                 Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                    .font(.title3)
             }
             Spacer()
             Button(action: {
@@ -35,7 +40,7 @@ struct StageDisplayView: View {
             }
             .buttonStyle(BorderlessButtonStyle())
             .frame(width: 32, alignment: .trailing)
-
+            
         }
         .padding()
         .sheet(isPresented: $isPresentingStageEditView) {
@@ -51,7 +56,7 @@ struct StageDisplayView: View {
             }
         }
     }
-
+    
 }
 
 struct StageDisplayView_Previews: PreviewProvider {

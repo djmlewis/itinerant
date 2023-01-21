@@ -23,7 +23,7 @@ struct ItineraryEditView: View {
         Form {
             Section(header: Text("Title")) {
                 TextField("Itinerary title", text: $itineraryEditableData.title)
-                    //.focused($focusedFieldTag, equals: .title)
+                    .focused($focusedFieldTag, equals: .title)
             }
             Section(header: HStack(){
                 Text("Stages")

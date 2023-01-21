@@ -22,6 +22,11 @@ struct StageEditView: View {
                 TextField("Stage title", text: $stage.title)
                     .focused($focusedFieldTag, equals: .title)
             }
+            Section(header: Text("Description")) {
+                TextField("Title", text: $stage.details,  axis: .vertical)
+                    .lineLimit(1...10)
+
+            }
             Section(header: Text("Duration")) {
                 
                 VStack(spacing: 2) {
@@ -34,7 +39,7 @@ struct StageEditView: View {
                             Text("Seconds")
                                 //.fontWeight(.heavy)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                     }
                     HStack {
                         Group {
@@ -60,7 +65,7 @@ struct StageEditView: View {
                                 }
                             }
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                     }
                 }
             }

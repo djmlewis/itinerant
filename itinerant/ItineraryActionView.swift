@@ -28,9 +28,9 @@ struct ItineraryActionView: View {
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStageRunning: String = ""
 
     var stageRunning: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } }
+    var myStageIsRunning: Bool { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } != nil }
     var stageActive: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageActive } }
-    var someStageIsRunning: Bool { uuidStrStageRunning != "" }
-    
+
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -41,6 +41,7 @@ struct ItineraryActionView: View {
             }
         }
         .onAppear() {
+            debugPrint(itinerary.title,uuidStrStageRunning)
             if itinerary.stages.count > 0 {
                 uuidStrStageActive = itinerary.stages[0].id.uuidString
             }
@@ -66,7 +67,7 @@ struct ItineraryActionView: View {
                 itineraryData = itinerary.itineraryEditableData
                 isPresentingItineraryEditView = true
             }
-            .disabled(someStageIsRunning)
+            .disabled(myStageIsRunning)
         }
         .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {

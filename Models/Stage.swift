@@ -14,12 +14,14 @@ struct Stage: Identifiable, Codable, Hashable {
     let id: UUID
     var title: String
     var durationSecsInt: Int
+    var details: String
         
     
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = 0) {
+    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = 0, details: String = "") {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
+        self.details = details
     }
 }
 
@@ -27,7 +29,7 @@ struct Stage: Identifiable, Codable, Hashable {
 extension Stage {
     
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
-    static func templateStage() -> Stage { Stage(title: "Stage #", durationSecsInt: 15) }
+    static func templateStage() -> Stage { Stage(title: "Stage #", durationSecsInt: 15, details: "Details") }
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
     
