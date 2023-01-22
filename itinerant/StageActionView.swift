@@ -25,16 +25,17 @@ struct StageActionView: View {
     
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
-    @Binding var uuidStrStageActive: String
-    @Binding var uuidStrStageRunning: String
+    @Binding var uuidStrStagesActiveStr: String
+    @Binding var uuidStrStagesRunningStr: String
+
     @State private var timeElapsedAtUpdate: Double = 0.0
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
     
-    private var stageIsRunning: Bool { uuidStrStageRunning == stage.id.uuidString }
+    private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
+    private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
     private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
-    private var stageIsActive: Bool { uuidStrStageActive == stage.id.uuidString }
     
     // MARK: - body
     var body: some View {
@@ -94,13 +95,12 @@ struct StageActionView: View {
         
     }
     
-    internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActive: Binding<String>, uuidStrStageRunning: Binding<String>) {
-        self._stage = stage
-        self._itinerary = itinerary
-        self._uuidStrStageActive = uuidStrStageActive
-        self._uuidStrStageRunning = uuidStrStageRunning
-        
-    }
+//    internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActiveDict: Binding<[String:String]>, uuidStrStageRunningDict: Binding<[String:String]>) {
+//        self._stage = stage
+//        self._itinerary = itinerary
+//        self._uuidStrStageActiveDict = uuidStrStageActiveDict
+//        self._uuidStrStageRunningDict = uuidStrStageRunningDict
+//    }
     
 }
 
@@ -115,14 +115,14 @@ extension StageActionView {
     
     func handleHaltRunning() {
         removeNotification()
-        uuidStrStageRunning = ""
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uiUpdateTimerCancellor?.cancel()
     }
     
     func handleStartRunning() {
         timeStartedRunning = Date().timeIntervalSinceReferenceDate
         timeElapsedAtUpdate = Double(stage.durationSecsInt)
-        uuidStrStageRunning = stage.id.uuidString
+        uuidStrStagesRunningStr.append(stage.id.uuidString)
         postNotification()
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -174,7 +174,7 @@ extension StageActionView {
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStageActive: .constant(""), uuidStrStageRunning: .constant(""))
+        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""))
     }
 }
 

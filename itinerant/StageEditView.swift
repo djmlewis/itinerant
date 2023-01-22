@@ -9,26 +9,25 @@ import SwiftUI
 
 struct StageEditView: View {
     
-    @Binding var stage: Stage
-    @State private var hours: Int = 3
-    @State private var mins: Int = 5
-    @State private var secs: Int = 6
+    @Binding var stageEditableData: Stage.EditableData
+    @State private var hours: Int = 0
+    @State private var mins: Int = 0
+    @State private var secs: Int = 0
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
     
     var body: some View {
         Form {
             Section(header: Text("Title")) {
-                TextField("Stage title", text: $stage.title)
+                TextField("Stage title", text: $stageEditableData.title)
                     .focused($focusedFieldTag, equals: .title)
             }
             Section(header: Text("Description")) {
-                TextField("Title", text: $stage.details,  axis: .vertical)
+                TextField("Title", text: $stageEditableData.details,  axis: .vertical)
                     .lineLimit(1...10)
 
             }
             Section(header: Text("Duration")) {
-                
                 VStack(spacing: 2) {
                     HStack {
                         Group {
@@ -80,10 +79,10 @@ struct StageEditView: View {
             updateDuration()
         })
         .onAppear() {
-            debugPrint(stage.durationSecsInt / SEC_HOUR,(stage.durationSecsInt % SEC_HOUR) / SEC_MIN,stage.durationSecsInt % SEC_MIN)
-            hours = stage.durationSecsInt / SEC_HOUR
-            mins = ((stage.durationSecsInt % SEC_HOUR) / SEC_MIN)
-            secs = stage.durationSecsInt % SEC_MIN
+            //debugPrint(stageEditableData.durationSecsInt / SEC_HOUR,(stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN,stageEditableData.durationSecsInt % SEC_MIN)
+            hours = stageEditableData.durationSecsInt / SEC_HOUR
+            mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
+            secs = stageEditableData.durationSecsInt % SEC_MIN
             focusedFieldTag = .title
         }
         .onDisappear() {
@@ -97,12 +96,12 @@ struct StageEditView: View {
 extension StageEditView {
     
     func updateDuration() -> Void {
-        stage.durationSecsInt = Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
+        stageEditableData.durationSecsInt = Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
     }
 }
 
 struct StageRowEditView_Previews: PreviewProvider {
     static var previews: some View {
-        StageEditView(stage: .constant(Stage.templateStage()))
+        StageEditView(stageEditableData: .constant(Stage.EditableData()))
     }
 }

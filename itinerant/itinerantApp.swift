@@ -21,10 +21,10 @@ struct ItinerantApp: App {
     // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
     @StateObject private var itineraryStore = ItineraryStore()
     
+    
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                // we also pass a copy of itineraries to allow the preview of ItineraryStoreView to work nicely
                 ItineraryStoreView()
             }
             .environmentObject(itineraryStore)

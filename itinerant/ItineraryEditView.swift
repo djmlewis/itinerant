@@ -14,6 +14,7 @@ struct ItineraryEditView: View {
     @State private var itineraryName: String = ""
     @State private var isPresentingStageEditView = false
     @State private var newStage: Stage = Stage()
+    @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
     
@@ -28,20 +29,21 @@ struct ItineraryEditView: View {
             Section(header: HStack(){
                 Text("Stages")
                 Spacer()
+                EditButton()
+                    .textCase(nil)
+                Spacer()
                 Button(action: {
                     newStage = Stage()
+                    newStageEditableData = Stage.EditableData()
                     isPresentingStageEditView = true
-
+                    
                 }) {
                     Image(systemName: "plus")
                 }
-                Spacer()
-                EditButton()
-                    .textCase(nil)
             }) {
                 List {
                     ForEach($itineraryEditableData.stages) { $stage in
-                            StageDisplayView(stage: $stage)
+                        StageDisplayView(stage: $stage)
                     }
                     .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
                     .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
@@ -57,7 +59,7 @@ struct ItineraryEditView: View {
         }
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationView {
-                StageEditView(stage: $newStage)
+                StageEditView(stageEditableData: $newStageEditableData)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
@@ -67,6 +69,7 @@ struct ItineraryEditView: View {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Add") {
                                 // amend the var itineraryEditableData only
+                                newStage.updateEditableData(from: newStageEditableData)
                                 itineraryEditableData.stages.append(newStage)
                                 isPresentingStageEditView = false
                             }
@@ -74,7 +77,7 @@ struct ItineraryEditView: View {
                     }
             }
         }
-
+        
     }
 }
 

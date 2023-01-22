@@ -7,43 +7,41 @@
 
 import SwiftUI
 
-let kSceneStoreUuidStrStageActive = "uuidStrStageActive"
-let kSceneStoreUuidStrStageRunning = "uuidStrStageRunning"
-
 let kItineraryUUIDStr = "kItineraryUUIDStr"
 let kStageUUIDStr = "kStageUUIDStr"
 let kItineraryTitle = "kItineraryTitle"
 let kStageTitle = "kStageTitle"
 
 struct ItineraryActionView: View {
-    //var itineraryUUIDstr: String
+
     @State var itinerary: Itinerary
+    @Binding var uuidStrStagesActiveStr: String
+    @Binding var uuidStrStagesRunningStr: String
+
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView = false
 
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
 
-    @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStageActive: String = ""
-    @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStageRunning: String = ""
 
-    var stageRunning: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } }
-    var myStageIsRunning: Bool { itinerary.stages.first { $0.id.uuidString == uuidStrStageRunning } != nil }
-    var stageActive: Stage? { itinerary.stages.first { $0.id.uuidString == uuidStrStageActive } }
+    var stageActive: Stage? { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
+    var myStageIsActive: Bool { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
+    var stageRunning: Stage? { itinerary.stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
+    var myStageIsRunning: Bool { itinerary.stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
 
     
     var body: some View {
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStageActive: $uuidStrStageActive, uuidStrStageRunning: $uuidStrStageRunning)
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr)
                 }
             }
         }
         .onAppear() {
-            debugPrint(itinerary.title,uuidStrStageRunning)
-            if itinerary.stages.count > 0 {
-                uuidStrStageActive = itinerary.stages[0].id.uuidString
+            if !myStageIsRunning && !myStageIsActive && !itinerary.stages.isEmpty {
+                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
             }
         }
 //        .onDisappear() {
@@ -94,7 +92,15 @@ struct ItineraryActionView: View {
     }
 }
 
-
+extension ItineraryActionView {
+    
+    
+    
+    func resetActiveView() {
+        
+    }
+    
+}
 
 struct ItineraryActionView_Previews: PreviewProvider {
     static var previews: some View {

@@ -107,6 +107,7 @@ class ItineraryStore: ObservableObject {
     func addItinerary(itinerary: Itinerary) -> Void {
         itineraries.append(itinerary)
         itinerary.savePersistentData()
+        
     }
     func updateItinerary(itinerary: Itinerary) -> Void {
         guard let index = itineraries.firstIndex(where: { $0.id.uuidString == itinerary.id.uuidString }) else { debugPrint("Unable to update itinerary"); return  }
