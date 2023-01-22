@@ -27,7 +27,7 @@ struct StageActionView: View {
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
-
+    
     @State private var timeElapsedAtUpdate: Double = 0.0
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -39,49 +39,49 @@ struct StageActionView: View {
     
     // MARK: - body
     var body: some View {
-            VStack(alignment: .leading) {
-                Text(stage.title)
+        VStack(alignment: .leading) {
+            Text(stage.title)
+                .font(.title3)
+                .fontWeight(.bold)
+            if !stage.details.isEmpty {
+                Text(stage.details)
+                    .font(.body)
+            }
+            HStack {
+                Spacer()
+                Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
                     .font(.title3)
                     .fontWeight(.bold)
-                if !stage.details.isEmpty {
-                    Text(stage.details)
-                        .font(.body)
+                    .foregroundColor(Color("ColourDuration"))
+                Spacer()
+                Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
+                    .padding(4.0)
+                    .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
+                    .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    .opacity(stageIsRunning ? 1.0 : 0.0)
+                Button(action: {
+                    handleStartStopButtonTapped()
+                }) {
+                    Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundColor(stageIsRunning ? .red : .accentColor)
                 }
-                HStack {
-                    Button(action: {
-                        handleStartStopButtonTapped()
-                    }) {
-                        Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(stageIsRunning ? .red : .accentColor)
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(width: 52, alignment: .leading)
-                    .disabled(!stageIsActive)
-                    Spacer()
-                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color("ColourDuration"))
-                    Spacer()
-                    Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
-                        .padding(4.0)
-                        .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
-                        .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                        .opacity(stageIsRunning ? 1.0 : 0.0)
-                        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
-                            //debugPrint($0)
-                            if(stageIsRunning) {
-                                timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
-                            }
-                        }
-                }
-            } /* VStack */
-            .padding(6.0)
-            .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color.clear : Color("ColourBackgroundInactive")))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .buttonStyle(BorderlessButtonStyle())
+                .frame(width: 52, alignment: .leading)
+                .disabled(!stageIsActive)
+                .opacity(stageIsActive ? 1.0 : 0.0)
+            }
+        } /* VStack */
+        .padding(6.0)
+        .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color.clear : Color("ColourBackgroundInactive")))
+        .cornerRadius(8) /// make the background rounded
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke( stageIsRunning ? Color.red : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
+        )
+        //.clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .onAppear() {
             if(stageIsRunning) {
                 // need to reset the timer to reattach the cancellor
@@ -92,15 +92,21 @@ struct StageActionView: View {
         .onDisappear() {
             uiUpdateTimerCancellor?.cancel()
         }
-        
+        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
+            //debugPrint($0)
+            if(stageIsRunning) {
+                timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+            }
+        }
+
     }
     
-//    internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActiveDict: Binding<[String:String]>, uuidStrStageRunningDict: Binding<[String:String]>) {
-//        self._stage = stage
-//        self._itinerary = itinerary
-//        self._uuidStrStageActiveDict = uuidStrStageActiveDict
-//        self._uuidStrStageRunningDict = uuidStrStageRunningDict
-//    }
+    //    internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActiveDict: Binding<[String:String]>, uuidStrStageRunningDict: Binding<[String:String]>) {
+    //        self._stage = stage
+    //        self._itinerary = itinerary
+    //        self._uuidStrStageActiveDict = uuidStrStageActiveDict
+    //        self._uuidStrStageRunningDict = uuidStrStageRunningDict
+    //    }
     
 }
 
@@ -114,9 +120,21 @@ extension StageActionView {
     }
     
     func handleHaltRunning() {
-        removeNotification()
-        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uiUpdateTimerCancellor?.cancel()
+        removeNotification()
+        // remove ourselves from active and running
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        // set the next stage to active if there is one above us
+        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
+            if itinerary.stages.count > ourindex+1 {
+                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
+            } else {
+                if itinerary.stages.count > 0 {
+                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+                }
+            }
+        }
     }
     
     func handleStartRunning() {

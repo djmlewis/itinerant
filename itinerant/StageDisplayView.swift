@@ -29,22 +29,24 @@ struct StageDisplayView: View {
                     Text(stage.details)
                         .font(.body)
                 }
-                Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
-                    .font(.title3)
-            }
-            Spacer()
-            if editMode?.wrappedValue.isEditing == false {
-                Button(action: {
-                    stageEditableData = stage.editableData
-                    isPresentingStageEditView = true
-                }) {
-                    Image(systemName: "square.and.pencil")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor( .accentColor)
+                HStack {
+                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                        .font(.title3)
+                    Spacer()
+                    if editMode?.wrappedValue.isEditing == false {
+                        Button(action: {
+                            stageEditableData = stage.editableData
+                            isPresentingStageEditView = true
+                        }) {
+                            Image(systemName: "square.and.pencil")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor( .accentColor)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 32, alignment: .trailing)
+                    }
                 }
-                .buttonStyle(BorderlessButtonStyle())
-                .frame(width: 32, alignment: .trailing)
             }
         }
         .padding()
