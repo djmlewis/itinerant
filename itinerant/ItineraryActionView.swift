@@ -20,6 +20,7 @@ struct ItineraryActionView: View {
 
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView = false
+    @State private var resetStageElapsedTime: Bool?
 
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
@@ -35,7 +36,7 @@ struct ItineraryActionView: View {
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr)
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, resetStageElapsedTime: $resetStageElapsedTime)
                 }
             }
         }
@@ -61,11 +62,20 @@ struct ItineraryActionView: View {
 //        }
         .navigationTitle(itinerary.title)
         .toolbar {
-            Button("Modify") {
-                itineraryData = itinerary.itineraryEditableData
-                isPresentingItineraryEditView = true
+            ToolbarItem(placement: .primaryAction) {
+                Button("Reset") {
+                    resetItineraryStages()
+                }
+                .fontWeight(myStageIsRunning ? .bold : .regular)
+                .foregroundColor(.red)
             }
-            .disabled(myStageIsRunning)
+            ToolbarItem(placement: .primaryAction) {
+                Button("Modify") {
+                    itineraryData = itinerary.itineraryEditableData
+                    isPresentingItineraryEditView = true
+                }
+                .disabled(myStageIsRunning)
+            }
         }
         .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -94,9 +104,29 @@ struct ItineraryActionView: View {
 
 extension ItineraryActionView {
     
+    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
+        let uuidstrs = itinerary.stagesIDstrs
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
+        var currentActiveStr = uuidStrStagesActiveStr
+        var currentRunningStr = uuidStrStagesRunningStr
+        uuidstrs.forEach { uuidstr in
+            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
+            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
+        }
+        uuidStrStagesActiveStr = currentActiveStr
+        uuidStrStagesRunningStr = currentRunningStr
+    }
     
     
-    func resetActiveView() {
+    func resetItineraryStages() {
+        removeAllActiveRunningItineraryStageIDsAndNotifcations()
+        resetStageElapsedTime = true
+        // need a delay or we try to change ui too soon
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if !itinerary.stages.isEmpty {
+                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+            }
+        }
         
     }
     

@@ -27,6 +27,7 @@ struct StageActionView: View {
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
+    @Binding var resetStageElapsedTime: Bool?
     
     @State private var timeElapsedAtUpdate: Double = 0.0
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
@@ -59,7 +60,7 @@ struct StageActionView: View {
                     .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
                     .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .opacity(stageIsRunning ? 1.0 : 0.0)
+                    .opacity(timeElapsedAtUpdate == 0.0  ? 0.0 : 1.0)
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
@@ -81,7 +82,14 @@ struct StageActionView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke( stageIsRunning ? Color.red : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
         )
-        //.clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .gesture(
+            TapGesture(count: 2)
+                .onEnded({ _ in
+                    removeAllActiveRunningItineraryStageIDsAndNotifcations()
+                    // make ourself active
+                    uuidStrStagesActiveStr.append(stage.id.uuidString)
+                })
+        )
         .onAppear() {
             if(stageIsRunning) {
                 // need to reset the timer to reattach the cancellor
@@ -96,22 +104,38 @@ struct StageActionView: View {
             //debugPrint($0)
             if(stageIsRunning) {
                 timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+            } else {
+                // we may have been skipped so cancel at the next opportunity
+                uiUpdateTimerCancellor?.cancel()
             }
         }
-
+        .onChange(of: resetStageElapsedTime) { newValue in
+            DispatchQueue.main.async {
+                if newValue == true {
+                    timeElapsedAtUpdate = 0.0
+                    resetStageElapsedTime = nil
+                }
+            }
+        }
     }
-    
-    //    internal init(stage: Binding<Stage>, itinerary: Binding<Itinerary>, uuidStrStageActiveDict: Binding<[String:String]>, uuidStrStageRunningDict: Binding<[String:String]>) {
-    //        self._stage = stage
-    //        self._itinerary = itinerary
-    //        self._uuidStrStageActiveDict = uuidStrStageActiveDict
-    //        self._uuidStrStageRunningDict = uuidStrStageRunningDict
-    //    }
     
 }
 
 
 extension StageActionView {
+    
+    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
+        let uuidstrs = itinerary.stagesIDstrs
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
+        var currentActiveStr = uuidStrStagesActiveStr
+        var currentRunningStr = uuidStrStagesRunningStr
+        uuidstrs.forEach { uuidstr in
+            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
+            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
+        }
+        uuidStrStagesActiveStr = currentActiveStr
+        uuidStrStagesRunningStr = currentRunningStr
+    }
     
     func handleStartStopButtonTapped() {
         if(stageIsRunning){ handleHaltRunning() }
@@ -192,7 +216,7 @@ extension StageActionView {
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""))
+        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), resetStageElapsedTime: .constant(false))
     }
 }
 

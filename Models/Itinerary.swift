@@ -13,6 +13,8 @@ struct Itinerary: Identifiable, Codable, Hashable {
     var title: String
     var stages: StageArray
     
+    var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
+    
     // these are full inits including UUID which must be done here to be decoded
     init(id: UUID = UUID(), title: String, stages: StageArray = []) {
         self.id = id
@@ -33,25 +35,6 @@ struct Itinerary: Identifiable, Codable, Hashable {
     }
 
     
-    func savePersistentData() {
-        
-        let persistendData = Itinerary.PersistentData(title: title,
-                                                      stages: stages,
-                                                      id: id//,
-                                                      //uuidActiveStage: uuidActiveStage,
-                                                      //uuidRunningStage: uuidRunningStage
-        )
-        
-        if let data: Data = try? JSONEncoder().encode(persistendData) {
-            do {
-                try data.write(to: URL(fileURLWithPath: ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
-            } catch  {
-                debugPrint("Save write failure for: \(title)")
-            }
-        } else {
-            debugPrint("Encode failure for: \(title)")
-        }
-    }
     
     
 }
@@ -73,7 +56,7 @@ extension Itinerary {
         stages = itineraryEditableData.stages
         self.savePersistentData()
     }
-    
+        
 }
 
 
@@ -89,8 +72,26 @@ extension Itinerary {
         //let uuidRunningStage: String
     }
     
-    
-    
+    func savePersistentData() {
+        
+        let persistendData = Itinerary.PersistentData(title: title,
+                                                      stages: stages,
+                                                      id: id//,
+                                                      //uuidActiveStage: uuidActiveStage,
+                                                      //uuidRunningStage: uuidRunningStage
+        )
+        
+        if let data: Data = try? JSONEncoder().encode(persistendData) {
+            do {
+                try data.write(to: URL(fileURLWithPath: ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
+            } catch  {
+                debugPrint("Save write failure for: \(title)")
+            }
+        } else {
+            debugPrint("Encode failure for: \(title)")
+        }
+    }
+
 }
 
 
@@ -101,6 +102,7 @@ extension Itinerary {
     static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
     static func emptyItineraryArray() -> [Itinerary] { [] }
     
+
     
 }
 

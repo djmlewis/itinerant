@@ -9,6 +9,7 @@ import SwiftUI
 
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
+let kSceneStoreUuidStrItineraryResetView = "kSceneStoreUuidStrItineraryResetView"
 
 
 struct ItineraryStoreView: View {
@@ -40,13 +41,16 @@ struct ItineraryStoreView: View {
                 }
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
+                    var currentActiveStr = uuidStrStagesActiveStr
+                    var currentRunningStr = uuidStrStagesRunningStr
                     offsets.forEach { index in
-                        itineraryStore.itineraries[index].stages.forEach { stage in
-                            let uuidstr = stage.id.uuidString
-                            uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: uuidstr, with: "")
-                            uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: uuidstr, with: "")
+                        itineraryStore.itineraries[index].stagesIDstrs.forEach { uuidstr in
+                            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
+                            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
                         }
                     }
+                    uuidStrStagesActiveStr = currentActiveStr
+                    uuidStrStagesRunningStr = currentRunningStr
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
@@ -97,7 +101,9 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        
+        .onAppear() {
+
+        }
     } /* body */
 } /* View */
 
