@@ -7,10 +7,14 @@
 
 import SwiftUI
 
+
+
 let kItineraryUUIDStr = "kItineraryUUIDStr"
 let kStageUUIDStr = "kStageUUIDStr"
 let kItineraryTitle = "kItineraryTitle"
 let kStageTitle = "kStageTitle"
+
+
 
 struct ItineraryActionView: View {
 
@@ -19,7 +23,7 @@ struct ItineraryActionView: View {
     @Binding var uuidStrStagesRunningStr: String
 
     @State private var itineraryData = Itinerary.EditableData()
-    @State private var isPresentingItineraryEditView = false
+    @State private var isPresentingItineraryEditView: Bool = false
     @State private var resetStageElapsedTime: Bool?
     @State private var toggleDisclosureDetails: Bool = true
 
@@ -107,10 +111,13 @@ struct ItineraryActionView: View {
                         }
                     }
             }
-        }
-        
-    }
+        } /* sheet */
+
+    } /* View */
+    
 }
+
+
 
 extension ItineraryActionView {
     

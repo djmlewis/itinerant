@@ -27,9 +27,8 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "")
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
-    @State private var fileExporterShown: Bool = false
     @State private var presentedItineraryID: [String] = []
-    
+
     
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
@@ -67,9 +66,6 @@ struct ItineraryStoreView: View {
                     Button("Import…") {
                         fileImporterShown = true
                     }
-                    Button("Export…") {
-                        fileExporterShown = true
-                    }
                 }
             }
             .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -97,10 +93,7 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .onAppear() {
-
-        }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.text,.plainText,.utf8PlainText], allowsMultipleSelection: false) { result in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.text,.plainText,.utf8PlainText], allowsMultipleSelection: false, onCompletion: { (result) in
             switch result {
             case .success(let urls):
                 do {
@@ -116,8 +109,11 @@ struct ItineraryStoreView: View {
             case .failure(let error):
                 debugPrint(error)
             }
+        }) /* fileImporter */
+        .onAppear() {
 
         }
+
     } /* body */
 } /* View */
 
