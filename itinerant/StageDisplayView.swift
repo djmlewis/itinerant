@@ -23,7 +23,6 @@ struct StageDisplayView: View {
             VStack(alignment: .leading) {
                 Text(stage.title)
                     .font(.title3)
-                    .foregroundColor(.accentColor)
                     .fontWeight(.bold)
                 if !stage.details.isEmpty {
                     Text(stage.details)

@@ -52,8 +52,13 @@ struct ItineraryStoreView: View {
             }
             .navigationTitle("Itineraries")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: {
+                        fileImporterShown = true
+                    }) {
+                        Image(systemName: "square.and.arrow.down")
+                    }
+                   Button(action: {
                         newItinerary = Itinerary(title: "")
                         newItineraryEditableData = Itinerary.EditableData()
                         isPresentingItineraryEditView = true
@@ -61,11 +66,6 @@ struct ItineraryStoreView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add Itinerary")
-                }
-                ToolbarItemGroup(placement: .secondaryAction) {
-                    Button("Import…") {
-                        fileImporterShown = true
-                    }
                 }
             }
             .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -97,22 +97,23 @@ struct ItineraryStoreView: View {
             switch result {
             case .success(let urls):
                 do {
-                    let content = try String(contentsOfFile: urls[0].path)
-                    if let importedItinerary = Itinerary.importItinerary(fromString: content) {
-                        itineraryStore.addItinerary(itinerary: importedItinerary)
+                    let selectedFile = urls[0]
+                    if selectedFile.startAccessingSecurityScopedResource() {
+                        let content = try String(contentsOfFile: selectedFile.path)
+                        if let importedItinerary = Itinerary.importItinerary(fromString: content) {
+                            itineraryStore.addItinerary(itinerary: importedItinerary)
+                        }
                     }
+                    selectedFile.stopAccessingSecurityScopedResource()
                 }
-                catch {
-                    debugPrint("unable to read import file")
+                catch let error {
+                    debugPrint("unable to read import file", error.localizedDescription)
                 }
                 break
             case .failure(let error):
                 debugPrint(error)
             }
         }) /* fileImporter */
-        .onAppear() {
-
-        }
 
     } /* body */
 } /* View */

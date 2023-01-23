@@ -44,18 +44,23 @@ struct StageActionView: View {
     // MARK: - body
     var body: some View {
         VStack(alignment: .leading) {
-            DisclosureGroup(isExpanded: $disclosureDetailsExpanded) {
-                if !stage.details.isEmpty {
-                    Text(stage.details)
-                        .font(.body)
-                }
-            } label: {
+            HStack {
                 Text(stage.title)
                     .font(.title3)
-                    .fontWeight(.bold)
+                .fontWeight(.bold)
+                Spacer()
+                Button(action: {
+                    disclosureDetailsExpanded = !disclosureDetailsExpanded
+                }) {
+                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                        .foregroundColor(.accentColor)
+                }
+                .buttonStyle(BorderlessButtonStyle())
             }
-            .onChange(of: toggleDisclosureDetails) { newValue in
-                disclosureDetailsExpanded = toggleDisclosureDetails
+            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
+                Text(stage.details)
+                    .font(.body)
+                    //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
             }
             HStack {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
@@ -82,7 +87,7 @@ struct StageActionView: View {
                         .foregroundColor(stageIsRunning ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .buttonStyle(BorderlessButtonStyle())
-                .frame(width: 52, alignment: .leading)
+                .frame(width: 32, alignment: .leading)
                 .disabled(!stageIsActive)
                 .opacity(stageIsActive ? 1.0 : 0.0)
             }
@@ -131,6 +136,10 @@ struct StageActionView: View {
                 }
             }
         }
+        .onChange(of: toggleDisclosureDetails) { newValue in
+            disclosureDetailsExpanded = toggleDisclosureDetails
+        }
+
     }
     
 }
