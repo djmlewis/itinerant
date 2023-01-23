@@ -7,12 +7,20 @@
 
 import SwiftUI
 
+enum TimerDirection: String, CaseIterable, Identifiable {
+    case countDown = "Count Down", countUp = "Count Up"
+    var id: Self { self }
+}
+
 struct StageEditView: View {
     
     @Binding var stageEditableData: Stage.EditableData
     @State private var hours: Int = 0
     @State private var mins: Int = 0
     @State private var secs: Int = 0
+    @State private var timerDirection: TimerDirection = .countDown
+
+    
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
     
@@ -27,47 +35,64 @@ struct StageEditView: View {
                     .lineLimit(1...10)
 
             }
-            Section(header: Text("Duration")) {
-                VStack(spacing: 2) {
-                    HStack {
-                        Group {
-                            Text("Hours")
-                                //.fontWeight(.heavy)
-                            Text("Minutes")
-                                //.fontWeight(.heavy)
-                            Text("Seconds")
-                                //.fontWeight(.heavy)
+            Section(content: {
+                HStack {
+                    Image(systemName: "timer")
+                        .opacity(timerDirection == .countDown ? 1.0 : 0.0)
+                   Picker("Timer Style", selection: $timerDirection) {
+                        ForEach(TimerDirection.allCases) { direction in
+                            Text(direction.rawValue)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                     }
-                    HStack {
-                        Group {
-                            Picker("", selection: $hours) {
-                                ForEach(0..<24) {index in
-                                    Text("\(index)").tag(index)
-                                        .foregroundColor(.black)
-                                        .fontWeight(.heavy)
-                                }
+                    .pickerStyle(.segmented)
+                    Image(systemName: "stopwatch")
+                        .opacity(timerDirection == .countUp ? 1.0 : 0.0)
+                }
+                if timerDirection == .countDown {
+                    VStack(spacing: 2) {
+                        HStack {
+                            Group {
+                                Text("Hours")
+                                //.fontWeight(.heavy)
+                                Text("Minutes")
+                                //.fontWeight(.heavy)
+                                Text("Seconds")
+                                //.fontWeight(.heavy)
                             }
-                            Picker("", selection: $mins) {
-                                ForEach(0..<60) {index in
-                                    Text("\(index)").tag(index)
-                                        .foregroundColor(.black)
-                                        .fontWeight(.heavy)
-                                }
-                            }
-                            Picker("", selection: $secs) {
-                                ForEach(0..<60) {index in
-                                    Text("\(index)").tag(index)
-                                        .foregroundColor(.black)
-                                        .fontWeight(.heavy)
-                                }
-                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                        HStack {
+                            Group {
+                                Picker("", selection: $hours) {
+                                    ForEach(0..<24) {index in
+                                        Text("\(index)").tag(index)
+                                            .foregroundColor(.black)
+                                            .fontWeight(.heavy)
+                                    }
+                                }
+                                Picker("", selection: $mins) {
+                                    ForEach(0..<60) {index in
+                                        Text("\(index)").tag(index)
+                                            .foregroundColor(.black)
+                                            .fontWeight(.heavy)
+                                    }
+                                }
+                                Picker("", selection: $secs) {
+                                    ForEach(0..<60) {index in
+                                        Text("\(index)").tag(index)
+                                            .foregroundColor(.black)
+                                            .fontWeight(.heavy)
+                                    }
+                                }
+                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                        }
                     }
                 }
-            }
+            },
+                    header: {
+                    Text("Duration")
+            } )
         }
         .onChange(of: hours, perform: {hrs in
             updateDuration()
@@ -78,8 +103,11 @@ struct StageEditView: View {
         .onChange(of: secs, perform: {hrs in
             updateDuration()
         })
+        .onChange(of: timerDirection, perform: {direction in
+            if direction == .countUp { stageEditableData.durationSecsInt = 0 }
+        })
         .onAppear() {
-            //debugPrint(stageEditableData.durationSecsInt / SEC_HOUR,(stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN,stageEditableData.durationSecsInt % SEC_MIN)
+            timerDirection = stageEditableData.durationSecsInt == 0 ? .countUp : .countDown
             hours = stageEditableData.durationSecsInt / SEC_HOUR
             mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
             secs = stageEditableData.durationSecsInt % SEC_MIN
@@ -87,6 +115,7 @@ struct StageEditView: View {
         }
         .onDisappear() {
             focusedFieldTag = .noneFocused
+            if timerDirection == .countUp { stageEditableData.durationSecsInt = 0 }
         }
     }
     
@@ -97,6 +126,7 @@ extension StageEditView {
     
     func updateDuration() -> Void {
         stageEditableData.durationSecsInt = Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
+        timerDirection = stageEditableData.durationSecsInt == 0 ? .countUp : .countDown
     }
 }
 

@@ -78,8 +78,6 @@ struct ItineraryActionView: View {
                 }) {
                     Image(systemName: "arrow.counterclockwise")
                 }
-                .fontWeight(myStageIsRunning ? .bold : .regular)
-                .foregroundColor(Color("ColourOvertimeBackground"))
             }
            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {

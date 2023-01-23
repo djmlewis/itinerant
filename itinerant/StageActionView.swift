@@ -58,11 +58,14 @@ struct StageActionView: View {
                 disclosureDetailsExpanded = toggleDisclosureDetails
             }
             HStack {
-                Spacer()
-                Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("ColourDuration"))
+                Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                        .foregroundColor(Color("ColourDuration"))
+                if stage.durationSecsInt > 0 {
+                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("ColourDuration"))
+                }
                 Spacer()
                 Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
                     .padding(4.0)
@@ -167,7 +170,8 @@ extension StageActionView {
         timeStartedRunning = Date().timeIntervalSinceReferenceDate
         timeElapsedAtUpdate = Double(stage.durationSecsInt)
         uuidStrStagesRunningStr.append(stage.id.uuidString)
-        postNotification()
+        // if duration == 0 it is not counted down, no notification
+        if stage.durationSecsInt > 0 { postNotification() }
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()

@@ -30,8 +30,12 @@ struct StageDisplayView: View {
                         .font(.body)
                 }
                 HStack {
-                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
-                        .font(.title3)
+                    Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                            .foregroundColor(Color("ColourDuration"))
+                    if stage.durationSecsInt > 0 {
+                        Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                            .font(.title3)
+                    }
                     Spacer()
                     if editMode?.wrappedValue.isEditing == false {
                         Button(action: {
@@ -44,7 +48,7 @@ struct StageDisplayView: View {
                                 .foregroundColor( .accentColor)
                         }
                         .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 32, alignment: .trailing)
+                        .frame(width: 24, alignment: .trailing)
                     }
                 }
             }

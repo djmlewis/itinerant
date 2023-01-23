@@ -9,6 +9,7 @@ import Foundation
 
 typealias StageArray = [Stage]
 
+let kStageInitialDurationSecs: Int = 60
 
 struct Stage: Identifiable, Codable, Hashable {
     let id: UUID
@@ -17,7 +18,7 @@ struct Stage: Identifiable, Codable, Hashable {
     var details: String
     var editableData: Stage.EditableData { EditableData(title: self.title, durationSecsInt: self.durationSecsInt, details: self.details) }
     
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = 0, details: String = "") {
+    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "") {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
@@ -28,7 +29,7 @@ struct Stage: Identifiable, Codable, Hashable {
 extension Stage {
     struct EditableData {
         var title: String = ""
-        var durationSecsInt: Int = 0
+        var durationSecsInt: Int = kStageInitialDurationSecs
         var details: String = ""
     }
         
@@ -42,7 +43,7 @@ extension Stage {
 
 extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
-    static func templateStage() -> Stage { Stage(title: "Stage #", durationSecsInt: 15, details: "Details") }
+    static func templateStage() -> Stage { Stage(title: "Stage #", durationSecsInt: kStageInitialDurationSecs, details: "Details") }
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
     
