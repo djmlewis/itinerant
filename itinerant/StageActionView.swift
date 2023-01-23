@@ -127,19 +127,7 @@ struct StageActionView: View {
 extension StageActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-//        let uuidstrs = itinerary.stagesIDstrs
-//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
-//        var currentActiveStr = uuidStrStagesActiveStr
-//        var currentRunningStr = uuidStrStagesRunningStr
-//        uuidstrs.forEach { uuidstr in
-//            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
-//            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
-//        }
-//        uuidStrStagesActiveStr = currentActiveStr
-//        uuidStrStagesRunningStr = currentRunningStr
-        
         (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
-        
     }
     
     func handleStartStopButtonTapped() {

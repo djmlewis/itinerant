@@ -43,19 +43,9 @@ struct ItineraryStoreView: View {
                 }
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
-//                    var currentActiveStr = uuidStrStagesActiveStr
-//                    var currentRunningStr = uuidStrStagesRunningStr
                     offsets.forEach { index in
                         (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
-
-//                        itineraryStore.itineraries[index].stagesIDstrs.forEach { uuidstr in
-//                            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
-//                            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
-//                        }
                     }
-//                    uuidStrStagesActiveStr = currentActiveStr
-//                    uuidStrStagesRunningStr = currentRunningStr
-                    
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
