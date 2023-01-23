@@ -21,6 +21,8 @@ struct ItineraryStoreView: View {
     @State private var isPresentingNewItineraryView = false
     @State private var newItinerary = Itinerary(title: "")
     @State private var newItineraryEditableData = Itinerary.EditableData()
+    @State private var fileImporterShown: Bool = false
+    
     
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var appDelegate: AppDelegate
@@ -41,25 +43,47 @@ struct ItineraryStoreView: View {
                 }
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
-                    var currentActiveStr = uuidStrStagesActiveStr
-                    var currentRunningStr = uuidStrStagesRunningStr
+//                    var currentActiveStr = uuidStrStagesActiveStr
+//                    var currentRunningStr = uuidStrStagesRunningStr
                     offsets.forEach { index in
-                        itineraryStore.itineraries[index].stagesIDstrs.forEach { uuidstr in
-                            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
-                            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
-                        }
+                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
+
+//                        itineraryStore.itineraries[index].stagesIDstrs.forEach { uuidstr in
+//                            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
+//                            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
+//                        }
                     }
-                    uuidStrStagesActiveStr = currentActiveStr
-                    uuidStrStagesRunningStr = currentRunningStr
+//                    uuidStrStagesActiveStr = currentActiveStr
+//                    uuidStrStagesRunningStr = currentRunningStr
+                    
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
-                //.onMove(perform: {itineraries.move(fromOffsets: $0, toOffset: $1)})
             }
             .navigationDestination(for: String.self) { id in
                 ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr)
             }
             .navigationTitle("Itineraries")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        newItinerary = Itinerary(title: "")
+                        newItineraryEditableData = Itinerary.EditableData()
+                        isPresentingItineraryEditView = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Itinerary")
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        fileImporterShown = true
+                    }) {
+                        Image(systemName: "square.and.arrow.down")
+                    }
+                    .accessibilityLabel("Add Itinerary")
+                }
+            }
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationView {
                     ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
@@ -79,23 +103,7 @@ struct ItineraryStoreView: View {
                         }
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    ProgressView()
-                        .opacity(itineraryStore.isLoadingItineraries ? 1.0 : 0.0)
-                }
-                ToolbarItemGroup() {
-                    Button(action: {
-                        newItinerary = Itinerary(title: "")
-                        newItineraryEditableData = Itinerary.EditableData()
-                        isPresentingItineraryEditView = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add Itinerary")
-                }
-            }
-        }
+        } /* NavStack */
         .onChange(of: appDelegate.unnItineraryID) { newValue in
             //debugPrint("change of " + String(describing: newValue))
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
@@ -104,15 +112,30 @@ struct ItineraryStoreView: View {
         .onAppear() {
 
         }
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.text,.plainText,.utf8PlainText], allowsMultipleSelection: false) { result in
+            switch result {
+            case .success(let urls):
+                do {
+                    let content = try String(contentsOfFile: urls[0].path)
+                    let firstsplit = content.split(separator: "\n")
+                    debugPrint(firstsplit[0])
+                }
+                catch {
+                    debugPrint("unable to read file")
+                }
+                break
+            case .failure(let error):
+                debugPrint(error)
+            }
+
+        }
     } /* body */
 } /* View */
 
 
 struct ItineraryStoreView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            //ItineraryStoreView(itineraries: .constant(Itinerary.sampleItineraryArray()))
+        NavigationStack() {
         }
-        .environmentObject(ItineraryStore())
     }
 }

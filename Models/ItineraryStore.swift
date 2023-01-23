@@ -25,7 +25,6 @@ class ItineraryStore: ObservableObject {
     
     @Published var itineraries: [Itinerary] = []
     @Published var permissionToNotify: Bool = false
-    @Published var isLoadingItineraries = false
     
     static func appFilesFolderPathNoSlash() -> String {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path()  + kItineraryPerststentDataFileDirectoryName
@@ -38,9 +37,8 @@ class ItineraryStore: ObservableObject {
     }
     
     
-    func loadItineraries(isLoadingItineraries: inout Bool) {
+    func loadItineraries() {
         func noFilesToLoad() {
-            isLoadingItineraries = false
             debugPrint("No files to load)")
         }
         let path = ItineraryStore.appFilesFolderPathNoSlash()
@@ -68,9 +66,6 @@ class ItineraryStore: ObservableObject {
                             } else {
                                 debugPrint("added from file for: \(fileName)")
                                 itineraries.append(newItinerary)
-                            }
-                            if itineraries.count >= files.count {
-                                isLoadingItineraries = false
                             }
                         } else {
                             debugPrint("Decode failure for: \(fileName)")

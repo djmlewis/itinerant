@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UserNotifications
 
 struct Itinerary: Identifiable, Codable, Hashable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
@@ -32,6 +32,26 @@ struct Itinerary: Identifiable, Codable, Hashable {
         self.id = id
         self.title = ""
         self.stages = []
+    }
+
+    
+    
+    
+}
+
+
+extension Itinerary {
+    
+    func removeAllStageIDsAndNotifcations(from str1: String, andFrom str2: String) -> (String, String) {
+        let uuidstrs = stagesIDstrs
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
+        var currentStr1 = str1
+        var currentStr2 = str2
+        uuidstrs.forEach { uuidstr in
+            currentStr1 = currentStr1.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
+            currentStr2 = currentStr2.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
+        }
+        return (currentStr1, currentStr2)
     }
 
     
@@ -68,17 +88,13 @@ extension Itinerary {
         let stages: StageArray
         // persistent
         let id: UUID
-        //let uuidActiveStage: String
-        //let uuidRunningStage: String
     }
     
     func savePersistentData() {
         
         let persistendData = Itinerary.PersistentData(title: title,
                                                       stages: stages,
-                                                      id: id//,
-                                                      //uuidActiveStage: uuidActiveStage,
-                                                      //uuidRunningStage: uuidRunningStage
+                                                      id: id
         )
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {

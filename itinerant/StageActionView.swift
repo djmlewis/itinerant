@@ -87,7 +87,9 @@ struct StageActionView: View {
                 .onEnded({ _ in
                     removeAllActiveRunningItineraryStageIDsAndNotifcations()
                     // make ourself active
-                    uuidStrStagesActiveStr.append(stage.id.uuidString)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        uuidStrStagesActiveStr.append(stage.id.uuidString)
+                    }
                 })
         )
         .onAppear() {
@@ -125,16 +127,19 @@ struct StageActionView: View {
 extension StageActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        let uuidstrs = itinerary.stagesIDstrs
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
-        var currentActiveStr = uuidStrStagesActiveStr
-        var currentRunningStr = uuidStrStagesRunningStr
-        uuidstrs.forEach { uuidstr in
-            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
-            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
-        }
-        uuidStrStagesActiveStr = currentActiveStr
-        uuidStrStagesRunningStr = currentRunningStr
+//        let uuidstrs = itinerary.stagesIDstrs
+//        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
+//        var currentActiveStr = uuidStrStagesActiveStr
+//        var currentRunningStr = uuidStrStagesRunningStr
+//        uuidstrs.forEach { uuidstr in
+//            currentActiveStr = currentActiveStr.replacingOccurrences(of: uuidstr, with: "")
+//            currentRunningStr = currentRunningStr.replacingOccurrences(of: uuidstr, with: "")
+//        }
+//        uuidStrStagesActiveStr = currentActiveStr
+//        uuidStrStagesRunningStr = currentRunningStr
+        
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
+        
     }
     
     func handleStartStopButtonTapped() {
