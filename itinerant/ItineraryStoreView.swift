@@ -17,19 +17,17 @@ struct ItineraryStoreView: View {
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
 
-    @State private var isPresentingItineraryEditView = false
-    @State private var isPresentingNewItineraryView = false
-    @State private var newItinerary = Itinerary(title: "")
-    @State private var newItineraryEditableData = Itinerary.EditableData()
-    @State private var fileImporterShown: Bool = false
-    
-    
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var appDelegate: AppDelegate
     
     @Environment(\.scenePhase) private var scenePhase
     
-    
+    @State private var isPresentingItineraryEditView = false
+    @State private var isPresentingNewItineraryView = false
+    @State private var newItinerary = Itinerary(title: "")
+    @State private var newItineraryEditableData = Itinerary.EditableData()
+    @State private var fileImporterShown: Bool = false
+    @State private var fileExporterShown: Bool = false
     @State private var presentedItineraryID: [String] = []
     
     
@@ -55,7 +53,7 @@ struct ItineraryStoreView: View {
             }
             .navigationTitle("Itineraries")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button(action: {
                         newItinerary = Itinerary(title: "")
                         newItineraryEditableData = Itinerary.EditableData()
@@ -65,13 +63,13 @@ struct ItineraryStoreView: View {
                     }
                     .accessibilityLabel("Add Itinerary")
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    Button("Import…") {
                         fileImporterShown = true
-                    }) {
-                        Image(systemName: "square.and.arrow.down")
                     }
-                    .accessibilityLabel("Add Itinerary")
+                    Button("Export…") {
+                        fileExporterShown = true
+                    }
                 }
             }
             .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -107,11 +105,12 @@ struct ItineraryStoreView: View {
             case .success(let urls):
                 do {
                     let content = try String(contentsOfFile: urls[0].path)
-                    let firstsplit = content.split(separator: "\n")
-                    debugPrint(firstsplit[0])
+                    if let importedItinerary = Itinerary.importItinerary(fromString: content) {
+                        itineraryStore.addItinerary(itinerary: importedItinerary)
+                    }
                 }
                 catch {
-                    debugPrint("unable to read file")
+                    debugPrint("unable to read import file")
                 }
                 break
             case .failure(let error):

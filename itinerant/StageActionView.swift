@@ -28,12 +28,15 @@ struct StageActionView: View {
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var resetStageElapsedTime: Bool?
+    @Binding var toggleDisclosureDetails: Bool
+
+    @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     
     @State private var timeElapsedAtUpdate: Double = 0.0
-    @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
-    
+    @State private var disclosureDetailsExpanded: Bool = true
+
     private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
     private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
     private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
@@ -41,12 +44,18 @@ struct StageActionView: View {
     // MARK: - body
     var body: some View {
         VStack(alignment: .leading) {
-            Text(stage.title)
-                .font(.title3)
-                .fontWeight(.bold)
-            if !stage.details.isEmpty {
-                Text(stage.details)
-                    .font(.body)
+            DisclosureGroup(isExpanded: $disclosureDetailsExpanded) {
+                if !stage.details.isEmpty {
+                    Text(stage.details)
+                        .font(.body)
+                }
+            } label: {
+                Text(stage.title)
+                    .font(.title3)
+                    .fontWeight(.bold)
+            }
+            .onChange(of: toggleDisclosureDetails) { newValue in
+                disclosureDetailsExpanded = toggleDisclosureDetails
             }
             HStack {
                 Spacer()
@@ -67,7 +76,7 @@ struct StageActionView: View {
                     Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(stageIsRunning ? .red : .accentColor)
+                        .foregroundColor(stageIsRunning ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .buttonStyle(BorderlessButtonStyle())
                 .frame(width: 52, alignment: .leading)
@@ -80,7 +89,7 @@ struct StageActionView: View {
         .cornerRadius(8) /// make the background rounded
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke( stageIsRunning ? Color.red : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
+                .stroke( stageIsRunning ? Color("ColourOvertimeBackground") : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
         )
         .gesture(
             TapGesture(count: 2)
@@ -209,7 +218,7 @@ extension StageActionView {
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), resetStageElapsedTime: .constant(false))
+        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), resetStageElapsedTime: .constant(false), toggleDisclosureDetails: .constant(false))
     }
 }
 

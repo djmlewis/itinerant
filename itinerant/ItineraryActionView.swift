@@ -21,6 +21,7 @@ struct ItineraryActionView: View {
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView = false
     @State private var resetStageElapsedTime: Bool?
+    @State private var toggleDisclosureDetails: Bool = true
 
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
@@ -36,7 +37,7 @@ struct ItineraryActionView: View {
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, resetStageElapsedTime: $resetStageElapsedTime)
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, resetStageElapsedTime: $resetStageElapsedTime, toggleDisclosureDetails: $toggleDisclosureDetails)
                 }
             }
         }
@@ -62,19 +63,30 @@ struct ItineraryActionView: View {
 //        }
         .navigationTitle(itinerary.title)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Reset") {
-                    resetItineraryStages()
-                }
-                .fontWeight(myStageIsRunning ? .bold : .regular)
-                .foregroundColor(.red)
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button("Modify") {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
                     itineraryData = itinerary.itineraryEditableData
                     isPresentingItineraryEditView = true
+                }) {
+                    Image(systemName: "square.and.pencil")
                 }
                 .disabled(myStageIsRunning)
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    resetItineraryStages()
+                }) {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+                .fontWeight(myStageIsRunning ? .bold : .regular)
+                .foregroundColor(Color("ColourOvertimeBackground"))
+            }
+           ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    toggleDisclosureDetails = !toggleDisclosureDetails
+                }) {
+                    Image(systemName: toggleDisclosureDetails == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                }
             }
         }
         .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })

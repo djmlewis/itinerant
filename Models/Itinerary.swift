@@ -8,6 +8,11 @@
 import Foundation
 import UserNotifications
 
+
+let kImportHeadingLines: Int = 1
+let kImportLinesPerStage: Int = 3
+
+
 struct Itinerary: Identifiable, Codable, Hashable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
@@ -108,6 +113,28 @@ extension Itinerary {
         }
     }
 
+}
+
+
+
+extension Itinerary {
+    
+    static func importItinerary(fromString string: String) -> Itinerary? {
+        var lines = string.split { $0 == "\n"}
+        guard (lines.count - kImportHeadingLines) % kImportLinesPerStage == 0 else {
+            return nil
+        }
+        let title = String(lines.removeFirst())
+        var stages: [Stage] = []
+        var firstIndex: Int = 0
+        while firstIndex + kImportLinesPerStage <= lines.count {
+            let stage = Stage(title: String(lines[firstIndex]), durationSecsInt: Int(lines[firstIndex+1]) ?? 0, details: String(lines[firstIndex+2]))
+            stages.append(stage)
+            firstIndex += kImportLinesPerStage
+        }
+        return Itinerary(title: title, stages: stages)
+    }
+    
 }
 
 
