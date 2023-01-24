@@ -29,33 +29,50 @@ class ItineraryStore: ObservableObject {
         appFilesFolderURL().appendingPathComponent(filename, isDirectory: false).path()
     }
 
+    func importItinerary(atPath filePath:String) {
+        do {
+            let content = try String(contentsOfFile: filePath)
+            if let importedItinerary = Itinerary.importItinerary(fromString: content) {
+                addItinerary(itinerary: importedItinerary)
+            }
+        } catch let error {
+            debugPrint(error.localizedDescription)
+        }
+    }
+    
+    func loadItinerary(atPath filePath:String) {
+        if let fileData = FileManager.default.contents(atPath: filePath) {
+            if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
+                let newItinerary = Itinerary(persistentData: persistentData)
+                let newUUIDstr = newItinerary.id.uuidString
+                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil {
+                    // we are loading an itinerary with the same UUID as already in our array,
+                    // so duplicate with new UUID and save as a new file with the new UUID as the filename
+                    /* dont do this as you mess the folder try! FileManager.default.removeItem(atPath: filePath) */
+                    // make a new UUID() with EditableData - init does this for us
+                    let cleanItinerary = Itinerary(editableData: newItinerary.itineraryEditableData)
+                    cleanItinerary.savePersistentData()
+                    itineraries.append(cleanItinerary)
+                    debugPrint("added with new UUID for: \(filePath)")
+                } else {
+                    debugPrint("added from file for: \(filePath)")
+                    itineraries.append(newItinerary)
+                }
+            } else {
+                debugPrint("Decode failure for: \(filePath)")
+            }
+        } else {
+            debugPrint("No fileData for: \(filePath)")
+        }
+
+    }
     
     func loadItineraries() {
         if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
             if files.count > 0 {
                 for fileName in files {
                     let filePath = ItineraryStore.appFilePathForFileNameWithSuffix(fileName)
-                    if let fileData = FileManager.default.contents(atPath: filePath) {
-                        if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
-                            let newItinerary = Itinerary(persistentData: persistentData)
-                            let newUUIDstr = newItinerary.id.uuidString
-                            if itineraries.filter({ $0.id.uuidString == newUUIDstr}).count > 0 {
-                                try! FileManager.default.removeItem(atPath: filePath)
-                                // make a new UUID()
-                                let cleanItinerary = Itinerary(title: newItinerary.title, stages: newItinerary.stages)
-                                cleanItinerary.savePersistentData()
-                                itineraries.append(cleanItinerary)
-                                debugPrint("added with new UUID for: \(fileName)")
-                            } else {
-                                debugPrint("added from file for: \(fileName)")
-                                itineraries.append(newItinerary)
-                            }
-                        } else {
-                            debugPrint("Decode failure for: \(fileName)")
-                        }
-                    } else {
-                        debugPrint("No fileData for: \(fileName)")
-                    }
+                    loadItinerary(atPath: filePath)
                 }
             } else {debugPrint("No files to load)")}
         } else { debugPrint("No files to load)")}

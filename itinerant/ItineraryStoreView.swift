@@ -6,13 +6,20 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers.UTType
+
+
+enum ItineraryFileType: String {
+    case itineraryFile = "uk.djml.itinerant.itinerary",
+         importFile = "uk.djml.itinerant.import"
+}
 
 
 struct ItineraryStoreView: View {
     
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
-
+    
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var appDelegate: AppDelegate
     
@@ -23,8 +30,9 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "")
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
+    @State private var fileImportFileType: ItineraryFileType = .itineraryFile
     @State private var presentedItineraryID: [String] = []
-
+    
     
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
@@ -50,11 +58,18 @@ struct ItineraryStoreView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: {
+                        fileImportFileType = .importFile
                         fileImporterShown = true
                     }) {
                         Image(systemName: "square.and.arrow.down")
                     }
-                   Button(action: {
+                    Button(action: {
+                        fileImportFileType = .itineraryFile
+                        fileImporterShown = true
+                    }) {
+                        Image(systemName: "folder.badge.plus")
+                    }
+                    Button(action: {
                         newItinerary = Itinerary(title: "")
                         newItineraryEditableData = Itinerary.EditableData()
                         isPresentingItineraryEditView = true
@@ -89,28 +104,24 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.text,.plainText,.utf8PlainText], allowsMultipleSelection: false, onCompletion: { (result) in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [UTType(fileImportFileType.rawValue)!], allowsMultipleSelection: false, onCompletion: { (result) in
             switch result {
             case .success(let urls):
-                do {
-                    let selectedFile = urls[0]
-                    if selectedFile.startAccessingSecurityScopedResource() {
-                        let content = try String(contentsOfFile: selectedFile.path)
-                        if let importedItinerary = Itinerary.importItinerary(fromString: content) {
-                            itineraryStore.addItinerary(itinerary: importedItinerary)
-                        }
+                let selectedFile = urls[0]
+                if selectedFile.startAccessingSecurityScopedResource() {
+                    switch fileImportFileType {
+                    case .itineraryFile:
+                        itineraryStore.loadItinerary(atPath: selectedFile.path)
+                    case .importFile:
+                        itineraryStore.importItinerary(atPath: selectedFile.path)
                     }
-                    selectedFile.stopAccessingSecurityScopedResource()
                 }
-                catch let error {
-                    debugPrint("unable to read import file", error.localizedDescription)
-                }
-                break
+                selectedFile.stopAccessingSecurityScopedResource()
             case .failure(let error):
                 debugPrint(error)
             }
         }) /* fileImporter */
-
+        
     } /* body */
 } /* View */
 

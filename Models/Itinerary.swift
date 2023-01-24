@@ -11,10 +11,12 @@ import UserNotifications
 
 
 struct Itinerary: Identifiable, Codable, Hashable {
+    // Persistent Data ==>
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
+    // Editable Data ==>
     var title: String
     var stages: StageArray
-        
+    
     var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
     
     // these are full inits including UUID which must be done here to be decoded
@@ -22,20 +24,26 @@ struct Itinerary: Identifiable, Codable, Hashable {
         self.id = id
         self.title = title
         self.stages = stages
-
+        
     }
     init(persistentData: PersistentData) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
     }
-
+    
+    init(editableData: EditableData) {
+        self.id = UUID()
+        self.title = editableData.title
+        self.stages = editableData.stages
+    }
+    
     init(id: UUID) {
         self.id = id
         self.title = ""
         self.stages = []
     }
-
+    
     
     
     
@@ -55,7 +63,7 @@ extension Itinerary {
         }
         return (currentStr1, currentStr2)
     }
-
+    
     
     
     
@@ -78,7 +86,7 @@ extension Itinerary {
         stages = itineraryEditableData.stages
         self.savePersistentData()
     }
-        
+    
 }
 
 
@@ -109,7 +117,7 @@ extension Itinerary {
             debugPrint("Encode failure for: \(title)")
         }
     }
-
+    
 }
 
 
@@ -142,7 +150,7 @@ extension Itinerary {
     static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
     static func emptyItineraryArray() -> [Itinerary] { [] }
     
-
+    
     
 }
 
