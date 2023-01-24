@@ -20,6 +20,10 @@ struct StageEditView: View {
     @State private var secs: Int = 0
     @State private var timerDirection: TimerDirection = .countDown
 
+    @State private var snoozehours: Int = 0
+    @State private var snoozemins: Int = 0
+    @State private var snoozesecs: Int = 0
+
     
     @FocusState private var focusedFieldTag: FieldFocusTag?
     
@@ -30,21 +34,17 @@ struct StageEditView: View {
                 TextField("Stage title", text: $stageEditableData.title)
                     .focused($focusedFieldTag, equals: .title)
             }
-            Section(header: Text("Description")) {
-                TextField("Title", text: $stageEditableData.details,  axis: .vertical)
-                    .lineLimit(1...10)
-
-            }
-            Section(content: {
+            Section(header: Text("Stage Duration")) {
                 HStack {
                     Image(systemName: "timer")
                         .opacity(timerDirection == .countDown ? 1.0 : 0.0)
-                   Picker("Timer Style", selection: $timerDirection) {
+                   Picker("", selection: $timerDirection) {
                         ForEach(TimerDirection.allCases) { direction in
                             Text(direction.rawValue)
                         }
                     }
                     .pickerStyle(.segmented)
+                    .labelsHidden()
                     Image(systemName: "stopwatch")
                         .opacity(timerDirection == .countUp ? 1.0 : 0.0)
                 }
@@ -70,6 +70,7 @@ struct StageEditView: View {
                                             .fontWeight(.heavy)
                                     }
                                 }
+                                .labelsHidden()
                                 Picker("", selection: $mins) {
                                     ForEach(0..<60) {index in
                                         Text("\(index)").tag(index)
@@ -77,6 +78,7 @@ struct StageEditView: View {
                                             .fontWeight(.heavy)
                                     }
                                 }
+                                .labelsHidden()
                                 Picker("", selection: $secs) {
                                     ForEach(0..<60) {index in
                                         Text("\(index)").tag(index)
@@ -84,16 +86,73 @@ struct StageEditView: View {
                                             .fontWeight(.heavy)
                                     }
                                 }
+                                .labelsHidden()
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
+                        Label("Duration of zero indicates Count Up timer", systemImage: "")
+                            .italic()
+                            .font(.footnote)
+                            .foregroundColor(.gray)
                     }
                 }
-            },
-                    header: {
-                    Text("Duration")
-            } )
+            }
+            Section(header: Text("Details")) {
+                TextField("Details", text: $stageEditableData.details,  axis: .vertical)
+                    .lineLimit(1...10)
+            }
+            Section(header: Text("Time between Snooze Alerts")) {
+                VStack(spacing: 2) {
+                    HStack {
+                        Group {
+                            Text("Hours")
+                            //.fontWeight(.heavy)
+                            Text("Minutes")
+                            //.fontWeight(.heavy)
+                            Text("Seconds")
+                            //.fontWeight(.heavy)
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                    }
+                    HStack {
+                        Group {
+                            Picker("", selection: $snoozehours) {
+                                ForEach(0..<24) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
+                            }
+                            .labelsHidden()
+                            Picker("", selection: $snoozemins) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
+                            }
+                            .labelsHidden()
+                            Picker("", selection: $snoozesecs) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                        .foregroundColor(.black)
+                                        .fontWeight(.heavy)
+                                }
+                            }
+                            .labelsHidden()
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                    }
+                    Label("Duration must be at least 1s", systemImage: "")
+                        .italic()
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
+            }
         }
+        .onChange(of: timerDirection, perform: {direction in
+            if direction == .countUp { stageEditableData.durationSecsInt = 0 }
+        })
         .onChange(of: hours, perform: {hrs in
             updateDuration()
         })
@@ -103,14 +162,23 @@ struct StageEditView: View {
         .onChange(of: secs, perform: {hrs in
             updateDuration()
         })
-        .onChange(of: timerDirection, perform: {direction in
-            if direction == .countUp { stageEditableData.durationSecsInt = 0 }
+        .onChange(of: snoozehours, perform: {hrs in
+            updateSnoozeDuration()
+        })
+        .onChange(of: snoozemins, perform: {hrs in
+            updateSnoozeDuration()
+        })
+        .onChange(of: snoozesecs, perform: {hrs in
+            updateSnoozeDuration()
         })
         .onAppear() {
             timerDirection = stageEditableData.durationSecsInt == 0 ? .countUp : .countDown
             hours = stageEditableData.durationSecsInt / SEC_HOUR
             mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
             secs = stageEditableData.durationSecsInt % SEC_MIN
+            snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
+            snoozemins = ((stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN)
+            snoozesecs = stageEditableData.snoozeDurationSecs % SEC_MIN
             focusedFieldTag = .title
         }
         .onDisappear() {
@@ -128,6 +196,17 @@ extension StageEditView {
         stageEditableData.durationSecsInt = Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
         timerDirection = stageEditableData.durationSecsInt == 0 ? .countUp : .countDown
     }
+    
+    func updateSnoozeDuration() {
+        var newValue = Int(snoozehours) * SEC_HOUR + Int(snoozemins) * SEC_MIN + Int(snoozesecs)
+        if newValue < 1 {
+            newValue = 1
+            snoozesecs = 1
+        }
+        stageEditableData.snoozeDurationSecs = newValue
+    }
+    
+    
 }
 
 struct StageRowEditView_Previews: PreviewProvider {

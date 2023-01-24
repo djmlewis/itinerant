@@ -9,20 +9,23 @@ import Foundation
 
 typealias StageArray = [Stage]
 
-let kStageInitialDurationSecs: Int = 60
 
 struct Stage: Identifiable, Codable, Hashable {
     let id: UUID
     var title: String
     var durationSecsInt: Int
     var details: String
-    var editableData: Stage.EditableData { EditableData(title: self.title, durationSecsInt: self.durationSecsInt, details: self.details) }
+    var snoozeDurationSecs: Int
     
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "") {
+    
+    var editableData: Stage.EditableData { EditableData(title: self.title, durationSecsInt: self.durationSecsInt, details: self.details, snoozeDurationSecs: self.snoozeDurationSecs) }
+    
+    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs) {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
         self.details = details
+        self.snoozeDurationSecs = snoozeDurationSecs
     }
 }
 
@@ -31,19 +34,21 @@ extension Stage {
         var title: String = ""
         var durationSecsInt: Int = kStageInitialDurationSecs
         var details: String = ""
+        var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
     }
         
     mutating func updateEditableData(from editableData: Stage.EditableData) {
         self.title = editableData.title
         self.durationSecsInt = editableData.durationSecsInt
         self.details = editableData.details
+        self.snoozeDurationSecs = editableData.snoozeDurationSecs
 
     }
 }
 
 extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
-    static func templateStage() -> Stage { Stage(title: "Stage #", durationSecsInt: kStageInitialDurationSecs, details: "Details") }
+    static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
     

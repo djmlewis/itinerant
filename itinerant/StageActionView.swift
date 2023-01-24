@@ -8,8 +8,6 @@
 import SwiftUI
 import Combine
 
-let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
-let kUIUpdateTimerFrequency = 0.2
 
 
 
@@ -31,7 +29,7 @@ struct StageActionView: View {
     @Binding var uuidStrStagesRunningStr: String
     @Binding var resetStageElapsedTime: Bool?
     @Binding var toggleDisclosureDetails: Bool
-
+    
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     
     @State private var timeDifferenceAtUpdate: Double = 0.0
@@ -39,7 +37,7 @@ struct StageActionView: View {
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
     @State private var disclosureDetailsExpanded: Bool = true
-
+    
     private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
     private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
     private var stageRunningOvertime: Bool { (timeDifferenceAtUpdate) >= 0 }
@@ -50,7 +48,7 @@ struct StageActionView: View {
             HStack {
                 Text(stage.title)
                     .font(.title3)
-                .fontWeight(.bold)
+                    .fontWeight(.bold)
                 Spacer()
                 Button(action: {
                     disclosureDetailsExpanded = !disclosureDetailsExpanded
@@ -60,14 +58,9 @@ struct StageActionView: View {
                 }
                 .buttonStyle(BorderlessButtonStyle())
             }
-            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
-                Text(stage.details)
-                    .font(.body)
-                    //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
-            }
             HStack {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                        .foregroundColor(Color("ColourDuration"))
+                    .foregroundColor(Color("ColourDuration"))
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
                         .font(.title3)
@@ -85,7 +78,7 @@ struct StageActionView: View {
                             .stroke( .black)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                  .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                    .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                 Spacer()
                 Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs((timeDifferenceAtUpdate))) ?? ""))
                     .padding(4.0)
@@ -105,6 +98,11 @@ struct StageActionView: View {
                 .frame(width: 32, alignment: .leading)
                 .disabled(!stageIsActive)
                 .opacity(stageIsActive ? 1.0 : 0.0)
+            }
+            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
+                Text(stage.details)
+                    .font(.body)
+                //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
             }
         } /* VStack */
         .padding(6.0)
@@ -156,7 +154,7 @@ struct StageActionView: View {
         .onChange(of: toggleDisclosureDetails) { newValue in
             disclosureDetailsExpanded = toggleDisclosureDetails
         }
-
+        
     }
     
 }
@@ -210,20 +208,21 @@ extension StageActionView {
 extension StageActionView {
     
     func postNotification() -> Void {
-
+        
         let center = UNUserNotificationCenter.current()
-        center.getNotificationSettings { settings in
-            guard (settings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
+        center.getNotificationSettings { notificationSettings in
+            guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
             var allowedAlerts = [UNAuthorizationOptions]()
-            if settings.alertSetting == .enabled { allowedAlerts.append(.alert) }
-            if settings.soundSetting == .enabled { allowedAlerts.append(.sound) }
+            if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
+            if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
             
             let content = UNMutableNotificationContent()
             content.title = itinerary.title
-            content.body = "\(stage.title) has completed"
+            content.subtitle = "\(stage.title) has completed"
             content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
                                     kStageUUIDStr : stage.id.uuidString,
                                       kStageTitle : stage.title,
+                             kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
                                   kItineraryTitle : itinerary.title
             ]
             content.categoryIdentifier = kNotificationCategoryStageCompleted

@@ -9,13 +9,6 @@ import SwiftUI
 
 
 
-let kItineraryUUIDStr = "kItineraryUUIDStr"
-let kStageUUIDStr = "kStageUUIDStr"
-let kItineraryTitle = "kItineraryTitle"
-let kStageTitle = "kStageTitle"
-
-
-
 struct ItineraryActionView: View {
 
     @State var itinerary: Itinerary

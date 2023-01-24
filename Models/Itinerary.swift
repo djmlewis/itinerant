@@ -9,15 +9,12 @@ import Foundation
 import UserNotifications
 
 
-let kImportHeadingLines: Int = 1
-let kImportLinesPerStage: Int = 3
-
 
 struct Itinerary: Identifiable, Codable, Hashable {
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var title: String
     var stages: StageArray
-    
+        
     var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
     
     // these are full inits including UUID which must be done here to be decoded

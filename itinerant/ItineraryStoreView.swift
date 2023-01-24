@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"
-let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
-let kSceneStoreUuidStrItineraryResetView = "kSceneStoreUuidStrItineraryResetView"
-
 
 struct ItineraryStoreView: View {
     

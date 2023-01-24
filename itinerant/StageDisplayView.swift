@@ -24,10 +24,6 @@ struct StageDisplayView: View {
                 Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
-                if !stage.details.isEmpty {
-                    Text(stage.details)
-                        .font(.body)
-                }
                 HStack {
                     Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
                             .foregroundColor(Color("ColourDuration"))
@@ -49,6 +45,10 @@ struct StageDisplayView: View {
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
                     }
+                }
+                if !stage.details.isEmpty {
+                    Text(stage.details)
+                        .font(.body)
                 }
             }
         }

@@ -47,3 +47,27 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
     }
 
 }
+
+//struct iCloudStore {
+//    public var containerUrl: URL! {
+//        return fileManager.url(forUbiquityContainerIdentifier: nil)!
+//    }
+//
+//    public var documents: URL! {
+//        return containerUrl.appendingPathComponent("Documents", isDirectory: true)
+//    }
+//
+//    private let fileManager: FileManager = FileManager.default
+//
+//    func store(url: URL) {
+//      // move ulr into the documents folder as a file
+// let fileID = "\(UUID().uuidString)" //extension etc
+//        let icloudFile = documents.appendingPathComponent(fileID, isDirectory: false)
+//        do {
+//            try fileManager.copyItem(at: url, to: icloudFile)
+//        } catch let error {
+//            debugPrint(error.localizedDescription)
+//        }
+//
+//    }
+//}

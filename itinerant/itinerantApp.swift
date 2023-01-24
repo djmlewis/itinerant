@@ -8,12 +8,6 @@
 import SwiftUI
 
 
-let kSnoozeIntervalSecs = 10.0
-
-let kNotificationActionOpenApp = "OPEN_APP_ACTION"
-let kNotificationActionSnooze = "SNOOZE_ACTION"
-let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
-
 @main
 struct ItinerantApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -136,12 +130,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 let content = UNMutableNotificationContent()
                 let userinfo = response.notification.request.content.userInfo
                 content.title = userinfo[kItineraryTitle] as! String
-                content.body = "\(userinfo[kStageTitle] as! String) is snoozing"
+                content.subtitle = "\(userinfo[kStageTitle] as! String) is snoozing"
                 content.userInfo = userinfo
                 content.interruptionLevel = .timeSensitive
                 content.sound = .default
                 content.categoryIdentifier = kNotificationCategoryStageCompleted
-                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (kSnoozeIntervalSecs), repeats: false)
+                let snoozeInterval = Double(userinfo[kStageSnoozeDurationSecs] as! Int)
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeInterval, repeats: false)
                 let request = UNNotificationRequest(identifier: userinfo[kStageUUIDStr] as! String, content: content, trigger: trigger)
                 center.add(request) { (error) in
                     if error != nil {  debugPrint(error!.localizedDescription) }
