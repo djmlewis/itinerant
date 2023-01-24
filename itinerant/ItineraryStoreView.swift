@@ -103,10 +103,10 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile,.itineraryImportFile], allowsMultipleSelection: false, onCompletion: { (result) in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile,.itineraryImportFile], onCompletion: { (result) in
+            // fileImporter in single file selection mode
             switch result {
-            case .success(let urls):
-                let selectedFileURL = urls[0]
+            case .success(let selectedFileURL):
                 if selectedFileURL.startAccessingSecurityScopedResource() {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
