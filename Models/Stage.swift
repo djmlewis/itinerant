@@ -18,7 +18,10 @@ struct Stage: Identifiable, Codable, Hashable {
     var snoozeDurationSecs: Int
     
     
-    var editableData: Stage.EditableData { EditableData(title: self.title, durationSecsInt: self.durationSecsInt, details: self.details, snoozeDurationSecs: self.snoozeDurationSecs) }
+    var editableData: Stage.EditableData { EditableData(title: self.title,
+                                                        durationSecsInt: self.durationSecsInt,
+                                                        details: self.details,
+                                                        snoozeDurationSecs: self.snoozeDurationSecs) }
     
     init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs) {
         self.id = id
@@ -27,6 +30,17 @@ struct Stage: Identifiable, Codable, Hashable {
         self.details = details
         self.snoozeDurationSecs = snoozeDurationSecs
     }
+    
+    init(editableData: EditableData) {
+        // force new ID
+        self.id = UUID()
+        self.title = editableData.title
+        self.durationSecsInt = editableData.durationSecsInt
+        self.details = editableData.details
+        self.snoozeDurationSecs = editableData.snoozeDurationSecs
+
+    }
+    
 }
 
 extension Stage {
@@ -60,4 +74,16 @@ extension Stage {
         return formatter
     }()
 
+}
+
+extension Stage {
+    
+    static func stageArrayWithNewIDs(from stages: StageArray) -> StageArray {
+        var newstages = StageArray()
+        stages.forEach { stage in
+            newstages.append(Stage(editableData: stage.editableData))
+        }
+        return newstages
+    }
+    
 }

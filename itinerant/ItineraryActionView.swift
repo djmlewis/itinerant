@@ -19,6 +19,8 @@ struct ItineraryActionView: View {
     @State private var isPresentingItineraryEditView: Bool = false
     @State private var resetStageElapsedTime: Bool?
     @State private var toggleDisclosureDetails: Bool = true
+    @State private var fileExporterShown: Bool = false
+    @State private var fileSaveDocument: ItineraryDocument?
 
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
@@ -60,7 +62,13 @@ struct ItineraryActionView: View {
 //        }
         .navigationTitle(itinerary.title)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: {
+                    fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
+                    fileExporterShown = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                }
                 Button(action: {
                     itineraryData = itinerary.itineraryEditableData
                     isPresentingItineraryEditView = true
@@ -68,15 +76,11 @@ struct ItineraryActionView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .disabled(myStageIsRunning)
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     resetItineraryStages()
                 }) {
                     Image(systemName: "arrow.counterclockwise")
                 }
-            }
-           ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     toggleDisclosureDetails = !toggleDisclosureDetails
                 }) {
@@ -105,7 +109,17 @@ struct ItineraryActionView: View {
                     }
             }
         } /* sheet */
-
+        .fileExporter(isPresented: $fileExporterShown,
+                      document: fileSaveDocument,
+                      contentType: .itineraryDataFile,
+                      defaultFilename: fileSaveDocument?.itineraryPersistentData.id.uuidString) { result in
+            switch result {
+            case .success:
+                itineraryStore.reloadItineraries()
+            case .failure(let error):
+                debugPrint(error.localizedDescription)
+            }
+        } /* fileExporter */
     } /* View */
     
 }

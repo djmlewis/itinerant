@@ -22,11 +22,12 @@ class ItineraryStore: ObservableObject {
     static func appFilesFolderPath() -> String {
         appFilesFolderURL().path()
     }
-    static func appFilePathWithSuffixForFileNameWithoutSuffix(_ filename:String) -> String {
-        appFilesFolderURL().appendingPathComponent(filename, isDirectory: false).appendingPathExtension(kItineraryPerststentDataFileDotSuffix).path()
+    // using URLs to construct paths then export as Strs leads to issues with spaces in the filename. stick with strings
+    static func appDataFilePathWithSuffixForFileNameWithoutSuffix(_ filename:String) -> String {
+        appFilesFolderPath() + "/" + filename + "." + ItineraryFileExtension.dataFile.rawValue
     }
     static func appFilePathForFileNameWithSuffix(_ filename:String) -> String {
-        appFilesFolderURL().appendingPathComponent(filename, isDirectory: false).path()
+        appFilesFolderPath() + "/" + filename
     }
 
     func importItinerary(atPath filePath:String) {
@@ -48,14 +49,15 @@ class ItineraryStore: ObservableObject {
                 if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil {
                     // we are loading an itinerary with the same UUID as already in our array,
                     // so duplicate with new UUID and save as a new file with the new UUID as the filename
-                    /* dont do this as you mess the folder try! FileManager.default.removeItem(atPath: filePath) */
-                    // make a new UUID() with EditableData - init does this for us
-                    let cleanItinerary = Itinerary(editableData: newItinerary.itineraryEditableData)
+                    // delete the original file to stop it happening repeatedly
+                     try! FileManager.default.removeItem(atPath: filePath)
+                    // make a new UUID() for id and for all stages
+                    let cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDs(from: newItinerary)
                     cleanItinerary.savePersistentData()
                     itineraries.append(cleanItinerary)
-                    debugPrint("added with new UUID for: \(filePath)")
+                    //debugPrint("added with new UUID for: \(filePath)")
                 } else {
-                    debugPrint("added from file for: \(filePath)")
+                    //debugPrint("added from file for: \(filePath)")
                     itineraries.append(newItinerary)
                 }
             } else {
@@ -74,9 +76,17 @@ class ItineraryStore: ObservableObject {
                     let filePath = ItineraryStore.appFilePathForFileNameWithSuffix(fileName)
                     loadItinerary(atPath: filePath)
                 }
-            } else {debugPrint("No files to load)")}
-        } else { debugPrint("No files to load)")}
+            } else {debugPrint("files count == 0")}
+        } else { debugPrint("Directory read failed)")}
     }
+    
+    
+    func reloadItineraries() {
+        // this force erases all the itineraries so they better be saved to file
+        itineraries = []
+        loadItineraries()
+    }
+    
     
     func itineraryForID(id:String) -> Itinerary {
         itineraries.first { $0.id.uuidString == id } ?? Itinerary(title: kUnknownObjectErrorStr)
@@ -88,7 +98,7 @@ class ItineraryStore: ObservableObject {
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
         for id in idsToDelete {
-            let filePath = ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id)
+            let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(id)
             do {
                 try FileManager.default.removeItem(atPath: filePath)
             } catch {

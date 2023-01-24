@@ -6,12 +6,30 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
+
+// Define this document's type.
+enum ItineraryFileType: String {
+    case dataFile = "uk.djml.itinerant.itinerary"
+    case importFile = "uk.djml.itinerant.import"
+}
+
+extension UTType {
+    static let itineraryDataFile = UTType(exportedAs: ItineraryFileType.dataFile.rawValue)
+    static let itineraryImportFile = UTType(exportedAs: ItineraryFileType.importFile.rawValue)
+}
+
+enum ItineraryFileExtension: String {
+    case dataFile = "itinerary"
+    case importFile = "import"
+}
 
 // MARK: - ItineraryStore
 let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"
 let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
 
-let kItineraryPerststentDataFileSuffix = "itinerary"
+let kItineraryPerststentDataFileSuffix = ItineraryFileExtension.dataFile.rawValue
+let kItineraryPerststentImportFileSuffix = ItineraryFileExtension.importFile.rawValue
 let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
 let kItineraryPerststentDataFileDirectoryName = "Itinerant"
 let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName + "/"

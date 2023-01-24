@@ -45,7 +45,9 @@ struct Itinerary: Identifiable, Codable, Hashable {
     }
     
     
-    
+    static func duplicateItineraryWithAllNewIDs(from itinerary:Itinerary) -> Itinerary {
+        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages))
+    }
     
 }
 
@@ -65,7 +67,9 @@ extension Itinerary {
     }
     
     
-    
+    func hasRunningStage(uuidStrStagesRunningStr: String) -> Bool {
+        stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil
+    }
     
 }
 
@@ -100,6 +104,11 @@ extension Itinerary {
         let id: UUID
     }
     
+    var itineraryPersistentData: PersistentData {
+        PersistentData(title: title, stages: stages, id: id)
+    }
+
+    
     func savePersistentData() {
         
         let persistendData = Itinerary.PersistentData(title: title,
@@ -109,7 +118,7 @@ extension Itinerary {
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                try data.write(to: URL(fileURLWithPath: ItineraryStore.appFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
+                try data.write(to: URL(fileURLWithPath: ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
             } catch  {
                 debugPrint("Save write failure for: \(title)")
             }
@@ -119,7 +128,6 @@ extension Itinerary {
     }
     
 }
-
 
 
 extension Itinerary {

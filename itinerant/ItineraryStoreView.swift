@@ -9,11 +9,6 @@ import SwiftUI
 import UniformTypeIdentifiers.UTType
 
 
-enum ItineraryFileType: String {
-    case itineraryFile = "uk.djml.itinerant.itinerary",
-         importFile = "uk.djml.itinerant.import"
-}
-
 
 struct ItineraryStoreView: View {
     
@@ -30,16 +25,21 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "")
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
-    @State private var fileImportFileType: ItineraryFileType = .itineraryFile
+   // @State private var fileImportFileType: ItineraryFileType = .itineraryDataFile
     @State private var presentedItineraryID: [String] = []
-    
+
     
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
                 ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
-                        Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                        HStack {
+                            Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                            Spacer()
+                            ProgressView()
+                                .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
+                        }
                     }
                 }
                 .onDelete(perform: { offsets in
@@ -58,16 +58,15 @@ struct ItineraryStoreView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: {
-                        fileImportFileType = .importFile
+                        itineraryStore.reloadItineraries()
+                    }) {
+                        Image(systemName: "arrow.counterclockwise")
+                    }
+                    Button(action: {
+                        //fileImportFileType = .itineraryImportFile
                         fileImporterShown = true
                     }) {
                         Image(systemName: "square.and.arrow.down")
-                    }
-                    Button(action: {
-                        fileImportFileType = .itineraryFile
-                        fileImporterShown = true
-                    }) {
-                        Image(systemName: "folder.badge.plus")
                     }
                     Button(action: {
                         newItinerary = Itinerary(title: "")
@@ -104,24 +103,25 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [UTType(fileImportFileType.rawValue)!], allowsMultipleSelection: false, onCompletion: { (result) in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile,.itineraryImportFile], allowsMultipleSelection: false, onCompletion: { (result) in
             switch result {
             case .success(let urls):
-                let selectedFile = urls[0]
-                if selectedFile.startAccessingSecurityScopedResource() {
-                    switch fileImportFileType {
-                    case .itineraryFile:
-                        itineraryStore.loadItinerary(atPath: selectedFile.path)
-                    case .importFile:
-                        itineraryStore.importItinerary(atPath: selectedFile.path)
+                let selectedFileURL = urls[0]
+                if selectedFileURL.startAccessingSecurityScopedResource() {
+                    switch selectedFileURL.pathExtension {
+                    case ItineraryFileExtension.dataFile.rawValue:
+                        itineraryStore.loadItinerary(atPath: selectedFileURL.path)
+                    case ItineraryFileExtension.importFile.rawValue:
+                        itineraryStore.importItinerary(atPath: selectedFileURL.path)
+                    default:
+                        break
                     }
                 }
-                selectedFile.stopAccessingSecurityScopedResource()
+                selectedFileURL.stopAccessingSecurityScopedResource()
             case .failure(let error):
                 debugPrint(error)
             }
         }) /* fileImporter */
-        
     } /* body */
 } /* View */
 

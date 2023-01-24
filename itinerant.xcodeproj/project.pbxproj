@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720C092D29741F74000AFFCC /* StageDisplayView.swift */; };
+		7212D0DA29804ADD002A6848 /* ItineraryDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7212D0D929804ADD002A6848 /* ItineraryDocument.swift */; };
 		722A58CD297FF14D0061620C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
 		722A58CE297FF1570061620C /* ItineraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09B295F405300367612 /* ItineraryStore.swift */; };
 		722A58CF297FF1570061620C /* Itinerary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09D295F42BE00367612 /* Itinerary.swift */; };
@@ -59,6 +60,7 @@
 
 /* Begin PBXFileReference section */
 		720C092D29741F74000AFFCC /* StageDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDisplayView.swift; sourceTree = "<group>"; };
+		7212D0D929804ADD002A6848 /* ItineraryDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryDocument.swift; sourceTree = "<group>"; };
 		722A58D1297FF1D10061620C /* Konstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Konstants.swift; sourceTree = "<group>"; };
 		72382CB12979D3F900DE76E3 /* itinerantApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
+				7212D0D929804ADD002A6848 /* ItineraryDocument.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
@@ -281,6 +284,7 @@
 				720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */,
 				722A58D2297FF1D10061620C /* Konstants.swift in Sources */,
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
+				7212D0DA29804ADD002A6848 /* ItineraryDocument.swift in Sources */,
 				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
 				72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */,
 				72E7F079295F3F6400367612 /* ItineraryStoreView.swift in Sources */,
