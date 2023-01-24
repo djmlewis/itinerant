@@ -11,6 +11,8 @@ import Combine
 let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
 let kUIUpdateTimerFrequency = 0.2
 
+
+
 class CancellingTimer {
     var cancellor: AnyCancellable?
     
@@ -32,14 +34,15 @@ struct StageActionView: View {
 
     @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
     
-    @State private var timeElapsedAtUpdate: Double = 0.0
+    @State private var timeDifferenceAtUpdate: Double = 0.0
+    @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
     @State private var disclosureDetailsExpanded: Bool = true
 
     private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
     private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
-    private var stageRunningOvertime: Bool { floor(timeElapsedAtUpdate) >= 0 }
+    private var stageRunningOvertime: Bool { (timeDifferenceAtUpdate) >= 0 }
     
     // MARK: - body
     var body: some View {
@@ -72,12 +75,24 @@ struct StageActionView: View {
                         .foregroundColor(Color("ColourDuration"))
                 }
                 Spacer()
-                Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs(floor(timeElapsedAtUpdate))) ?? ""))
+                Text((Stage.stageDurationFormatter.string(from: fabs((timeAccumulatedAtUpdate))) ?? ""))
+                    .padding(4.0)
+                    .foregroundColor(.black)
+                    .background(.white)
+                    .cornerRadius(4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke( .black)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                  .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                Spacer()
+                Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs((timeDifferenceAtUpdate))) ?? ""))
                     .padding(4.0)
                     .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
                     .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .opacity(timeElapsedAtUpdate == 0.0  ? 0.0 : 1.0)
+                    .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
@@ -122,7 +137,8 @@ struct StageActionView: View {
         .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
             //debugPrint($0)
             if(stageIsRunning) {
-                timeElapsedAtUpdate = Double(stage.durationSecsInt) - ($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+                timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
                 // we may have been skipped so cancel at the next opportunity
                 uiUpdateTimerCancellor?.cancel()
@@ -131,7 +147,8 @@ struct StageActionView: View {
         .onChange(of: resetStageElapsedTime) { newValue in
             DispatchQueue.main.async {
                 if newValue == true {
-                    timeElapsedAtUpdate = 0.0
+                    timeDifferenceAtUpdate = 0.0
+                    timeAccumulatedAtUpdate = 0.0
                     resetStageElapsedTime = nil
                 }
             }
@@ -177,7 +194,8 @@ extension StageActionView {
     
     func handleStartRunning() {
         timeStartedRunning = Date().timeIntervalSinceReferenceDate
-        timeElapsedAtUpdate = Double(stage.durationSecsInt)
+        timeDifferenceAtUpdate = Double(stage.durationSecsInt)
+        timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.id.uuidString)
         // if duration == 0 it is not counted down, no notification
         if stage.durationSecsInt > 0 { postNotification() }
@@ -192,6 +210,7 @@ extension StageActionView {
 extension StageActionView {
     
     func postNotification() -> Void {
+
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
             guard (settings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
@@ -208,6 +227,8 @@ extension StageActionView {
                                   kItineraryTitle : itinerary.title
             ]
             content.categoryIdentifier = kNotificationCategoryStageCompleted
+            content.interruptionLevel = .timeSensitive
+            content.sound = .default
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
             let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
             let notificationCenter = UNUserNotificationCenter.current()

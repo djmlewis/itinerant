@@ -108,6 +108,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             self.unnItineraryID = notifiedItineraryID as? String
             self.unnStageID = notification.request.identifier
         }
+        
         // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
     }
@@ -116,7 +117,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.         debugPrint("Notification received with identifier \(response.notification.request.identifier)")
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
-        
+
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
             switch response.actionIdentifier {
             case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
@@ -137,6 +138,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 content.title = userinfo[kItineraryTitle] as! String
                 content.body = "\(userinfo[kStageTitle] as! String) is snoozing"
                 content.userInfo = userinfo
+                content.interruptionLevel = .timeSensitive
+                content.sound = .default
                 content.categoryIdentifier = kNotificationCategoryStageCompleted
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (kSnoozeIntervalSecs), repeats: false)
                 let request = UNNotificationRequest(identifier: userinfo[kStageUUIDStr] as! String, content: content, trigger: trigger)
