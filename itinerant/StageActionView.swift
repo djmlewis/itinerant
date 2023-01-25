@@ -61,13 +61,17 @@ struct StageActionView: View {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
                     .foregroundColor(Color("ColourDuration"))
                 if stage.durationSecsInt > 0 {
-                    Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt))
+                        //Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!
+                    )
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(Color("ColourDuration"))
                 }
                 Spacer()
-                Text((Stage.stageDurationFormatter.string(from: fabs((timeAccumulatedAtUpdate))) ?? ""))
+                Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate)))
+                    //(Stage.stageDurationFormatter.string(from: fabs((timeAccumulatedAtUpdate))) ?? "")
+                )
                     .padding(4.0)
                     .foregroundColor(.black)
                     .background(.white)
@@ -79,7 +83,10 @@ struct StageActionView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                 Spacer()
-                Text("\(stageRunningOvertime ? "" : "+" )" + (Stage.stageDurationFormatter.string(from: fabs((timeDifferenceAtUpdate))) ?? ""))
+                Text("\(stageRunningOvertime ? "" : "+" )" +
+                     Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate)))
+                        //(Stage.stageDurationFormatter.string(from: fabs((timeDifferenceAtUpdate))) ?? "")
+                )
                     .padding(4.0)
                     .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
                     .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))

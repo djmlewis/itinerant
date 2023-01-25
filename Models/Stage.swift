@@ -73,6 +73,10 @@ extension Stage {
         formatter.allowedUnits = [.hour,.minute,.second]
         return formatter
     }()
+    
+    static func stageDurationStringFromDouble(_ time: Double) -> String {
+        Stage.stageDurationFormatter.string(from: time) ?? ""
+    }
 
 }
 

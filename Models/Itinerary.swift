@@ -51,7 +51,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
     
     
     static func duplicateItineraryWithAllNewIDs(from itinerary:Itinerary) -> Itinerary {
-        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages))
+        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename)
     }
     
 }
@@ -125,17 +125,32 @@ extension Itinerary {
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                let initialfilename = id.uuidString
+                let initialfilename = filename!// uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: title)
                 let fileURL = URL(fileURLWithPath: ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(initialfilename))
                 try data.write(to: fileURL)
                 return initialfilename
-            } catch  {
-                debugPrint("Save write failure for: \(title)")
+            } catch  let error {
+                debugPrint("Save write failure for: \(title)", error.localizedDescription)
             }
         } else {
             debugPrint("Encode failure for: \(title)")
         }
         return nil
+    }
+    
+    static func uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly initialFileName: String) -> String {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}),
+           files.count > 0 {
+            let filenames = files.map { $0.components(separatedBy: ".").first }
+            var index = 1
+            var modifiedFilename = initialFileName
+            while filenames.first(where: { $0 == modifiedFilename }) != nil {
+                modifiedFilename = initialFileName + " \(index)"
+                index += 1
+            }
+            return modifiedFilename
+        }
+        return initialFileName
     }
     
 }

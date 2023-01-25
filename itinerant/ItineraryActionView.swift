@@ -31,7 +31,12 @@ struct ItineraryActionView: View {
     var myStageIsActive: Bool { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
     var stageRunning: Stage? { itinerary.stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
     var myStageIsRunning: Bool { itinerary.stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
-
+    var totalDuration: Double { Double(itinerary.stages.reduce(0) { partialResult, stage in
+        partialResult + stage.durationSecsInt
+    }) }
+    var someStagesAreCountUp: Bool { itinerary.stages.reduce(false) { partialResult, stage in
+        partialResult || stage.durationSecsInt == 0
+    } }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -41,8 +46,27 @@ struct ItineraryActionView: View {
                 }
             }
         }
-        Text(itinerary.filename ?? "---")
-            .styleSubtitle(alignment: .center)
+        VStack(alignment: .center) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Total")
+                    .font(.title2)
+                Image(systemName: "timer")
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                Text("Duration " + Stage.stageDurationStringFromDouble(totalDuration) + (someStagesAreCountUp ? " +" : ""))
+                    .font(.title2)
+                if(someStagesAreCountUp) {
+                    Image(systemName: "stopwatch")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                }
+            }
+            .padding(.trailing,0)
+            .padding(.leading,0)
+
+            Label(itinerary.filename ?? "---", systemImage: "doc")
+                .styleSubtitleLabel(alignment: .center)
+        }
         .onAppear() {
             if !myStageIsRunning && !myStageIsActive && !itinerary.stages.isEmpty {
                 uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
@@ -115,7 +139,7 @@ struct ItineraryActionView: View {
         .fileExporter(isPresented: $fileExporterShown,
                       document: fileSaveDocument,
                       contentType: .itineraryDataFile,
-                      defaultFilename: fileSaveDocument?.itineraryPersistentData.id.uuidString) { result in
+                      defaultFilename: fileSaveDocument?.itineraryPersistentData.title) { result in
             switch result {
             case .success:
                 itineraryStore.reloadItineraries()

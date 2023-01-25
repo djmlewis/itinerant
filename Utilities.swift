@@ -58,7 +58,6 @@ extension String {
     
 }
 
-
 struct TextSubtitle: ViewModifier {
     var text: String
     var stackAlignment: HorizontalAlignment
@@ -73,10 +72,31 @@ struct TextSubtitle: ViewModifier {
     }
 }
 
+struct LabelSubtitle: ViewModifier {
+    var text: String
+    var iconName: String
+    var stackAlignment: HorizontalAlignment
+    var subtitleAlignment: TextAlignment
+
+    func body(content: Content) -> some View {
+        VStack(alignment: stackAlignment) {
+            content
+            Label(text, systemImage: iconName)
+                .labelStyle(.titleAndIcon)
+                .styleSubtitle(alignment: subtitleAlignment)
+        }
+    }
+}
+
+
 extension View {
-    func subtitled(with text: String, stackAlignment: HorizontalAlignment, subtitleAlignment: TextAlignment) -> some View {
+    func subtitledText(with text: String, stackAlignment: HorizontalAlignment, subtitleAlignment: TextAlignment) -> some View {
         modifier(TextSubtitle(text: text, stackAlignment: stackAlignment, subtitleAlignment: subtitleAlignment))
     }
+    func subtitledLabel(with text: String, iconName: String, stackAlignment: HorizontalAlignment, subtitleAlignment: TextAlignment) -> some View {
+        modifier(LabelSubtitle(text: text, iconName: iconName, stackAlignment: stackAlignment, subtitleAlignment: subtitleAlignment))
+    }
+
 }
 
 struct StyleSubtitle: ViewModifier {
@@ -93,6 +113,10 @@ struct StyleSubtitle: ViewModifier {
 extension View {
     func styleSubtitle(alignment: TextAlignment) -> some View {
         modifier(StyleSubtitle(alignment: alignment))
+    }
+    func styleSubtitleLabel(alignment: TextAlignment) -> some View {
+        modifier(StyleSubtitle(alignment: alignment))
+            .labelStyle(.titleAndIcon)
     }
 }
 

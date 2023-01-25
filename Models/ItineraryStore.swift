@@ -43,35 +43,43 @@ class ItineraryStore: ObservableObject {
     func importItinerary(atPath filePath:String) {
         do {
             let content = try String(contentsOfFile: filePath)
-            if let importedItinerary = Itinerary.importItinerary(fromString: content) {
+            if var importedItinerary = Itinerary.importItinerary(fromString: content) {
+                importedItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: importedItinerary.title)
                 addItinerary(itinerary: importedItinerary)
+                sortItineraries()
             }
         } catch let error {
             debugPrint(error.localizedDescription)
         }
     }
     
-    func loadItinerary(atPath filePath:String) {
+    func loadItinerary(atPath filePath:String, importing: Bool) {
         if let fileData = FileManager.default.contents(atPath: filePath) {
             if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
-                var newItinerary = Itinerary(persistentData: persistentData)
-                newItinerary.filename = filePath.fileNameWithoutExtensionFromPath()
+                // if we are importing we must make a unique file name from the title so we dont overwrite an existing one in the folder,
+                // otherwise we will use the existing filename as we must overwrite anyway ones we are loading from the folder on re-load
+                let filename = importing ?
+                    Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
+                    filePath.fileNameWithoutExtensionFromPath()!
+                let newItinerary = Itinerary(persistentData: persistentData, filename: filename)
                 let newUUIDstr = newItinerary.id.uuidString
-                let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
-                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil || outsideDatFilesFolder {
+                //let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
+                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil || importing {
                     // we are loading an itinerary with the same UUID as already in our array,
                     // or importing one from outside the itineraries folder
                     // so duplicate with new UUID and save as a new file with the new UUID as the filename in the itineraries folder
-                    // delete the original file to stop it happening repeatedly if its inside the datFilesFolder
-                    if !outsideDatFilesFolder { try! FileManager.default.removeItem(atPath: filePath) }
                     // make a new UUID() for id and for all stages
+                    // make a new filename as this is a new itinerary
                     var cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDs(from: newItinerary)
-                    cleanItinerary.filename = cleanItinerary.savePersistentData()
+                    cleanItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: cleanItinerary.title)
+                    _ = cleanItinerary.savePersistentData()
                     itineraries.append(cleanItinerary)
+                    if importing { sortItineraries() }
                     //debugPrint("added with new UUID for: \(filePath)")
                 } else {
                     itineraries.append(newItinerary)
-                }
+                    if importing { sortItineraries() }
+               }
             } else {
                 debugPrint("Decode failure for: \(filePath)")
             }
@@ -87,8 +95,9 @@ class ItineraryStore: ObservableObject {
             if files.count > 0 {
                 for fileName in files {
                     let filePath = ItineraryStore.appFilePathForFileNameWithExtension(fileName)
-                    loadItinerary(atPath: filePath)
+                    loadItinerary(atPath: filePath, importing: false)
                 }
+                sortItineraries()
             } else {debugPrint("files count == 0")}
         } else { debugPrint("Directory read failed)")}
     }
@@ -112,6 +121,12 @@ class ItineraryStore: ObservableObject {
         tryToLoadItineraries()
     }
     
+    func sortItineraries() {
+        itineraries.sort {
+            if $0.title == $1.title && $0.filename != nil && $1.filename != nil { return $0.filename! < $1.filename! }
+            return $0.title < $1.title
+        }
+    }
     
     func itineraryForID(id:String) -> Itinerary {
         itineraries.first { $0.id.uuidString == id } ?? Itinerary(title: kUnknownObjectErrorStr)

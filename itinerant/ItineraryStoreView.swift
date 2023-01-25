@@ -26,7 +26,6 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "")
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
-   // @State private var fileImportFileType: ItineraryFileType = .itineraryDataFile
     @State private var presentedItineraryID: [String] = []
 
     
@@ -38,7 +37,8 @@ struct ItineraryStoreView: View {
                         HStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.title)
-                                .subtitled(with: itineraryStore.itineraryFileNameForID(id: itineraryID), stackAlignment: .leading, subtitleAlignment: .trailing)
+                                .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
+                                .subtitledText(with: itineraryID, stackAlignment: .leading, subtitleAlignment: .trailing)
                             Spacer()
                             ProgressView()
                                 .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
@@ -92,8 +92,11 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
+                                    // set the filename first before any updates
+                                    newItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: newItineraryEditableData.title)
                                     newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
                                     itineraryStore.addItinerary(itinerary: newItinerary)
+                                    itineraryStore.sortItineraries()
                                     isPresentingItineraryEditView = false
                                 }
                             }
@@ -113,7 +116,7 @@ struct ItineraryStoreView: View {
                 if selectedFileURL.startAccessingSecurityScopedResource() {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
-                        itineraryStore.loadItinerary(atPath: selectedFileURL.path)
+                        itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
                     case ItineraryFileExtension.importFile.rawValue:
                         itineraryStore.importItinerary(atPath: selectedFileURL.path)
                     default:

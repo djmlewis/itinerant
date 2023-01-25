@@ -28,7 +28,9 @@ struct StageDisplayView: View {
                     Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
                             .foregroundColor(Color("ColourDuration"))
                     if stage.durationSecsInt > 0 {
-                        Text(Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!)
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt))
+                            //Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!
+                        )
                             .font(.title3)
                     }
                     Spacer()
