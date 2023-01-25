@@ -11,9 +11,10 @@ import SwiftUI
 
 struct ItineraryActionView: View {
 
-    @State var itinerary: Itinerary
+    @State var itinerary: Itinerary // not sure why thgis is a State not a Binding
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
+    @Binding var dictStageStartDates: [String:String]
 
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView: Bool = false
@@ -36,7 +37,7 @@ struct ItineraryActionView: View {
         VStack(alignment: .leading) {
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, resetStageElapsedTime: $resetStageElapsedTime, toggleDisclosureDetails: $toggleDisclosureDetails)
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, toggleDisclosureDetails: $toggleDisclosureDetails)
                 }
             }
         }
@@ -129,9 +130,8 @@ struct ItineraryActionView: View {
 extension ItineraryActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
     }
-    
     
     func resetItineraryStages() {
         removeAllActiveRunningItineraryStageIDsAndNotifcations()

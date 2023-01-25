@@ -27,11 +27,10 @@ struct StageActionView: View {
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
+    @Binding var dictStageStartDates: [String:String]
     @Binding var resetStageElapsedTime: Bool?
     @Binding var toggleDisclosureDetails: Bool
-    
-    @SceneStorage(kSceneStoreStageTimeStartedRunning) var timeStartedRunning: TimeInterval = Date().timeIntervalSinceReferenceDate
-    
+        
     @State private var timeDifferenceAtUpdate: Double = 0.0
     @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -135,7 +134,7 @@ struct StageActionView: View {
         .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
             //debugPrint($0)
             if(stageIsRunning) {
-                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning)
+                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
                 timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
                 // we may have been skipped so cancel at the next opportunity
@@ -162,8 +161,23 @@ struct StageActionView: View {
 
 extension StageActionView {
     
+    
+    func  timeStartedRunning() -> TimeInterval {
+        floor(Double(dictStageStartDates[stage.id.uuidString] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
+    }
+    
+    func setTimeStartedRunning(_ newValue: Double?) {
+        dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+    }
+    
+}
+
+
+
+extension StageActionView {
+    
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
     }
     
     func handleStartStopButtonTapped() {
@@ -178,6 +192,7 @@ extension StageActionView {
         // remove ourselves from active and running
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        setTimeStartedRunning(nil)
         // set the next stage to active if there is one above us
         if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
             if itinerary.stages.count > ourindex+1 {
@@ -191,7 +206,7 @@ extension StageActionView {
     }
     
     func handleStartRunning() {
-        timeStartedRunning = Date().timeIntervalSinceReferenceDate
+        setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.id.uuidString)
@@ -251,7 +266,7 @@ extension StageActionView {
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), resetStageElapsedTime: .constant(false), toggleDisclosureDetails: .constant(false))
+        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), dictStageStartDates: .constant([:]), resetStageElapsedTime: .constant(false), toggleDisclosureDetails: .constant(false))
     }
 }
 

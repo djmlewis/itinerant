@@ -54,16 +54,18 @@ struct Itinerary: Identifiable, Codable, Hashable {
 
 extension Itinerary {
     
-    func removeAllStageIDsAndNotifcations(from str1: String, andFrom str2: String) -> (String, String) {
+    func removeAllStageIDsAndNotifcations(from str1: String, andFrom str2: String, andFromDict dict: [String:String]) -> (String, String, [String:String]) {
         let uuidstrs = stagesIDstrs
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
         var currentStr1 = str1
         var currentStr2 = str2
+        var currentDict = dict
         uuidstrs.forEach { uuidstr in
             currentStr1 = currentStr1.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
             currentStr2 = currentStr2.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
+            currentDict[uuidstr] = nil
         }
-        return (currentStr1, currentStr2)
+        return (currentStr1, currentStr2, currentDict)
     }
     
     

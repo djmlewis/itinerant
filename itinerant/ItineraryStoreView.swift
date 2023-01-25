@@ -14,7 +14,8 @@ struct ItineraryStoreView: View {
     
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
-    
+    @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
+
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var appDelegate: AppDelegate
     
@@ -45,14 +46,14 @@ struct ItineraryStoreView: View {
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
-                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr)
+                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
                     }
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
             }
             .navigationDestination(for: String.self) { id in
-                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr)
+                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
             }
             .navigationTitle("Itineraries")
             .toolbar {

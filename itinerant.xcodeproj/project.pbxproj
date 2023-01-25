@@ -125,7 +125,6 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
-				7212D0D929804ADD002A6848 /* ItineraryDocument.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
@@ -173,6 +172,7 @@
 				72E7F09B295F405300367612 /* ItineraryStore.swift */,
 				72E7F09D295F42BE00367612 /* Itinerary.swift */,
 				7258974629643C7D00EA782E /* Stage.swift */,
+				7212D0D929804ADD002A6848 /* ItineraryDocument.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";

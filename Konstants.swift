@@ -55,6 +55,7 @@ let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
 // MARK: - ItineraryStoreView
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
+let kSceneStoreDictStageStartDates = "kSceneStoreDictStageStartDates"
 let kSceneStoreUuidStrItineraryResetView = "kSceneStoreUuidStrItineraryResetView"
 
 // MARK: - ItineraryActionView
