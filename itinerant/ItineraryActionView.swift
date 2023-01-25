@@ -48,21 +48,23 @@ struct ItineraryActionView: View {
         }
         VStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Total")
-                    .font(.title2)
-                Image(systemName: "timer")
-                    .resizable()
-                    .frame(width: 16, height: 16)
-                Text("Duration " + Stage.stageDurationStringFromDouble(totalDuration) + (someStagesAreCountUp ? " +" : ""))
-                    .font(.title2)
-                if(someStagesAreCountUp) {
-                    Image(systemName: "stopwatch")
+                Group {
+                    Text("Total")
+                        .font(.title2)
+                    Image(systemName: "timer")
                         .resizable()
                         .frame(width: 16, height: 16)
+                    Text(Stage.stageDurationStringFromDouble(totalDuration) + (someStagesAreCountUp ? " +" : ""))
+                        .font(.title2)
+                    if(someStagesAreCountUp) {
+                        Image(systemName: "stopwatch")
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
                 }
+                .padding(.trailing,0)
+                .padding(.leading,0)
             }
-            .padding(.trailing,0)
-            .padding(.leading,0)
 
             Label(itinerary.filename ?? "---", systemImage: "doc")
                 .styleSubtitleLabel(alignment: .center)

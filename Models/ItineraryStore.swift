@@ -139,9 +139,9 @@ class ItineraryStore: ObservableObject {
     }
 
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
-        let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
-        for id in idsToDelete {
-            let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(id)
+        let filenamesToDelete = offsets.map { itineraries[$0].filename! }
+        for filename in filenamesToDelete {
+            let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(filename)
             do {
                 try FileManager.default.removeItem(atPath: filePath)
             } catch {
@@ -149,7 +149,6 @@ class ItineraryStore: ObservableObject {
             }
         }
         itineraries.remove(atOffsets: offsets)
-        
     }
     
     func addItinerary(itinerary: Itinerary) {

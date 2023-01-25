@@ -38,7 +38,7 @@ struct ItineraryStoreView: View {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.title)
                                 .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
-                                .subtitledText(with: itineraryID, stackAlignment: .leading, subtitleAlignment: .trailing)
+                                //.subtitledText(with: itineraryID, stackAlignment: .leading, subtitleAlignment: .trailing)
                             Spacer()
                             ProgressView()
                                 .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
