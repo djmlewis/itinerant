@@ -16,32 +16,37 @@ struct Itinerary: Identifiable, Codable, Hashable {
     // Editable Data ==>
     var title: String
     var stages: StageArray
-    
+    // runtime
+    var filename: String?
+
     var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = []) {
+    init(id: UUID = UUID(), title: String, stages: StageArray = [], filename: String? = nil) {
         self.id = id
         self.title = title
         self.stages = stages
-        
+        self.filename = filename
     }
-    init(persistentData: PersistentData) {
+    init(persistentData: PersistentData, filename: String? = nil) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
+        self.filename = filename
     }
     
     init(editableData: EditableData) {
         self.id = UUID()
         self.title = editableData.title
         self.stages = editableData.stages
+        self.filename = nil
     }
     
     init(id: UUID) {
         self.id = id
         self.title = ""
         self.stages = []
+        self.filename = nil
     }
     
     
@@ -90,7 +95,7 @@ extension Itinerary {
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
         title = itineraryEditableData.title
         stages = itineraryEditableData.stages
-        self.savePersistentData()
+        _ = self.savePersistentData()
     }
     
 }
@@ -102,7 +107,7 @@ extension Itinerary {
         // editable
         let title: String
         let stages: StageArray
-        // persistent
+        // persistent + editable
         let id: UUID
     }
     
@@ -111,7 +116,7 @@ extension Itinerary {
     }
 
     
-    func savePersistentData() {
+    func savePersistentData() -> String? {
         
         let persistendData = Itinerary.PersistentData(title: title,
                                                       stages: stages,
@@ -120,13 +125,17 @@ extension Itinerary {
         
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                try data.write(to: URL(fileURLWithPath: ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(id.uuidString)))
+                let initialfilename = id.uuidString
+                let fileURL = URL(fileURLWithPath: ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(initialfilename))
+                try data.write(to: fileURL)
+                return initialfilename
             } catch  {
                 debugPrint("Save write failure for: \(title)")
             }
         } else {
             debugPrint("Encode failure for: \(title)")
         }
+        return nil
     }
     
 }

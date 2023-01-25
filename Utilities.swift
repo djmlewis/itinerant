@@ -9,6 +9,7 @@
 
 
 import Foundation
+import SwiftUI
 
 let SEC_MIN = 60
 let SEC_HOUR = 3600
@@ -47,4 +48,52 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
     }
 
 }
+
+extension String {
+    
+    func fileNameWithoutExtensionFromPath() -> String? {
+        self.components(separatedBy: "/").last?.components(separatedBy: ".").first
+    }
+    
+    
+}
+
+
+struct TextSubtitle: ViewModifier {
+    var text: String
+    var stackAlignment: HorizontalAlignment
+    var subtitleAlignment: TextAlignment
+
+    func body(content: Content) -> some View {
+        VStack(alignment: stackAlignment) {
+            content
+            Text(text)
+                .styleSubtitle(alignment: subtitleAlignment)
+        }
+    }
+}
+
+extension View {
+    func subtitled(with text: String, stackAlignment: HorizontalAlignment, subtitleAlignment: TextAlignment) -> some View {
+        modifier(TextSubtitle(text: text, stackAlignment: stackAlignment, subtitleAlignment: subtitleAlignment))
+    }
+}
+
+struct StyleSubtitle: ViewModifier {
+    var alignment: TextAlignment
+    func body(content: Content) -> some View {
+        content
+            .italic()
+           .font(.subheadline)
+            .foregroundColor(Color("ColourFontGrey"))
+            .multilineTextAlignment(alignment)
+    }
+}
+
+extension View {
+    func styleSubtitle(alignment: TextAlignment) -> some View {
+        modifier(StyleSubtitle(alignment: alignment))
+    }
+}
+
 

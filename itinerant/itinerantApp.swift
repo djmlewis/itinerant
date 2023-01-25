@@ -27,7 +27,7 @@ struct ItinerantApp: App {
             }
             .task {
                 // MUST load itineraries from App othewise other views will reload each time they appear
-                itineraryStore.loadItineraries()
+                itineraryStore.tryToLoadItineraries()
             }
             
         }

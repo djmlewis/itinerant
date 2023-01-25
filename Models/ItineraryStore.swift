@@ -19,15 +19,25 @@ class ItineraryStore: ObservableObject {
     static func appFilesFolderURL() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
+    static func appDataFilesFolderURL() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: kItineraryPerststentDataFileDirectoryName)
+    }
     static func appFilesFolderPath() -> String {
         appFilesFolderURL().path()
     }
+    static func appDataFilesFolderPath() -> String {
+        appFilesFolderPath()+"/"+kItineraryPerststentDataFileDirectoryName
+    }
     // using URLs to construct paths then export as Strs leads to issues with spaces in the filename. stick with strings
     static func appDataFilePathWithSuffixForFileNameWithoutSuffix(_ filename:String) -> String {
-        appFilesFolderPath() + "/" + filename + "." + ItineraryFileExtension.dataFile.rawValue
+        appDataFilesFolderPath() + "/" + filename + "." + ItineraryFileExtension.dataFile.rawValue
     }
-    static func appFilePathForFileNameWithSuffix(_ filename:String) -> String {
-        appFilesFolderPath() + "/" + filename
+    static func appFilePathForFileNameWithExtension(_ filenamewithextn: String) -> String {
+        let component = "/" + filenamewithextn
+        if filenamewithextn.hasSuffix(ItineraryFileExtension.dataFile.rawValue) { return appDataFilesFolderPath() + component }
+        if filenamewithextn.hasSuffix(ItineraryFileExtension.importFile.rawValue) { return appFilesFolderPath() + component }
+        return appFilesFolderPath() + component
+
     }
 
     func importItinerary(atPath filePath:String) {
@@ -44,20 +54,22 @@ class ItineraryStore: ObservableObject {
     func loadItinerary(atPath filePath:String) {
         if let fileData = FileManager.default.contents(atPath: filePath) {
             if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
-                let newItinerary = Itinerary(persistentData: persistentData)
+                var newItinerary = Itinerary(persistentData: persistentData)
+                newItinerary.filename = filePath.fileNameWithoutExtensionFromPath()
                 let newUUIDstr = newItinerary.id.uuidString
-                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil {
+                let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
+                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil || outsideDatFilesFolder {
                     // we are loading an itinerary with the same UUID as already in our array,
-                    // so duplicate with new UUID and save as a new file with the new UUID as the filename
-                    // delete the original file to stop it happening repeatedly
-                     try! FileManager.default.removeItem(atPath: filePath)
+                    // or importing one from outside the itineraries folder
+                    // so duplicate with new UUID and save as a new file with the new UUID as the filename in the itineraries folder
+                    // delete the original file to stop it happening repeatedly if its inside the datFilesFolder
+                    if !outsideDatFilesFolder { try! FileManager.default.removeItem(atPath: filePath) }
                     // make a new UUID() for id and for all stages
-                    let cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDs(from: newItinerary)
-                    cleanItinerary.savePersistentData()
+                    var cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDs(from: newItinerary)
+                    cleanItinerary.filename = cleanItinerary.savePersistentData()
                     itineraries.append(cleanItinerary)
                     //debugPrint("added with new UUID for: \(filePath)")
                 } else {
-                    //debugPrint("added from file for: \(filePath)")
                     itineraries.append(newItinerary)
                 }
             } else {
@@ -69,22 +81,35 @@ class ItineraryStore: ObservableObject {
 
     }
     
-    func loadItineraries() {
-        if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
+    
+    func completeLoadItineraries() {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
             if files.count > 0 {
                 for fileName in files {
-                    let filePath = ItineraryStore.appFilePathForFileNameWithSuffix(fileName)
+                    let filePath = ItineraryStore.appFilePathForFileNameWithExtension(fileName)
                     loadItinerary(atPath: filePath)
                 }
             } else {debugPrint("files count == 0")}
         } else { debugPrint("Directory read failed)")}
     }
     
+    func tryToLoadItineraries() {
+        var isDir: ObjCBool = true
+        if !FileManager.default.fileExists(atPath: ItineraryStore.appDataFilesFolderPath(), isDirectory: &isDir) {
+            do {
+                try FileManager.default.createDirectory(at: ItineraryStore.appDataFilesFolderURL(), withIntermediateDirectories: true)
+                completeLoadItineraries()
+            } catch let error {
+                debugPrint("unable to create data files directory", error.localizedDescription)
+            }
+        } else { completeLoadItineraries() }
+    }
+    
     
     func reloadItineraries() {
         // this force erases all the itineraries so they better be saved to file
         itineraries = []
-        loadItineraries()
+        tryToLoadItineraries()
     }
     
     
@@ -94,7 +119,10 @@ class ItineraryStore: ObservableObject {
     func itineraryTitleForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.title ?? kUnknownObjectErrorStr
     }
-    
+    func itineraryFileNameForID(id:String) -> String {
+        itineraries.first { $0.id.uuidString == id }?.filename ?? "---"
+    }
+
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let idsToDelete = offsets.map { itineraries[$0].id.uuidString }
         for id in idsToDelete {
@@ -109,15 +137,17 @@ class ItineraryStore: ObservableObject {
         
     }
     
-    func addItinerary(itinerary: Itinerary) -> Void {
-        itineraries.append(itinerary)
-        itinerary.savePersistentData()
-        
+    func addItinerary(itinerary: Itinerary) {
+        var itinerymutable = itinerary
+        itinerymutable.filename = itinerary.savePersistentData()
+        itineraries.append(itinerymutable)
     }
-    func updateItinerary(itinerary: Itinerary) -> Void {
-        guard let index = itineraries.firstIndex(where: { $0.id.uuidString == itinerary.id.uuidString }) else { debugPrint("Unable to update itinerary"); return  }
-        itineraries[index] = itinerary
-        itinerary.savePersistentData()
+    func updateItinerary(itinerary: Itinerary) -> String? {
+        guard let index = itineraries.firstIndex(where: { $0.id.uuidString == itinerary.id.uuidString }) else { debugPrint("Unable to update itinerary"); return nil  }
+        var itinerymutable = itinerary
+        itinerymutable.filename = itinerary.savePersistentData()
+        itineraries[index] = itinerymutable
+        return itinerymutable.filename
     }
 
     func hasItineraryWithID(_ id: String) -> Bool {

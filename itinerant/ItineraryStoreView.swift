@@ -37,6 +37,8 @@ struct ItineraryStoreView: View {
                     NavigationLink(value: itineraryID) {
                         HStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                                .font(.title)
+                                .subtitled(with: itineraryStore.itineraryFileNameForID(id: itineraryID), stackAlignment: .leading, subtitleAlignment: .trailing)
                             Spacer()
                             ProgressView()
                                 .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)

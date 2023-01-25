@@ -31,7 +31,7 @@ let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
 let kItineraryPerststentDataFileSuffix = ItineraryFileExtension.dataFile.rawValue
 let kItineraryPerststentImportFileSuffix = ItineraryFileExtension.importFile.rawValue
 let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
-let kItineraryPerststentDataFileDirectoryName = "Itinerant"
+let kItineraryPerststentDataFileDirectoryName = "itineraries"
 let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName + "/"
 let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststentDataFileDirectoryName
 

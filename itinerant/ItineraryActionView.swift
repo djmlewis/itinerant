@@ -41,6 +41,8 @@ struct ItineraryActionView: View {
                 }
             }
         }
+        Text(itinerary.filename ?? "---")
+            .styleSubtitle(alignment: .center)
         .onAppear() {
             if !myStageIsRunning && !myStageIsActive && !itinerary.stages.isEmpty {
                 uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
@@ -89,7 +91,7 @@ struct ItineraryActionView: View {
                 }
             }
         }
-        .onChange(of: itinerary, perform: { itineraryStore.updateItinerary(itinerary: $0) })
+        .onChange(of: itinerary, perform: {itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
