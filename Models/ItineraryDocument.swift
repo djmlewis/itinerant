@@ -25,14 +25,15 @@ final class ItineraryDocument: ReferenceFileDocument {
     }
     
     init() {
-        itineraryPersistentData = Itinerary.PersistentData(title: "", stages: [], id: UUID())
+        itineraryPersistentData = Itinerary.PersistentData(title: "", stages: [], id: UUID(), modificationDate: nowReferenceDateTimeInterval())
     }
 
     init(editableData: Itinerary.EditableData) {
         // force a new UUID for saving in itinerary AND stages!
         self.itineraryPersistentData = Itinerary.PersistentData(title: editableData.title,
                                                                 stages: Stage.stageArrayWithNewIDs(from: editableData.stages),
-                                                                id: UUID())
+                                                                id: UUID(),
+                                                                modificationDate: nowReferenceDateTimeInterval() )
     }
     
     

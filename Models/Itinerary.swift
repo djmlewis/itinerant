@@ -8,50 +8,59 @@
 import Foundation
 import UserNotifications
 
-
+func nowReferenceDateTimeInterval() -> TimeInterval { Date.now.timeIntervalSinceReferenceDate }
 
 struct Itinerary: Identifiable, Codable, Hashable {
     // Persistent Data ==>
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
+    var modificationDate: TimeInterval
     // Editable Data ==>
     var title: String
     var stages: StageArray
-    // runtime
+   // runtime
     var filename: String?
-
+    
     var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = [], filename: String? = nil) {
+    init(id: UUID = UUID(), title: String, stages: StageArray = [], filename: String? = nil, modificationDate: TimeInterval) {
         self.id = id
         self.title = title
         self.stages = stages
         self.filename = filename
+        self.modificationDate = modificationDate
     }
     init(persistentData: PersistentData, filename: String? = nil) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
         self.filename = filename
+        self.modificationDate = persistentData.modificationDate
     }
     
-    init(editableData: EditableData) {
+    init(editableData: EditableData, modificationDate: TimeInterval) {
         self.id = UUID()
         self.title = editableData.title
         self.stages = editableData.stages
         self.filename = nil
+        self.modificationDate = modificationDate
     }
     
-    init(id: UUID) {
+    init(id: UUID, modificationDate: TimeInterval) {
         self.id = id
         self.title = ""
         self.stages = []
         self.filename = nil
+        self.modificationDate = modificationDate
     }
     
     
-    static func duplicateItineraryWithAllNewIDs(from itinerary:Itinerary) -> Itinerary {
-        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename)
+    static func duplicateItineraryWithAllNewIDsAndModDate(from itinerary:Itinerary) -> Itinerary {
+        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename, modificationDate: nowReferenceDateTimeInterval())
+    }
+    
+    mutating func updateModificationDateToNow() {
+        modificationDate = nowReferenceDateTimeInterval()
     }
     
 }
@@ -95,6 +104,7 @@ extension Itinerary {
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
         title = itineraryEditableData.title
         stages = itineraryEditableData.stages
+        updateModificationDateToNow()
         _ = self.savePersistentData()
     }
     
@@ -107,22 +117,23 @@ extension Itinerary {
         // editable
         let title: String
         let stages: StageArray
-        // persistent + editable
+        // persistent (+ editable)
         let id: UUID
+        var modificationDate: TimeInterval
     }
     
     var itineraryPersistentData: PersistentData {
-        PersistentData(title: title, stages: stages, id: id)
+        PersistentData(title: title, stages: stages, id: id, modificationDate: modificationDate)
     }
 
     
     func savePersistentData() -> String? {
-        
+        /* ***  Always call updateModificationDateToNow() before calling this function *** */
         let persistendData = Itinerary.PersistentData(title: title,
                                                       stages: stages,
-                                                      id: id
+                                                      id: id,
+                                                      modificationDate: modificationDate
         )
-        
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
                 let initialfilename = filename!// uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: title)
@@ -171,7 +182,7 @@ extension Itinerary {
             stages.append(stage)
             firstIndex += kImportLinesPerStage
         }
-        return Itinerary(title: title, stages: stages)
+        return Itinerary(title: title, stages: stages, modificationDate: nowReferenceDateTimeInterval())
     }
     
 }
@@ -180,7 +191,7 @@ extension Itinerary {
 //typealias ItineraryArray = [Itinerary]
 
 extension Itinerary {
-    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray()) }
+    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray(),modificationDate: nowReferenceDateTimeInterval()) }
     static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
     static func emptyItineraryArray() -> [Itinerary] { [] }
     

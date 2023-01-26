@@ -70,8 +70,9 @@ class ItineraryStore: ObservableObject {
                     // so duplicate with new UUID and save as a new file with the new UUID as the filename in the itineraries folder
                     // make a new UUID() for id and for all stages
                     // make a new filename as this is a new itinerary
-                    var cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDs(from: newItinerary)
+                    var cleanItinerary = Itinerary.duplicateItineraryWithAllNewIDsAndModDate(from: newItinerary)
                     cleanItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: cleanItinerary.title)
+                    // we already updated modificationDate in the duplication
                     _ = cleanItinerary.savePersistentData()
                     itineraries.append(cleanItinerary)
                     if importing { sortItineraries() }
@@ -129,7 +130,7 @@ class ItineraryStore: ObservableObject {
     }
     
     func itineraryForID(id:String) -> Itinerary {
-        itineraries.first { $0.id.uuidString == id } ?? Itinerary(title: kUnknownObjectErrorStr)
+        itineraries.first { $0.id.uuidString == id } ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
     }
     func itineraryTitleForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.title ?? kUnknownObjectErrorStr
@@ -153,13 +154,15 @@ class ItineraryStore: ObservableObject {
     
     func addItinerary(itinerary: Itinerary) {
         var itinerymutable = itinerary
-        itinerymutable.filename = itinerary.savePersistentData()
+        itinerymutable.updateModificationDateToNow()
+        itinerymutable.filename = itinerymutable.savePersistentData()
         itineraries.append(itinerymutable)
     }
     func updateItinerary(itinerary: Itinerary) -> String? {
         guard let index = itineraries.firstIndex(where: { $0.id.uuidString == itinerary.id.uuidString }) else { debugPrint("Unable to update itinerary"); return nil  }
         var itinerymutable = itinerary
-        itinerymutable.filename = itinerary.savePersistentData()
+        itinerymutable.updateModificationDateToNow()
+        itinerymutable.filename = itinerymutable.savePersistentData()
         itineraries[index] = itinerymutable
         return itinerymutable.filename
     }

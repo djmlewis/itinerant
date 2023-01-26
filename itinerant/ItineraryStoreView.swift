@@ -23,7 +23,7 @@ struct ItineraryStoreView: View {
     
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
-    @State private var newItinerary = Itinerary(title: "")
+    @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
     @State private var presentedItineraryID: [String] = []
@@ -72,7 +72,7 @@ struct ItineraryStoreView: View {
                         Image(systemName: "square.and.arrow.down")
                     }
                     Button(action: {
-                        newItinerary = Itinerary(title: "")
+                        newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
                         newItineraryEditableData = Itinerary.EditableData()
                         isPresentingItineraryEditView = true
                     }) {

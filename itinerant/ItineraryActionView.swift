@@ -65,9 +65,11 @@ struct ItineraryActionView: View {
                 .padding(.trailing,0)
                 .padding(.leading,0)
             }
-
-            Label(itinerary.filename ?? "---", systemImage: "doc")
-                .styleSubtitleLabel(alignment: .center)
+            HStack(alignment: .top) {
+                Label(itinerary.filename ?? "---", systemImage: "doc")
+                Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
+            }
+            .styleSubtitleLabel(alignment: .center)
         }
         .onAppear() {
             if !myStageIsRunning && !myStageIsActive && !itinerary.stages.isEmpty {
@@ -93,6 +95,7 @@ struct ItineraryActionView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button(action: {
+                    // ItineraryDocument always inits with now mod date
                     fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
                     fileExporterShown = true
                 }) {
