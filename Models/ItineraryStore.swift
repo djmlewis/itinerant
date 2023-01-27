@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import UserNotifications
 
 
 
@@ -15,6 +16,7 @@ class ItineraryStore: ObservableObject {
     
     @Published var itineraries: [Itinerary] = []
     @Published var permissionToNotify: Bool = false
+       
     
     static func appFilesFolderURL() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -40,6 +42,19 @@ class ItineraryStore: ObservableObject {
 
     }
 
+    func requestNotificationPermissions() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    debugPrint(error.localizedDescription)
+                }
+                self.permissionToNotify = granted
+            }
+        }
+        
+    }
+    
     func importItinerary(atPath filePath:String) {
         do {
             let content = try String(contentsOfFile: filePath)

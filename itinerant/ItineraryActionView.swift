@@ -22,8 +22,8 @@ struct ItineraryActionView: View {
     @State private var toggleDisclosureDetails: Bool = true
     @State private var fileExporterShown: Bool = false
     @State private var fileSaveDocument: ItineraryDocument?
-    
-    @Environment(\.scenePhase) private var scenePhase
+    @State private var scrollToStageID: String?
+
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appDelegate: AppDelegate
 
@@ -41,12 +41,18 @@ struct ItineraryActionView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            List {
-                ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, toggleDisclosureDetails: $toggleDisclosureDetails)
+            ScrollViewReader { scrollViewReader in
+                List {
+                    ForEach($itinerary.stages) { $stage in
+                        StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, toggleDisclosureDetails: $toggleDisclosureDetails, scrollToStageID: $scrollToStageID)
+                            .id(stage.id.uuidString)
+                    }
+                } /* List */
+                .onChange(of: scrollToStageID) { stageid in
+                    if stageid != nil { scrollViewReader.scrollTo(stageid!) }
                 }
             }
-        }
+        } /* VStack */
         VStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline) {
                 Group {
@@ -72,27 +78,13 @@ struct ItineraryActionView: View {
             }
             .styleSubtitleLabel(alignment: .center)
         }
+        .navigationTitle(itinerary.title)
         .onAppear() {
             if !myStageIsRunning && !myStageIsActive && !itinerary.stages.isEmpty {
                 uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
             }
         }
-        //        .onDisappear() {
-        //            debugPrint("ItineraryActionView onDisappear \(itineraryStore.itineraries.count)")
-        //        }
-        //        .onChange(of: scenePhase) { phase in
-        //            switch phase {
-        //            case .inactive:
-        //                debugPrint("ItineraryActionView inactive")
-        //            case .active:
-        //                debugPrint("ItineraryActionView active")
-        //            case .background:
-        //                debugPrint("ItineraryActionView background")
-        //            default:
-        //                debugPrint("ItineraryActionView default")
-        //            }
-        //        }
-        .navigationTitle(itinerary.title)
+        .onChange(of: itinerary, perform: {itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
@@ -137,7 +129,6 @@ struct ItineraryActionView: View {
                 }
             }
         }
-        .onChange(of: itinerary, perform: {itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
         .sheet(isPresented: $isPresentingItineraryEditView) {
             NavigationView {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary

@@ -12,6 +12,9 @@ import WatchConnectivity
 
 class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject     {
     
+    @Published var newItinerary: Itinerary?
+
+    
     func applicationDidFinishLaunching() {
         
         initiateWatchConnectivity()
@@ -43,8 +46,12 @@ extension WKAppDelegate: WCSessionDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         debugPrint("didReceiveMessage")
 
-        if let notificationText = message[kMessageItineraryData] as? Data {
-            debugPrint(notificationText)
+        if let messageData = message[kMessageItineraryData] as? Data {
+            if let itinerary = Itinerary(messageItineraryData: messageData) {
+                DispatchQueue.main.async {
+                    self.newItinerary = itinerary
+                }
+            }
         }
     }
     

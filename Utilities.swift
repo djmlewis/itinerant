@@ -10,6 +10,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 let SEC_MIN = 60
 let SEC_HOUR = 3600
@@ -49,12 +50,35 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
 
 }
 
+class CancellingTimer {
+    var cancellor: AnyCancellable?
+    
+    func cancelTimer() {
+        cancellor?.cancel()
+    }
+}
+
 extension String {
     
     func fileNameWithoutExtensionFromPath() -> String? {
         self.components(separatedBy: "/").last?.components(separatedBy: ".").first
     }
     
+    func uniqueifiedDataFileNameWithoutExtension() -> String {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}),
+           files.count > 0 {
+            let filenames = files.map { $0.components(separatedBy: ".").first }
+            var index = 1
+            var modifiedFilename = self
+            while filenames.first(where: { $0 == modifiedFilename }) != nil {
+                modifiedFilename = self + " \(index)"
+                index += 1
+            }
+            return modifiedFilename
+        }
+        return self
+    }
+
     
 }
 

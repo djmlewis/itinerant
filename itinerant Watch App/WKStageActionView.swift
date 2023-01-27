@@ -1,25 +1,26 @@
 //
-//  StageRowView.swift
-//  itinerant
+//  WKStageActionView.swift
+//  itinerant Watch App
 //
-//  Created by David JM Lewis on 03/01/2023.
+//  Created by David JM Lewis on 27/01/2023.
 //
 
 import SwiftUI
 import Combine
+import UserNotifications
 
 
-struct StageActionView: View {
-    
+
+struct WKStageActionView: View {
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
     @Binding var resetStageElapsedTime: Bool?
-    @Binding var toggleDisclosureDetails: Bool
     @Binding var scrollToStageID: String?
 
+    
     @State private var timeDifferenceAtUpdate: Double = 0.0
     @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -29,78 +30,67 @@ struct StageActionView: View {
     private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
     private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
     private var stageRunningOvertime: Bool { (timeDifferenceAtUpdate) >= 0 }
-    
-    // MARK: - body
+
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(stage.title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                Spacer()
-                Button(action: {
-                    disclosureDetailsExpanded = !disclosureDetailsExpanded
-                }) {
-                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                        .foregroundColor(.accentColor)
-                }
-                .buttonStyle(BorderlessButtonStyle())
-            }
+        VStack(alignment: .center) {
+            Text(stage.title)
+                .padding(0)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .font(.headline)
+                .fontWeight(.bold)
+                .lineLimit(nil)
+                .multilineTextAlignment(.center)
             HStack {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                    .foregroundColor(Color("ColourDuration"))
+                    //.foregroundColor(Color("ColourDuration"))
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color("ColourDuration"))
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("ColourDuration"))
+                    .padding(0)
                 }
                 Spacer()
-                Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
-                    .padding(4.0)
-                    .foregroundColor(.black)
-                    .background(.white)
-                    .cornerRadius(4)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke( .black)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                Spacer()
-                Text("\(stageRunningOvertime ? "" : "+" )" +
-                     Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
-                    .padding(4.0)
-                    .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
-                    .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
                     Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .padding(0)
                         .foregroundColor(stageIsRunning ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .buttonStyle(BorderlessButtonStyle())
-                .frame(width: 32, alignment: .leading)
+                .padding(0)
+                .frame(width: 56, alignment: .trailing)
                 .disabled(!stageIsActive)
                 .opacity(stageIsActive ? 1.0 : 0.0)
+
             }
-            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
-                Text(stage.details)
-                    .font(.body)
-                //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
+            Grid {
+                GridRow {
+                    Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .foregroundColor(.black)
+                        .background(.white)
+                        .cornerRadius(4)
+                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                        .gridCellColumns(1)
+                    Text("\(stageRunningOvertime ? "" : "+" )" +
+                         Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .cornerRadius(4)
+                        .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
+                        .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
+                        .cornerRadius(4)
+                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                        .gridCellColumns(1)
+
+                }
             }
+            .padding()
+            
         } /* VStack */
-        .padding(6.0)
-        .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color.clear : Color("ColourBackgroundInactive")))
-        .cornerRadius(8) /// make the background rounded
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke( stageIsRunning ? Color("ColourOvertimeBackground") : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
-        )
         .gesture(
             TapGesture(count: 2)
                 .onEnded({ _ in
@@ -140,19 +130,15 @@ struct StageActionView: View {
                 }
             }
         }
-        .onChange(of: toggleDisclosureDetails) { newValue in
-            disclosureDetailsExpanded = toggleDisclosureDetails
-        }
         .onChange(of: uuidStrStagesActiveStr) { newValue in
-            if stageIsActive { scrollToStageID = stage.id.uuidString }
+            if stageIsActive { scrollToStageID = stage.id.uuidString}
         }
-
     }
-    
 }
 
 
-extension StageActionView {
+
+extension WKStageActionView {
     
     
     func  timeStartedRunning() -> TimeInterval {
@@ -166,8 +152,7 @@ extension StageActionView {
 }
 
 
-
-extension StageActionView {
+extension WKStageActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
         (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
@@ -213,7 +198,7 @@ extension StageActionView {
 }
 
 // MARK: - Notification
-extension StageActionView {
+extension WKStageActionView {
     
     func postNotification() -> Void {
         
@@ -253,13 +238,9 @@ extension StageActionView {
 }
 
 
-// MARK: - Timer
 
-
-// MARK: - Preview
-struct StageView_Previews: PreviewProvider {
+struct WKStageActionView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), dictStageStartDates: .constant([:]), resetStageElapsedTime: .constant(false), toggleDisclosureDetails: .constant(false), scrollToStageID: .constant(""))
+        Text("Hello, World!")
     }
 }
-

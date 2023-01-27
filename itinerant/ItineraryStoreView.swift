@@ -18,9 +18,7 @@ struct ItineraryStoreView: View {
 
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var appDelegate: AppDelegate
-    
-    @Environment(\.scenePhase) private var scenePhase
-    
+        
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
     @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
@@ -43,7 +41,7 @@ struct ItineraryStoreView: View {
                                 .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
                         }
                     }
-                }
+                } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
@@ -52,7 +50,7 @@ struct ItineraryStoreView: View {
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
-            }
+            } /* List */
             .navigationDestination(for: String.self) { id in
                 ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
             }
@@ -109,7 +107,6 @@ struct ItineraryStoreView: View {
             }
         } /* NavStack */
         .onChange(of: appDelegate.unnItineraryID) { newValue in
-            //debugPrint("change of " + String(describing: newValue))
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }

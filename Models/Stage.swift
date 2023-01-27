@@ -8,7 +8,7 @@
 import Foundation
 
 typealias StageArray = [Stage]
-typealias StageWatchDataArray = [Stage.WatchData]
+typealias StageWatchMessageDataArray = [Stage.WatchData]
 
 
 struct Stage: Identifiable, Codable, Hashable {
@@ -41,7 +41,15 @@ struct Stage: Identifiable, Codable, Hashable {
         self.durationSecsInt = editableData.durationSecsInt
         self.details = editableData.details
         self.snoozeDurationSecs = editableData.snoozeDurationSecs
-
+    }
+    
+    init(watchData: Stage.WatchData) {
+        // keep the UUID it will be unique
+        self.id = watchData.id
+        self.title = watchData.title
+        self.durationSecsInt = watchData.durationSecsInt
+        self.snoozeDurationSecs = watchData.snoozeDurationSecs
+       self.details = ""
     }
     
 }

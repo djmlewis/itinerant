@@ -1,6 +1,6 @@
 //
 //  itinerantApp.swift
-//  itinerant
+//  itinerant Watch App
 //
 //  Created by David JM Lewis on 30/12/2022.
 //
@@ -8,19 +8,21 @@
 import SwiftUI
 
 
+
 @main
-struct ItinerantApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+struct Itinerant_Watch_AppApp: App {
     
-    // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
+    @WKApplicationDelegateAdaptor(WKAppDelegate.self) var wkAppDelegate
+    
     @StateObject private var itineraryStore = ItineraryStore()
+
     
     
     var body: some Scene {
         WindowGroup {
-            ItineraryStoreView()
+            WKItinerantStoreView()
                 .environmentObject(itineraryStore)
-                .environmentObject(appDelegate)
+                .environmentObject(wkAppDelegate)
                 .onAppear() {
                     itineraryStore.requestNotificationPermissions()
                 }
@@ -28,12 +30,10 @@ struct ItinerantApp: App {
                     // MUST load itineraries from App othewise other views will reload each time they appear
                     itineraryStore.tryToLoadItineraries()
                 }
-        } /* WindowGroup */
+
+        }
     }
 }
-
-
-
 
 
 
