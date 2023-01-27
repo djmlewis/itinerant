@@ -7,11 +7,21 @@
 
 import SwiftUI
 
+
+
 @main
 struct itinerant_Watch_AppApp: App {
+    
+    @WKApplicationDelegateAdaptor(WKAppDelegate.self) var wkAppDelegate
+
+    
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
     }
 }
+
+
+

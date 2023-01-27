@@ -71,3 +71,7 @@ let kStageSnoozeDurationSecs = "kStageSnoozeDurationSecs"
 let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
 let kUIUpdateTimerFrequency = 0.2
 
+
+
+// MARK: - WatchConnectivity
+let kMessageKey = "message"

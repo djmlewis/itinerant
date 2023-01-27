@@ -95,6 +95,11 @@ struct ItineraryActionView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button(action: {
+
+                }) {
+                    Image(systemName: "applewatch")
+                }
+                Button(action: {
                     // ItineraryDocument always inits with now mod date
                     fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
                     fileExporterShown = true
