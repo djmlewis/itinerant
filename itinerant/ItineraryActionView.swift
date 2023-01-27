@@ -10,23 +10,23 @@ import SwiftUI
 
 
 struct ItineraryActionView: View {
-
+    
     @State var itinerary: Itinerary // not sure why thgis is a State not a Binding
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
-
+    
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView: Bool = false
     @State private var resetStageElapsedTime: Bool?
     @State private var toggleDisclosureDetails: Bool = true
     @State private var fileExporterShown: Bool = false
     @State private var fileSaveDocument: ItineraryDocument?
-
+    
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
-
-
+    
+    
     var stageActive: Stage? { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
     var myStageIsActive: Bool { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
     var stageRunning: Stage? { itinerary.stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
@@ -76,36 +76,50 @@ struct ItineraryActionView: View {
                 uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
             }
         }
-//        .onDisappear() {
-//            debugPrint("ItineraryActionView onDisappear \(itineraryStore.itineraries.count)")
-//        }
-//        .onChange(of: scenePhase) { phase in
-//            switch phase {
-//            case .inactive:
-//                debugPrint("ItineraryActionView inactive")
-//            case .active:
-//                debugPrint("ItineraryActionView active")
-//            case .background:
-//                debugPrint("ItineraryActionView background")
-//            default:
-//                debugPrint("ItineraryActionView default")
-//            }
-//        }
+        //        .onDisappear() {
+        //            debugPrint("ItineraryActionView onDisappear \(itineraryStore.itineraries.count)")
+        //        }
+        //        .onChange(of: scenePhase) { phase in
+        //            switch phase {
+        //            case .inactive:
+        //                debugPrint("ItineraryActionView inactive")
+        //            case .active:
+        //                debugPrint("ItineraryActionView active")
+        //            case .background:
+        //                debugPrint("ItineraryActionView background")
+        //            default:
+        //                debugPrint("ItineraryActionView default")
+        //            }
+        //        }
         .navigationTitle(itinerary.title)
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: {
-
-                }) {
-                    Image(systemName: "applewatch")
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: {
+                        
+                    }) {
+                        Label("Send to Watch…", systemImage: "applewatch")
+                    }
+                    
+                    Button(action: {
+                        // ItineraryDocument always inits with now mod date
+                        fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
+                        fileExporterShown = true
+                    }) {
+                        Label("Export File…", systemImage: "folder")
+                    }
+                } label: {
+                    Label("Export…", systemImage: "square.and.arrow.up")
                 }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
-                    // ItineraryDocument always inits with now mod date
-                    fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
-                    fileExporterShown = true
+                    resetItineraryStages()
                 }) {
-                    Image(systemName: "square.and.arrow.up")
+                    Image(systemName: "arrow.counterclockwise")
                 }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     itineraryData = itinerary.itineraryEditableData
                     isPresentingItineraryEditView = true
@@ -113,11 +127,8 @@ struct ItineraryActionView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .disabled(myStageIsRunning)
-                Button(action: {
-                    resetItineraryStages()
-                }) {
-                    Image(systemName: "arrow.counterclockwise")
-                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     toggleDisclosureDetails = !toggleDisclosureDetails
                 }) {

@@ -58,18 +58,24 @@ struct ItineraryStoreView: View {
             }
             .navigationTitle("Itineraries")
             .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
-                    Button(action: {
-                        itineraryStore.reloadItineraries()
-                    }) {
-                        Image(systemName: "arrow.counterclockwise")
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button(action: {
+                            //fileImportFileType = .itineraryImportFile
+                            fileImporterShown = true
+                        }) {
+                            Label("Import file…", systemImage: "doc")
+                        }
+                        Button(action: {
+                            itineraryStore.reloadItineraries()
+                        }) {
+                            Label("Refresh list…", systemImage: "arrow.counterclockwise")
+                        }
+                    } label: {
+                        Label("Load…", systemImage: "square.and.arrow.down")
                     }
-                    Button(action: {
-                        //fileImportFileType = .itineraryImportFile
-                        fileImporterShown = true
-                    }) {
-                        Image(systemName: "square.and.arrow.down")
-                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
                     Button(action: {
                         newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
                         newItineraryEditableData = Itinerary.EditableData()
@@ -77,7 +83,6 @@ struct ItineraryStoreView: View {
                     }) {
                         Image(systemName: "plus")
                     }
-                    .accessibilityLabel("Add Itinerary")
                 }
             }
             .sheet(isPresented: $isPresentingItineraryEditView) {
