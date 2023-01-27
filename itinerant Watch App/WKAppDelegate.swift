@@ -41,7 +41,9 @@ extension WKAppDelegate: WCSessionDelegate {
     
     // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        if let notificationText = message[kMessageKey] as? String {
+        debugPrint("didReceiveMessage")
+
+        if let notificationText = message[kMessageItineraryData] as? Data {
             debugPrint(notificationText)
         }
     }

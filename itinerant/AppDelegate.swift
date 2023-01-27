@@ -153,7 +153,7 @@ extension AppDelegate:WCSessionDelegate {
     }
 
     
-    func send(_ message: String) {
+    func send(dict: [String : Any]?, data: Data? ) {
         guard WCSession.default.activationState == .activated else {
             debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
           return
@@ -162,9 +162,20 @@ extension AppDelegate:WCSessionDelegate {
             debugPrint("isCompanionAppInstalled false")
             return
         }
-        
-        WCSession.default.sendMessage([kMessageKey : message], replyHandler: nil) { error in
-            print("Cannot send message: \(String(describing: error))")
+        guard WCSession.default.isReachable else {
+            debugPrint("isReachable false")
+            return
+        }
+
+        if let messageDict = dict {
+            WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
+                print("Cannot send messageString: \(String(describing: error))")
+            }
+        }
+        if let messageData = data {
+            WCSession.default.sendMessageData(messageData, replyHandler: nil) { error in
+                print("Cannot send messageData: \(String(describing: error))")
+            }
         }
     }
 

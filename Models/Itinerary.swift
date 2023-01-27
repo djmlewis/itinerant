@@ -89,6 +89,25 @@ extension Itinerary {
     
 }
 
+extension Itinerary {
+    struct WatchData: Identifiable, Codable, Hashable {
+        internal init(id: UUID = UUID(), modificationDate: TimeInterval, title: String, stages: StageWatchDataArray) {
+            self.id = id
+            self.modificationDate = modificationDate
+            self.title = title
+            self.stages = stages
+        }
+        
+        let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
+        var modificationDate: TimeInterval
+        var title: String
+        var stages: StageWatchDataArray
+    }
+    
+    func watchStages() -> StageWatchDataArray { stages.map { $0.watchDataNewUUID } }
+    
+    var watchDataNewUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchData(modificationDate: modificationDate, title: title, stages: watchStages())) }
+}
 
 // abstract the editable vars of Itinerary into a struct ItineraryEditableData that can be passed around and edited
 extension Itinerary {

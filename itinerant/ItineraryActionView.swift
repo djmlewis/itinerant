@@ -25,7 +25,8 @@ struct ItineraryActionView: View {
     
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var itineraryStore: ItineraryStore
-    
+    @EnvironmentObject var appDelegate: AppDelegate
+
     
     var stageActive: Stage? { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
     var myStageIsActive: Bool { itinerary.stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
@@ -96,7 +97,7 @@ struct ItineraryActionView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: {
-                        
+                        sendItineraryToWatch()
                     }) {
                         Label("Send to Watch…", systemImage: "applewatch")
                     }
@@ -192,6 +193,11 @@ extension ItineraryActionView {
         
     }
     
+    func sendItineraryToWatch()  {
+        if let watchdata = itinerary.watchDataNewUUID {
+            appDelegate.send(dict: [kMessageItineraryData : watchdata], data: nil)
+        }
+    }
 }
 
 struct ItineraryActionView_Previews: PreviewProvider {

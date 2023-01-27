@@ -8,6 +8,7 @@
 import Foundation
 
 typealias StageArray = [Stage]
+typealias StageWatchDataArray = [Stage.WatchData]
 
 
 struct Stage: Identifiable, Codable, Hashable {
@@ -23,6 +24,8 @@ struct Stage: Identifiable, Codable, Hashable {
                                                         details: self.details,
                                                         snoozeDurationSecs: self.snoozeDurationSecs) }
     
+    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs) }
+
     init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs) {
         self.id = id
         self.title = title
@@ -42,6 +45,27 @@ struct Stage: Identifiable, Codable, Hashable {
     }
     
 }
+
+extension Stage {
+    
+    struct WatchData: Identifiable, Codable, Hashable {
+        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, snoozeDurationSecs: Int) {
+            self.id = id
+            self.title = title
+            self.durationSecsInt = durationSecsInt
+            self.snoozeDurationSecs = snoozeDurationSecs
+        }
+        
+        let id: UUID
+        var title: String
+        var durationSecsInt: Int
+        var snoozeDurationSecs: Int
+    }
+    
+    
+    
+}
+
 
 extension Stage {
     struct EditableData {
