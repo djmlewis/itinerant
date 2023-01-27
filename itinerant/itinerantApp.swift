@@ -18,9 +18,7 @@ struct ItinerantApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                ItineraryStoreView()
-            }
+            ItineraryStoreView()
             .environmentObject(itineraryStore)
             .onAppear() {
                 requestNotificationPermissions()
@@ -29,8 +27,7 @@ struct ItinerantApp: App {
                 // MUST load itineraries from App othewise other views will reload each time they appear
                 itineraryStore.tryToLoadItineraries()
             }
-            
-        }
+        } /* WindowGroup */
     }
 }
 
