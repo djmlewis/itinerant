@@ -24,7 +24,9 @@ struct ItineraryActionView: View {
 
     @State private var resetStageElapsedTime: Bool?
     @State private var scrollToStageID: String?
+    var lastStageID: String  { if itinerary.stages.last  != nil { return itinerary.stages.last!.id.uuidString } else { return "" } }
 
+    
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appDelegate: AppDelegate
 
@@ -35,10 +37,15 @@ struct ItineraryActionView: View {
                 List {
                     ForEach($itinerary.stages) { $stage in
                         StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime,
-                            scrollToStageID: $scrollToStageID,
-                            toggleDisclosureDetails: $toggleDisclosureDetails)
-                            .id(stage.id.uuidString)
-                    }
+                                        scrollToStageID: $scrollToStageID,
+                                        toggleDisclosureDetails: $toggleDisclosureDetails)
+                        .id(stage.id.uuidString)
+                        .listRowBackground(Color(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "ColourBackgroundRunning" :
+                                                    stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? "ColourBackgroundActive" :
+                                                    "ColourBackgroundInactive" )
+                            .cornerRadius(6)
+                            .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 3.0))
+                   } /* ForEach */
                 } /* List */
                 .onChange(of: scrollToStageID) { stageid in
                     if stageid != nil {

@@ -37,6 +37,7 @@ struct StageActionView: View {
                 Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
+                    .foregroundColor(.white)
                     .scenePadding(.minimum, edges: .horizontal)
                 Spacer()
                 Button(action: {
@@ -49,12 +50,12 @@ struct StageActionView: View {
             }
             HStack {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                    .foregroundColor(Color("ColourDuration"))
+                    .foregroundColor(.white)
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(Color("ColourDuration"))
+                        .foregroundColor(.white)
                 }
                 Spacer()
                 Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
@@ -64,26 +65,32 @@ struct StageActionView: View {
                     .cornerRadius(4)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke( .black)
+                            .stroke( .black, lineWidth: 1.0)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                 Spacer()
                 Text("\(stageRunningOvertime ? "" : "+" )" +
                      Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                    .bold(stageRunningOvertime)
                     .padding(4.0)
                     .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke( .black, lineWidth: 1.0)
+                    )
                     .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
-                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle.fill" : "play.circle.fill")
+                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : .accentColor)
+//                        .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : .accentColor)
                 }
+                .foregroundColor(.white)
                 .buttonStyle(BorderlessButtonStyle())
                 .frame(width: 32, alignment: .leading)
                 .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
@@ -92,16 +99,11 @@ struct StageActionView: View {
             if !stage.details.isEmpty && disclosureDetailsExpanded == true{
                 Text(stage.details)
                     .font(.body)
-                //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
             }
         } /* VStack */
         .padding(0)
-        .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : (stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.clear : Color("ColourBackgroundInactive")))
+        //.background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : (stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.clear : Color("ColourBackgroundInactive")))
         .cornerRadius(8) /// make the background rounded
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke( stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.accentColor : Color.clear, lineWidth: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 2 : 0)
-        )
         .gesture(
             TapGesture(count: 2)
                 .onEnded({ _ in

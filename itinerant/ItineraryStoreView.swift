@@ -40,6 +40,7 @@ struct ItineraryStoreView: View {
                             Spacer()
                             ProgressView()
                                 .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
+                                .tint(Color("ColourBackgroundRunning"))
                         }
                     }
                 } /* ForEach */
