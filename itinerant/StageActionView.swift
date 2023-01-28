@@ -17,18 +17,18 @@ struct StageActionView: View {
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
     @Binding var resetStageElapsedTime: Bool?
-    @Binding var toggleDisclosureDetails: Bool
     @Binding var scrollToStageID: String?
+
+    @Binding var toggleDisclosureDetails: Bool
 
     @State private var timeDifferenceAtUpdate: Double = 0.0
     @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
+    
     @State private var disclosureDetailsExpanded: Bool = true
     
-    private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
-    private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
-    private var stageRunningOvertime: Bool { (timeDifferenceAtUpdate) >= 0 }
+    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
     
     // MARK: - body
     var body: some View {
@@ -37,6 +37,7 @@ struct StageActionView: View {
                 Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
+                    .scenePadding(.minimum, edges: .horizontal)
                 Spacer()
                 Button(action: {
                     disclosureDetailsExpanded = !disclosureDetailsExpanded
@@ -78,15 +79,15 @@ struct StageActionView: View {
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
-                    Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
+                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle.fill" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(stageIsRunning ? Color("ColourOvertimeBackground") : .accentColor)
+                        .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .buttonStyle(BorderlessButtonStyle())
                 .frame(width: 32, alignment: .leading)
-                .disabled(!stageIsActive)
-                .opacity(stageIsActive ? 1.0 : 0.0)
+                .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
             }
             if !stage.details.isEmpty && disclosureDetailsExpanded == true{
                 Text(stage.details)
@@ -94,12 +95,12 @@ struct StageActionView: View {
                 //.lineLimit(disclosureDetailsExpanded == true ? nil : 1)
             }
         } /* VStack */
-        .padding(6.0)
-        .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color.clear : Color("ColourBackgroundInactive")))
+        .padding(0)
+        .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : (stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.clear : Color("ColourBackgroundInactive")))
         .cornerRadius(8) /// make the background rounded
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke( stageIsRunning ? Color("ColourOvertimeBackground") : stageIsActive ? Color.accentColor : Color.clear, lineWidth: stageIsRunning || stageIsActive ? 2 : 0)
+                .stroke( stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.accentColor : Color.clear, lineWidth: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 2 : 0)
         )
         .gesture(
             TapGesture(count: 2)
@@ -112,7 +113,7 @@ struct StageActionView: View {
                 })
         )
         .onAppear() {
-            if(stageIsRunning) {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
                 // need to reset the timer to reattach the cancellor
                 uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
                 uiUpdateTimerCancellor = uiUpdateTimer.connect()
@@ -123,7 +124,7 @@ struct StageActionView: View {
         }
         .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
             //debugPrint($0)
-            if(stageIsRunning) {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
                 timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
                 timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
@@ -140,11 +141,12 @@ struct StageActionView: View {
                 }
             }
         }
-        .onChange(of: toggleDisclosureDetails) { newValue in
-            disclosureDetailsExpanded = toggleDisclosureDetails
-        }
         .onChange(of: uuidStrStagesActiveStr) { newValue in
-            if stageIsActive { scrollToStageID = stage.id.uuidString }
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString }
+        }
+       .onChange(of: toggleDisclosureDetails) { newValue in
+           // iOS only
+            disclosureDetailsExpanded = toggleDisclosureDetails
         }
 
     }
@@ -174,7 +176,7 @@ extension StageActionView {
     }
     
     func handleStartStopButtonTapped() {
-        if(stageIsRunning){ handleHaltRunning() }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { handleHaltRunning() }
         else { handleStartRunning() }
         
     }
@@ -216,7 +218,6 @@ extension StageActionView {
 extension StageActionView {
     
     func postNotification() -> Void {
-        
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { notificationSettings in
             guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
@@ -224,26 +225,11 @@ extension StageActionView {
             if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
             if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
             
-            let content = UNMutableNotificationContent()
-            content.title = itinerary.title
-            content.subtitle = "\(stage.title) has completed"
-            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
-                                    kStageUUIDStr : stage.id.uuidString,
-                                      kStageTitle : stage.title,
-                             kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
-                                  kItineraryTitle : itinerary.title
-            ]
-            content.categoryIdentifier = kNotificationCategoryStageCompleted
-            content.interruptionLevel = .timeSensitive
-            content.sound = .default
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
-            let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
-            let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { (error) in
+            let request = requestStageCompleted(stage: stage, itinerary: itinerary)
+            center.add(request) { (error) in
                 if error != nil {  debugPrint(error!.localizedDescription) }
             }
         }
-        
     }
     
     func removeNotification() {
@@ -259,7 +245,7 @@ extension StageActionView {
 // MARK: - Preview
 struct StageView_Previews: PreviewProvider {
     static var previews: some View {
-        StageActionView(stage: .constant(Stage()), itinerary: .constant(Itinerary.templateItinerary()), uuidStrStagesActiveStr: .constant(""), uuidStrStagesRunningStr: .constant(""), dictStageStartDates: .constant([:]), resetStageElapsedTime: .constant(false), toggleDisclosureDetails: .constant(false), scrollToStageID: .constant(""))
+        Text("Ho")
     }
 }
 

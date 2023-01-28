@@ -46,11 +46,6 @@ let kStageInitialDurationSecs: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 
 // MARK: - ItinerantApp
-let kSnoozeIntervalSecs = 10.0
-let kNotificationActionOpenApp = "OPEN_APP_ACTION"
-let kNotificationActionSnooze = "SNOOZE_ACTION"
-let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
-
 
 // MARK: - ItineraryStoreView
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"

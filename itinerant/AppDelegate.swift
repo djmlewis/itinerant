@@ -7,10 +7,11 @@
 
 import SwiftUI
 import WatchConnectivity
+import UserNotifications
 
 
-// AppDelegate.swift
-class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject     {
+// MARK: - AppDelegate.swift
+class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
     
     @Published var unnItineraryID: String?
     @Published var unnStageID: String?
@@ -18,23 +19,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject     {
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.delegate = self
-        
-        // Define the custom actions.
-        let openAppAction = UNNotificationAction(identifier: kNotificationActionOpenApp,
-                                                 title: "Open Itinerary",
-                                                 options: [.foreground])
-        let snoozeAction = UNNotificationAction(identifier: kNotificationActionSnooze,
-                                                title: "Snooze",
-                                                options: [])
-        // Define the notification type
-        let stageCompletedCategory =
-        UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
-                               actions: [openAppAction, snoozeAction],
-                               intentIdentifiers: [],
-                               hiddenPreviewsBodyPlaceholder: "",
-                               options: .customDismissAction)
         // Register the notification type.
-        notificationCenter.setNotificationCategories([stageCompletedCategory])
+        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
         
         
         // Watch Connectivity
@@ -44,7 +30,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject     {
     }
 }
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
+// MARK: - UserNotifications
+extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // The method will be called on the delegate only if the application is in the foreground.
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
@@ -80,18 +67,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 
             case kNotificationActionSnooze:
                 let center = UNUserNotificationCenter.current()
-                center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
-                let content = UNMutableNotificationContent()
-                let userinfo = response.notification.request.content.userInfo
-                content.title = userinfo[kItineraryTitle] as! String
-                content.subtitle = "\(userinfo[kStageTitle] as! String) is snoozing"
-                content.userInfo = userinfo
-                content.interruptionLevel = .timeSensitive
-                content.sound = .default
-                content.categoryIdentifier = kNotificationCategoryStageCompleted
-                let snoozeInterval = Double(userinfo[kStageSnoozeDurationSecs] as! Int)
-                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeInterval, repeats: false)
-                let request = UNNotificationRequest(identifier: userinfo[kStageUUIDStr] as! String, content: content, trigger: trigger)
+                let request = requestStageCompletedSnooze(toResponse: response)
                 center.add(request) { (error) in
                     if error != nil {  debugPrint(error!.localizedDescription) }
                 }
@@ -116,8 +92,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 }
 
-
-extension AppDelegate:WCSessionDelegate {
+// MARK: - WCSessionDelegate
+extension AppDelegate {
 
     func initiateWatchConnectivity() {
         if (WCSession.isSupported()) {
@@ -135,6 +111,7 @@ extension AppDelegate:WCSessionDelegate {
 
     }
 
+    // iOS only -->
     func sessionDidBecomeInactive(_ session: WCSession) {
 
     }
@@ -143,6 +120,7 @@ extension AppDelegate:WCSessionDelegate {
         // for multi watch support
         session.activate()
     }
+    // <--- iOS only
 
 // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {

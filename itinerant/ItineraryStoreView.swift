@@ -24,6 +24,7 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
+    
     @State private var presentedItineraryID: [String] = []
 
     
@@ -107,6 +108,7 @@ struct ItineraryStoreView: View {
             }
         } /* NavStack */
         .onChange(of: appDelegate.unnItineraryID) { newValue in
+            // handle notifications to switch itinerary
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }

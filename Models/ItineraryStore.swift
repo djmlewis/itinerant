@@ -153,6 +153,9 @@ class ItineraryStore: ObservableObject {
     func itineraryFileNameForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.filename ?? "---"
     }
+    func itineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String) -> Bool {
+        itineraries.first { $0.id.uuidString == id }?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
+    }
 
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let filenamesToDelete = offsets.map { itineraries[$0].filename! }

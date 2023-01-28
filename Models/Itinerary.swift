@@ -7,6 +7,8 @@
 
 import Foundation
 import UserNotifications
+import Combine
+import SwiftUI
 
 func nowReferenceDateTimeInterval() -> TimeInterval { Date.now.timeIntervalSinceReferenceDate }
 
@@ -75,6 +77,25 @@ struct Itinerary: Identifiable, Codable, Hashable {
     mutating func updateModificationDateToNow() {
         modificationDate = nowReferenceDateTimeInterval()
     }
+    
+}
+
+
+extension Itinerary {
+    
+    func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
+    func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
+    func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
+    func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
+    var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
+        partialResult + stage.durationSecsInt
+    }) }
+    var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
+        partialResult || stage.durationSecsInt == 0
+    } }
+
+    
+    
     
 }
 

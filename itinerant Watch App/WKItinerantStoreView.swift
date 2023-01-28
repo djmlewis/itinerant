@@ -13,7 +13,7 @@ struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
 
     @EnvironmentObject var itineraryStore: ItineraryStore
-    @EnvironmentObject var wkAppDelegate: WKAppDelegate
+    @EnvironmentObject private var wkAppDelegate: WKAppDelegate
     
     @State private var presentedItineraryID: [String] = []
 
@@ -30,6 +30,7 @@ struct WKItinerantStoreView: View {
                                 .font(.title3)
                         }
                     }
+                    .listItemTint(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : Color("ColourBackgroundDarkGrey"))
                 } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
@@ -45,7 +46,13 @@ struct WKItinerantStoreView: View {
             }
             .navigationTitle("Itineraries")
         }
+        .onChange(of: wkAppDelegate.unnItineraryID) { newValue in
+            // handle notifications to switch itinerary
+            guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
+            presentedItineraryID = [newValue!]
+        }
         .onChange(of: wkAppDelegate.newItinerary) { itineraryToAdd in
+            // for messages with Itinerary to load
             if itineraryToAdd != nil {
                 itineraryStore.addItinerary(itinerary: itineraryToAdd!)
             }

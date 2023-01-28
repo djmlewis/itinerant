@@ -25,11 +25,9 @@ struct WKStageActionView: View {
     @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
-    @State private var disclosureDetailsExpanded: Bool = true
     
-    private var stageIsActive: Bool { uuidStrStagesActiveStr.contains(stage.id.uuidString) }
-    private var stageIsRunning: Bool { uuidStrStagesRunningStr.contains(stage.id.uuidString) }
-    private var stageRunningOvertime: Bool { (timeDifferenceAtUpdate) >= 0 }
+    
+    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
 
     var body: some View {
         VStack(alignment: .center) {
@@ -46,38 +44,44 @@ struct WKStageActionView: View {
                     //.foregroundColor(Color("ColourDuration"))
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("ColourDuration"))
-                    .padding(0)
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
+                        .padding(0)
                 }
                 Spacer()
                 Button(action: {
                     handleStartStopButtonTapped()
                 }) {
-                    Image(systemName: stageIsRunning ? "stop.circle.fill" : "play.circle.fill")
+                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .padding(0)
-                        .foregroundColor(stageIsRunning ? Color("ColourOvertimeBackground") : .accentColor)
+                        .padding(2.0)
+                        .foregroundColor(.white)//(isRunning ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .buttonStyle(BorderlessButtonStyle())
                 .padding(0)
                 .frame(width: 56, alignment: .trailing)
-                .disabled(!stageIsActive)
-                .opacity(stageIsActive ? 1.0 : 0.0)
+                .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
 
             }
             Grid {
                 GridRow {
                     Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
+                        .padding(2)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .foregroundColor(.black)
                         .background(.white)
                         .cornerRadius(4)
                         .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                         .gridCellColumns(1)
-                    Text("\(stageRunningOvertime ? "" : "+" )" +
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
+                   Text("\(stageRunningOvertime ? "" : "+" )" +
                          Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                        .padding(2)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .cornerRadius(4)
                         .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
@@ -85,12 +89,16 @@ struct WKStageActionView: View {
                         .cornerRadius(4)
                         .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                         .gridCellColumns(1)
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
 
                 }
             }
             .padding()
-            
         } /* VStack */
+//        .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive")))
+//        .cornerRadius(8) /// make the background rounded
         .gesture(
             TapGesture(count: 2)
                 .onEnded({ _ in
@@ -102,7 +110,7 @@ struct WKStageActionView: View {
                 })
         )
         .onAppear() {
-            if(stageIsRunning) {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
                 // need to reset the timer to reattach the cancellor
                 uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
                 uiUpdateTimerCancellor = uiUpdateTimer.connect()
@@ -113,7 +121,7 @@ struct WKStageActionView: View {
         }
         .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
             //debugPrint($0)
-            if(stageIsRunning) {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
                 timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
                 timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
@@ -131,7 +139,7 @@ struct WKStageActionView: View {
             }
         }
         .onChange(of: uuidStrStagesActiveStr) { newValue in
-            if stageIsActive { scrollToStageID = stage.id.uuidString}
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString}
         }
     }
 }
@@ -159,7 +167,7 @@ extension WKStageActionView {
     }
     
     func handleStartStopButtonTapped() {
-        if(stageIsRunning){ handleHaltRunning() }
+        if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)){ handleHaltRunning() }
         else { handleStartRunning() }
         
     }
@@ -201,7 +209,6 @@ extension WKStageActionView {
 extension WKStageActionView {
     
     func postNotification() -> Void {
-        
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { notificationSettings in
             guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
@@ -209,26 +216,11 @@ extension WKStageActionView {
             if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
             if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
             
-            let content = UNMutableNotificationContent()
-            content.title = itinerary.title
-            content.subtitle = "\(stage.title) has completed"
-            content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
-                                    kStageUUIDStr : stage.id.uuidString,
-                                      kStageTitle : stage.title,
-                             kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
-                                  kItineraryTitle : itinerary.title
-            ]
-            content.categoryIdentifier = kNotificationCategoryStageCompleted
-            content.interruptionLevel = .timeSensitive
-            content.sound = .default
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
-            let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
-            let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { (error) in
+            let request = requestStageCompleted(stage: stage, itinerary: itinerary)
+            center.add(request) { (error) in
                 if error != nil {  debugPrint(error!.localizedDescription) }
             }
         }
-        
     }
     
     func removeNotification() {
