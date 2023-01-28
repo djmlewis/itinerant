@@ -29,10 +29,18 @@ struct WKItineraryActionView: View {
                             .id(stage.id.uuidString)
                             .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
                     }
-                    //.listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
 
                 }
+                .toolbar(content: {
+                    Button {
+                        resetItineraryStages()
+                    } label: {
+                        Label("Reset", systemImage: "arrow.counterclockwise")
+                    }
+                    .tint(.red)
+                    .padding()
+                })
                 .onChange(of: scrollToStageID) { stageid in
                     if stageid != nil {
                         DispatchQueue.main.async {

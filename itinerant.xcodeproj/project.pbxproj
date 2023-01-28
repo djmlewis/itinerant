@@ -26,6 +26,8 @@
 		72717ED029844E2400CA84FD /* WKStageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72717ECF29844E2400CA84FD /* WKStageActionView.swift */; };
 		7272F09029855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
 		7272F09129855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
+		7282F4012985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
+		7282F4022985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7A2982FFE2005CE71C /* AppDelegate.swift */; };
 		728BCF7D29830046005CE71C /* WKAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7C29830046005CE71C /* WKAppDelegate.swift */; };
 		72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
@@ -78,6 +80,7 @@
 		72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKItineraryActionView.swift; sourceTree = "<group>"; };
 		72717ECF29844E2400CA84FD /* WKStageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKStageActionView.swift; sourceTree = "<group>"; };
 		7272F08F29855AD700F58305 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		7282F4002985A473009B87E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		728BCF7A2982FFE2005CE71C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		728BCF7C29830046005CE71C /* WKAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKAppDelegate.swift; sourceTree = "<group>"; };
 		72E7ADB429636E8400D22D37 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -115,6 +118,7 @@
 		72E7F06A295F3F6300367612 = {
 			isa = PBXGroup;
 			children = (
+				7282F4002985A473009B87E7 /* Assets.xcassets */,
 				72E7ADB429636E8400D22D37 /* Utilities.swift */,
 				7272F08F29855AD700F58305 /* Notifications.swift */,
 				722A58D1297FF1D10061620C /* Konstants.swift */,
@@ -275,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				72E7F07E295F3F6500367612 /* Preview Assets.xcassets in Resources */,
+				7282F4012985A473009B87E7 /* Assets.xcassets in Resources */,
 				72E7F07B295F3F6500367612 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,6 +289,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7205D7FE298475D900D88DC2 /* Assets.xcassets in Resources */,
+				7282F4022985A473009B87E7 /* Assets.xcassets in Resources */,
 				72E7F090295F3F6500367612 /* Preview Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

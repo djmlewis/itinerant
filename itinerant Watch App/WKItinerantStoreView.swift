@@ -55,6 +55,7 @@ struct WKItinerantStoreView: View {
             // for messages with Itinerary to load
             if itineraryToAdd != nil {
                 itineraryStore.addItinerary(itinerary: itineraryToAdd!)
+                itineraryStore.sortItineraries()
             }
         }
 

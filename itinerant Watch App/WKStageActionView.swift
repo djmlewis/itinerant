@@ -30,50 +30,49 @@ struct WKStageActionView: View {
     private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
 
     var body: some View {
-        VStack(alignment: .center) {
-            Text(stage.title)
-                .padding(0)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .font(.headline)
-                .fontWeight(.bold)
-                .lineLimit(nil)
-                .multilineTextAlignment(.center)
-            HStack {
-                Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                    //.foregroundColor(Color("ColourDuration"))
-                if stage.durationSecsInt > 0 {
-                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                        .lineLimit(1)
-                        .allowsTightening(true)
-                        .minimumScaleFactor(0.5)
+            Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
+                GridRow {
+                    Text(stage.title)
                         .padding(0)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.headline)
+                        .fontWeight(.heavy)
+                        .lineLimit(nil)
+                        .multilineTextAlignment(.center)
+                        .gridCellColumns(2)
                 }
-                Spacer()
-                Button(action: {
-                    handleStartStopButtonTapped()
-                }) {
-                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(2.0)
-                        .foregroundColor(.white)//(isRunning ? Color("ColourOvertimeBackground") : .accentColor)
-                }
-                .buttonStyle(BorderlessButtonStyle())
                 .padding(0)
-                .frame(width: 56, alignment: .trailing)
-                .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
-                .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
-
-            }
-            Grid {
+                GridRow {
+                    if stage.durationSecsInt == 0 {
+                        Image(systemName: "stopwatch")
+                    } else {
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                            .padding(0)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Button(action: {
+                        handleStartStopButtonTapped()
+                    }) {
+                        Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            //.padding(2.0)
+                            .foregroundColor(.white)//(isRunning ? Color("ColourOvertimeBackground") : .accentColor)
+                    }
+                    .buttonStyle(.borderless)
+                    .frame(height: 42, alignment: .trailing)
+                    .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                    .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
+                }
+                .padding(.bottom, 2)
                 GridRow {
                     Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
-                        .padding(2)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        //.padding(2)
+                        .frame(maxWidth: .infinity)
                         .foregroundColor(.black)
                         .background(.white)
-                        .cornerRadius(4)
                         .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                         .gridCellColumns(1)
                         .lineLimit(1)
@@ -81,12 +80,10 @@ struct WKStageActionView: View {
                         .minimumScaleFactor(0.5)
                    Text("\(stageRunningOvertime ? "" : "+" )" +
                          Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
-                        .padding(2)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .cornerRadius(4)
+                        //.padding(2)
+                        .frame(maxWidth: .infinity)
                         .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
                         .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
-                        .cornerRadius(4)
                         .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                         .gridCellColumns(1)
                         .lineLimit(1)
@@ -94,11 +91,9 @@ struct WKStageActionView: View {
                         .minimumScaleFactor(0.5)
 
                 }
-            }
-            .padding()
-        } /* VStack */
-//        .background(stageIsRunning ? Color("ColourBackgroundRunning") : (stageIsActive ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive")))
-//        .cornerRadius(8) /// make the background rounded
+                .padding(0)
+            } /* Grid */
+            .padding(0)
         .gesture(
             TapGesture(count: 2)
                 .onEnded({ _ in
