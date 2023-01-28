@@ -44,7 +44,7 @@ struct ItineraryActionView: View {
                                                     stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? "ColourBackgroundActive" :
                                                     "ColourBackgroundInactive" )
                             .cornerRadius(6)
-                            .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 3.0))
+                            .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0))
                    } /* ForEach */
                 } /* List */
                 .onChange(of: scrollToStageID) { stageid in
