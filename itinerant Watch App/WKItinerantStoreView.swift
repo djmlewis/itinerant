@@ -16,8 +16,7 @@ struct WKItinerantStoreView: View {
     @EnvironmentObject private var wkAppDelegate: WKAppDelegate
     
     @State private var presentedItineraryID: [String] = []
-
-    
+    @State private var showConfirmationAddDuplicateItinerary: Bool = false
     
     
     var body: some View {
@@ -40,11 +39,13 @@ struct WKItinerantStoreView: View {
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
+                
             } /* List */
             .navigationDestination(for: String.self) { id in
-                WKItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
+                WKItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
             }
             .navigationTitle("Itineraries")
+            
         }
         .onChange(of: wkAppDelegate.unnItineraryID) { newValue in
             // handle notifications to switch itinerary
@@ -53,14 +54,23 @@ struct WKItinerantStoreView: View {
         }
         .onChange(of: wkAppDelegate.newItinerary) { itineraryToAdd in
             // for messages with Itinerary to load
-            if itineraryToAdd != nil {
-                itineraryStore.addItinerary(itinerary: itineraryToAdd!)
-                itineraryStore.sortItineraries()
+            if let validItinerary = itineraryToAdd {
+                if itineraryStore.hasItineraryWithTitle(validItinerary.title) {
+                    showConfirmationAddDuplicateItinerary = true
+                } else {
+                    itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary, duplicateOption: .noDuplicate)
+                }
             }
         }
-
-        
-    }
+        .confirmationDialog("‘\(wkAppDelegate.newItinerary?.title ?? "Unknown")’ already exists", isPresented: $showConfirmationAddDuplicateItinerary) {
+            // we only get called when wkAppDelegate.newItinerary is non-nil so !
+            if let validItinerary = wkAppDelegate.newItinerary {
+                Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
+                Button("Replace Existing", role: .destructive, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary,duplicateOption: .replaceExisting) })
+            }
+        }
+    } /* View */
+    
 }
 
 struct ContentView_Previews: PreviewProvider {

@@ -53,13 +53,17 @@ let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
 let kSceneStoreDictStageStartDates = "kSceneStoreDictStageStartDates"
 let kSceneStoreUuidStrItineraryResetView = "kSceneStoreUuidStrItineraryResetView"
 
+enum DuplicateFileOptions {
+    case noDuplicate, replaceExisting, keepBoth
+}
+
 // MARK: - ItineraryActionView
 let kItineraryUUIDStr = "kItineraryUUIDStr"
 let kStageUUIDStr = "kStageUUIDStr"
 let kItineraryTitle = "kItineraryTitle"
 let kStageTitle = "kStageTitle"
 let kStageSnoozeDurationSecs = "kStageSnoozeDurationSecs"
-
+let kNotificationDueTime = "kNotificationDueTime"
 
 
 // MARK: - StageActionView

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WKItineraryActionView: View {
-    @State var itinerary: Itinerary // not sure why thgis is a State not a Binding
+    @State var itinerary: Itinerary //  not a Binding because we dont change anything just read
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]

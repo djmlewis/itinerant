@@ -117,6 +117,7 @@ struct ItineraryActionView: View {
                     resetItineraryStages()
                 }) {
                     Image(systemName: "arrow.counterclockwise")
+                        .foregroundColor(.red)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {

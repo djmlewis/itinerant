@@ -37,30 +37,34 @@ extension WKAppDelegate {
         // The method will be called on the delegate only if the application is in the foreground.
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler([.banner, .sound]); return }
-        // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-        unnItineraryID = nil
-        unnStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.unnItineraryID = notifiedItineraryID as? String
-            self.unnStageID = notification.request.identifier
+        // we have to clear the previous IDs or a repeat of this one so we log an onChange with the newValue - in case the new value was used before
+        // this may be called multiple times so avoid overloading the UI by using delays
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.unnItineraryID = nil
+            self.unnStageID = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.unnItineraryID = notifiedItineraryID as? String
+                self.unnStageID = notification.request.identifier
+            }
         }
-        
         // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.         debugPrint("Notification received with identifier \(response.notification.request.identifier)")
+        // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.
+        debugPrint(Date.now.description,"didReceive \(response.notification.request.identifier)",
+                   Date(timeIntervalSinceReferenceDate: response.notification.request.content.userInfo[kNotificationDueTime] as! Double).description)
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
-        
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
             switch response.actionIdentifier {
             case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
                 // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                // this appears to be called only once
                 unnItineraryID = nil
                 unnStageID = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+               DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.unnItineraryID = notifiedItineraryID as? String
                     self.unnStageID = response.notification.request.identifier
                 }
@@ -118,8 +122,6 @@ extension WKAppDelegate {
     
     // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        debugPrint("didReceiveMessage")
-
         if let messageData = message[kMessageItineraryData] as? Data {
             if let itinerary = Itinerary(messageItineraryData: messageData) {
                 DispatchQueue.main.async {

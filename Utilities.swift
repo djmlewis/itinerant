@@ -68,18 +68,23 @@ extension String {
         if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}),
            files.count > 0 {
             let filenames = files.map { $0.components(separatedBy: ".").first }
-            var index = 1
-            var modifiedFilename = self
-            while filenames.first(where: { $0 == modifiedFilename }) != nil {
-                modifiedFilename = self + " \(index)"
-                index += 1
-            }
-            return modifiedFilename
+            return self.uniqueifiedStringForArray(filenames)
         }
         return self
     }
 
-    
+    func uniqueifiedStringForArray(_ array:[String?]) -> String {
+        if array.count > 0 {
+            var index = 1
+            var modifiedSelf = self
+            while array.first(where: { $0 == modifiedSelf }) != nil {
+                modifiedSelf = self + " \(index)"
+                index += 1
+            }
+            return modifiedSelf
+        }
+        return self
+    }
 }
 
 struct TextSubtitle: ViewModifier {

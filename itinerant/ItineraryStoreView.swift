@@ -39,7 +39,7 @@ struct ItineraryStoreView: View {
                                 .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
                             Spacer()
                             ProgressView()
-                                .opacity(itineraryStore.itineraryForID(id: itineraryID).hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
+                                .opacity(itineraryStore.itineraryForID(id: itineraryID)?.hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false ? 1.0 : 0.0)
                                 .tint(Color("ColourBackgroundRunning"))
                         }
                     }
@@ -54,7 +54,7 @@ struct ItineraryStoreView: View {
                 })
             } /* List */
             .navigationDestination(for: String.self) { id in
-                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
+                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
             }
             .navigationTitle("Itineraries")
             .toolbar {

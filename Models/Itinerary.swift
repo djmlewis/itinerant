@@ -56,19 +56,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
         self.modificationDate = modificationDate
     }
     
-    init?(messageItineraryData data: Data) {
-        if let watchData = try? JSONDecoder().decode(Itinerary.WatchMessageData.self, from: data) {
-            self.id = watchData.id
-            self.title = watchData.title
-            self.stages = Itinerary.stagesFromWatchStages(watchData.messageStages)
-            self.filename = watchData.title.uniqueifiedDataFileNameWithoutExtension() // start with this
-            self.modificationDate = watchData.modificationDate
-
-        } else {
-            return nil
-        }
-
-    }
+    static func errorItinerary() -> Itinerary { Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval()) }
     
     static func duplicateItineraryWithAllNewIDsAndModDate(from itinerary:Itinerary) -> Itinerary {
         return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename, modificationDate: nowReferenceDateTimeInterval())
@@ -124,28 +112,40 @@ extension Itinerary {
 }
 
 extension Itinerary {
+    init?(messageItineraryData data: Data) {
+        if let watchData = try? JSONDecoder().decode(Itinerary.WatchMessageData.self, from: data) {
+            self.id = watchData.id
+            self.title = watchData.title
+            self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
+            self.filename = watchData.filename // start with this
+            self.modificationDate = watchData.modificationDate
+        } else { return nil }
+    }
+
     struct WatchMessageData: Identifiable, Codable, Hashable {
-        internal init(id: UUID = UUID(), modificationDate: TimeInterval, title: String, messageStages: StageWatchMessageDataArray) {
-            self.id = id
-            self.modificationDate = modificationDate
-            self.title = title
-            self.messageStages = messageStages
-        }
-        
         let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
         var modificationDate: TimeInterval
         var title: String
         var messageStages: StageWatchMessageDataArray
+        var filename: String
+
+        internal init(id: UUID = UUID(), modificationDate: TimeInterval, title: String, messageStages: StageWatchMessageDataArray, filename: String) {
+            self.id = id
+            self.modificationDate = modificationDate
+            self.title = title
+            self.messageStages = messageStages
+            self.filename = filename
+        }
     }
+        
+    var watchDataNewUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchMessageData(// UUID is allocated in init
+                                                                                        modificationDate: modificationDate,
+                                                                                        title: title,
+                                                                                        messageStages: watchStages(),
+                                                                                        filename: filename ?? "") ) }
     
     func watchStages() -> StageWatchMessageDataArray { stages.map { $0.watchDataNewUUID } }
-    static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
-        return watchStages.map { Stage(watchData: $0) }
-    }
-    
-    var watchDataNewUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchMessageData(modificationDate: modificationDate,// UUID is allocated in init
-                                                                                       title: title,
-                                                                                       messageStages: watchStages())) }
+
 }
 
 // abstract the editable vars of Itinerary into a struct ItineraryEditableData that can be passed around and edited
@@ -194,7 +194,7 @@ extension Itinerary {
         )
         if let data: Data = try? JSONEncoder().encode(persistendData) {
             do {
-                let initialfilename = filename!// uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: title)
+                let initialfilename = filename ?? title // revert to title if a nil arrives
                 let fileURL = URL(fileURLWithPath: ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(initialfilename))
                 try data.write(to: fileURL)
                 return initialfilename

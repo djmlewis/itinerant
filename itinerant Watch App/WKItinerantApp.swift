@@ -16,7 +16,7 @@ struct Itinerant_Watch_AppApp: App {
     
     @StateObject private var itineraryStore = ItineraryStore()
 
-    
+
     
     var body: some Scene {
         WindowGroup {
@@ -25,12 +25,8 @@ struct Itinerant_Watch_AppApp: App {
                 .environmentObject(wkAppDelegate)
                 .onAppear() {
                     itineraryStore.requestNotificationPermissions()
-                }
-                .task {
-                    // MUST load itineraries from App othewise other views will reload each time they appear
                     itineraryStore.tryToLoadItineraries()
                 }
-
         }
     }
 }

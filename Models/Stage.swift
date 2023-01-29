@@ -24,7 +24,6 @@ struct Stage: Identifiable, Codable, Hashable {
                                                         details: self.details,
                                                         snoozeDurationSecs: self.snoozeDurationSecs) }
     
-    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs) }
 
     
     func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(id.uuidString) }
@@ -52,6 +51,11 @@ struct Stage: Identifiable, Codable, Hashable {
         self.snoozeDurationSecs = editableData.snoozeDurationSecs
     }
     
+    
+}
+
+extension Stage {
+    
     init(watchData: Stage.WatchData) {
         // keep the UUID it will be unique
         self.id = watchData.id
@@ -60,11 +64,9 @@ struct Stage: Identifiable, Codable, Hashable {
         self.snoozeDurationSecs = watchData.snoozeDurationSecs
        self.details = ""
     }
-    
-}
 
-extension Stage {
-    
+    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs) }
+
     struct WatchData: Identifiable, Codable, Hashable {
         internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, snoozeDurationSecs: Int) {
             self.id = id
@@ -79,7 +81,11 @@ extension Stage {
         var snoozeDurationSecs: Int
     }
     
+    static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
+        return watchStages.map { Stage(watchData: $0) }
+    }
     
+
     
 }
 

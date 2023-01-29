@@ -42,6 +42,7 @@ class ItineraryStore: ObservableObject {
 
     }
 
+    
     func requestNotificationPermissions() {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
@@ -109,6 +110,8 @@ class ItineraryStore: ObservableObject {
     func completeLoadItineraries() {
         if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
             if files.count > 0 {
+                // prevent duplication
+                itineraries = []
                 for fileName in files {
                     let filePath = ItineraryStore.appFilePathForFileNameWithExtension(fileName)
                     loadItinerary(atPath: filePath, importing: false)
@@ -133,7 +136,6 @@ class ItineraryStore: ObservableObject {
     
     func reloadItineraries() {
         // this force erases all the itineraries so they better be saved to file
-        itineraries = []
         tryToLoadItineraries()
     }
     
@@ -144,12 +146,23 @@ class ItineraryStore: ObservableObject {
         }
     }
     
-    func itineraryForID(id:String) -> Itinerary {
-        itineraries.first { $0.id.uuidString == id } ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
+    func itineraryForID(id:String) -> Itinerary? {
+        itineraries.first { $0.id.uuidString == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
+    }
+    func hasItineraryWithID(_ id: String) -> Bool {
+        return itineraries.firstIndex(where: { $0.id.uuidString == id }) != nil
+    }
+    func itineraryForTitle(_ title: String) -> Itinerary? {
+        itineraries.first { $0.title == title }
+    }
+    func hasItineraryWithTitle(_ title: String) -> Bool {
+        return itineraryForTitle(title) != nil
     }
     func itineraryTitleForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.title ?? kUnknownObjectErrorStr
     }
+    var itineraryTitles: [String] { itineraries.map { $0.title } }
+
     func itineraryFileNameForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.filename ?? "---"
     }
@@ -169,7 +182,17 @@ class ItineraryStore: ObservableObject {
         }
         itineraries.remove(atOffsets: offsets)
     }
-    
+    func removeItineraryWithTitle(_ title: String) -> Void {
+        guard let itineraryToDelete = itineraryForTitle(title), let filename =  itineraryToDelete.filename else { return }
+        let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(filename)
+        do {
+            try FileManager.default.removeItem(atPath: filePath)
+        } catch {
+            debugPrint(error.localizedDescription)
+        }
+        itineraries.removeAll(where: { $0.title == title })
+    }
+
     func addItinerary(itinerary: Itinerary) {
         var itinerymutable = itinerary
         itinerymutable.updateModificationDateToNow()
@@ -185,8 +208,22 @@ class ItineraryStore: ObservableObject {
         return itinerymutable.filename
     }
 
-    func hasItineraryWithID(_ id: String) -> Bool {
-        guard let _ = itineraries.firstIndex(where: { $0.id.uuidString == id }) else { return false }
-        return true
+    func addItineraryFromWatchMessageData(itinerary: Itinerary, duplicateOption: DuplicateFileOptions) {
+        var mutableItinerary = itinerary
+        switch duplicateOption {
+        case .keepBoth:
+            mutableItinerary.title = mutableItinerary.title.uniqueifiedStringForArray(itineraryTitles)
+            // uuids
+        case .replaceExisting:
+            removeItineraryWithTitle(mutableItinerary.title)
+        case .noDuplicate:
+            break
+        }
+        // we've removed any duplicate file if .replaceExisting
+        mutableItinerary.filename = (mutableItinerary.filename ?? mutableItinerary.title).uniqueifiedDataFileNameWithoutExtension()
+        addItinerary(itinerary: mutableItinerary)
+        sortItineraries()
     }
+
+    
 }

@@ -57,7 +57,8 @@ func requestStageCompleted(stage: Stage, itinerary: Itinerary) -> UNNotification
                             kStageUUIDStr : stage.id.uuidString,
                               kStageTitle : stage.title,
                      kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
-                          kItineraryTitle : itinerary.title
+                          kItineraryTitle : itinerary.title,
+                     kNotificationDueTime : Date.now.timeIntervalSinceReferenceDate + Double(stage.snoozeDurationSecs)
     ]
     content.categoryIdentifier = kNotificationCategoryStageCompleted
     content.interruptionLevel = .timeSensitive
