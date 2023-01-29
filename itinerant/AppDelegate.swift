@@ -15,19 +15,37 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
     
     @Published var unnItineraryID: String?
     @Published var unnStageID: String?
-    
+    @Published var permissionToNotify: Bool = false
+    @Published var itineraryStore = ItineraryStore()
+
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.delegate = self
         // Register the notification type.
         notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
-        
+        requestNotificationPermission()
+
         
         // Watch Connectivity
         initiateWatchConnectivity()
+        itineraryStore.tryToLoadItineraries()
         
         return true
     }
+    
+    func requestNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    debugPrint(error.localizedDescription)
+                }
+                self.permissionToNotify = granted
+            }
+        }
+        
+    }
+
 }
 
 // MARK: - UserNotifications

@@ -11,14 +11,13 @@ import UniformTypeIdentifiers.UTType
 
 
 struct ItineraryStoreView: View {
-    
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
     @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
 
+    @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
-    @EnvironmentObject private var appDelegate: AppDelegate
-        
+
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
     @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
@@ -31,7 +30,7 @@ struct ItineraryStoreView: View {
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
-                ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
+                ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
                         HStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
@@ -39,7 +38,7 @@ struct ItineraryStoreView: View {
                                 .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
                             Spacer()
                             ProgressView()
-                                .opacity(itineraryStore.itineraryForID(id: itineraryID)?.hasRunningStage(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false ? 1.0 : 0.0)
+                                .opacity(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
                                 .tint(Color("ColourBackgroundRunning"))
                         }
                     }

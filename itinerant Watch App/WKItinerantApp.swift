@@ -14,18 +14,15 @@ struct Itinerant_Watch_AppApp: App {
     
     @WKApplicationDelegateAdaptor(WKAppDelegate.self) var wkAppDelegate
     
-    @StateObject private var itineraryStore = ItineraryStore()
-
-
     
     var body: some Scene {
         WindowGroup {
             WKItinerantStoreView()
-                .environmentObject(itineraryStore)
-                .environmentObject(wkAppDelegate)
+                // environmentObject are accessed by Type so only 1 of any type can go in environment
+                .environmentObject(wkAppDelegate.itineraryStore)
+                /* .environmentObject(wkAppDelegate) NOT NEEDED auto put in environment by Adaptor above */
                 .onAppear() {
-                    itineraryStore.requestNotificationPermissions()
-                    itineraryStore.tryToLoadItineraries()
+                    /* !!! This gets celled every time a sheet or dialog gets called in WKItineraryStoreView !!! */
                 }
         }
     }

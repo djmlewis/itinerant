@@ -16,6 +16,8 @@ class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject, UNUserNo
     @Published var newItinerary: Itinerary?
     @Published var unnItineraryID: String?
     @Published var unnStageID: String?
+    @Published var permissionToNotify: Bool = false
+    @Published var itineraryStore = ItineraryStore()
 
     
     func applicationDidFinishLaunching() {
@@ -23,12 +25,25 @@ class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject, UNUserNo
         notificationCenter.delegate = self
         // Register the notification type.
         notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
-
+        requestNotificationPermission()
         initiateWatchConnectivity()
-        
+        itineraryStore.tryToLoadItineraries()
+
     }
     
-    
+    func requestNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    debugPrint(error.localizedDescription)
+                }
+                self.permissionToNotify = granted
+            }
+        }
+        
+    }
+
 }
 
 // MARK: - UserNotifications

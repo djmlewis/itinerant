@@ -15,7 +15,6 @@ import UserNotifications
 class ItineraryStore: ObservableObject {
     
     @Published var itineraries: [Itinerary] = []
-    @Published var permissionToNotify: Bool = false
        
     
     static func appFilesFolderURL() -> URL {
@@ -42,20 +41,6 @@ class ItineraryStore: ObservableObject {
 
     }
 
-    
-    func requestNotificationPermissions() {
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    debugPrint(error.localizedDescription)
-                }
-                self.permissionToNotify = granted
-            }
-        }
-        
-    }
-    
     func importItinerary(atPath filePath:String) {
         do {
             let content = try String(contentsOfFile: filePath)
@@ -147,7 +132,7 @@ class ItineraryStore: ObservableObject {
     }
     
     func itineraryForID(id:String) -> Itinerary? {
-        itineraries.first { $0.id.uuidString == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
+        itineraries.first{ $0.id.uuidString == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
     }
     func hasItineraryWithID(_ id: String) -> Bool {
         return itineraries.firstIndex(where: { $0.id.uuidString == id }) != nil
@@ -162,6 +147,7 @@ class ItineraryStore: ObservableObject {
         itineraries.first { $0.id.uuidString == id }?.title ?? kUnknownObjectErrorStr
     }
     var itineraryTitles: [String] { itineraries.map { $0.title } }
+    var itineraryUUIDStrs: [String] { itineraries.map { $0.id.uuidString } }
 
     func itineraryFileNameForID(id:String) -> String {
         itineraries.first { $0.id.uuidString == id }?.filename ?? "---"

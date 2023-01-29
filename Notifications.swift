@@ -30,7 +30,6 @@ UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
                        options: .customDismissAction)
 
 
-
 func requestStageCompletedSnooze(toResponse response: UNNotificationResponse) -> UNNotificationRequest{
     let center = UNUserNotificationCenter.current()
     center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])

@@ -11,22 +11,15 @@ import SwiftUI
 @main
 struct ItinerantApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
-    // App creates the itineraryStore and sets it as an environmentObject for subviews to access as required
-    @StateObject private var itineraryStore = ItineraryStore()
-    
-    
+        
     var body: some Scene {
         WindowGroup {
             ItineraryStoreView()
-                .environmentObject(itineraryStore)
-                .environmentObject(appDelegate)
+            // environmentObject are accessed by Type so only 1 of any type can go in environment
+                .environmentObject(appDelegate.itineraryStore)
+            /* .environmentObject(appDelegate) NOT NEEDED auto put in environment by Adaptor above */
                 .onAppear() {
-                    itineraryStore.requestNotificationPermissions()
-                }
-                .task {
-                    // MUST load itineraries from App othewise other views will reload each time they appear
-                    itineraryStore.tryToLoadItineraries()
+                    /* !!! This gets celled every time a sheet or dialog gets called in WKItineraryStoreView !!! */
                 }
         } /* WindowGroup */
     }

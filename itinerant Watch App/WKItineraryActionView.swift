@@ -16,7 +16,6 @@ struct WKItineraryActionView: View {
     @State private var resetStageElapsedTime: Bool?
     @State private var scrollToStageID: String?
     
-    @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var wkAppDelegate: WKAppDelegate
 
     
