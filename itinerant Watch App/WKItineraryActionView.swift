@@ -20,45 +20,58 @@ struct WKItineraryActionView: View {
 
     
     var body: some View {
-        VStack(alignment: .leading) {
-            ScrollViewReader { scrollViewReader in
-                List {
-                    ForEach($itinerary.stages) { $stage in
-                        WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID)
-                            .id(stage.id.uuidString)
-                            .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
+        ScrollViewReader { scrollViewReader in
+            List {
+                ForEach($itinerary.stages) { $stage in
+                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID)
+                        .id(stage.id.uuidString)
+                        .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
+                } /* ForEach */
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                Button {
+                    resetItineraryStages()
+                } label: {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Reset")
+                        Spacer()
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-
                 }
-                .toolbar(content: {
-                    Button {
-                        resetItineraryStages()
-                    } label: {
-                        Label("Reset", systemImage: "arrow.counterclockwise")
-                    }
-                    .tint(.red)
-                    .padding()
-                })
-                .onChange(of: scrollToStageID) { stageid in
-                    if stageid != nil {
-                        DispatchQueue.main.async {
-                            withAnimation {
-                                scrollViewReader.scrollTo(stageid!)
-                            }
+                .listItemTint(.red)
+                .padding()
+            } /* List */
+            .toolbar(content: {
+                Button {
+                    resetItineraryStages()
+                } label: {
+                    Label("Reset", systemImage: "arrow.counterclockwise")
+                }
+                .tint(.red)
+                .padding()
+            })
+            .onChange(of: scrollToStageID) { stageid in
+                if stageid != nil {
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            scrollViewReader.scrollTo(stageid!, anchor: .top)
                         }
                     }
                 }
             }
-        } /* VStack */
+            /* List modifiers */
+        } /* ScrollViewReader */
         .navigationTitle(itinerary.title)
         .onAppear() {
             if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itinerary.stages.isEmpty {
-                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+                let stageuuid = itinerary.stages[0].id.uuidString
+                uuidStrStagesActiveStr.append(stageuuid)
+                scrollToStageID = stageuuid
             }
         }
-    }
-}
+        /* ScrollViewReader modifiers */
+    } /* body */
+} /* struct */
 
 
 extension WKItineraryActionView {

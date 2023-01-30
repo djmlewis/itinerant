@@ -88,7 +88,6 @@ struct StageActionView: View {
                     Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-//                        .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourOvertimeBackground") : .accentColor)
                 }
                 .foregroundColor(.white)
                 .buttonStyle(BorderlessButtonStyle())
@@ -102,7 +101,6 @@ struct StageActionView: View {
             }
         } /* VStack */
         .padding(0)
-        //.background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : (stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color.clear : Color("ColourBackgroundInactive")))
         .cornerRadius(8) /// make the background rounded
         .gesture(
             TapGesture(count: 2)
@@ -111,6 +109,7 @@ struct StageActionView: View {
                     // make ourself active
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         uuidStrStagesActiveStr.append(stage.id.uuidString)
+                        // scrollTo managed by onChange uuidStrStagesActiveStr
                     }
                 })
         )

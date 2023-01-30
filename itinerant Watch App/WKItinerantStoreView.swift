@@ -26,7 +26,7 @@ struct WKItinerantStoreView: View {
                     NavigationLink(value: itineraryID) {
                         HStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
-                                .font(.title3)
+                                .font(.system(.title3, design: .rounded, weight: .semibold))
                         }
                     }
                     .listItemTint(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : Color("ColourBackgroundDarkGrey"))

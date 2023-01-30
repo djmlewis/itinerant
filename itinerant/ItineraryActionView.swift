@@ -32,32 +32,33 @@ struct ItineraryActionView: View {
 
         
     var body: some View {
-        VStack(alignment: .leading) {
-            ScrollViewReader { scrollViewReader in
-                List {
-                    ForEach($itinerary.stages) { $stage in
-                        StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime,
-                                        scrollToStageID: $scrollToStageID,
-                                        toggleDisclosureDetails: $toggleDisclosureDetails)
-                        .id(stage.id.uuidString)
-                        .listRowBackground(Color(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "ColourBackgroundRunning" :
-                                                    stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? "ColourBackgroundActive" :
-                                                    "ColourBackgroundInactive" )
-                            .cornerRadius(6)
-                            .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0))
-                   } /* ForEach */
-                } /* List */
-                .onChange(of: scrollToStageID) { stageid in
-                    if stageid != nil {
-                        DispatchQueue.main.async {
-                            withAnimation {
-                                scrollViewReader.scrollTo(stageid!)
-                            }
+        //VStack(alignment: .leading) {
+        ScrollViewReader { scrollViewReader in
+            List {
+                ForEach($itinerary.stages) { $stage in
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime,
+                                    scrollToStageID: $scrollToStageID,
+                                    toggleDisclosureDetails: $toggleDisclosureDetails)
+                    .id(stage.id.uuidString)
+                    .listRowBackground(Color(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "ColourBackgroundRunning" :
+                                                stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? "ColourBackgroundActive" :
+                                                "ColourBackgroundInactive" )
+                        .cornerRadius(6)
+                        .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0))
+                } /* ForEach */
+            } /* List */
+            .onChange(of: scrollToStageID) { stageid in
+                if stageid != nil {
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            scrollViewReader.scrollTo(stageid!)
                         }
                     }
                 }
             }
-        } /* VStack */
+            /* List mods */
+        } /* ScrollViewReader */
+        //} /* VStack */
         VStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline) {
                 Group {
@@ -86,7 +87,9 @@ struct ItineraryActionView: View {
         .navigationTitle(itinerary.title)
         .onAppear() {
             if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itinerary.stages.isEmpty {
-                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+                let stageuuid = itinerary.stages[0].id.uuidString
+                uuidStrStagesActiveStr.append(stageuuid)
+                scrollToStageID = stageuuid
             }
         }
         .onChange(of: itinerary, perform: {

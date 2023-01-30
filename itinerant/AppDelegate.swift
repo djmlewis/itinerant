@@ -28,8 +28,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
         
         // Watch Connectivity
         initiateWatchConnectivity()
-        itineraryStore.tryToLoadItineraries()
-        
+        DispatchQueue.main.async {
+            self.itineraryStore.tryToLoadItineraries()
+        }
         return true
     }
     
