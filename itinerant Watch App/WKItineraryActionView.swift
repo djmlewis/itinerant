@@ -84,6 +84,8 @@ extension WKItineraryActionView {
         removeAllActiveRunningItineraryStageIDsAndNotifcations()
         resetStageElapsedTime = true
         // need a delay or we try to change ui too soon
+        // toggle scrollToStageID to nil so we scroll up to an already active id
+        scrollToStageID = nil
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             if !itinerary.stages.isEmpty {
                 uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
