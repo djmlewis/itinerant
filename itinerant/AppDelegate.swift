@@ -54,24 +54,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
 extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // The method will be called on the delegate only if the application is in the foreground.
-        guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
-        else { completionHandler([.banner, .sound]); return }
-        
-        /*
-        // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-        unnItineraryID = nil
-        unnStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.unnItineraryID = notifiedItineraryID as? String
-            self.unnStageID = notification.request.identifier
-        }
-        */
-        // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
+        /* This is always called when the app is open - wait for the user to tap the notification and call didReceive to jump to itinerary etc  */
+        // Always call the completionHandler
         completionHandler([.banner, .sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.         debugPrint("Notification received with identifier \(response.notification.request.identifier)")
+        // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.
+        //debugPrint("Notification received with identifier \(response.notification.request.identifier)")
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
 
@@ -102,7 +92,7 @@ extension AppDelegate {
                 
             case UNNotificationDefaultActionIdentifier:
                 //user just tapped the notification
-                // this just opens the app wherever it was left
+                // this just opens the app wherever it was left as the erquest has foreground
                 break
             default:
                break
