@@ -71,7 +71,7 @@ struct WKStageActionView: View {
                     .gridCellColumns(2)
             }
             .padding(0)
-            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || fabs(timeAccumulatedAtUpdate) > 0.0 {
+            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
                 GridRow {
                     Text("\(stageRunningOvertime ? "" : "+" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         .font(.system(.title3, design: .rounded, weight: .semibold))
@@ -100,7 +100,6 @@ struct WKStageActionView: View {
                         .lineLimit(1)
                         .allowsTightening(true)
                         .minimumScaleFactor(0.5)
-                    //.border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear)
                         .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
                         .padding(.leading,2.0)
                         .padding(.trailing,2.0)
@@ -166,6 +165,8 @@ extension WKStageActionView {
     }
     
     func setTimeStartedRunning(_ newValue: Double?) {
+        // only set to nil when we must do that, like on RESET all stages
+        // dont do it just on stopping so we can still see the elapsed times
         dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
     }
     
@@ -184,25 +185,6 @@ extension WKStageActionView {
         
     }
     
-    func handleHaltRunning() {
-        uiUpdateTimerCancellor?.cancel()
-        removeNotification()
-        // remove ourselves from active and running
-        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        setTimeStartedRunning(nil)
-        // set the next stage to active if there is one above us
-        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
-            if itinerary.stages.count > ourindex+1 {
-                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
-            } else {
-                if itinerary.stages.count > 0 {
-                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
-                }
-            }
-        }
-    }
-    
     func handleStartRunning() {
         setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
@@ -213,6 +195,25 @@ extension WKStageActionView {
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
+    }
+    
+    func handleHaltRunning() {
+        uiUpdateTimerCancellor?.cancel()
+        removeNotification()
+        // remove ourselves from active and running
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        //setTimeStartedRunning(nil) <== dont do this or time disappear
+        // set the next stage to active if there is one above us
+        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
+            if itinerary.stages.count > ourindex+1 {
+                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
+            } else {
+                if itinerary.stages.count > 0 {
+                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+                }
+            }
+        }
     }
     
 }

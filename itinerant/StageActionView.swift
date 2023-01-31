@@ -252,7 +252,7 @@ extension StageActionView {
         // remove ourselves from active and running
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        //setTimeStartedRunning(nil)
+        //setTimeStartedRunning(nil) <== dont do this or time disappear
         // set the next stage to active if there is one above us
         if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
             if itinerary.stages.count > ourindex+1 {
