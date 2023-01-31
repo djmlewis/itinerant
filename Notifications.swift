@@ -9,14 +9,14 @@ import Foundation
 import UserNotifications
 
 let kSnoozeIntervalSecs = 10.0
-let kNotificationActionOpenApp = "OPEN_APP_ACTION"
+let kNotificationActionOpenAppToItinerary = "OPEN_APP_TO_ITINERARY_ACTION"
 let kNotificationActionSnooze = "SNOOZE_ACTION"
 let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
 
 
 
 // Define the custom actions.
-let kUNNOpenAppAction = UNNotificationAction(identifier: kNotificationActionOpenApp,
+let kUNNOpenAppAction = UNNotificationAction(identifier: kNotificationActionOpenAppToItinerary,
                                          title: "Open Itinerary",
                                          options: [.foreground])
 let kUNNSnoozeAction = UNNotificationAction(identifier: kNotificationActionSnooze,

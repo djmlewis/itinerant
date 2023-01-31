@@ -74,7 +74,8 @@ extension WKAppDelegate {
         else { completionHandler(); return }
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
             switch response.actionIdentifier {
-            case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
+            case kNotificationActionOpenAppToItinerary, UNNotificationDefaultActionIdentifier:
+                // UNNotificationDismissActionIdentifier user opened the application from the notification
                 // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 // this appears to be called only once
                 unnItineraryID = nil

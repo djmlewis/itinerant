@@ -17,6 +17,7 @@
 		722A58D2297FF1D10061620C /* Konstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722A58D1297FF1D10061620C /* Konstants.swift */; };
 		722A58D3297FF1D10061620C /* Konstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722A58D1297FF1D10061620C /* Konstants.swift */; };
 		72382CB22979D3F900DE76E3 /* itinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72382CB12979D3F900DE76E3 /* itinerantApp.swift */; };
+		72430EA22987F2830046A2DF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72430EA12987F2830046A2DF /* SettingsView.swift */; };
 		725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725666772965AFC200B678CB /* ItineraryEditView.swift */; };
 		7256AF952965D53300FBE53E /* StageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF942965D53300FBE53E /* StageEditView.swift */; };
 		7258974729643C7D00EA782E /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974629643C7D00EA782E /* Stage.swift */; };
@@ -30,8 +31,6 @@
 		7282F4022985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7A2982FFE2005CE71C /* AppDelegate.swift */; };
 		728BCF7D29830046005CE71C /* WKAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7C29830046005CE71C /* WKAppDelegate.swift */; };
-		72BAE1EB29872A88006E3068 /* SF-Pro-Rounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 72BAE1E929872A87006E3068 /* SF-Pro-Rounded-Semibold.otf */; };
-		72BAE1EC29872A88006E3068 /* SF-Pro-Rounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 72BAE1EA29872A88006E3068 /* SF-Pro-Rounded-Regular.otf */; };
 		72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
 		72E7F079295F3F6400367612 /* ItineraryStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F078295F3F6400367612 /* ItineraryStoreView.swift */; };
 		72E7F07B295F3F6500367612 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F07A295F3F6500367612 /* Assets.xcassets */; };
@@ -74,6 +73,7 @@
 		7212D0D929804ADD002A6848 /* ItineraryDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryDocument.swift; sourceTree = "<group>"; };
 		722A58D1297FF1D10061620C /* Konstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Konstants.swift; sourceTree = "<group>"; };
 		72382CB12979D3F900DE76E3 /* itinerantApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
+		72430EA12987F2830046A2DF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
 		7256AF942965D53300FBE53E /* StageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageEditView.swift; sourceTree = "<group>"; };
 		7258974629643C7D00EA782E /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
@@ -85,8 +85,6 @@
 		7282F4002985A473009B87E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		728BCF7A2982FFE2005CE71C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		728BCF7C29830046005CE71C /* WKAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKAppDelegate.swift; sourceTree = "<group>"; };
-		72BAE1E929872A87006E3068 /* SF-Pro-Rounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Semibold.otf"; sourceTree = "<group>"; };
-		72BAE1EA29872A88006E3068 /* SF-Pro-Rounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Regular.otf"; sourceTree = "<group>"; };
 		72BAE1ED29872AF1006E3068 /* itinerant-Watch-App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "itinerant-Watch-App-Info.plist"; sourceTree = SOURCE_ROOT; };
 		72E7ADB429636E8400D22D37 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		72E7F073295F3F6400367612 /* itinerant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itinerant.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -120,19 +118,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		72BAE1E829872A5C006E3068 /* custom_fonts */ = {
+		72430EA02987F2370046A2DF /* sharedViews */ = {
 			isa = PBXGroup;
 			children = (
-				72BAE1EA29872A88006E3068 /* SF-Pro-Rounded-Regular.otf */,
-				72BAE1E929872A87006E3068 /* SF-Pro-Rounded-Semibold.otf */,
 			);
-			path = custom_fonts;
+			path = sharedViews;
 			sourceTree = "<group>";
 		};
 		72E7F06A295F3F6300367612 = {
 			isa = PBXGroup;
 			children = (
-				72BAE1E829872A5C006E3068 /* custom_fonts */,
+				72430EA02987F2370046A2DF /* sharedViews */,
 				7282F4002985A473009B87E7 /* Assets.xcassets */,
 				72E7ADB429636E8400D22D37 /* Utilities.swift */,
 				7272F08F29855AD700F58305 /* Notifications.swift */,
@@ -164,6 +160,7 @@
 				7258974E2964972E00EA782E /* StageActionView.swift */,
 				720C092D29741F74000AFFCC /* StageDisplayView.swift */,
 				7256AF942965D53300FBE53E /* StageEditView.swift */,
+				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
@@ -305,10 +302,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7205D7FE298475D900D88DC2 /* Assets.xcassets in Resources */,
-				72BAE1EC29872A88006E3068 /* SF-Pro-Rounded-Regular.otf in Resources */,
 				7282F4022985A473009B87E7 /* Assets.xcassets in Resources */,
 				72E7F090295F3F6500367612 /* Preview Assets.xcassets in Resources */,
-				72BAE1EB29872A88006E3068 /* SF-Pro-Rounded-Semibold.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +323,7 @@
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
 				7212D0DA29804ADD002A6848 /* ItineraryDocument.swift in Sources */,
 				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
+				72430EA22987F2830046A2DF /* SettingsView.swift in Sources */,
 				72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */,
 				72E7F079295F3F6400367612 /* ItineraryStoreView.swift in Sources */,
 				7258974F2964972E00EA782E /* StageActionView.swift in Sources */,

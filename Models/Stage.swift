@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 typealias StageArray = [Stage]
 typealias StageWatchMessageDataArray = [Stage.WatchData]
@@ -138,3 +139,4 @@ extension Stage {
     }
     
 }
+

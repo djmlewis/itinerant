@@ -30,7 +30,9 @@ struct ItineraryActionView: View {
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appDelegate: AppDelegate
 
-        
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    
     var body: some View {
         //VStack(alignment: .leading) {
         ScrollViewReader { scrollViewReader in
@@ -40,11 +42,11 @@ struct ItineraryActionView: View {
                                     scrollToStageID: $scrollToStageID,
                                     toggleDisclosureDetails: $toggleDisclosureDetails)
                     .id(stage.id.uuidString)
-                    .listRowBackground(Color(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "ColourBackgroundRunning" :
-                                                stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? "ColourBackgroundActive" :
-                                                "ColourBackgroundInactive" )
+                    .listRowBackground(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor! :
+                                                stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? appStorageColourStageActive.rgbaColor! :
+                                                Color("ColourBackgroundInactive") )
                         .cornerRadius(6)
-                        .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0))
+                        .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0)
                 } /* ForEach */
             } /* List */
             .onChange(of: scrollToStageID) { stageid in

@@ -8,6 +8,13 @@
 import SwiftUI
 import Combine
 
+func outlinesText(text: String) -> AttributedString {
+    var title = AttributedString(text)
+    title.strokeColor = .blue
+    title.strokeWidth = -3
+    title.foregroundColor = .red
+    return title
+}
 
 struct StageActionView: View {
     
@@ -25,13 +32,21 @@ struct StageActionView: View {
     @State private var timeAccumulatedAtUpdate: Double = 0.0
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
-    
     @State private var disclosureDetailsExpanded: Bool = true
     
     private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
     
+    
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+
+    
     // MARK: - body
     var body: some View {
+        
+        
         VStack(alignment: .leading) {
             HStack {
                 Text(stage.title)

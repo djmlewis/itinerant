@@ -12,6 +12,7 @@ import Foundation
 import SwiftUI
 import Combine
 
+// MARK: Time formatting & second-min
 let SEC_MIN = 60
 let SEC_HOUR = 3600
 
@@ -24,11 +25,13 @@ func hmsToSecsDouble(hours: Int, mins: Int, secs: Int) -> Double {
 }
 
 
+// MARK: enum
 enum FieldFocusTag {
     case noneFocused
     case title
 }
 
+// MARK: Dictionary extension
 extension Dictionary: RawRepresentable where Key == String, Value == String {
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),  // convert from String to Data
@@ -50,6 +53,7 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
 
 }
 
+// MARK: CancellingTimer
 class CancellingTimer {
     var cancellor: AnyCancellable?
     
@@ -58,13 +62,38 @@ class CancellingTimer {
     }
 }
 
+// MARK: Color extension
+extension Color {
+    var rgbaString: String? {
+        guard let components = self.cgColor?.components, self.cgColor?.colorSpace?.model == .rgb else { return nil }
+        return components.map({ String(format: "%f",$0) }).joined(separator:kColorStringSeparator)
+    }
+    
+}
+
+
+// MARK: String extension
 extension String {
     
-    func fileNameWithoutExtensionFromPath() -> String? {
+    var rgbaColor: Color? {
+        let components = self.components(separatedBy: kColorStringSeparator).map({ Double($0) })
+        // no nils allowed
+        if components.first(where: { $0 == nil }) != nil { return nil }
+        switch components.count {
+        case 3:
+            return Color(red: components[0]!, green: components[1]!, blue: components[2]!)
+        case 4:
+            return Color(red: components[0]!, green: components[1]!, blue: components[2]!, opacity: components[3]!)
+        default:
+            return nil
+        }
+    }
+
+    var fileNameWithoutExtensionFromPath: String? {
         self.components(separatedBy: "/").last?.components(separatedBy: ".").first
     }
     
-    func uniqueifiedDataFileNameWithoutExtension() -> String {
+    var uniqueifiedDataFileNameWithoutExtension: String {
         if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}),
            files.count > 0 {
             let filenames = files.map { $0.components(separatedBy: ".").first }
@@ -87,6 +116,7 @@ extension String {
     }
 }
 
+// MARK: Text modifiers
 struct TextSubtitle: ViewModifier {
     var text: String
     var stackAlignment: HorizontalAlignment
@@ -117,7 +147,7 @@ struct LabelSubtitle: ViewModifier {
     }
 }
 
-
+// MARK: View extension
 extension View {
     func subtitledText(with text: String, stackAlignment: HorizontalAlignment, subtitleAlignment: TextAlignment) -> some View {
         modifier(TextSubtitle(text: text, stackAlignment: stackAlignment, subtitleAlignment: subtitleAlignment))
@@ -148,5 +178,4 @@ extension View {
             .labelStyle(.titleAndIcon)
     }
 }
-
 

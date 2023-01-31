@@ -17,6 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
     @Published var unnStageID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
+    
 
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         let notificationCenter = UNUserNotificationCenter.current()
@@ -55,6 +56,8 @@ extension AppDelegate {
         // The method will be called on the delegate only if the application is in the foreground.
         guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler([.banner, .sound]); return }
+        
+        /*
         // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
         unnItineraryID = nil
         unnStageID = nil
@@ -62,7 +65,7 @@ extension AppDelegate {
             self.unnItineraryID = notifiedItineraryID as? String
             self.unnStageID = notification.request.identifier
         }
-        
+        */
         // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
     }
@@ -74,7 +77,7 @@ extension AppDelegate {
 
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
             switch response.actionIdentifier {
-            case kNotificationActionOpenApp, UNNotificationDefaultActionIdentifier: // UNNotificationDismissActionIdentifier user opened the application from the notification
+            case kNotificationActionOpenAppToItinerary: // UNNotificationDismissActionIdentifier user opened the application from the notification
               // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 unnItineraryID = nil
                 unnStageID = nil
@@ -97,6 +100,10 @@ extension AppDelegate {
                 // * user dismissed the notification
                 break
                 
+            case UNNotificationDefaultActionIdentifier:
+                //user just tapped the notification
+                // this just opens the app wherever it was left
+                break
             default:
                break
             }

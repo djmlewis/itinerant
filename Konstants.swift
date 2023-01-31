@@ -48,6 +48,15 @@ let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 // MARK: - ItinerantApp
 
 // MARK: - ItineraryStoreView
+let kAppStorageColourStageActive = "kAppStorageColourStageActive"
+let kAppStorageColourStageRunning = "kAppStorageColourStageRunning"
+let kAppStorageDefaultColourStageActive = "0.011\t0.133\t0.673\t1.0"
+let kAppStorageDefaultColourStageRunning = "0.996\t0.274\t0.0\t1.0"
+let kAppStorageStageActiveTextDark = "kAppStorageStageActiveTextDark"
+let kAppStorageStageRunningTextDark = "kAppStorageStageRunningTextDark"
+
+
+
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
 let kSceneStoreDictStageStartDates = "kSceneStoreDictStageStartDates"
@@ -75,3 +84,6 @@ let kUIUpdateTimerFrequency = 0.2
 // MARK: - WatchConnectivity
 let kMessageKey = "message"
 let kMessageItineraryData = "kMessageItinerary"
+
+// MARK: - Color String
+let kColorStringSeparator = "\t"

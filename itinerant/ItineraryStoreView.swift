@@ -11,6 +11,10 @@ import UniformTypeIdentifiers.UTType
 
 
 struct ItineraryStoreView: View {
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
     @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
@@ -25,7 +29,7 @@ struct ItineraryStoreView: View {
     @State private var fileImporterShown: Bool = false
     
     @State private var presentedItineraryID: [String] = []
-
+    @State private var showSettingsView: Bool = false
     
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
@@ -34,15 +38,12 @@ struct ItineraryStoreView: View {
                     NavigationLink(value: itineraryID) {
                         HStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
-                                .font(.title)
+                                .font(.system(.title, design: .rounded, weight: .semibold))                                .foregroundColor(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : .black)
                                 .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
-                            Spacer()
-                            ProgressView()
-                                .opacity(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 1.0 : 0.0)
-                                .tint(Color("ColourBackgroundRunning"))
                         }
-                    }
-                } /* ForEach */
+                  }
+                    .listRowBackground(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear)
+               } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
@@ -54,9 +55,16 @@ struct ItineraryStoreView: View {
             } /* List */
             .navigationDestination(for: String.self) { id in
                 ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
-            }
+           }
             .navigationTitle("Itineraries")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showSettingsView = true
+                    }) {
+                        Label("Settings…", systemImage: "gear")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Button(action: {
@@ -84,6 +92,11 @@ struct ItineraryStoreView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showSettingsView, content: {
+                NavigationStack {
+                    SettingsView(showSettingsView: $showSettingsView/*, appStorageColourStageActive: $appStorageColourStageActive, appStorageColourStageRunning: $appStorageColourStageRunning*/)
+                }
+            })
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationView {
                     ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
@@ -137,7 +150,6 @@ struct ItineraryStoreView: View {
 
 struct ItineraryStoreView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationStack() {
-        }
+        Text("yo")
     }
 }

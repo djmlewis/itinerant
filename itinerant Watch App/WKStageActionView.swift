@@ -99,7 +99,7 @@ struct WKStageActionView: View {
                     .lineLimit(1)
                     .allowsTightening(true)
                     .minimumScaleFactor(0.5)
-                //.border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear)
+                    //.border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear)
                     .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
                     .padding(.leading,2.0)
                     .padding(.trailing,2.0)

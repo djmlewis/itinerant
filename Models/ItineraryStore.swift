@@ -61,7 +61,7 @@ class ItineraryStore: ObservableObject {
                 // otherwise we will use the existing filename as we must overwrite anyway ones we are loading from the folder on re-load
                 let filename = importing ?
                     Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
-                    filePath.fileNameWithoutExtensionFromPath()!
+                    filePath.fileNameWithoutExtensionFromPath!
                 let newItinerary = Itinerary(persistentData: persistentData, filename: filename)
                 let newUUIDstr = newItinerary.id.uuidString
                 //let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
@@ -206,7 +206,7 @@ class ItineraryStore: ObservableObject {
             break
         }
         // we've removed any duplicate file if .replaceExisting
-        mutableItinerary.filename = (mutableItinerary.filename ?? mutableItinerary.title).uniqueifiedDataFileNameWithoutExtension()
+        mutableItinerary.filename = (mutableItinerary.filename ?? mutableItinerary.title).uniqueifiedDataFileNameWithoutExtension
         addItinerary(itinerary: mutableItinerary)
         sortItineraries()
     }
