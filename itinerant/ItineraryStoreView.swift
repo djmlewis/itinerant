@@ -11,8 +11,11 @@ import UniformTypeIdentifiers.UTType
 
 
 struct ItineraryStoreView: View {
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
     @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
 
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
@@ -31,18 +34,32 @@ struct ItineraryStoreView: View {
     @State private var presentedItineraryID: [String] = []
     @State private var showSettingsView: Bool = false
     
+    
+    func textColourForID(_ itineraryID: String) -> Color {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : .black
+    }
+    func backgroundColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
+    }
+
+    
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
-                        HStack {
+                        VStack {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
-                                .font(.system(.title, design: .rounded, weight: .semibold))                                .foregroundColor(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : .black)
-                                .subtitledLabel(with: itineraryStore.itineraryFileNameForID(id: itineraryID), iconName: "doc", stackAlignment: .leading, subtitleAlignment: .trailing)
+                                .font(.system(.title, design: .rounded, weight: .semibold))
+                            Label(itineraryStore.itineraryFileNameForID(id: itineraryID), systemImage: "doc")
+                                .labelStyle(.titleAndIcon)
+                                .italic()
+                                .font(.subheadline)
+                                //.multilineTextAlignment(.leading)
                         }
+                        .foregroundColor(textColourForID(itineraryID))
                   }
-                    .listRowBackground(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear)
+                    .listRowBackground(backgroundColourForID(itineraryID))
                } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset

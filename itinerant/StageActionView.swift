@@ -37,12 +37,24 @@ struct StageActionView: View {
     private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
     
     
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
 
-    
+
+    func stageTextColour() -> Color {
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageStageRunningTextDark == true ? .black : .white
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageStageActiveTextDark == true ? .black : .white
+        }
+        return appStorageStageInactiveTextDark == true ? .black : .white
+    }
+
     // MARK: - body
     var body: some View {
         
@@ -52,7 +64,7 @@ struct StageActionView: View {
                 Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(stageTextColour())
                     .scenePadding(.minimum, edges: .horizontal)
                 Spacer()
                 Button(action: {
@@ -65,12 +77,12 @@ struct StageActionView: View {
             }
             HStack {
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                    .foregroundColor(.white)
+                    .foregroundColor(stageTextColour())
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(stageTextColour())
                 }
                 Spacer()
                 Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))

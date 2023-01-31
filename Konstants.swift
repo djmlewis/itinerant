@@ -48,10 +48,13 @@ let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 // MARK: - ItinerantApp
 
 // MARK: - ItineraryStoreView
+let kAppStorageColourStageInactive = "kAppStorageColourStageInactive"
 let kAppStorageColourStageActive = "kAppStorageColourStageActive"
 let kAppStorageColourStageRunning = "kAppStorageColourStageRunning"
+let kAppStorageDefaultColourStageInactive = "0.664\t0.664\t0.664\t1.0"
 let kAppStorageDefaultColourStageActive = "0.011\t0.133\t0.673\t1.0"
 let kAppStorageDefaultColourStageRunning = "0.996\t0.274\t0.0\t1.0"
+let kAppStorageStageInactiveTextDark = "kAppStorageStageInactiveTextDark"
 let kAppStorageStageActiveTextDark = "kAppStorageStageActiveTextDark"
 let kAppStorageStageRunningTextDark = "kAppStorageStageRunningTextDark"
 

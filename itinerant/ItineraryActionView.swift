@@ -30,8 +30,24 @@ struct ItineraryActionView: View {
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appDelegate: AppDelegate
 
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+
+    
+    func stageBackgroundColour(stage: Stage) -> Color {
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageColourStageRunning.rgbaColor!
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageColourStageActive.rgbaColor!
+        }
+        return kAppStorageDefaultColourStageInactive.rgbaColor!
+    }
+
     
     var body: some View {
         //VStack(alignment: .leading) {
@@ -42,11 +58,9 @@ struct ItineraryActionView: View {
                                     scrollToStageID: $scrollToStageID,
                                     toggleDisclosureDetails: $toggleDisclosureDetails)
                     .id(stage.id.uuidString)
-                    .listRowBackground(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor! :
-                                                stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? appStorageColourStageActive.rgbaColor! :
-                                                Color("ColourBackgroundInactive") )
-                        .cornerRadius(6)
-                        .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0)
+                    .listRowBackground(stageBackgroundColour(stage: stage))
+                    .cornerRadius(6)
+                    .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0)
                 } /* ForEach */
             } /* List */
             .onChange(of: scrollToStageID) { stageid in
@@ -84,7 +98,8 @@ struct ItineraryActionView: View {
                 Label(itinerary.filename ?? "---", systemImage: "doc")
                 Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
             }
-            .styleSubtitleLabel(alignment: .center)
+            .font(.title3)
+            .foregroundColor(.gray)
         }
         .navigationTitle(itinerary.title)
         .onAppear() {
