@@ -61,31 +61,40 @@ struct StageActionView: View {
         
         VStack(alignment: .leading) {
             HStack {
-                Text(stage.title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(stageTextColour())
-                    .scenePadding(.minimum, edges: .horizontal)
-                Spacer()
-                Button(action: {
-                    disclosureDetailsExpanded = !disclosureDetailsExpanded
-                }) {
-                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                        .foregroundColor(.accentColor)
-                }
-                .buttonStyle(BorderlessButtonStyle())
-            }
-            HStack {
+                // alarm duration and button
                 Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                // Timer type icon
                     .foregroundColor(stageTextColour())
                 if stage.durationSecsInt > 0 {
                     Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                    // Alarm time duration
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(stageTextColour())
                 }
                 Spacer()
-                Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
+                Button(action: {
+                // Start Stop
+                    handleStartStopButtonTapped()
+                }) {
+                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .foregroundColor(.white)
+                .buttonStyle(BorderlessButtonStyle())
+                .frame(width: 46, alignment: .leading)
+                .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
+            }
+            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
+                HStack {
+                    // Times elapsed
+                    HStack {
+                        Image(systemName: "hourglass")
+                        Text(Stage.stageDurationStringFromDouble(fabs((timeAccumulatedAtUpdate))))
+                        // elapsed time
+                    }
                     .padding(4.0)
                     .foregroundColor(.black)
                     .background(.white)
@@ -96,10 +105,14 @@ struct StageActionView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                Spacer()
-                Text("\(stageRunningOvertime ? "" : "+" )" +
-                     Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
-                    .bold(stageRunningOvertime)
+                    Spacer()
+                    HStack {
+                        Image(systemName: "bell.and.waves.left.and.right")
+                        Text("\(stageRunningOvertime ? "" : "+" )" +
+                             // time remaining or overtime
+                             Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                        .bold(stageRunningOvertime)
+                    }
                     .padding(4.0)
                     .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
                     .overlay(
@@ -109,22 +122,31 @@ struct StageActionView: View {
                     .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
-                Button(action: {
-                    handleStartStopButtonTapped()
-                }) {
-                    Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
                 }
-                .foregroundColor(.white)
+            }
+            HStack {
+            // title and expand details
+                Button(action: {
+                    disclosureDetailsExpanded = !disclosureDetailsExpanded
+                }) {
+                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                        .foregroundColor(.accentColor)
+                }
                 .buttonStyle(BorderlessButtonStyle())
-                .frame(width: 32, alignment: .leading)
-                .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
-                .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
+                
+                Text(stage.title)
+                // Stage title
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(stageTextColour())
+                    .scenePadding(.minimum, edges: .horizontal)
             }
             if !stage.details.isEmpty && disclosureDetailsExpanded == true{
                 Text(stage.details)
+                // Details
                     .font(.body)
+                    .foregroundColor(stageTextColour())
+                    .multilineTextAlignment(.leading)
             }
         } /* VStack */
         .padding(0)
@@ -166,7 +188,8 @@ struct StageActionView: View {
                     timeDifferenceAtUpdate = 0.0
                     timeAccumulatedAtUpdate = 0.0
                     resetStageElapsedTime = nil
-                }
+                    setTimeStartedRunning(nil)
+              }
             }
         }
         .onChange(of: uuidStrStagesActiveStr) { newValue in
@@ -190,6 +213,8 @@ extension StageActionView {
     }
     
     func setTimeStartedRunning(_ newValue: Double?) {
+        // only set to nil when we must do that, like on RESET all stages
+        // dont do it just on stopping so we can still see the elapsed times
         dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
     }
     
@@ -209,25 +234,6 @@ extension StageActionView {
         
     }
     
-    func handleHaltRunning() {
-        uiUpdateTimerCancellor?.cancel()
-        removeNotification()
-        // remove ourselves from active and running
-        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        setTimeStartedRunning(nil)
-        // set the next stage to active if there is one above us
-        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
-            if itinerary.stages.count > ourindex+1 {
-                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
-            } else {
-                if itinerary.stages.count > 0 {
-                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
-                }
-            }
-        }
-    }
-    
     func handleStartRunning() {
         setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
@@ -238,6 +244,25 @@ extension StageActionView {
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
+    }
+    
+   func handleHaltRunning() {
+        uiUpdateTimerCancellor?.cancel()
+        removeNotification()
+        // remove ourselves from active and running
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        //setTimeStartedRunning(nil)
+        // set the next stage to active if there is one above us
+        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
+            if itinerary.stages.count > ourindex+1 {
+                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
+            } else {
+                if itinerary.stages.count > 0 {
+                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+                }
+            }
+        }
     }
     
 }

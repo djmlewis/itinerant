@@ -98,7 +98,7 @@ struct ItineraryActionView: View {
                 Label(itinerary.filename ?? "---", systemImage: "doc")
                 Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
             }
-            .font(.title3)
+            .font(.caption)
             .foregroundColor(.gray)
         }
         .navigationTitle(itinerary.title)
@@ -113,7 +113,7 @@ struct ItineraryActionView: View {
             // after edit iiOS only
             itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 Menu {
                     Button(action: {
                         sendItineraryToWatch()
@@ -216,7 +216,10 @@ extension ItineraryActionView {
     
     func sendItineraryToWatch()  {
         if let watchdata = itinerary.watchDataNewUUID {
-            appDelegate.send(dict: [kMessageItineraryData : watchdata], data: nil)
+            appDelegate.sendMessageData(dict: [
+                kUserInfoMessageTypeKey : kMessageItineraryData,
+                kMessageItineraryData : watchdata],
+                                        data: nil)
         }
     }
 }

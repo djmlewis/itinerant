@@ -160,9 +160,22 @@ extension WKAppDelegate {
         
         debugPrint("WK WCSession.default.sendMessage")
         WCSession.default.sendMessage([kMessageKey : message], replyHandler: nil) { error in
-            print("Cannot send message: \(String(describing: error))")
+            debugPrint("Cannot send message: \(String(describing: error))")
         }
     }
     
-    
+    // MARK: - UserInfo
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        debugPrint("didReceiveUserInfo", userInfo[kUserInfoMessageTypeKey] as Any)
+        if let messageData = userInfo[kMessageItineraryData] as? Data {
+            if let itinerary = Itinerary(messageItineraryData: messageData) {
+                DispatchQueue.main.async {
+                    self.newItinerary = itinerary
+                }
+            }
+        }
+
+        
+    }
+
 }

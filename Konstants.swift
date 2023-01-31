@@ -85,6 +85,7 @@ let kUIUpdateTimerFrequency = 0.2
 
 
 // MARK: - WatchConnectivity
+let kUserInfoMessageTypeKey = "kUserInfoMessageTypeKey"
 let kMessageKey = "message"
 let kMessageItineraryData = "kMessageItinerary"
 

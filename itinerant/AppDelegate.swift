@@ -147,7 +147,7 @@ extension AppDelegate {
     }
 
     
-    func send(dict: [String : Any]?, data: Data? ) {
+    func sendMessageData(dict: [String : Any]?, data: Data? ) {
         guard WCSession.default.activationState == .activated else {
             debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
           return
@@ -156,21 +156,29 @@ extension AppDelegate {
             debugPrint("isCompanionAppInstalled false")
             return
         }
-        guard WCSession.default.isReachable else {
-            debugPrint("isReachable false")
-            return
-        }
+//        guard WCSession.default.isReachable else {
+//            debugPrint("isReachable false")
+//            return
+//        }
 
         if let messageDict = dict {
-            WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
-                print("Cannot send messageString: \(String(describing: error))")
-            }
+//            WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
+//                print("Cannot send messageString: \(String(describing: error))")
+//            }
+            WCSession.default.transferUserInfo(messageDict)
+
         }
         if let messageData = data {
             WCSession.default.sendMessageData(messageData, replyHandler: nil) { error in
                 print("Cannot send messageData: \(String(describing: error))")
             }
+
         }
     }
 
+    func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
+        /** Called on the sending side after the user info transfer has successfully completed or failed with an error.
+         Will be called on next launch if the sender was not running when the user info finished. */
+        debugPrint("didFinish userInfoTransfer", error?.localizedDescription ?? "No error")
+    }
 }

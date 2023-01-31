@@ -24,6 +24,7 @@ struct ItineraryStoreView: View {
 
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
+    @Environment(\.colorScheme) var colorScheme
 
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
@@ -36,7 +37,7 @@ struct ItineraryStoreView: View {
     
     
     func textColourForID(_ itineraryID: String) -> Color {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : .black
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : (colorScheme == .dark ? .white : .black)
     }
     func backgroundColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
