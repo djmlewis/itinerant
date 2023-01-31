@@ -48,14 +48,13 @@ struct ItineraryStoreView: View {
             List {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
-                        VStack {
+                        VStack(alignment: .leading, spacing: 5.0) {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.system(.title, design: .rounded, weight: .semibold))
                             Label(itineraryStore.itineraryFileNameForID(id: itineraryID), systemImage: "doc")
                                 .labelStyle(.titleAndIcon)
                                 .italic()
                                 .font(.subheadline)
-                                //.multilineTextAlignment(.leading)
                         }
                         .foregroundColor(textColourForID(itineraryID))
                   }
