@@ -75,6 +75,11 @@ extension Color {
 // MARK: String extension
 extension String {
     
+    var dateFromDouble: Date? {
+        guard let double = Double(self) else { return nil }
+        return Date(timeIntervalSinceReferenceDate: double)
+    }
+    
     var rgbaColor: Color? {
         let components = self.components(separatedBy: kColorStringSeparator).map({ Double($0) })
         // no nils allowed

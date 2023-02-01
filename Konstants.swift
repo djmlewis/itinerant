@@ -63,6 +63,7 @@ let kAppStorageStageRunningTextDark = "kAppStorageStageRunningTextDark"
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"
 let kSceneStoreUuidStrStageRunning = "uuidStrStageRunningStr"
 let kSceneStoreDictStageStartDates = "kSceneStoreDictStageStartDates"
+let kSceneStoreDictStageEndDates = "kSceneStoreDictStageEndDates"
 let kSceneStoreUuidStrItineraryResetView = "kSceneStoreUuidStrItineraryResetView"
 
 enum DuplicateFileOptions {

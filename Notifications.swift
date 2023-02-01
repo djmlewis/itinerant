@@ -66,3 +66,24 @@ func requestStageCompleted(stage: Stage, itinerary: Itinerary) -> UNNotification
     let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
     return request
 }
+
+func postNotification(stage: Stage, itinerary: Itinerary) -> Void {
+    let center = UNUserNotificationCenter.current()
+    center.getNotificationSettings { notificationSettings in
+        guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
+        var allowedAlerts = [UNAuthorizationOptions]()
+        if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
+        if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
+        
+        let request = requestStageCompleted(stage: stage, itinerary: itinerary)
+        center.add(request) { (error) in
+            if error != nil {  debugPrint(error!.localizedDescription) }
+        }
+    }
+}
+
+func removeNotification(stageUuidstr: String) {
+    let center = UNUserNotificationCenter.current()
+    center.removePendingNotificationRequests(withIdentifiers: [stageUuidstr])
+}
+

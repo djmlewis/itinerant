@@ -90,18 +90,20 @@ extension Itinerary {
 
 extension Itinerary {
     
-    func removeAllStageIDsAndNotifcations(from str1: String, andFrom str2: String, andFromDict dict: [String:String]) -> (String, String, [String:String]) {
+    func removeAllStageIDsAndNotifcationsFrom(str1: String, str2: String, dict1: [String:String], dict2:[String:String]) -> (String, String, [String:String], [String:String]) {
         let uuidstrs = stagesIDstrs
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
         var currentStr1 = str1
         var currentStr2 = str2
-        var currentDict = dict
+        var currentDict1 = dict1
+        var currentDict2 = dict2
         uuidstrs.forEach { uuidstr in
             currentStr1 = currentStr1.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
             currentStr2 = currentStr2.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
-            currentDict[uuidstr] = nil
+            currentDict1[uuidstr] = nil
+            currentDict2[uuidstr] = nil
         }
-        return (currentStr1, currentStr2, currentDict)
+        return (currentStr1, currentStr2, currentDict1,currentDict2)
     }
     
     

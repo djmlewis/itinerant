@@ -11,6 +11,7 @@ struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
     @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
+    @SceneStorage(kSceneStoreDictStageEndDates) var dictStageEndDates: [String:String] = [:]
 
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject private var wkAppDelegate: WKAppDelegate
@@ -34,7 +35,7 @@ struct WKItinerantStoreView: View {
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
-                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
+                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
                     }
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
@@ -42,7 +43,7 @@ struct WKItinerantStoreView: View {
                 
             } /* List */
             .navigationDestination(for: String.self) { id in
-                WKItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
+                WKItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
             }
             .navigationTitle("Itineraries")
             

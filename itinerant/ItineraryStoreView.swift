@@ -21,6 +21,7 @@ struct ItineraryStoreView: View {
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
     @SceneStorage(kSceneStoreDictStageStartDates) var dictStageStartDates: [String:String] = [:]
+    @SceneStorage(kSceneStoreDictStageEndDates) var dictStageEndDates: [String:String] = [:]
 
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
@@ -64,14 +65,14 @@ struct ItineraryStoreView: View {
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
-                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
+                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
                     }
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
             } /* List */
             .navigationDestination(for: String.self) { id in
-                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates)
+                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
            }
             .navigationTitle("Itineraries")
             .toolbar {
@@ -93,7 +94,7 @@ struct ItineraryStoreView: View {
                         Button(action: {
                             itineraryStore.reloadItineraries()
                         }) {
-                            Label("Refresh list…", systemImage: "arrow.counterclockwise")
+                            Label("Refresh list…", systemImage: "arrow.counterclockwise.circle.fill")
                         }
                     } label: {
                         Label("Load…", systemImage: "square.and.arrow.down")

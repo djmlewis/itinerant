@@ -12,7 +12,8 @@ struct WKItineraryActionView: View {
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
-    
+    @Binding var dictStageEndDates: [String:String]
+
     @State private var resetStageElapsedTime: Bool?
     @State private var scrollToStageID: String?
     
@@ -23,7 +24,7 @@ struct WKItineraryActionView: View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID)
+                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID)
                         .id(stage.id.uuidString)
                         .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
                 } /* ForEach */
@@ -33,7 +34,7 @@ struct WKItineraryActionView: View {
                 } label: {
                     HStack {
                         Spacer()
-                        Image(systemName: "arrow.counterclockwise")
+                        Image(systemName: "arrow.counterclockwise.circle.fill")
                         Text("Reset")
                         Spacer()
                     }
@@ -45,7 +46,7 @@ struct WKItineraryActionView: View {
                 Button {
                     resetItineraryStages()
                 } label: {
-                    Label("Reset", systemImage: "arrow.counterclockwise")
+                    Label("Reset", systemImage: "arrow.counterclockwise.circle.fill")
                 }
                 .tint(.red)
                 .padding()
@@ -77,7 +78,7 @@ struct WKItineraryActionView: View {
 extension WKItineraryActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }
     
     func resetItineraryStages() {

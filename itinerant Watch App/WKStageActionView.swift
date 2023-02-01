@@ -17,6 +17,7 @@ struct WKStageActionView: View {
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
+    @Binding var dictStageEndDates: [String:String]
     @Binding var resetStageElapsedTime: Bool?
     @Binding var scrollToStageID: String?
     
@@ -26,8 +27,7 @@ struct WKStageActionView: View {
     @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State private var uiUpdateTimerCancellor: Cancellable?
     
-    
-    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate >= 0 }
+    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
     
     var body: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
@@ -42,19 +42,21 @@ struct WKStageActionView: View {
                         .allowsTightening(true)
                         .minimumScaleFactor(0.5)
                         .padding(.trailing, 2.0)
-                    Button(action: {
-                        handleStartStopButtonTapped()
-                    }) {
-                        Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.white)
+                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        Button(action: {
+                            handleStartStopButtonTapped()
+                        }) {
+                            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(.white)
+                        }
+                        .buttonStyle(.borderless)
+                        .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
+                        .padding(.trailing, 4.0)
+                        //.disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                        //.opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
                     }
-                    .buttonStyle(.borderless)
-                    .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
-                    .padding(.trailing, 4.0)
-                    .disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
-                    .opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
                 }
                 .gridCellColumns(2)
             }
@@ -73,11 +75,11 @@ struct WKStageActionView: View {
             .padding(0)
             if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
                 GridRow {
-                    Text("\(stageRunningOvertime ? "" : "+" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                    Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(stageRunningOvertime ? Color("ColourRemainingFont") : Color("ColourOvertimeFont"))
-                        .background(stageRunningOvertime ? Color("ColourRemainingBackground") : Color("ColourOvertimeBackground"))
+                        .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                        .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
                         .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
                         .gridCellColumns(1)
                         .lineLimit(1)
@@ -121,33 +123,29 @@ struct WKStageActionView: View {
         )
         .onAppear() {
             if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
-                // need to reset the timer to reattach the cancellor
+                // need to reset the timer to reattach the cancellor, it will call updateUpdateTimes(forDate)
                 uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
                 uiUpdateTimerCancellor = uiUpdateTimer.connect()
+            } else {
+                // use dictStageEndDates[stage.id.uuidString] != nil to detect we have run and to update the updateTimes
+                updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.id.uuidString]?.dateFromDouble)
             }
         }
         .onDisappear() {
             uiUpdateTimerCancellor?.cancel()
         }
         .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
-            //debugPrint($0)
+            //$0 is the date of this update
             if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
-                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
-                timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
+                updateUpdateTimes(forUpdateDate: $0)
+//                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
+//                timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
                 // we may have been skipped so cancel at the next opportunity
                 uiUpdateTimerCancellor?.cancel()
             }
         }
-        .onChange(of: resetStageElapsedTime) { newValue in
-            DispatchQueue.main.async {
-                if newValue == true {
-                    timeDifferenceAtUpdate = 0.0
-                    timeAccumulatedAtUpdate = 0.0
-                    resetStageElapsedTime = nil
-                }
-            }
-        }
+        .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
         .onChange(of: uuidStrStagesActiveStr) { newValue in
             if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString}
         }
@@ -159,6 +157,16 @@ struct WKStageActionView: View {
 
 extension WKStageActionView {
     
+    func updateUpdateTimes(forUpdateDate optDate: Date?) {
+        if let date = optDate {
+            // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
+            timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
+            timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
+        } else {
+            timeDifferenceAtUpdate = 0.0
+            timeAccumulatedAtUpdate = 0.0
+        }
+    }
     
     func  timeStartedRunning() -> TimeInterval {
         floor(Double(dictStageStartDates[stage.id.uuidString] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
@@ -170,13 +178,30 @@ extension WKStageActionView {
         dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
     }
     
+    func setTimeEndedRunning(_ newValue: Double?) {
+        // only set to nil when we must do that, like on RESET all stages
+        // dont do it just on stopping so we can still see the elapsed times
+        dictStageEndDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+    }
+    
 }
 
 
 extension WKStageActionView {
-    
+    func resetStage(newValue: Bool?) {
+        DispatchQueue.main.async {
+            if newValue == true {
+                timeDifferenceAtUpdate = 0.0
+                timeAccumulatedAtUpdate = 0.0
+                resetStageElapsedTime = nil
+                setTimeStartedRunning(nil)
+                setTimeEndedRunning(nil)
+          }
+        }
+    }
+
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }
     
     func handleStartStopButtonTapped() {
@@ -191,15 +216,16 @@ extension WKStageActionView {
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.id.uuidString)
         // if duration == 0 it is not counted down, no notification
-        if stage.durationSecsInt > 0 { postNotification() }
+        if stage.durationSecsInt > 0 { postNotification(stage: stage, itinerary: itinerary) }
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
     }
     
     func handleHaltRunning() {
+        setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
         uiUpdateTimerCancellor?.cancel()
-        removeNotification()
+        removeNotification(stageUuidstr:stage.id.uuidString)
         // remove ourselves from active and running
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
@@ -216,30 +242,6 @@ extension WKStageActionView {
         }
     }
     
-}
-
-// MARK: - Notification
-extension WKStageActionView {
-    
-    func postNotification() -> Void {
-        let center = UNUserNotificationCenter.current()
-        center.getNotificationSettings { notificationSettings in
-            guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
-            var allowedAlerts = [UNAuthorizationOptions]()
-            if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
-            if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
-            
-            let request = requestStageCompleted(stage: stage, itinerary: itinerary)
-            center.add(request) { (error) in
-                if error != nil {  debugPrint(error!.localizedDescription) }
-            }
-        }
-    }
-    
-    func removeNotification() {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [stage.id.uuidString])
-    }
 }
 
 

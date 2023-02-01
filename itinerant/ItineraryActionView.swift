@@ -15,7 +15,8 @@ struct ItineraryActionView: View {
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
-    
+    @Binding var dictStageEndDates: [String:String]
+
     @State private var itineraryData = Itinerary.EditableData()
     @State private var isPresentingItineraryEditView: Bool = false
     @State private var toggleDisclosureDetails: Bool = true
@@ -54,7 +55,7 @@ struct ItineraryActionView: View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, resetStageElapsedTime: $resetStageElapsedTime,
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime,
                                     scrollToStageID: $scrollToStageID,
                                     toggleDisclosureDetails: $toggleDisclosureDetails)
                     .id(stage.id.uuidString)
@@ -136,7 +137,7 @@ struct ItineraryActionView: View {
                 Button(action: {
                     resetItineraryStages()
                 }) {
-                    Image(systemName: "arrow.counterclockwise")
+                    Image(systemName: "arrow.counterclockwise.circle.fill")
                         .foregroundColor(.red)
                 }
             }
@@ -197,7 +198,7 @@ struct ItineraryActionView: View {
 extension ItineraryActionView {
     
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates) = itinerary.removeAllStageIDsAndNotifcations(from: uuidStrStagesActiveStr, andFrom: uuidStrStagesRunningStr, andFromDict: dictStageStartDates)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates, dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }
     
     func resetItineraryStages() {
