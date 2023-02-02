@@ -21,7 +21,7 @@ let kUNNActionOpenApp = UNNotificationAction(identifier: kNotificationActionOpen
                                          title: "Open Itinerary",
                                          options: [.foreground])
 let kUNNActionNextStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
-                                         title: "Start Next",
+                                         title: "Start Next Stage",
                                          options: [.foreground])
 let kUNNActionEndStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
                                          title: "Stop stage",
