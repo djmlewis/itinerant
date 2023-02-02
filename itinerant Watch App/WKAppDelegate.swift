@@ -14,8 +14,8 @@ import UserNotifications
 class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
     
     @Published var newItinerary: Itinerary?
-    @Published var unnItineraryID: String?
-    @Published var unnStageID: String?
+    @Published var unnItineraryToOpenID: String?
+    @Published var unnStageToStopAndStartNextID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
 
@@ -50,18 +50,18 @@ class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject, UNUserNo
 extension WKAppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // The method will be called on the delegate only if the application is in the foreground.
-        guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
-        else { completionHandler([.banner, .sound]); return }
-        // we have to clear the previous IDs or a repeat of this one so we log an onChange with the newValue - in case the new value was used before
-        // this may be called multiple times so avoid overloading the UI by using delays
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.unnItineraryID = nil
-            self.unnStageID = nil
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.unnItineraryID = notifiedItineraryID as? String
-                self.unnStageID = notification.request.identifier
-            }
-        }
+//        guard let notifiedItineraryID = notification.request.content.userInfo[kItineraryUUIDStr]
+//        else { completionHandler([.banner, .sound]); return }
+//        // we have to clear the previous IDs or a repeat of this one so we log an onChange with the newValue - in case the new value was used before
+//        // this may be called multiple times so avoid overloading the UI by using delays
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//            self.unnItineraryToOpenID = nil
+//            self.unnStageToStopAndStartNextID = nil
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                self.unnItineraryToOpenID = notifiedItineraryID as? String
+//                self.unnStageToStopAndStartNextID = notification.request.identifier
+//            }
+//        }
         // So we call the completionHandler telling that the notification should display a banner and play the notification sound - this will happen while the app is in foreground
         completionHandler([.banner, .sound])
     }
@@ -78,14 +78,20 @@ extension WKAppDelegate {
                 // UNNotificationDismissActionIdentifier user opened the application from the notification
                 // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 // this appears to be called only once
-                unnItineraryID = nil
-                unnStageID = nil
-               DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.unnItineraryID = notifiedItineraryID as? String
-                    self.unnStageID = response.notification.request.identifier
+                unnItineraryToOpenID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.unnItineraryToOpenID = notifiedItineraryID as? String
                 }
                 break
-                
+            case kNotificationActionStageStartNext:
+              // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                unnItineraryToOpenID = nil
+                unnStageToStopAndStartNextID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.unnItineraryToOpenID = notifiedItineraryID as? String
+                    self.unnStageToStopAndStartNextID = response.notification.request.identifier
+                }
+                break
             case kNotificationActionSnooze:
                 let center = UNUserNotificationCenter.current()
                 let request = requestStageCompletedSnooze(toResponse: response)

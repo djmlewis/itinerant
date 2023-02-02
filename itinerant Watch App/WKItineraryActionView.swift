@@ -16,15 +16,16 @@ struct WKItineraryActionView: View {
 
     @State private var resetStageElapsedTime: Bool?
     @State private var scrollToStageID: String?
-    
+    @State private var stageToHandleSkipActionID: String?
+    @State private var stageToStartRunningID: String?
+
     @EnvironmentObject var wkAppDelegate: WKAppDelegate
 
-    
     var body: some View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID)
+                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.id.uuidString)
                         .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
                 } /* ForEach */
@@ -69,7 +70,13 @@ struct WKItineraryActionView: View {
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }
-        }
+            // prime the stages for a skip action
+            stageToHandleSkipActionID = wkAppDelegate.unnStageToStopAndStartNextID
+       }
+        .onChange(of: wkAppDelegate.unnStageToStopAndStartNextID, perform: {
+            // prime the stages for a skip action
+            stageToHandleSkipActionID = $0
+        })
         /* ScrollViewReader modifiers */
     } /* body */
 } /* struct */

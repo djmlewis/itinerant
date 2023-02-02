@@ -48,7 +48,7 @@ struct WKItinerantStoreView: View {
             .navigationTitle("Itineraries")
             
         }
-        .onChange(of: wkAppDelegate.unnItineraryID) { newValue in
+        .onChange(of: wkAppDelegate.unnItineraryToOpenID) { newValue in
             // handle notifications to switch itinerary
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]

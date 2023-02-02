@@ -18,7 +18,8 @@ struct StageActionView: View {
     @Binding var dictStageEndDates: [String:String]
     @Binding var resetStageElapsedTime: Bool?
     @Binding var scrollToStageID: String?
-
+    @Binding var stageToHandleSkipActionID: String?
+    @Binding var stageToStartRunningID: String?
     @Binding var toggleDisclosureDetails: Bool
 
     @State private var timeDifferenceAtUpdate: Double = 0.0
@@ -36,6 +37,7 @@ struct StageActionView: View {
     @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
     @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
 
+    @EnvironmentObject private var appDelegate: AppDelegate
 
     func stageTextColour() -> Color {
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
@@ -191,6 +193,16 @@ struct StageActionView: View {
            // iOS only
             disclosureDetailsExpanded = toggleDisclosureDetails
         }
+       .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
+           if $0 != nil  && $0 == stage.id.uuidString {
+               handleHaltRunning(andSkip: true)
+           }
+       }
+       .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
+           if $0 != nil && $0 == stage.id.uuidString {
+               handleStartRunning()
+           }
+       }
         /* VStack mods */
     } /* body */
 } /* struct */
@@ -248,7 +260,7 @@ extension StageActionView {
     }
     
     func handleStartStopButtonTapped() {
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { handleHaltRunning() }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { handleHaltRunning(andSkip: false) }
         else { handleStartRunning() }
         
     }
@@ -265,7 +277,7 @@ extension StageActionView {
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
     }
     
-   func handleHaltRunning() {
+    func handleHaltRunning(andSkip: Bool) {
         setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
         uiUpdateTimerCancellor?.cancel()
         removeNotification(stageUuidstr:stage.id.uuidString)
@@ -274,13 +286,20 @@ extension StageActionView {
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         //setTimeStartedRunning(nil) <== dont do this or time disappear
         // set the next stage to active if there is one above us
-        if let ourindex = itinerary.stages.firstIndex(where: { $0.id == stage.id }) {
-            if itinerary.stages.count > ourindex+1 {
-                uuidStrStagesActiveStr.append(itinerary.stages[ourindex+1].id.uuidString)
-            } else {
-                if itinerary.stages.count > 0 {
-                    uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+        if let ourindex = itinerary.stageIndex(forUUIDstr: stage.id.uuidString) {
+            if itinerary.stages.count > ourindex + 1 {
+                let nextStageUUIDstr = itinerary.stages[ourindex + 1].id.uuidString
+                uuidStrStagesActiveStr.append(nextStageUUIDstr)
+                if andSkip {
+                    stageToStartRunningID = nil
+                    // reset the stageToHandleSkipActionID as we handled it
+                    stageToHandleSkipActionID = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        stageToStartRunningID = nextStageUUIDstr
+                    }
                 }
+            } else {
+                // do nothing, we have completed
             }
         }
     }

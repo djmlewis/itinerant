@@ -25,6 +25,11 @@ struct ItineraryActionView: View {
 
     @State private var resetStageElapsedTime: Bool?
     @State private var scrollToStageID: String?
+    
+    @State private var stageToHandleSkipActionID: String?
+    @State private var stageToStartRunningID: String?
+
+    
     var lastStageID: String  { if itinerary.stages.last  != nil { return itinerary.stages.last!.id.uuidString } else { return "" } }
 
     
@@ -55,9 +60,7 @@ struct ItineraryActionView: View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime,
-                                    scrollToStageID: $scrollToStageID,
-                                    toggleDisclosureDetails: $toggleDisclosureDetails)
+                    StageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
                     .id(stage.id.uuidString)
                     .listRowBackground(stageBackgroundColour(stage: stage))
                     .cornerRadius(6)
@@ -109,7 +112,13 @@ struct ItineraryActionView: View {
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }
+            // prime the stages for a skip action
+            stageToHandleSkipActionID = appDelegate.unnStageToStopAndStartNextID
         }
+        .onChange(of: appDelegate.unnStageToStopAndStartNextID, perform: {
+            // prime the stages for a skip action
+            stageToHandleSkipActionID = $0
+        })
         .onChange(of: itinerary, perform: {
             // after edit iiOS only
             itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
@@ -217,7 +226,7 @@ extension ItineraryActionView {
     
     func sendItineraryToWatch()  {
         if let watchdata = itinerary.watchDataNewUUID {
-            appDelegate.sendMessageData(dict: [
+            appDelegate.sendMessageOrData(dict: [
                 kUserInfoMessageTypeKey : kMessageItineraryData,
                 kMessageItineraryData : watchdata],
                                         data: nil)

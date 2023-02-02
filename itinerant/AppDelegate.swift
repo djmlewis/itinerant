@@ -13,8 +13,8 @@ import UserNotifications
 // MARK: - AppDelegate.swift
 class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
     
-    @Published var unnItineraryID: String?
-    @Published var unnStageID: String?
+    @Published var unnItineraryToOpenID: String?
+    @Published var unnStageToStopAndStartNextID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
     
@@ -69,14 +69,20 @@ extension AppDelegate {
             switch response.actionIdentifier {
             case kNotificationActionOpenAppToItinerary: // UNNotificationDismissActionIdentifier user opened the application from the notification
               // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
-                unnItineraryID = nil
-                unnStageID = nil
+                unnItineraryToOpenID = nil
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.unnItineraryID = notifiedItineraryID as? String
-                    self.unnStageID = response.notification.request.identifier
+                    self.unnItineraryToOpenID = notifiedItineraryID as? String
                 }
                 break
-                
+            case kNotificationActionStageStartNext:
+              // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                unnItineraryToOpenID = nil
+                unnStageToStopAndStartNextID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.unnItineraryToOpenID = notifiedItineraryID as? String
+                    self.unnStageToStopAndStartNextID = response.notification.request.identifier
+                }
+                break
             case kNotificationActionSnooze:
                 let center = UNUserNotificationCenter.current()
                 let request = requestStageCompletedSnooze(toResponse: response)
@@ -147,32 +153,32 @@ extension AppDelegate {
     }
 
     
-    func sendMessageData(dict: [String : Any]?, data: Data? ) {
+    func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
         guard WCSession.default.activationState == .activated else {
             debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
-          return
+            return
         }
         guard WCSession.default.isWatchAppInstalled else {
             debugPrint("isCompanionAppInstalled false")
             return
         }
-//        guard WCSession.default.isReachable else {
-//            debugPrint("isReachable false")
-//            return
-//        }
-
         if let messageDict = dict {
-//            WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
-//                print("Cannot send messageString: \(String(describing: error))")
-//            }
-            WCSession.default.transferUserInfo(messageDict)
-
+            if WCSession.default.isReachable {
+                print("sending by message")
+                WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
+                    print("Cannot send messageString: \(String(describing: error))")
+                }
+            } else {
+                print("sending by transferUserInfo")
+                WCSession.default.transferUserInfo(messageDict)
+            }
+            
         }
         if let messageData = data {
             WCSession.default.sendMessageData(messageData, replyHandler: nil) { error in
                 print("Cannot send messageData: \(String(describing: error))")
             }
-
+            
         }
     }
 

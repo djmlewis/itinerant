@@ -11,21 +11,28 @@ import UserNotifications
 let kSnoozeIntervalSecs = 10.0
 let kNotificationActionOpenAppToItinerary = "OPEN_APP_TO_ITINERARY_ACTION"
 let kNotificationActionSnooze = "SNOOZE_ACTION"
-let kNotificationCategoryStageCompleted = "STAGE_COMPLETED"
+let kNotificationActionStageStartNext = "STAGE_START_NEXT_ACTION"
+let kNotificationCategoryStageCompleted = "CATEGORY_STAGE_COMPLETED"
 
 
 
 // Define the custom actions.
-let kUNNOpenAppAction = UNNotificationAction(identifier: kNotificationActionOpenAppToItinerary,
+let kUNNActionOpenApp = UNNotificationAction(identifier: kNotificationActionOpenAppToItinerary,
                                          title: "Open Itinerary",
                                          options: [.foreground])
-let kUNNSnoozeAction = UNNotificationAction(identifier: kNotificationActionSnooze,
+let kUNNActionNextStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
+                                         title: "Start Next",
+                                         options: [.foreground])
+let kUNNActionEndStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
+                                         title: "Stop stage",
+                                         options: [.foreground])
+let kUNNActionSnooze = UNNotificationAction(identifier: kNotificationActionSnooze,
                                         title: "Snooze",
                                         options: [])
 // Define the notification type
 let kUNNStageCompletedCategory =
 UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
-                       actions: [kUNNOpenAppAction, kUNNSnoozeAction],
+                       actions: [kUNNActionOpenApp, kUNNActionNextStage, kUNNActionSnooze],
                        intentIdentifiers: [],
                        options: .customDismissAction)
 

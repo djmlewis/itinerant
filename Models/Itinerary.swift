@@ -82,9 +82,11 @@ extension Itinerary {
         partialResult || stage.durationSecsInt == 0
     } }
 
+    func stageIndex(forUUIDstr uuidstr: String) -> Int? {
+        return stages.firstIndex(where: { $0.id.uuidString == uuidstr })
+    }
     
-    
-    
+    var stageLastUUIDstr: String? { stages.last?.id.uuidString }
 }
 
 
