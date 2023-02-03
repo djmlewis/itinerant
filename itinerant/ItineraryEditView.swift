@@ -11,12 +11,14 @@ struct ItineraryEditView: View {
     
     @Binding var itinerary: Itinerary
     @Binding var itineraryEditableData: Itinerary.EditableData
+    
     @State private var itineraryName: String = ""
     @State private var isPresentingStageEditView = false
     @State private var newStage: Stage = Stage()
     @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
-    @FocusState private var focusedFieldTag: FieldFocusTag?
-    
+    @State private var stageDuplicate: Stage?
+
+   // @FocusState private var focusedFieldTag: FieldFocusTag?
     
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
     /* *** var itinerary is passed-in binding for the StageActionView */
@@ -24,7 +26,7 @@ struct ItineraryEditView: View {
         Form {
             Section(header: Text("Title")) {
                 TextField("Itinerary title", text: $itineraryEditableData.title)
-                    .focused($focusedFieldTag, equals: .title)
+                //.focused($focusedFieldTag, equals: .title)
             }
             Section(header: HStack(){
                 Text("Stages")
@@ -43,19 +45,26 @@ struct ItineraryEditView: View {
             }) {
                 List {
                     ForEach($itineraryEditableData.stages) { $stage in
-                        StageDisplayView(stage: $stage)
+                        StageDisplayView(stage: $stage, stageDuplicate: $stageDuplicate)
+                            .id(stage.id.uuidString)
                     }
                     .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
                     .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
-                }
+                } /* List */
+                /* List mods */
+            }
+        }
+        .onChange(of: stageDuplicate) {
+            if let newStage = $0 {
+                itineraryEditableData.stages.append(newStage)
             }
         }
         .onAppear() {
-            focusedFieldTag = .title
+            //focusedFieldTag = .title
             newStage = Stage(title: "", durationSecsInt: 0)
         }
         .onDisappear() {
-            focusedFieldTag = .noneFocused
+            //focusedFieldTag = .noneFocused
         }
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationView {

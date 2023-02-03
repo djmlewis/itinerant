@@ -42,7 +42,7 @@ let kImportHeadingLines: Int = 1
 let kImportLinesPerStage: Int = 3
 
 // MARK: - Stage
-let kStageInitialDurationSecs: Int = 60
+let kStageInitialDurationSecs: Int = 0
 let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 
 // MARK: - ItinerantApp

@@ -12,7 +12,8 @@ import SwiftUI
 
 struct StageDisplayView: View {
     @Binding var stage: Stage
-    
+    @Binding var stageDuplicate: Stage?
+
     @Environment(\.editMode) private var editMode
 
     @State private var isPresentingStageEditView = false
@@ -26,26 +27,37 @@ struct StageDisplayView: View {
                     .fontWeight(.bold)
                 HStack {
                     Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                            .foregroundColor(Color("ColourDuration"))
                     if stage.durationSecsInt > 0 {
                         Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt))
-                            //Stage.stageDurationFormatter.string(from: Double(stage.durationSecsInt))!
                         )
                             .font(.title3)
                     }
                     Spacer()
+                    // editMode is the global for when the Edit buton is tapped
                     if editMode?.wrappedValue.isEditing == false {
-                        Button(action: {
-                            stageEditableData = stage.editableData
-                            isPresentingStageEditView = true
-                        }) {
-                            Image(systemName: "square.and.pencil")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundColor( .accentColor)
+                        HStack {
+                            Button(action: {
+                                stageDuplicate = stage.duplicateWithNewID
+                            }) {
+                                Image(systemName: "doc.on.doc")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor( .accentColor)
+                            }
+                            .buttonStyle(BorderlessButtonStyle())
+                            .frame(width: 24, alignment: .trailing)
+                            Button(action: {
+                                stageEditableData = stage.editableData
+                                isPresentingStageEditView = true
+                            }) {
+                                Image(systemName: "square.and.pencil")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor( .accentColor)
+                            }
+                            .buttonStyle(BorderlessButtonStyle())
+                            .frame(width: 24, alignment: .trailing)
                         }
-                        .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 24, alignment: .trailing)
                     }
                 }
                 if !stage.details.isEmpty {
@@ -80,6 +92,6 @@ struct StageDisplayView: View {
 
 struct StageDisplayView_Previews: PreviewProvider {
     static var previews: some View {
-        StageDisplayView(stage: .constant(Stage(title: "Untitled", durationSecsInt: 30)))
+        Text("Yo")
     }
 }

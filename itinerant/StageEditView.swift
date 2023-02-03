@@ -25,14 +25,13 @@ struct StageEditView: View {
     @State private var snoozesecs: Int = 0
 
     
-    @FocusState private var focusedFieldTag: FieldFocusTag?
+    //@FocusState private var focusedFieldTag: FieldFocusTag?
     
     
     var body: some View {
         Form {
             Section(header: Text("Title")) {
                 TextField("Stage title", text: $stageEditableData.title)
-                    .focused($focusedFieldTag, equals: .title)
             }
             Section(header: Text("Stage Duration")) {
                 HStack {
@@ -90,10 +89,6 @@ struct StageEditView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
-                        Label("Duration of zero indicates Count Up timer", systemImage: "")
-                            .italic()
-                            .font(.footnote)
-                            .foregroundColor(.gray)
                     }
                 }
             }
@@ -143,10 +138,6 @@ struct StageEditView: View {
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                     }
-                    Label("Duration must be at least 1s", systemImage: "")
-                        .italic()
-                        .font(.footnote)
-                        .foregroundColor(.gray)
                 }
             }
         }
@@ -179,10 +170,10 @@ struct StageEditView: View {
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
             snoozemins = ((stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN)
             snoozesecs = stageEditableData.snoozeDurationSecs % SEC_MIN
-            focusedFieldTag = .title
+            //focusedFieldTag = .title
         }
         .onDisappear() {
-            focusedFieldTag = .noneFocused
+            //focusedFieldTag = .noneFocused
             if timerDirection == .countUp { stageEditableData.durationSecsInt = 0 }
         }
     }

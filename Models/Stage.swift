@@ -130,6 +130,8 @@ extension Stage {
 
 extension Stage {
     
+    var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, details: details,snoozeDurationSecs: snoozeDurationSecs) }
+    
     static func stageArrayWithNewIDs(from stages: StageArray) -> StageArray {
         var newstages = StageArray()
         stages.forEach { stage in
