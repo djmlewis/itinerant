@@ -12,7 +12,7 @@ import SwiftUI
 @main
 struct Itinerant_Watch_AppApp: App {
     
-    @WKApplicationDelegateAdaptor(WKAppDelegate.self) var wkAppDelegate
+    @WKApplicationDelegateAdaptor(AppDelegate.self) var wkAppDelegate
     
     
     var body: some Scene {

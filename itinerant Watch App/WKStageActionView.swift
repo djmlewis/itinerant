@@ -23,7 +23,7 @@ struct WKStageActionView: View {
     @Binding var stageToHandleSkipActionID: String?
     @Binding var stageToStartRunningID: String?
 
-    @EnvironmentObject private var wkAppDelegate: WKAppDelegate
+    @EnvironmentObject private var wkAppDelegate: AppDelegate
 
     @State private var timeDifferenceAtUpdate: Double = 0.0
     @State private var timeAccumulatedAtUpdate: Double = 0.0
@@ -41,18 +41,6 @@ struct WKStageActionView: View {
     @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
     @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
 
-    func stageTextColour() -> Color {
-        if stage.isCommentOnly {
-            return appStorageStageCommentTextDark == true ? .black : .white
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageStageRunningTextDark == true ? .black : .white
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageStageActiveTextDark == true ? .black : .white
-        }
-        return appStorageStageInactiveTextDark == true ? .black : .white
-    }
 
     var body: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
@@ -221,6 +209,19 @@ extension WKStageActionView {
 
 
 extension WKStageActionView {
+    func stageTextColour() -> Color {
+        if stage.isCommentOnly {
+            return appStorageStageCommentTextDark == true ? .black : .white
+        }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageStageRunningTextDark == true ? .black : .white
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageStageActiveTextDark == true ? .black : .white
+        }
+        return appStorageStageInactiveTextDark == true ? .black : .white
+    }
+
     func resetStage(newValue: Bool?) {
         DispatchQueue.main.async {
             if newValue == true {

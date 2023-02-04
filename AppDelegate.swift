@@ -9,23 +9,45 @@ import SwiftUI
 import WatchConnectivity
 import UserNotifications
 
-
 // MARK: - AppDelegate.swift
-class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
+class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
     
     @Published var unnItineraryToOpenID: String?
     @Published var unnStageToStopAndStartNextID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
+#if os(watchOS)
+    @Published var newItinerary: Itinerary?
+#endif
+  
     
+}
 
+
+#if os(watchOS)
+extension AppDelegate: WKApplicationDelegate {
+    
+    func applicationDidFinishLaunching() {
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.delegate = self
+        // Register the notification type.
+        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
+        requestNotificationPermission()
+        initiateWatchConnectivity()
+        itineraryStore.tryToLoadItineraries()
+        
+    }
+    
+}
+#else
+extension AppDelegate: UIApplicationDelegate {
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.delegate = self
         // Register the notification type.
         notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
         requestNotificationPermission()
-
+        
         
         // Watch Connectivity
         initiateWatchConnectivity()
@@ -34,6 +56,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
         }
         return true
     }
+}
+#endif
+// MARK: - UserNotifications
+extension AppDelegate {
     
     func requestNotificationPermission() {
         let center = UNUserNotificationCenter.current()
@@ -47,11 +73,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
         }
         
     }
-
-}
-
-// MARK: - UserNotifications
-extension AppDelegate {
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // The method will be called on the delegate only if the application is in the foreground.
         /* This is always called when the app is open - wait for the user to tap the notification and call didReceive to jump to itinerary etc  */
@@ -64,18 +86,18 @@ extension AppDelegate {
         //debugPrint("Notification received with identifier \(response.notification.request.identifier)")
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
-
+        
         if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
             switch response.actionIdentifier {
             case kNotificationActionOpenAppToItinerary: // UNNotificationDismissActionIdentifier user opened the application from the notification
-              // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 unnItineraryToOpenID = nil
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.unnItineraryToOpenID = notifiedItineraryID as? String
                 }
                 break
             case kNotificationActionStageStartNext:
-              // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 unnItineraryToOpenID = nil
                 unnStageToStopAndStartNextID = nil
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -89,7 +111,7 @@ extension AppDelegate {
                 center.add(request) { (error) in
                     if error != nil {  debugPrint(error!.localizedDescription) }
                 }
-
+                
                 break
                 
             case UNNotificationDismissActionIdentifier:
@@ -101,7 +123,7 @@ extension AppDelegate {
                 // this just opens the app wherever it was left as the erquest has foreground
                 break
             default:
-               break
+                break
             }
         }
         else {
@@ -116,7 +138,7 @@ extension AppDelegate {
 
 // MARK: - WCSessionDelegate
 extension AppDelegate {
-
+    
     func initiateWatchConnectivity() {
         if (WCSession.isSupported()) {
             let session = WCSession.default
@@ -125,41 +147,55 @@ extension AppDelegate {
         } else {
             debugPrint("WCSession.isSupported false")
         }
-
+        
     }
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         debugPrint("WCSession activationDidCompleteWith", activationState.rawValue.description, error?.localizedDescription ?? "No error")
-
+        
     }
-
+    
     // iOS only -->
+#if os(iOS)
     func sessionDidBecomeInactive(_ session: WCSession) {
-
+        
     }
-
+    
     func sessionDidDeactivate(_ session: WCSession) {
         // for multi watch support
         session.activate()
     }
+#endif
     // <--- iOS only
-
-// MARK: - Messages
+    
+    // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+#if os(watchOS)
+        if let messageData = message[kMessageItineraryData] as? Data {
+            if let itinerary = Itinerary(messageItineraryData: messageData) {
+                DispatchQueue.main.async {
+                    self.newItinerary = itinerary
+                }
+            }
+        }
+#else
         debugPrint("iphone didReceiveMessage")
         if let notificationText = message[kMessageKey] as? String {
             debugPrint(notificationText)
         }
+#endif
     }
-
+    
     
     func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
-        guard WCSession.default.activationState == .activated else {
-            debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
-            return
-        }
+#if os(iOS)
         guard WCSession.default.isWatchAppInstalled else {
             debugPrint("isCompanionAppInstalled false")
+            return
+        }
+#endif
+        guard WCSession.default.activationState == .activated else {
+            debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
             return
         }
         if let messageDict = dict {
@@ -181,10 +217,25 @@ extension AppDelegate {
             
         }
     }
-
+    
     func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
         /** Called on the sending side after the user info transfer has successfully completed or failed with an error.
          Will be called on next launch if the sender was not running when the user info finished. */
         debugPrint("didFinish userInfoTransfer", error?.localizedDescription ?? "No error")
     }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        debugPrint("didReceiveUserInfo", userInfo[kUserInfoMessageTypeKey] as Any)
+#if os(watchOS)
+        if let messageData = userInfo[kMessageItineraryData] as? Data {
+            if let itinerary = Itinerary(messageItineraryData: messageData) {
+                DispatchQueue.main.async {
+                    self.newItinerary = itinerary
+                }
+            }
+        }
+#endif
+        
+    }
+    
 }

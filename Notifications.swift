@@ -32,7 +32,7 @@ let kUNNActionSnooze = UNNotificationAction(identifier: kNotificationActionSnooz
 // Define the notification type
 let kUNNStageCompletedCategory =
 UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
-                       actions: [kUNNActionOpenApp, kUNNActionNextStage, kUNNActionSnooze],
+                       actions: [kUNNActionNextStage, kUNNActionSnooze, kUNNActionOpenApp],
                        intentIdentifiers: [],
                        options: .customDismissAction)
 

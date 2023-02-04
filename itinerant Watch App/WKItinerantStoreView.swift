@@ -14,7 +14,7 @@ struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreDictStageEndDates) var dictStageEndDates: [String:String] = [:]
 
     @EnvironmentObject var itineraryStore: ItineraryStore
-    @EnvironmentObject private var wkAppDelegate: WKAppDelegate
+    @EnvironmentObject private var wkAppDelegate: AppDelegate
     
     @State private var presentedItineraryID: [String] = []
     @State private var showConfirmationAddDuplicateItinerary: Bool = false

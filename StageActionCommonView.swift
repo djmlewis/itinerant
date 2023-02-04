@@ -1,0 +1,483 @@
+//
+//  StageActionCommonView.swift
+//  itinerant
+//
+//  Created by David JM Lewis on 03/01/2023.
+//
+
+import SwiftUI
+import Combine
+
+struct StageActionCommonView: View {
+    
+    @Binding var stage: Stage
+    @Binding var itinerary: Itinerary
+    @Binding var uuidStrStagesActiveStr: String
+    @Binding var uuidStrStagesRunningStr: String
+    @Binding var dictStageStartDates: [String:String]
+    @Binding var dictStageEndDates: [String:String]
+    @Binding var resetStageElapsedTime: Bool?
+    @Binding var scrollToStageID: String?
+    @Binding var stageToHandleSkipActionID: String?
+    @Binding var stageToStartRunningID: String?
+    
+#if !os(watchOS)
+    @Binding var toggleDisclosureDetails: Bool
+#endif
+    @State private var timeDifferenceAtUpdate: Double = 0.0
+    @State private var timeAccumulatedAtUpdate: Double = 0.0
+    @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+    @State private var uiUpdateTimerCancellor: Cancellable?
+    
+#if !os(watchOS)
+    @State private var disclosureDetailsExpanded: Bool = true
+#endif
+
+    
+    
+    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
+        
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
+    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
+
+    @EnvironmentObject private var appDelegate: AppDelegate
+
+    // MARK: - body
+    var body: some View {
+#if os(watchOS)
+        body_watchOS
+#else
+        body_iOS
+#endif
+    } /* body */
+} /* struct */
+
+
+extension StageActionCommonView {
+    
+    func updateUpdateTimes(forUpdateDate optDate: Date?) {
+        if let date = optDate {
+            // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
+            timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
+            timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
+        } else {
+            timeDifferenceAtUpdate = 0.0
+            timeAccumulatedAtUpdate = 0.0
+        }
+    }
+    
+    func  timeStartedRunning() -> TimeInterval {
+        floor(Double(dictStageStartDates[stage.id.uuidString] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
+    }
+    
+    func setTimeStartedRunning(_ newValue: Double?) {
+        // only set to nil when we must do that, like on RESET all stages
+        // dont do it just on stopping so we can still see the elapsed times
+        dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+    }
+    
+    func setTimeEndedRunning(_ newValue: Double?) {
+        // only set to nil when we must do that, like on RESET all stages
+        // dont do it just on stopping so we can still see the elapsed times
+        dictStageEndDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+    }
+    
+}
+
+
+
+extension StageActionCommonView {
+    
+    func stageTextColour() -> Color {
+        if stage.isCommentOnly {
+            return appStorageStageCommentTextDark == true ? .black : .white
+        }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageStageRunningTextDark == true ? .black : .white
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageStageActiveTextDark == true ? .black : .white
+        }
+        return appStorageStageInactiveTextDark == true ? .black : .white
+    }
+
+
+    func resetStage(newValue: Bool?) {
+        DispatchQueue.main.async {
+            if newValue == true {
+                timeDifferenceAtUpdate = 0.0
+                timeAccumulatedAtUpdate = 0.0
+                resetStageElapsedTime = nil
+                setTimeStartedRunning(nil)
+                setTimeEndedRunning(nil)
+          }
+        }
+    }
+
+    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
+    }
+    
+    func handleStartStopButtonTapped() {
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { handleHaltRunning(andSkip: false) }
+        else { handleStartRunning() }
+        
+    }
+    
+    func handleStartRunning() {
+        setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
+        timeDifferenceAtUpdate = Double(stage.durationSecsInt)
+        timeAccumulatedAtUpdate = 0.0
+        uuidStrStagesRunningStr.append(stage.id.uuidString)
+        // if duration == 0 it is not counted down, no notification
+        if stage.durationSecsInt > 0 { postNotification(stage: stage, itinerary: itinerary) }
+        // need to reset the timer to reattach the cancellor
+        uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+        uiUpdateTimerCancellor = uiUpdateTimer.connect()
+    }
+    
+    func handleHaltRunning(andSkip: Bool) {
+        setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
+        uiUpdateTimerCancellor?.cancel()
+        removeNotification(stageUuidstr:stage.id.uuidString)
+        // remove ourselves from active and running
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        //setTimeStartedRunning(nil) <== dont do this or time disappear
+        // set the next stage to active if there is one ABOVE us otherwise do nothing
+        if let nextActIndx = itinerary.indexOfNextActivableStage(fromUUIDstr: stage.id.uuidString) {
+            let nextStageUUIDstr = itinerary.stages[nextActIndx].id.uuidString
+            uuidStrStagesActiveStr.append(nextStageUUIDstr)
+            if andSkip {
+                stageToStartRunningID = nil
+                // reset the stageToHandleSkipActionID as we handled it
+                stageToHandleSkipActionID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    stageToStartRunningID = nextStageUUIDstr
+                }
+            }
+            
+        } else {
+            // do nothing we have completed
+        }
+    }
+    
+}
+
+// MARK: - Preview
+struct StageActionCommonView_Previews: PreviewProvider {
+    static var previews: some View {
+        Text("Ho")
+    }
+}
+
+// MARK: - iOS body
+#if !os(watchOS)
+extension StageActionCommonView {
+    var body_iOS: some View {
+        VStack(alignment: .leading) {
+            if stage.isCommentOnly == false {
+                HStack {
+                    // alarm duration and button
+                    Image(systemName: stage.durationSymbolName)
+                    // Timer type icon
+                        .foregroundColor(stageTextColour())
+                    if stage.durationSecsInt != kStageDurationCountUpTimer {
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                        // Alarm time duration
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(stageTextColour())
+                    }
+                    Spacer()
+                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        Button(action: {
+                            // Start Stop
+                            handleStartStopButtonTapped()
+                        }) {
+                            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
+                        .foregroundColor(.white)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 46, alignment: .leading)
+                    }
+                }
+                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
+                    Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
+                        // Times elapsed
+                        GridRow {
+                            HStack {
+                                Image(systemName: "hourglass")
+                                // elapsed time
+                                Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                                    .bold()
+                            }
+                            .padding(4.0)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.black)
+                            .background(.white)
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke( .black, lineWidth: 1.0)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                            HStack {
+                                Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                                // time remaining or overtime
+                                Text("\(stageRunningOvertime ? "+" : "" )" +
+                                     Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                .bold()
+                            }
+                            .padding(4.0)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                            .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke( .black, lineWidth: 1.0)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                        } /* GridRow */
+                        .padding(0.0)
+                    } /* Grid */
+                    .padding(0.0)
+                }
+            } /*  if stage.isCommentOnly == false */
+            HStack {
+                // title and expand details
+                if stage.isCommentOnly == false {
+                    Button(action: {
+                        disclosureDetailsExpanded = !disclosureDetailsExpanded
+                    }) {
+                        Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                            .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+                if stage.isCommentOnly == true {
+                    Image(systemName: "bubble.left")
+                        .foregroundColor(stageTextColour())
+                }
+                Text(stage.title)
+                // Stage title
+                    .fixedSize(horizontal: false, vertical: true)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(stageTextColour())
+                    .scenePadding(.minimum, edges: .horizontal)
+            }
+            .padding(0.0)
+            if stage.isCommentOnly == false && !stage.details.isEmpty && disclosureDetailsExpanded == true{
+                Text(stage.details)
+                // Details
+                    .font(.body)
+                    .foregroundColor(stageTextColour())
+                    .multilineTextAlignment(.leading)
+                    .padding(0.0)
+            }
+        } /* VStack */
+        .padding(0)
+        .cornerRadius(8) /// make the background rounded
+        .gesture(
+            TapGesture(count: 2)
+                .onEnded({ _ in
+                    removeAllActiveRunningItineraryStageIDsAndNotifcations()
+                    // make ourself active
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        uuidStrStagesActiveStr.append(stage.id.uuidString)
+                        // scrollTo managed by onChange uuidStrStagesActiveStr
+                    }
+                })
+        )
+        .onAppear() {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
+                // need to reset the timer to reattach the cancellor
+                uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+                uiUpdateTimerCancellor = uiUpdateTimer.connect()
+            } else {
+                // use dictStageEndDates[stage.id.uuidString] != nil to detect we have run and to update the updateTimes
+                updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.id.uuidString]?.dateFromDouble)
+            }
+        }
+        .onDisappear() {
+            uiUpdateTimerCancellor?.cancel()
+        }
+        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
+            //debugPrint($0)
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
+                updateUpdateTimes(forUpdateDate: $0)
+            } else {
+                // we may have been skipped so cancel at the next opportunity
+                uiUpdateTimerCancellor?.cancel()
+            }
+        }
+        .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
+        .onChange(of: uuidStrStagesActiveStr) { newValue in
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString }
+        }
+        .onChange(of: toggleDisclosureDetails) { newValue in
+            // iOS only
+            disclosureDetailsExpanded = toggleDisclosureDetails
+        }
+        .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
+            if $0 != nil  && $0 == stage.id.uuidString {
+                handleHaltRunning(andSkip: true)
+            }
+        }
+        .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
+            if $0 != nil && $0 == stage.id.uuidString {
+                handleStartRunning()
+            }
+        }
+        /* VStack mods */
+    } /* body ios*/
+
+}
+#endif
+// MARK: - watchOS body
+#if os(watchOS)
+extension StageActionCommonView {
+    var body_watchOS: some View {
+        Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
+            if stage.isCommentOnly == false {
+                GridRow {
+                    HStack(spacing: 0.0) {
+                        Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                            .padding(.leading, 2.0)
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
+                            .padding(.trailing, 2.0)
+                        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                            Button(action: {
+                                handleStartStopButtonTapped()
+                            }) {
+                                Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(.white)
+                            }
+                            .buttonStyle(.borderless)
+                            .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
+                            .padding(.trailing, 4.0)
+                            //.disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                            //.opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
+                        }
+                    }
+                    .gridCellColumns(2)
+                } /* GridRow */
+                .padding(0)
+            } /* isCommentOnly */
+            GridRow {
+                Text(stage.title)
+                    .padding(0)
+                    .gridCellColumns(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+                    .font(.system(.headline, design: .rounded, weight: .semibold))
+                    .lineLimit(nil)
+                    .multilineTextAlignment(.center)
+            }
+            if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil) {
+                GridRow {
+                    Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                        .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                        .gridCellColumns(1)
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
+                        .border(timeDifferenceAtUpdate < 0.0 ? .white : .clear, width: 1.0)
+                        .padding(.leading,2.0)
+                        .padding(.trailing,2.0)
+                        .gridCellColumns(2)
+                }  /* GridRow */
+                .padding(.top,3.0)
+                GridRow {
+                    Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.black)
+                        .background(.white)
+                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                        .gridCellColumns(1)
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
+                        .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
+                        .padding(.leading,2.0)
+                        .padding(.trailing,2.0)
+                        .gridCellColumns(2)
+                }  /* GridRow */
+                .padding(.top,3.0)
+            } /* if nonComment, running OR ran*/
+        } /* Grid */
+        .padding(0)
+        .gesture(
+            TapGesture(count: 2)
+                .onEnded({ _ in
+                    removeAllActiveRunningItineraryStageIDsAndNotifcations()
+                    // make ourself active
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        uuidStrStagesActiveStr.append(stage.id.uuidString)
+                    }
+                })
+        )
+        .onAppear() {
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
+                // need to reset the timer to reattach the cancellor, it will call updateUpdateTimes(forDate)
+                uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+                uiUpdateTimerCancellor = uiUpdateTimer.connect()
+            } else {
+                // use dictStageEndDates[stage.id.uuidString] != nil to detect we have run and to update the updateTimes
+                updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.id.uuidString]?.dateFromDouble)
+            }
+        }
+        .onDisappear() {
+            uiUpdateTimerCancellor?.cancel()
+        }
+        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
+            //$0 is the date of this update
+            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
+                updateUpdateTimes(forUpdateDate: $0)
+            } else {
+                // we may have been skipped so cancel at the next opportunity
+                uiUpdateTimerCancellor?.cancel()
+            }
+        }
+        .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
+        .onChange(of: uuidStrStagesActiveStr) { newValue in
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString}
+        }
+        .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
+            if $0 != nil  && $0 == stage.id.uuidString {
+                handleHaltRunning(andSkip: true)
+            }
+        }
+        .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
+            if $0 != nil && $0 == stage.id.uuidString {
+                handleStartRunning()
+            }
+        }
+        /* Grid mods */
+    } /* body */
+
+}
+#endif

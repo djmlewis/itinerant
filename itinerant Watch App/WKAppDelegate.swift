@@ -154,21 +154,6 @@ extension WKAppDelegate {
     }
     
     
-    func send(_ message: String) {
-        guard WCSession.default.activationState == .activated else {
-            debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
-            return
-        }
-        guard WCSession.default.isCompanionAppInstalled else {
-            debugPrint("isCompanionAppInstalled false")
-            return
-        }
-        
-        debugPrint("WK WCSession.default.sendMessage")
-        WCSession.default.sendMessage([kMessageKey : message], replyHandler: nil) { error in
-            debugPrint("Cannot send message: \(String(describing: error))")
-        }
-    }
     
     // MARK: - UserInfo
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
