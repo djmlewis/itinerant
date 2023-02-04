@@ -32,51 +32,73 @@ struct WKStageActionView: View {
     
     private var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
     
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
+    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
+    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
+
+    func stageTextColour() -> Color {
+        if stage.isCommentOnly {
+            return appStorageStageCommentTextDark == true ? .black : .white
+        }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageStageRunningTextDark == true ? .black : .white
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageStageActiveTextDark == true ? .black : .white
+        }
+        return appStorageStageInactiveTextDark == true ? .black : .white
+    }
+
     var body: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
-            GridRow {
-                HStack(spacing: 0.0) {
-                    Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                        .padding(.leading, 2.0)
-                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                        .lineLimit(1)
-                        .allowsTightening(true)
-                        .minimumScaleFactor(0.5)
-                        .padding(.trailing, 2.0)
-                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                        Button(action: {
-                            handleStartStopButtonTapped()
-                        }) {
-                            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundColor(.white)
+            if stage.isCommentOnly == false {
+                GridRow {
+                    HStack(spacing: 0.0) {
+                        Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                            .padding(.leading, 2.0)
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
+                            .padding(.trailing, 2.0)
+                        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                            Button(action: {
+                                handleStartStopButtonTapped()
+                            }) {
+                                Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(.white)
+                            }
+                            .buttonStyle(.borderless)
+                            .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
+                            .padding(.trailing, 4.0)
+                            //.disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+                            //.opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
                         }
-                        .buttonStyle(.borderless)
-                        .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
-                        .padding(.trailing, 4.0)
-                        //.disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
-                        //.opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
                     }
-                }
-                .gridCellColumns(2)
-            }
-            .padding(0)
+                    .gridCellColumns(2)
+                } /* GridRow */
+                .padding(0)
+            } /* isCommentOnly */
             GridRow {
                 Text(stage.title)
                     .padding(0)
+                    .gridCellColumns(2)
                     .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
                     .font(.system(.headline, design: .rounded, weight: .semibold))
-                //.font(.headline)
-                //.font(Font.custom("SF Pro Rounded", size: 32, relativeTo: .headline))
                     .lineLimit(nil)
                     .multilineTextAlignment(.center)
-                    .gridCellColumns(2)
             }
-            .padding(0)
-            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
+            if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil) {
                 GridRow {
                     Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         .font(.system(.title3, design: .rounded, weight: .semibold))
@@ -92,7 +114,7 @@ struct WKStageActionView: View {
                         .padding(.leading,2.0)
                         .padding(.trailing,2.0)
                         .gridCellColumns(2)
-                }
+                }  /* GridRow */
                 .padding(.top,3.0)
                 GridRow {
                     Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
@@ -109,9 +131,9 @@ struct WKStageActionView: View {
                         .padding(.leading,2.0)
                         .padding(.trailing,2.0)
                         .gridCellColumns(2)
-                }
+                }  /* GridRow */
                 .padding(.top,3.0)
-            }
+            } /* if nonComment, running OR ran*/
         } /* Grid */
         .padding(0)
         .gesture(
@@ -141,8 +163,6 @@ struct WKStageActionView: View {
             //$0 is the date of this update
             if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
                 updateUpdateTimes(forUpdateDate: $0)
-//                timeAccumulatedAtUpdate = floor($0.timeIntervalSinceReferenceDate - timeStartedRunning())
-//                timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
             } else {
                 // we may have been skipped so cancel at the next opportunity
                 uiUpdateTimerCancellor?.cancel()

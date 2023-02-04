@@ -42,6 +42,8 @@ let kImportHeadingLines: Int = 1
 let kImportLinesPerStage: Int = 3
 
 // MARK: - Stage
+let kStageDurationCommentOnly: Int = -1
+let kStageDurationCountUpTimer: Int = 0
 let kStageInitialDurationSecs: Int = 0
 let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 
@@ -51,13 +53,15 @@ let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
 let kAppStorageColourStageInactive = "kAppStorageColourStageInactive"
 let kAppStorageColourStageActive = "kAppStorageColourStageActive"
 let kAppStorageColourStageRunning = "kAppStorageColourStageRunning"
+let kAppStorageColourStageComment = "kAppStorageColourStageComment"
 let kAppStorageDefaultColourStageInactive = "0.664\t0.664\t0.664\t1.0"
 let kAppStorageDefaultColourStageActive = "0.011\t0.133\t0.673\t1.0"
 let kAppStorageDefaultColourStageRunning = "0.996\t0.274\t0.0\t1.0"
+let kAppStorageDefaultColourStageComment = "0.0\t0.0\t0.0\t1.0"
 let kAppStorageStageInactiveTextDark = "kAppStorageStageInactiveTextDark"
 let kAppStorageStageActiveTextDark = "kAppStorageStageActiveTextDark"
 let kAppStorageStageRunningTextDark = "kAppStorageStageRunningTextDark"
-
+let kAppStorageStageCommentTextDark = "kAppStorageStageCommentTextDark"
 
 
 let kSceneStoreUuidStrStageActive = "uuidStrStageActiveStr"

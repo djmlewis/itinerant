@@ -39,12 +39,17 @@ struct ItineraryActionView: View {
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
     @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
     @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
     @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
 
     
     func stageBackgroundColour(stage: Stage) -> Color {
+        if stage.isCommentOnly {
+            return appStorageColourStageComment.rgbaColor!
+        }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
             return appStorageColourStageRunning.rgbaColor!
         }
@@ -107,8 +112,11 @@ struct ItineraryActionView: View {
         }
         .navigationTitle(itinerary.title)
         .onAppear() {
-            if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itinerary.stages.isEmpty {
-                let stageuuid = itinerary.stages[0].id.uuidString
+            // set the first active stage unless we are already active or running
+            guard let firstActindx = itinerary.firstIndexActivableStage else { return }
+            if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                // i think this should be resetItineraryStages
+                let stageuuid = itinerary.stages[firstActindx].id.uuidString
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }
@@ -216,9 +224,9 @@ extension ItineraryActionView {
         // need a delay or we try to change ui too soon
         // toggle scrollToStageID to nil so we scroll up to an already active id
         scrollToStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            if !itinerary.stages.isEmpty {
-                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
+        if let firstActStageIndx = itinerary.firstIndexActivableStage {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].id.uuidString)
             }
         }
         

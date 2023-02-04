@@ -26,10 +26,9 @@ struct StageDisplayView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                 HStack {
-                    Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                    if stage.durationSecsInt > 0 {
-                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt))
-                        )
+                    Image(systemName: stage.durationSymbolName)
+                    if stage.isCountUp == false && stage.isCommentOnly == false {
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                             .font(.title3)
                     }
                     Spacer()
@@ -60,7 +59,7 @@ struct StageDisplayView: View {
                         }
                     }
                 }
-                if !stage.details.isEmpty {
+                if !stage.details.isEmpty && stage.isCommentOnly == false {
                     Text(stage.details)
                         .font(.body)
                 }

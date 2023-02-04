@@ -19,22 +19,6 @@ struct Stage: Identifiable, Codable, Hashable {
     var details: String
     var snoozeDurationSecs: Int
     
-    
-    var editableData: Stage.EditableData { EditableData(title: self.title,
-                                                        durationSecsInt: self.durationSecsInt,
-                                                        details: self.details,
-                                                        snoozeDurationSecs: self.snoozeDurationSecs) }
-    
-
-    
-    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(id.uuidString) }
-    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(id.uuidString) }
-
-    
-    
-    
-    
-    
     init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs) {
         self.id = id
         self.title = title
@@ -55,6 +39,7 @@ struct Stage: Identifiable, Codable, Hashable {
     
 }
 
+// MARK: - WatchData
 extension Stage {
     
     init(watchData: Stage.WatchData) {
@@ -91,14 +76,24 @@ extension Stage {
 }
 
 
+// MARK: - EditableData
 extension Stage {
     struct EditableData {
         var title: String = ""
         var durationSecsInt: Int = kStageInitialDurationSecs
         var details: String = ""
         var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
-    }
         
+        var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
+        
+    } /* EditableData */
+    
+    var editableData: Stage.EditableData { EditableData(title: self.title,
+                                                        durationSecsInt: self.durationSecsInt,
+                                                        details: self.details,
+                                                        snoozeDurationSecs: self.snoozeDurationSecs) }
+    
+
     mutating func updateEditableData(from editableData: Stage.EditableData) {
         self.title = editableData.title
         self.durationSecsInt = editableData.durationSecsInt
@@ -108,30 +103,16 @@ extension Stage {
     }
 }
 
+// MARK: - Templates, duplicates, Stage StageArray
 extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
-    static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
-    //static func emptyStageArray() -> StageArray { [] }
-    
-    // use let when you want a single init for all calls:  let value = Stage.staticLet  <== no ()
-    static let stageDurationFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .abbreviated
-        formatter.allowedUnits = [.hour,.minute,.second]
-        return formatter
-    }()
-    
-    static func stageDurationStringFromDouble(_ time: Double) -> String {
-        Stage.stageDurationFormatter.string(from: time) ?? ""
-    }
-
-}
-
-extension Stage {
     
     var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, details: details,snoozeDurationSecs: snoozeDurationSecs) }
     
+    static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
+    //static func emptyStageArray() -> StageArray { [] }
+
     static func stageArrayWithNewIDs(from stages: StageArray) -> StageArray {
         var newstages = StageArray()
         stages.forEach { stage in
@@ -140,5 +121,47 @@ extension Stage {
         return newstages
     }
     
+}
+
+// MARK: - Duration
+extension Stage {
+
+    // use let when you want a single init for all calls:  let value = Stage.staticLet  <== no ()
+    static let stageDurationFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.allowedUnits = [.hour,.minute,.second]
+        return formatter
+    }()
+
+    static func stageDurationStringFromDouble(_ time: Double) -> String {
+        Stage.stageDurationFormatter.string(from: time) ?? ""
+    }
+
+}
+
+
+// MARK: - Characteristics
+extension Stage {
+    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(id.uuidString) }
+    
+    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(id.uuidString) }
+    
+    var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
+    
+    var isActionable: Bool { !isCommentOnly }
+    
+    var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer }
+    
+    var durationSymbolName: String {
+        switch durationSecsInt {
+        case kStageDurationCountUpTimer:
+            return "stopwatch"
+        case kStageDurationCommentOnly:
+            return "bubble.left"
+        default:
+            return "timer"
+        }
+    }
 }
 

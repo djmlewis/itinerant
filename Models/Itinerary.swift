@@ -22,7 +22,6 @@ struct Itinerary: Identifiable, Codable, Hashable {
    // runtime
     var filename: String?
     
-    var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
     
     // these are full inits including UUID which must be done here to be decoded
     init(id: UUID = UUID(), title: String, stages: StageArray = [], filename: String? = nil, modificationDate: TimeInterval) {
@@ -56,11 +55,6 @@ struct Itinerary: Identifiable, Codable, Hashable {
         self.modificationDate = modificationDate
     }
     
-    static func errorItinerary() -> Itinerary { Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval()) }
-    
-    static func duplicateItineraryWithAllNewIDsAndModDate(from itinerary:Itinerary) -> Itinerary {
-        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename, modificationDate: nowReferenceDateTimeInterval())
-    }
     
     mutating func updateModificationDateToNow() {
         modificationDate = nowReferenceDateTimeInterval()
@@ -68,16 +62,29 @@ struct Itinerary: Identifiable, Codable, Hashable {
     
 }
 
+extension Itinerary {
+    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray(),modificationDate: nowReferenceDateTimeInterval()) }
+    static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
+    static func emptyItineraryArray() -> [Itinerary] { [] }
+    
+    static func errorItinerary() -> Itinerary { Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval()) }
+    
+    static func duplicateItineraryWithAllNewIDsAndModDate(from itinerary:Itinerary) -> Itinerary {
+        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename, modificationDate: nowReferenceDateTimeInterval())
+    }
 
+    
+}
+
+// MARK: - Characteristics
 extension Itinerary {
     
     func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
     func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
+    
     func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
     func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
-    var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
-        partialResult + stage.durationSecsInt
-    }) }
+
     var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
         partialResult || stage.durationSecsInt == 0
     } }
@@ -85,11 +92,39 @@ extension Itinerary {
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
         return stages.firstIndex(where: { $0.id.uuidString == uuidstr })
     }
-    
+
+    func indexOfNextActivableStage(fromUUIDstr uuidstr: String ) -> Int? {
+        // stops at .count
+        guard stages.count > 0, let currindex = stageIndex(forUUIDstr: uuidstr) else { return nil }
+        var nextIndex = currindex + 1
+        while nextIndex < stages.count {// no looping
+            if stages[nextIndex].isActionable { return nextIndex }
+            nextIndex += 1
+        }
+        return nil
+    }
+    var firstIndexActivableStage: Int? {
+        guard stages.count > 0 else { return nil }
+        var nextIndex = 0
+        while nextIndex < stages.count {// one pass
+            if stages[nextIndex].isActionable { return nextIndex }
+            nextIndex += 1
+        }
+        return nil
+    }
+
     var stageLastUUIDstr: String? { stages.last?.id.uuidString }
+    
+    var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
+
+    var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
+        partialResult + stage.durationSecsInt
+    }) }
+
 }
 
 
+// MARK: - Reset
 extension Itinerary {
     
     func removeAllStageIDsAndNotifcationsFrom(str1: String, str2: String, dict1: [String:String], dict2:[String:String]) -> (String, String, [String:String], [String:String]) {
@@ -109,12 +144,10 @@ extension Itinerary {
     }
     
     
-    func hasRunningStage(uuidStrStagesRunningStr: String) -> Bool {
-        stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil
-    }
     
 }
 
+// MARK: - WatchMessageData
 extension Itinerary {
     init?(messageItineraryData data: Data) {
         if let watchData = try? JSONDecoder().decode(Itinerary.WatchMessageData.self, from: data) {
@@ -152,7 +185,7 @@ extension Itinerary {
 
 }
 
-// abstract the editable vars of Itinerary into a struct ItineraryEditableData that can be passed around and edited
+// MARK: - ItineraryEditableData
 extension Itinerary {
     struct EditableData {
         var title: String = ""
@@ -173,7 +206,7 @@ extension Itinerary {
 }
 
 
-// abstract ALL the vars of Itinerary into a struct ItineraryPersistentData that can be saved
+// MARK: - PersistentData
 extension Itinerary {
     struct PersistentData: Codable {
         // editable
@@ -252,12 +285,4 @@ extension Itinerary {
 
 //typealias ItineraryArray = [Itinerary]
 
-extension Itinerary {
-    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray(),modificationDate: nowReferenceDateTimeInterval()) }
-    static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
-    static func emptyItineraryArray() -> [Itinerary] { [] }
-    
-    
-    
-}
 

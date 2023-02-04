@@ -33,13 +33,18 @@ struct StageActionView: View {
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
     @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
     @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
     @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
+    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
 
     @EnvironmentObject private var appDelegate: AppDelegate
 
     func stageTextColour() -> Color {
+        if stage.isCommentOnly {
+            return appStorageStageCommentTextDark == true ? .black : .white
+        }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
             return appStorageStageRunningTextDark == true ? .black : .white
         }
@@ -52,86 +57,93 @@ struct StageActionView: View {
     // MARK: - body
     var body: some View {
         VStack(alignment: .leading) {
+            if stage.isCommentOnly == false {
+                HStack {
+                    // alarm duration and button
+                    Image(systemName: stage.durationSymbolName)
+                    // Timer type icon
+                        .foregroundColor(stageTextColour())
+                    if stage.durationSecsInt != kStageDurationCountUpTimer {
+                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                        // Alarm time duration
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(stageTextColour())
+                    }
+                    Spacer()
+                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        Button(action: {
+                            // Start Stop
+                            handleStartStopButtonTapped()
+                        }) {
+                            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
+                        .foregroundColor(.white)
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 46, alignment: .leading)
+                    }
+                }
+                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
+                    Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
+                        // Times elapsed
+                        GridRow {
+                            HStack {
+                                Image(systemName: "hourglass")
+                                // elapsed time
+                                Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                                    .bold()
+                            }
+                            .padding(4.0)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.black)
+                            .background(.white)
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke( .black, lineWidth: 1.0)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                            HStack {
+                                Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                                // time remaining or overtime
+                                Text("\(stageRunningOvertime ? "+" : "" )" +
+                                     Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                .bold()
+                            }
+                            .padding(4.0)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                            .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke( .black, lineWidth: 1.0)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                        } /* GridRow */
+                        .padding(0.0)
+                    } /* Grid */
+                    .padding(0.0)
+                }
+            } /*  if stage.isCommentOnly == false */
             HStack {
-                // alarm duration and button
-                Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
-                // Timer type icon
-                    .foregroundColor(stageTextColour())
-                if stage.durationSecsInt > 0 {
-                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                    // Alarm time duration
-                        .font(.title3)
-                        .fontWeight(.bold)
+                // title and expand details
+                if stage.isCommentOnly == false {
+                    Button(action: {
+                        disclosureDetailsExpanded = !disclosureDetailsExpanded
+                    }) {
+                        Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                            .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+                if stage.isCommentOnly == true {
+                    Image(systemName: "bubble.left")
                         .foregroundColor(stageTextColour())
                 }
-                Spacer()
-                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                    Button(action: {
-                        // Start Stop
-                        handleStartStopButtonTapped()
-                    }) {
-                        Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    }
-                    .foregroundColor(.white)
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(width: 46, alignment: .leading)
-                }
-            }
-            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
-                Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
-                    // Times elapsed
-                    GridRow {
-                        HStack {
-                            Image(systemName: "hourglass")
-                            // elapsed time
-                            Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
-                                .bold()
-                        }
-                        .padding(4.0)
-                        .frame(maxWidth: .infinity)
-                        .foregroundColor(.black)
-                        .background(.white)
-                        .cornerRadius(4)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke( .black, lineWidth: 1.0)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                       HStack {
-                            Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
-                            // time remaining or overtime
-                            Text("\(stageRunningOvertime ? "+" : "" )" +
-                                 Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
-                            .bold()
-                        }
-                        .padding(4.0)
-                        .frame(maxWidth: .infinity)
-                        .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
-                        .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke( .black, lineWidth: 1.0)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
-                    } /* GridRow */
-                    .padding(0.0)
-                } /* Grid */
-                .padding(0.0)
-            }
-            HStack {
-            // title and expand details
-                Button(action: {
-                    disclosureDetailsExpanded = !disclosureDetailsExpanded
-                }) {
-                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                        .foregroundColor(.accentColor)
-                }
-                .buttonStyle(BorderlessButtonStyle())
-                
                 Text(stage.title)
                 // Stage title
                     .fixedSize(horizontal: false, vertical: true)
@@ -141,14 +153,14 @@ struct StageActionView: View {
                     .scenePadding(.minimum, edges: .horizontal)
             }
             .padding(0.0)
-            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
+            if stage.isCommentOnly == false && !stage.details.isEmpty && disclosureDetailsExpanded == true{
                 Text(stage.details)
                 // Details
                     .font(.body)
                     .foregroundColor(stageTextColour())
                     .multilineTextAlignment(.leading)
                     .padding(0.0)
-           }
+            }
         } /* VStack */
         .padding(0)
         .cornerRadius(8) /// make the background rounded
@@ -189,20 +201,20 @@ struct StageActionView: View {
         .onChange(of: uuidStrStagesActiveStr) { newValue in
             if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString }
         }
-       .onChange(of: toggleDisclosureDetails) { newValue in
-           // iOS only
+        .onChange(of: toggleDisclosureDetails) { newValue in
+            // iOS only
             disclosureDetailsExpanded = toggleDisclosureDetails
         }
-       .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
-           if $0 != nil  && $0 == stage.id.uuidString {
-               handleHaltRunning(andSkip: true)
-           }
-       }
-       .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
-           if $0 != nil && $0 == stage.id.uuidString {
-               handleStartRunning()
-           }
-       }
+        .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
+            if $0 != nil  && $0 == stage.id.uuidString {
+                handleHaltRunning(andSkip: true)
+            }
+        }
+        .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
+            if $0 != nil && $0 == stage.id.uuidString {
+                handleStartRunning()
+            }
+        }
         /* VStack mods */
     } /* body */
 } /* struct */
@@ -285,22 +297,21 @@ extension StageActionView {
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
         //setTimeStartedRunning(nil) <== dont do this or time disappear
-        // set the next stage to active if there is one above us
-        if let ourindex = itinerary.stageIndex(forUUIDstr: stage.id.uuidString) {
-            if itinerary.stages.count > ourindex + 1 {
-                let nextStageUUIDstr = itinerary.stages[ourindex + 1].id.uuidString
-                uuidStrStagesActiveStr.append(nextStageUUIDstr)
-                if andSkip {
-                    stageToStartRunningID = nil
-                    // reset the stageToHandleSkipActionID as we handled it
-                    stageToHandleSkipActionID = nil
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        stageToStartRunningID = nextStageUUIDstr
-                    }
+        // set the next stage to active if there is one ABOVE us otherwise do nothing
+        if let nextActIndx = itinerary.indexOfNextActivableStage(fromUUIDstr: stage.id.uuidString) {
+            let nextStageUUIDstr = itinerary.stages[nextActIndx].id.uuidString
+            uuidStrStagesActiveStr.append(nextStageUUIDstr)
+            if andSkip {
+                stageToStartRunningID = nil
+                // reset the stageToHandleSkipActionID as we handled it
+                stageToHandleSkipActionID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    stageToStartRunningID = nextStageUUIDstr
                 }
-            } else {
-                // do nothing, we have completed
             }
+            
+        } else {
+            // do nothing we have completed
         }
     }
     
