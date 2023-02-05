@@ -12,7 +12,9 @@ let kSnoozeIntervalSecs = 10.0
 let kNotificationActionOpenAppToItinerary = "OPEN_APP_TO_ITINERARY_ACTION"
 let kNotificationActionSnooze = "SNOOZE_ACTION"
 let kNotificationActionStageStartNext = "STAGE_START_NEXT_ACTION"
+let kNotificationActionStageHalt = "STAGE_HALT_ACTION"
 let kNotificationCategoryStageCompleted = "CATEGORY_STAGE_COMPLETED"
+let kNotificationCategoryCountUpSnoozeCompleted = "CATEGORY_COUNTUP_SNOOZE_COMPLETED"
 
 
 
@@ -23,8 +25,8 @@ let kUNNActionOpenApp = UNNotificationAction(identifier: kNotificationActionOpen
 let kUNNActionNextStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
                                          title: "Start Next Stage",
                                          options: [.foreground])
-let kUNNActionEndStage = UNNotificationAction(identifier: kNotificationActionStageStartNext,
-                                         title: "Stop stage",
+let kUNNActionEndStage = UNNotificationAction(identifier: kNotificationActionStageHalt,
+                                         title: "Halt this stage",
                                          options: [.foreground])
 let kUNNActionSnooze = UNNotificationAction(identifier: kNotificationActionSnooze,
                                         title: "Snooze",
@@ -32,7 +34,12 @@ let kUNNActionSnooze = UNNotificationAction(identifier: kNotificationActionSnooz
 // Define the notification type
 let kUNNStageCompletedCategory =
 UNNotificationCategory(identifier: kNotificationCategoryStageCompleted,
-                       actions: [kUNNActionNextStage, kUNNActionSnooze, kUNNActionOpenApp],
+                       actions: [kUNNActionEndStage, kUNNActionNextStage, kUNNActionSnooze, kUNNActionOpenApp],
+                       intentIdentifiers: [],
+                       options: .customDismissAction)
+let kUNNCountUpSnoozeCompletedCategory =
+UNNotificationCategory(identifier: kNotificationCategoryCountUpSnoozeCompleted,
+                       actions: [kUNNActionEndStage, kUNNActionNextStage, kUNNActionOpenApp],
                        intentIdentifiers: [],
                        options: .customDismissAction)
 
@@ -43,7 +50,7 @@ func requestStageCompletedSnooze(toResponse response: UNNotificationResponse) ->
     let content = UNMutableNotificationContent()
     let userinfo = response.notification.request.content.userInfo
     content.title = userinfo[kItineraryTitle] as! String
-    content.subtitle = "\(userinfo[kStageTitle] as! String) was snoozing"
+    content.subtitle = "\(userinfo[kStageTitle] as! String) is snoozing"
     content.userInfo = userinfo
     content.interruptionLevel = .timeSensitive
     content.sound = .default
@@ -55,10 +62,11 @@ func requestStageCompletedSnooze(toResponse response: UNNotificationResponse) ->
     return request
 }
 
-func requestStageCompleted(stage: Stage, itinerary: Itinerary) -> UNNotificationRequest {
+func requestStageCompletedOrCountUpSnooze(stage: Stage, itinerary: Itinerary) -> UNNotificationRequest {
+    let isCompleted = stage.isCountDown
     let content = UNMutableNotificationContent()
     content.title = itinerary.title
-    content.subtitle = "\(stage.title) has completed"
+    content.subtitle = "\(stage.title) " + (isCompleted ? "has completed" : "is running")
     content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
                             kStageUUIDStr : stage.id.uuidString,
                               kStageTitle : stage.title,
@@ -66,23 +74,25 @@ func requestStageCompleted(stage: Stage, itinerary: Itinerary) -> UNNotification
                           kItineraryTitle : itinerary.title,
                      kNotificationDueTime : Date.now.timeIntervalSinceReferenceDate + Double(stage.snoozeDurationSecs)
     ]
-    content.categoryIdentifier = kNotificationCategoryStageCompleted
+    content.categoryIdentifier = isCompleted ? kNotificationCategoryStageCompleted : kNotificationCategoryCountUpSnoozeCompleted
     content.interruptionLevel = .timeSensitive
     content.sound = .default
-    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (Double(stage.durationSecsInt)), repeats: false)
+    // stage completed or snooze?
+    let duration = isCompleted ? Double(stage.durationSecsInt) : Double(stage.snoozeDurationSecs)
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: duration,
+                                                    repeats: isCompleted ? false : true)
     let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
     return request
 }
 
-func postNotification(stage: Stage, itinerary: Itinerary) -> Void {
+func postNotification(stage: Stage, itinerary: Itinerary ) -> Void {
     let center = UNUserNotificationCenter.current()
     center.getNotificationSettings { notificationSettings in
         guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
         var allowedAlerts = [UNAuthorizationOptions]()
         if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
         if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
-        
-        let request = requestStageCompleted(stage: stage, itinerary: itinerary)
+        let request = requestStageCompletedOrCountUpSnooze(stage: stage, itinerary: itinerary)
         center.add(request) { (error) in
             if error != nil {  debugPrint(error!.localizedDescription) }
         }

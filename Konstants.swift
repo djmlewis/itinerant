@@ -44,9 +44,10 @@ let kImportLinesPerStage: Int = 3
 // MARK: - Stage
 let kStageDurationCommentOnly: Int = -1
 let kStageDurationCountUpTimer: Int = 0
+let kStageDurationCountUpWithSnoozeAlerts: Int = -2
 let kStageInitialDurationSecs: Int = 0
-let kStageInitialSnoozeDurationSecs: Int = 5 * SEC_MIN
-
+let kSnoozeDurationSecsMin: Int = 60
+let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 // MARK: - ItinerantApp
 
 // MARK: - ItineraryStoreView

@@ -19,6 +19,7 @@ struct StageActionCommonView: View {
     @Binding var resetStageElapsedTime: Bool?
     @Binding var scrollToStageID: String?
     @Binding var stageToHandleSkipActionID: String?
+    @Binding var stageToHandleHaltActionID: String?
     @Binding var stageToStartRunningID: String?
     
 #if !os(watchOS)
@@ -65,7 +66,8 @@ extension StageActionCommonView {
         if let date = optDate {
             // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
             timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
-            timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
+            // if its a count-up timer we ignore timeDifferenceAtUpdate as stage.durationSecsInt may be weird
+            timeDifferenceAtUpdate = stage.isCountUp ? 0.0 : (floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate))
         } else {
             timeDifferenceAtUpdate = 0.0
             timeAccumulatedAtUpdate = 0.0
@@ -136,7 +138,7 @@ extension StageActionCommonView {
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.id.uuidString)
         // if duration == 0 it is not counted down, no notification
-        if stage.durationSecsInt > 0 { postNotification(stage: stage, itinerary: itinerary) }
+        if stage.postsNotifications { postNotification(stage: stage, itinerary: itinerary) }
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
@@ -161,6 +163,9 @@ extension StageActionCommonView {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     stageToStartRunningID = nextStageUUIDstr
                 }
+            } else {
+                // reset the stageToHandleHaltActionID as we may have handled that if no skip
+                stageToHandleHaltActionID = nil
             }
             
         } else {
@@ -202,6 +207,13 @@ extension StageActionCommonView {
         // handle notifications to skip to next stage
         if idStr != nil  && idStr == stage.id.uuidString {
             handleHaltRunning(andSkip: true)
+        }
+    }
+    
+    func handleReceive_stageToHandleHaltActionID(idStr: String?) {
+        // handle notifications to skip to next stage
+        if idStr != nil  && idStr == stage.id.uuidString {
+            handleHaltRunning(andSkip: false)
         }
     }
     

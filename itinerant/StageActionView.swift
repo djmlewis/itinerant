@@ -16,7 +16,7 @@ extension StageActionCommonView {
                     Image(systemName: stage.durationSymbolName)
                     // Timer type icon
                         .foregroundColor(stageTextColour())
-                    if stage.durationSecsInt != kStageDurationCountUpTimer {
+                    if !stage.isCountUp {
                         Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                         // Alarm time duration
                             .font(.title3)
@@ -75,7 +75,7 @@ extension StageActionCommonView {
                                     .stroke( .black, lineWidth: 1.0)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                            .opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                         } /* GridRow */
                         .padding(0.0)
                     } /* Grid */
@@ -124,6 +124,7 @@ extension StageActionCommonView {
         .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
         .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.id.uuidString} }
         .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
+        .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
         .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 }
         /* VStack mods */

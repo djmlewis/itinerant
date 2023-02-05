@@ -86,7 +86,7 @@ extension Itinerary {
     func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
 
     var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
-        partialResult || stage.durationSecsInt == 0
+        partialResult || stage.isCountUp
     } }
 
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {

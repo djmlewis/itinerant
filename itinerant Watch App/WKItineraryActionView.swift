@@ -13,7 +13,7 @@ extension ItineraryActionCommonView {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-                    StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID)
+                    StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.id.uuidString)
                         .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
                 } /* ForEach */
@@ -67,12 +67,17 @@ extension ItineraryActionCommonView {
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }
-            // prime the stages for a skip action
+            // prime the stages for a skip or halt action
             stageToHandleSkipActionID = appDelegate.unnStageToStopAndStartNextID
+            stageToHandleHaltActionID = appDelegate.unnStageToHaltID
        }
         .onChange(of: appDelegate.unnStageToStopAndStartNextID, perform: {
             // prime the stages for a skip action
             stageToHandleSkipActionID = $0
+        })
+        .onChange(of: appDelegate.unnStageToHaltID, perform: {
+            // prime the stages for a halt action
+            stageToHandleHaltActionID = $0
         })
         /* ScrollViewReader modifiers */
     } /* body */

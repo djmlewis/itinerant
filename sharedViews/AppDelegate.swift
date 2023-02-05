@@ -14,6 +14,7 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     
     @Published var unnItineraryToOpenID: String?
     @Published var unnStageToStopAndStartNextID: String?
+    @Published var unnStageToHaltID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
 #if os(watchOS)
@@ -26,34 +27,14 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
 
 #if os(watchOS)
 extension AppDelegate: WKApplicationDelegate {
-    
     func applicationDidFinishLaunching() {
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.delegate = self
-        // Register the notification type.
-        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
-        requestNotificationPermission()
-        initiateWatchConnectivity()
-        itineraryStore.tryToLoadItineraries()
-        
+        handleFinishLaunching()
     }
-    
 }
 #else
 extension AppDelegate: UIApplicationDelegate {
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.delegate = self
-        // Register the notification type.
-        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory])
-        requestNotificationPermission()
-        
-        
-        // Watch Connectivity
-        initiateWatchConnectivity()
-        DispatchQueue.main.async {
-            self.itineraryStore.tryToLoadItineraries()
-        }
+        handleFinishLaunching()
         return true
     }
 }
@@ -61,6 +42,18 @@ extension AppDelegate: UIApplicationDelegate {
 // MARK: - UserNotifications
 extension AppDelegate {
     
+    func handleFinishLaunching() {
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.delegate = self
+        // Register the notification type.
+        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory, kUNNCountUpSnoozeCompletedCategory])
+        requestNotificationPermission()
+        initiateWatchConnectivity()
+        DispatchQueue.main.async {
+            self.itineraryStore.tryToLoadItineraries()
+        }
+    }
+
     func requestNotificationPermission() {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
@@ -87,7 +80,8 @@ extension AppDelegate {
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
         else { completionHandler(); return }
         
-        if response.notification.request.content.categoryIdentifier ==  kNotificationCategoryStageCompleted {
+        switch response.notification.request.content.categoryIdentifier  {
+        case kNotificationCategoryStageCompleted,kNotificationCategoryCountUpSnoozeCompleted:
             switch response.actionIdentifier {
             case kNotificationActionOpenAppToItinerary: // UNNotificationDismissActionIdentifier user opened the application from the notification
                 // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
@@ -95,7 +89,6 @@ extension AppDelegate {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.unnItineraryToOpenID = notifiedItineraryID as? String
                 }
-                break
             case kNotificationActionStageStartNext:
                 // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
                 unnItineraryToOpenID = nil
@@ -104,20 +97,23 @@ extension AppDelegate {
                     self.unnItineraryToOpenID = notifiedItineraryID as? String
                     self.unnStageToStopAndStartNextID = response.notification.request.identifier
                 }
-                break
+            case kNotificationActionStageHalt:
+                // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
+                unnItineraryToOpenID = nil
+                unnStageToHaltID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.unnItineraryToOpenID = notifiedItineraryID as? String
+                    self.unnStageToHaltID = response.notification.request.identifier
+                }
             case kNotificationActionSnooze:
                 let center = UNUserNotificationCenter.current()
                 let request = requestStageCompletedSnooze(toResponse: response)
                 center.add(request) { (error) in
                     if error != nil {  debugPrint(error!.localizedDescription) }
                 }
-                
-                break
-                
             case UNNotificationDismissActionIdentifier:
                 // * user dismissed the notification
                 break
-                
             case UNNotificationDefaultActionIdentifier:
                 //user just tapped the notification
                 // this just opens the app wherever it was left as the erquest has foreground
@@ -125,9 +121,9 @@ extension AppDelegate {
             default:
                 break
             }
-        }
-        else {
-            // Handle other notification types...
+        default:
+            // Handle other notification categories...
+            break
         }
         
         // Always call the completion handler when done.

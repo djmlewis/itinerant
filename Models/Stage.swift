@@ -24,7 +24,7 @@ struct Stage: Identifiable, Codable, Hashable {
         self.title = title
         self.durationSecsInt = durationSecsInt
         self.details = details
-        self.snoozeDurationSecs = snoozeDurationSecs
+        self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
     }
     
     init(editableData: EditableData) {
@@ -33,7 +33,7 @@ struct Stage: Identifiable, Codable, Hashable {
         self.title = editableData.title
         self.durationSecsInt = editableData.durationSecsInt
         self.details = editableData.details
-        self.snoozeDurationSecs = editableData.snoozeDurationSecs
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
     }
     
     
@@ -47,7 +47,7 @@ extension Stage {
         self.id = watchData.id
         self.title = watchData.title
         self.durationSecsInt = watchData.durationSecsInt
-        self.snoozeDurationSecs = watchData.snoozeDurationSecs
+        self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeDurationSecsMin)
        self.details = ""
     }
 
@@ -58,7 +58,7 @@ extension Stage {
             self.id = id
             self.title = title
             self.durationSecsInt = durationSecsInt
-            self.snoozeDurationSecs = snoozeDurationSecs
+            self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
         }
         
         let id: UUID
@@ -85,7 +85,11 @@ extension Stage {
         var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
         
         var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
-        
+        var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
+        var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
+        var isCountUpWithSnoozeAlerts: Bool { durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
+        var postsNotifications: Bool { isCountDown == true || isCountUpWithSnoozeAlerts }
+
     } /* EditableData */
     
     var editableData: Stage.EditableData { EditableData(title: self.title,
@@ -98,7 +102,7 @@ extension Stage {
         self.title = editableData.title
         self.durationSecsInt = editableData.durationSecsInt
         self.details = editableData.details
-        self.snoozeDurationSecs = editableData.snoozeDurationSecs
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
 
     }
 }
@@ -151,11 +155,13 @@ extension Stage {
     
     var isActionable: Bool { !isCommentOnly }
     
-    var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer }
-    
+    var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
+    var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts }
+    var isCountUpWithSnoozeAlerts: Bool { durationSecsInt == kStageDurationCountUpWithSnoozeAlerts }
+    var postsNotifications: Bool { isCountDown == true || isCountUpWithSnoozeAlerts }
     var durationSymbolName: String {
         switch durationSecsInt {
-        case kStageDurationCountUpTimer:
+        case kStageDurationCountUpTimer, kStageDurationCountUpWithSnoozeAlerts:
             return "stopwatch"
         case kStageDurationCommentOnly:
             return "bubble.left"

@@ -13,7 +13,7 @@ extension StageActionCommonView {
             if stage.isCommentOnly == false {
                 GridRow {
                     HStack(spacing: 0.0) {
-                        Image(systemName: stage.durationSecsInt == 0 ? "stopwatch" : "timer")
+                        Image(systemName: stage.isCountUp ? "stopwatch" : "timer")
                             .padding(.leading, 2.0)
                         Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                             .font(.system(.title3, design: .rounded, weight: .semibold))
@@ -59,7 +59,7 @@ extension StageActionCommonView {
                         .frame(maxWidth: .infinity)
                         .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
                         .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.durationSecsInt == 0  ? 0.0 : 1.0)
+                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                         .gridCellColumns(1)
                         .lineLimit(1)
                         .allowsTightening(true)
@@ -97,6 +97,7 @@ extension StageActionCommonView {
         .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
         .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.id.uuidString} }
         .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
+        .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
         .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
         /* Grid mods */
     } /* body */
