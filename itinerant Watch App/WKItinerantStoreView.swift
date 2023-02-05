@@ -37,6 +37,7 @@ struct WKItinerantStoreView: View {
                                         .minimumScaleFactor(0.5)
                                 }
                                 .font(.system(.caption, design: .rounded, weight: .regular))
+                                .opacity(0.6)
                             }
                      }
                     }

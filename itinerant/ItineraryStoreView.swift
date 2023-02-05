@@ -66,8 +66,8 @@ struct ItineraryStoreView: View {
                                     Text(date.formatted(date: .numeric, time: .shortened))
                                 }
                             }
-                            .font(.caption)
-
+                            .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            .opacity(0.6)
                         }
                         .foregroundColor(textColourForID(itineraryID))
                   }

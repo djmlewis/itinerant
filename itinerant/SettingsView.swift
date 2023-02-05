@@ -57,7 +57,7 @@ struct SettingsView: View {
                         .background(prefColourComment)
                         .background(.white)
                         .padding(prefColourTextCommentDark == true ? 4 : 0)
-                        .border(.black, width: prefColourTextCommentDark == true ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextCommentDark == true ? 2 : 0)
                         .cornerRadius(4)
                         Button("Text", action: {
                             prefColourTextCommentDark = false
@@ -68,7 +68,7 @@ struct SettingsView: View {
                         .background(prefColourComment)
                         .background(.white)
                         .padding(prefColourTextCommentDark == false ? 4 : 0)
-                        .border(.black, width: prefColourTextCommentDark == false ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextCommentDark == false ? 2 : 0)
                         .cornerRadius(4)
                     }
                 }
@@ -85,7 +85,7 @@ struct SettingsView: View {
                         .background(prefColourActive)
                         .background(.white)
                         .padding(prefColourTextActiveDark == true ? 4 : 0)
-                        .border(.black, width: prefColourTextActiveDark == true ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextActiveDark == true ? 2 : 0)
                         .cornerRadius(4)
                         Button("Text", action: {
                             prefColourTextActiveDark = false
@@ -96,7 +96,7 @@ struct SettingsView: View {
                         .background(prefColourActive)
                         .background(.white)
                         .padding(prefColourTextActiveDark == false ? 4 : 0)
-                        .border(.black, width: prefColourTextActiveDark == false ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextActiveDark == false ? 2 : 0)
                         .cornerRadius(4)
                     }
                 }
@@ -113,7 +113,7 @@ struct SettingsView: View {
                         .background(prefColourRunning)
                         .background(.white)
                         .padding(prefColourTextRunningDark == true ? 4 : 0)
-                        .border(.black,width: prefColourTextRunningDark == true ? 3 : 0)
+                        .border(Color.accentColor,width: prefColourTextRunningDark == true ? 2 : 0)
                         .cornerRadius(4)
                         Button("Text", action: {
                             prefColourTextRunningDark = false
@@ -124,7 +124,7 @@ struct SettingsView: View {
                         .background(prefColourRunning)
                         .background(.white)
                         .padding(prefColourTextRunningDark == false ? 4 : 0)
-                        .border(.black,width: prefColourTextRunningDark == false ? 3 : 0)
+                        .border(Color.accentColor,width: prefColourTextRunningDark == false ? 2 : 0)
                         .cornerRadius(4)
 
                     }
@@ -141,7 +141,7 @@ struct SettingsView: View {
                         .background(prefColourInactive)
                         .background(.white)
                         .padding(prefColourTextInactiveDark == true ? 4 : 0)
-                        .border(.black, width: prefColourTextInactiveDark == true ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextInactiveDark == true ? 2 : 0)
                         .cornerRadius(4)
                         Button("Text", action: {
                             prefColourTextInactiveDark = false
@@ -152,7 +152,7 @@ struct SettingsView: View {
                         .background(prefColourInactive)
                         .background(.white)
                         .padding(prefColourTextInactiveDark == false ? 4 : 0)
-                        .border(.black, width: prefColourTextInactiveDark == false ? 2 : 0)
+                        .border(Color.accentColor, width: prefColourTextInactiveDark == false ? 2 : 0)
                         .cornerRadius(4)
                     }
                 }
