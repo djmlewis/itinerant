@@ -22,6 +22,26 @@ extension StageActionCommonView {
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundColor(stageTextColour())
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
+                    }
+                    if stage.isCountUpWithSnoozeAlerts {
+                        // Snooze Alarms time duration
+                        HStack {
+                            Spacer()
+                            Image(systemName: "bell.and.waves.left.and.right")
+                            Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .minimumScaleFactor(0.5)
+                            Spacer()
+                       }
+                        .foregroundColor(stageTextColour())
+                        .frame(maxWidth: .infinity)
+                        .opacity(0.5)
                     }
                     Spacer()
                     if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {

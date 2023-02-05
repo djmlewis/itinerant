@@ -15,13 +15,31 @@ extension StageActionCommonView {
                     HStack(spacing: 0.0) {
                         Image(systemName: stage.isCountUp ? "stopwatch" : "timer")
                             .padding(.leading, 2.0)
-                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                        if !stage.isCountUp {
+                            Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .frame(maxWidth: .infinity)
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .minimumScaleFactor(0.5)
+                                .padding(.trailing, 2.0)
+                        }
+                        if stage.isCountUpWithSnoozeAlerts {
+                            // Snooze Alarms time duration
+                            HStack {
+                                Spacer()
+                                Image(systemName: "bell.and.waves.left.and.right")
+                                Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                    .font(.title3)
+                                    .lineLimit(1)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.5)
+                                Spacer()
+                           }
+                            //.foregroundColor(stageTextColour())
                             .frame(maxWidth: .infinity)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.5)
-                            .padding(.trailing, 2.0)
+                            .opacity(0.5)
+                        }
                         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                             Button(action: {
                                 handleStartStopButtonTapped()
