@@ -67,6 +67,9 @@ struct ItineraryStoreView: View {
                                 }
                             }
                             .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
                             .opacity(0.6)
                         }
                         .foregroundColor(textColourForID(itineraryID))

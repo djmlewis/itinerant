@@ -71,14 +71,16 @@ extension StageActionCommonView {
                     .multilineTextAlignment(.center)
             }
             if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil) {
-                GridRow {
-                    Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
+                    GridRow {
+                        HStack(spacing:0.0) {
+                            Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                            Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                        }
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
                         .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                        .opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
-                        .gridCellColumns(1)
                         .lineLimit(1)
                         .allowsTightening(true)
                         .minimumScaleFactor(0.5)
@@ -86,23 +88,26 @@ extension StageActionCommonView {
                         .padding(.leading,2.0)
                         .padding(.trailing,2.0)
                         .gridCellColumns(2)
-                }  /* GridRow */
-                .padding(.top,3.0)
+                    }  /* GridRow */
+                    .padding(.top,3.0)
+                }
                 GridRow {
-                    Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                        .foregroundColor(.black)
-                        .background(.white)
-                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                        .gridCellColumns(1)
-                        .lineLimit(1)
-                        .allowsTightening(true)
-                        .minimumScaleFactor(0.5)
-                        .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
-                        .padding(.leading,2.0)
-                        .padding(.trailing,2.0)
-                        .gridCellColumns(2)
+                    HStack(spacing:0.0) {
+                        Image(systemName: "hourglass")
+                        Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                    }
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(.black)
+                    .background(.white)
+                    .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                    .lineLimit(1)
+                    .allowsTightening(true)
+                    .minimumScaleFactor(0.5)
+                    .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
+                    .padding(.leading,2.0)
+                    .padding(.trailing,2.0)
+                    .gridCellColumns(2)
                 }  /* GridRow */
                 .padding(.top,3.0)
             } /* if nonComment, running OR ran*/

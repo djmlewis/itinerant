@@ -79,23 +79,25 @@ extension StageActionCommonView {
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                            HStack {
-                                Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
-                                // time remaining or overtime
-                                Text("\(stageRunningOvertime ? "+" : "" )" +
-                                     Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
-                                .bold()
+                            if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
+                                HStack {
+                                    Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                                    // time remaining or overtime
+                                    Text("\(stageRunningOvertime ? "+" : "" )" +
+                                         Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                    .bold()
+                                }
+                                .padding(4.0)
+                                .frame(maxWidth: .infinity)
+                                .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                                .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .stroke( .black, lineWidth: 1.0)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                //.opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                             }
-                            .padding(4.0)
-                            .frame(maxWidth: .infinity)
-                            .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
-                            .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .stroke( .black, lineWidth: 1.0)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            .opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                         } /* GridRow */
                         .padding(0.0)
                     } /* Grid */
