@@ -2,47 +2,13 @@
 //  WKStageActionView.swift
 //  itinerant Watch App
 //
-//  Created by David JM Lewis on 27/01/2023.
+//  Created by David JM Lewis on 05/02/2023.
 //
 
 import SwiftUI
-import Combine
-import UserNotifications
 
-
-
-struct WKStageActionView: View {
-    @Binding var stage: Stage
-    @Binding var itinerary: Itinerary
-    @Binding var uuidStrStagesActiveStr: String
-    @Binding var uuidStrStagesRunningStr: String
-    @Binding var dictStageStartDates: [String:String]
-    @Binding var dictStageEndDates: [String:String]
-    @Binding var resetStageElapsedTime: Bool?
-    @Binding var scrollToStageID: String?
-    @Binding var stageToHandleSkipActionID: String?
-    @Binding var stageToStartRunningID: String?
-
-    @EnvironmentObject private var wkAppDelegate: AppDelegate
-
-    @State private var timeDifferenceAtUpdate: Double = 0.0
-    @State private var timeAccumulatedAtUpdate: Double = 0.0
-    @State private var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-    @State private var uiUpdateTimerCancellor: Cancellable?
-    
-    private var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
-    
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
-    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
-
-
-    var body: some View {
+extension StageActionCommonView {
+    var body_watchOS: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
             if stage.isCommentOnly == false {
                 GridRow {
@@ -124,171 +90,15 @@ struct WKStageActionView: View {
             } /* if nonComment, running OR ran*/
         } /* Grid */
         .padding(0)
-        .gesture(
-            TapGesture(count: 2)
-                .onEnded({ _ in
-                    removeAllActiveRunningItineraryStageIDsAndNotifcations()
-                    // make ourself active
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        uuidStrStagesActiveStr.append(stage.id.uuidString)
-                    }
-                })
-        )
-        .onAppear() {
-            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
-                // need to reset the timer to reattach the cancellor, it will call updateUpdateTimes(forDate)
-                uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-                uiUpdateTimerCancellor = uiUpdateTimer.connect()
-            } else {
-                // use dictStageEndDates[stage.id.uuidString] != nil to detect we have run and to update the updateTimes
-                updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.id.uuidString]?.dateFromDouble)
-            }
-        }
-        .onDisappear() {
-            uiUpdateTimerCancellor?.cancel()
-        }
-        .onReceive(uiUpdateTimer) {// we initialise at head and never set to nil, so never nil and can use !
-            //$0 is the date of this update
-            if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
-                updateUpdateTimes(forUpdateDate: $0)
-            } else {
-                // we may have been skipped so cancel at the next opportunity
-                uiUpdateTimerCancellor?.cancel()
-            }
-        }
+        .gesture(gestureActivateStage())
+        .onAppear() { handleOnAppear() }
+        .onDisappear() { handleOnDisappear() }
+        .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
         .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
-        .onChange(of: uuidStrStagesActiveStr) { newValue in
-            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { scrollToStageID = stage.id.uuidString}
-        }
-        .onChange(of: stageToHandleSkipActionID) { // handle notifications to skip to next stage
-            if $0 != nil  && $0 == stage.id.uuidString {
-                handleHaltRunning(andSkip: true)
-            }
-        }
-        .onChange(of: stageToStartRunningID) { // handle notifications to be skipped to this stage
-            if $0 != nil && $0 == stage.id.uuidString {
-                handleStartRunning()
-            }
-        }
+        .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.id.uuidString} }
+        .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
+        .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
         /* Grid mods */
     } /* body */
-} /* struct */
 
-
-
-extension WKStageActionView {
-    
-    func updateUpdateTimes(forUpdateDate optDate: Date?) {
-        if let date = optDate {
-            // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
-            timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
-            timeDifferenceAtUpdate = floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
-        } else {
-            timeDifferenceAtUpdate = 0.0
-            timeAccumulatedAtUpdate = 0.0
-        }
-    }
-    
-    func  timeStartedRunning() -> TimeInterval {
-        floor(Double(dictStageStartDates[stage.id.uuidString] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
-    }
-    
-    func setTimeStartedRunning(_ newValue: Double?) {
-        // only set to nil when we must do that, like on RESET all stages
-        // dont do it just on stopping so we can still see the elapsed times
-        dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
-    }
-    
-    func setTimeEndedRunning(_ newValue: Double?) {
-        // only set to nil when we must do that, like on RESET all stages
-        // dont do it just on stopping so we can still see the elapsed times
-        dictStageEndDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
-    }
-    
-}
-
-
-extension WKStageActionView {
-    func stageTextColour() -> Color {
-        if stage.isCommentOnly {
-            return appStorageStageCommentTextDark == true ? .black : .white
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageStageRunningTextDark == true ? .black : .white
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageStageActiveTextDark == true ? .black : .white
-        }
-        return appStorageStageInactiveTextDark == true ? .black : .white
-    }
-
-    func resetStage(newValue: Bool?) {
-        DispatchQueue.main.async {
-            if newValue == true {
-                timeDifferenceAtUpdate = 0.0
-                timeAccumulatedAtUpdate = 0.0
-                resetStageElapsedTime = nil
-                setTimeStartedRunning(nil)
-                setTimeEndedRunning(nil)
-          }
-        }
-    }
-
-    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
-    }
-    
-    func handleStartStopButtonTapped() {
-        if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)){ handleHaltRunning(andSkip: false) }
-        else { handleStartRunning() }
-        
-    }
-    
-    func handleStartRunning() {
-        setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
-        timeDifferenceAtUpdate = Double(stage.durationSecsInt)
-        timeAccumulatedAtUpdate = 0.0
-        uuidStrStagesRunningStr.append(stage.id.uuidString)
-        // if duration == 0 it is not counted down, no notification
-        if stage.durationSecsInt > 0 { postNotification(stage: stage, itinerary: itinerary) }
-        // need to reset the timer to reattach the cancellor
-        uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-        uiUpdateTimerCancellor = uiUpdateTimer.connect()
-    }
-    
-    func handleHaltRunning(andSkip: Bool) {
-        setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
-        uiUpdateTimerCancellor?.cancel()
-        removeNotification(stageUuidstr:stage.id.uuidString)
-        // remove ourselves from active and running
-        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        //setTimeStartedRunning(nil) <== dont do this or time disappear
-        // set the next stage to active if there is one above us
-        if let ourindex = itinerary.stageIndex(forUUIDstr: stage.id.uuidString) {
-            if itinerary.stages.count > ourindex + 1 {
-                let nextStageUUIDstr = itinerary.stages[ourindex + 1].id.uuidString
-                uuidStrStagesActiveStr.append(nextStageUUIDstr)
-                if andSkip {
-                    stageToStartRunningID = nil
-                    // reset the stageToHandleSkipActionID as we handled it
-                    stageToHandleSkipActionID = nil
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        stageToStartRunningID = nextStageUUIDstr
-                    }
-                }
-            } else {
-                // do nothing, we have completed
-            }
-        }
-    }
-    
-}
-
-
-
-struct WKStageActionView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("Hello, World!")
-    }
 }

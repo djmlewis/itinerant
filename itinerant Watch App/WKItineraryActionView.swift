@@ -19,13 +19,12 @@ struct WKItineraryActionView: View {
     @State private var stageToHandleSkipActionID: String?
     @State private var stageToStartRunningID: String?
 
-    @EnvironmentObject var wkAppDelegate: AppDelegate
+    @EnvironmentObject var appDelegate: AppDelegate
 
     var body: some View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
-//                    WKStageActionView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID)
                     StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.id.uuidString)
                         .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
@@ -72,9 +71,9 @@ struct WKItineraryActionView: View {
                 scrollToStageID = stageuuid
             }
             // prime the stages for a skip action
-            stageToHandleSkipActionID = wkAppDelegate.unnStageToStopAndStartNextID
+            stageToHandleSkipActionID = appDelegate.unnStageToStopAndStartNextID
        }
-        .onChange(of: wkAppDelegate.unnStageToStopAndStartNextID, perform: {
+        .onChange(of: appDelegate.unnStageToStopAndStartNextID, perform: {
             // prime the stages for a skip action
             stageToHandleSkipActionID = $0
         })

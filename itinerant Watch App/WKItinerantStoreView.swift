@@ -14,7 +14,7 @@ struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreDictStageEndDates) var dictStageEndDates: [String:String] = [:]
 
     @EnvironmentObject var itineraryStore: ItineraryStore
-    @EnvironmentObject private var wkAppDelegate: AppDelegate
+    @EnvironmentObject private var appDelegate: AppDelegate
     
     @State private var presentedItineraryID: [String] = []
     @State private var showConfirmationAddDuplicateItinerary: Bool = false
@@ -48,12 +48,12 @@ struct WKItinerantStoreView: View {
             .navigationTitle("Itineraries")
             
         }
-        .onChange(of: wkAppDelegate.unnItineraryToOpenID) { newValue in
+        .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in
             // handle notifications to switch itinerary
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .onChange(of: wkAppDelegate.newItinerary) { itineraryToAdd in
+        .onChange(of: appDelegate.newItinerary) { itineraryToAdd in
             // for messages with Itinerary to load
             if let validItinerary = itineraryToAdd {
                 if itineraryStore.hasItineraryWithTitle(validItinerary.title) {
@@ -63,9 +63,9 @@ struct WKItinerantStoreView: View {
                 }
             }
         }
-        .confirmationDialog("‘\(wkAppDelegate.newItinerary?.title ?? "Unknown")’ already exists", isPresented: $showConfirmationAddDuplicateItinerary) {
-            // we only get called when wkAppDelegate.newItinerary is non-nil so !
-            if let validItinerary = wkAppDelegate.newItinerary {
+        .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ already exists", isPresented: $showConfirmationAddDuplicateItinerary) {
+            // we only get called when appDelegate.newItinerary is non-nil so !
+            if let validItinerary = appDelegate.newItinerary {
                 Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
                 Button("Replace Existing", role: .destructive, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary,duplicateOption: .replaceExisting) })
             }

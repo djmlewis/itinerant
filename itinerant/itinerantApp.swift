@@ -19,7 +19,7 @@ struct ItinerantApp: App {
                 .environmentObject(appDelegate.itineraryStore)
             /* .environmentObject(appDelegate) NOT NEEDED auto put in environment by Adaptor above */
                 .onAppear() {
-                    /* !!! This gets celled every time a sheet or dialog gets called in WKItineraryStoreView !!! */
+                    /* !!! This gets called every time a sheet or dialog gets called in WKItineraryStoreView !!! */
 
                 }
         } /* WindowGroup */
