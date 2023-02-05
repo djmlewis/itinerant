@@ -53,10 +53,21 @@ struct ItineraryStoreView: View {
                         VStack(alignment: .leading, spacing: 5.0) {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.system(.title, design: .rounded, weight: .semibold))
-                            Label(itineraryStore.itineraryFileNameForID(id: itineraryID), systemImage: "doc")
-                                .labelStyle(.titleAndIcon)
-                                .italic()
-                                .font(.subheadline)
+//                            Label(itineraryStore.itineraryFileNameForID(id: itineraryID), systemImage: "doc")
+//                                .labelStyle(.titleAndIcon)
+//                                .italic()
+//                                .font(.subheadline)
+                            HStack(alignment: .center) {
+                                Image(systemName: "doc")
+                                Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
+                                Spacer()
+                                if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
+                                    Image(systemName:"square.and.pencil")
+                                    Text(date.formatted(date: .numeric, time: .shortened))
+                                }
+                            }
+                            .font(.caption)
+
                         }
                         .foregroundColor(textColourForID(itineraryID))
                   }
@@ -72,7 +83,7 @@ struct ItineraryStoreView: View {
                 })
             } /* List */
             .navigationDestination(for: String.self) { id in
-                ItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
            }
             .navigationTitle("Itineraries")
             .toolbar {

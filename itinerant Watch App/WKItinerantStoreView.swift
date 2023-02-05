@@ -25,10 +25,20 @@ struct WKItinerantStoreView: View {
             List {
                 ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
-                        HStack {
+                        VStack(alignment: .center, spacing: 0.0) {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
-                        }
+                            if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
+                                HStack {
+                                    Image(systemName:"square.and.pencil")
+                                    Text(date.formatted(date: .numeric, time: .shortened))
+                                        .lineLimit(1)
+                                        .allowsTightening(true)
+                                        .minimumScaleFactor(0.5)
+                                }
+                                .font(.system(.caption, design: .rounded, weight: .regular))
+                            }
+                     }
                     }
                     .listItemTint(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : Color("ColourBackgroundDarkGrey"))
                 } /* ForEach */
@@ -43,7 +53,7 @@ struct WKItinerantStoreView: View {
                 
             } /* List */
             .navigationDestination(for: String.self) { id in
-                WKItineraryActionView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
             }
             .navigationTitle("Itineraries")
             

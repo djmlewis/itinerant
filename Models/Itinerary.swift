@@ -113,7 +113,7 @@ extension Itinerary {
         return nil
     }
 
-    var stageLastUUIDstr: String? { stages.last?.id.uuidString }
+    var lastStageUUIDstr: String? { stages.last?.id.uuidString }
     
     var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
 

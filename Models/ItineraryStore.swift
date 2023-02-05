@@ -156,6 +156,12 @@ class ItineraryStore: ObservableObject {
         itineraries.first { $0.id.uuidString == id }?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
     }
 
+    func itineraryModificationDateForID(id:String) -> Date? {
+        guard let timeinterval = itineraries.first(where: { $0.id.uuidString == id })?.modificationDate else { return nil }
+        return Date(timeIntervalSinceReferenceDate: timeinterval)
+    }
+
+    
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
         let filenamesToDelete = offsets.map { itineraries[$0].filename! }
         for filename in filenamesToDelete {

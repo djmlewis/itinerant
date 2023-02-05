@@ -7,21 +7,9 @@
 
 import SwiftUI
 
-struct WKItineraryActionView: View {
-    @State var itinerary: Itinerary //  not a Binding because we dont change anything just read
-    @Binding var uuidStrStagesActiveStr: String
-    @Binding var uuidStrStagesRunningStr: String
-    @Binding var dictStageStartDates: [String:String]
-    @Binding var dictStageEndDates: [String:String]
-
-    @State private var resetStageElapsedTime: Bool?
-    @State private var scrollToStageID: String?
-    @State private var stageToHandleSkipActionID: String?
-    @State private var stageToStartRunningID: String?
-
-    @EnvironmentObject var appDelegate: AppDelegate
-
-    var body: some View {
+extension ItineraryActionCommonView {
+    
+    var body_watchos: some View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
@@ -36,10 +24,12 @@ struct WKItineraryActionView: View {
                     HStack {
                         Spacer()
                         Image(systemName: "arrow.counterclockwise.circle.fill")
-                        Text("Reset")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 32, alignment: .center)
                         Spacer()
                     }
-                }
+               }
                 .listItemTint(.red)
                 .padding()
             } /* List */
@@ -47,7 +37,14 @@ struct WKItineraryActionView: View {
                 Button {
                     resetItineraryStages()
                 } label: {
-                    Label("Reset", systemImage: "arrow.counterclockwise.circle.fill")
+                    HStack {
+                        Spacer()
+                        Image(systemName: "arrow.counterclockwise.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 32, alignment: .center)
+                        Spacer()
+                    }
                 }
                 .tint(.red)
                 .padding()
@@ -79,37 +76,6 @@ struct WKItineraryActionView: View {
         })
         /* ScrollViewReader modifiers */
     } /* body */
-} /* struct */
+} /* extension */
 
 
-extension WKItineraryActionView {
-    
-    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
-    }
-    
-    func resetItineraryStages() {
-        removeAllActiveRunningItineraryStageIDsAndNotifcations()
-        resetStageElapsedTime = true
-        // need a delay or we try to change ui too soon
-        // toggle scrollToStageID to nil so we scroll up to an already active id
-        scrollToStageID = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            if !itinerary.stages.isEmpty {
-                uuidStrStagesActiveStr.append(itinerary.stages[0].id.uuidString)
-            }
-        }
-        
-    }
-    
-}
-
-
-
-
-
-struct WKItineraryActionView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("Hello, World!")
-    }
-}

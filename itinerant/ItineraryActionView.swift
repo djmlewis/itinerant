@@ -9,107 +9,62 @@ import SwiftUI
 
 
 
-struct ItineraryActionView: View {
-    
-    @State var itinerary: Itinerary // not sure why thgis is a State not a Binding
-    @Binding var uuidStrStagesActiveStr: String
-    @Binding var uuidStrStagesRunningStr: String
-    @Binding var dictStageStartDates: [String:String]
-    @Binding var dictStageEndDates: [String:String]
-
-    @State private var itineraryData = Itinerary.EditableData()
-    @State private var isPresentingItineraryEditView: Bool = false
-    @State private var toggleDisclosureDetails: Bool = true
-    @State private var fileExporterShown: Bool = false
-    @State private var fileSaveDocument: ItineraryDocument?
-
-    @State private var resetStageElapsedTime: Bool?
-    @State private var scrollToStageID: String?
-    
-    @State private var stageToHandleSkipActionID: String?
-    @State private var stageToStartRunningID: String?
-
-    
-    var lastStageID: String  { if itinerary.stages.last  != nil { return itinerary.stages.last!.id.uuidString } else { return "" } }
-
-    
-    @EnvironmentObject var itineraryStore: ItineraryStore
-    @EnvironmentObject var appDelegate: AppDelegate
-
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
-    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
-
-    
-    func stageBackgroundColour(stage: Stage) -> Color {
-        if stage.isCommentOnly {
-            return appStorageColourStageComment.rgbaColor!
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageColourStageRunning.rgbaColor!
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageColourStageActive.rgbaColor!
-        }
-        return kAppStorageDefaultColourStageInactive.rgbaColor!
-    }
-
-    
-    var body: some View {
-        //VStack(alignment: .leading) {
-        ScrollViewReader { scrollViewReader in
-            List {
-                ForEach($itinerary.stages) { $stage in
-                    StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
-                    .id(stage.id.uuidString)
-                    .listRowBackground(stageBackgroundColour(stage: stage))
-                    .cornerRadius(6)
-                    .padding(.bottom, stage.id.uuidString == lastStageID ? 0.0 : 4.0)
-                } /* ForEach */
-            } /* List */
-            .onChange(of: scrollToStageID) { stageid in
-                if stageid != nil {
-                    DispatchQueue.main.async {
-                        withAnimation {
-                            scrollViewReader.scrollTo(stageid!)
+extension  ItineraryActionCommonView {
+     
+    var body_ios: some View {
+        VStack {
+            ScrollViewReader { scrollViewReader in
+                List {
+                    ForEach($itinerary.stages) { $stage in
+                        StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
+                            .id(stage.id.uuidString)
+                            .listRowBackground(stageBackgroundColour(stage: stage))
+                            .cornerRadius(6)
+                            .padding(.bottom, stage.id.uuidString == itinerary.lastStageUUIDstr ? 0.0 : 4.0)
+                    } /* ForEach */
+                } /* List */
+                .onChange(of: scrollToStageID) { stageid in
+                    if stageid != nil {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                scrollViewReader.scrollTo(stageid!)
+                            }
                         }
                     }
                 }
-            }
-            /* List mods */
-        } /* ScrollViewReader */
-        //} /* VStack */
-        VStack(alignment: .center) {
-            HStack(alignment: .firstTextBaseline) {
-                Group {
-                    Text("Total")
-                        .font(.title2)
-                    Image(systemName: "timer")
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                    Text(Stage.stageDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
-                        .font(.title2)
-                    if(itinerary.someStagesAreCountUp) {
-                        Image(systemName: "stopwatch")
+                /* List mods */
+            } /* ScrollViewReader */
+            VStack(alignment: .center, spacing: 0.0) {
+                HStack(alignment: .firstTextBaseline) {
+                    Group {
+                        Text("Total")
+                            .font(.title2)
+                        Image(systemName: "timer")
                             .resizable()
                             .frame(width: 16, height: 16)
+                        Text(Stage.stageDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
+                            .font(.title2)
+                        if(itinerary.someStagesAreCountUp) {
+                            Image(systemName: "stopwatch")
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                        }
                     }
+                    .padding(.trailing,0)
+                    .padding(.leading,0)
                 }
-                .padding(.trailing,0)
-                .padding(.leading,0)
+                    HStack(alignment: .center) {
+                        Spacer()
+                       Image(systemName: "doc")
+                        Text(itinerary.filename ?? "---")
+                        Image(systemName:"square.and.pencil")
+                        Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
+                        Spacer()
+                   }
+                .font(.caption)
             }
-            HStack(alignment: .top) {
-                Label(itinerary.filename ?? "---", systemImage: "doc")
-                Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
-            }
-            .font(.caption)
-            .foregroundColor(.gray)
-        }
+            .lineSpacing(1.0)
+        } /* VStack */
         .navigationTitle(itinerary.title)
         .onAppear() {
             // set the first active stage unless we are already active or running
@@ -212,39 +167,3 @@ struct ItineraryActionView: View {
 
 
 
-extension ItineraryActionView {
-    
-    func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates, dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
-    }
-    
-    func resetItineraryStages() {
-        removeAllActiveRunningItineraryStageIDsAndNotifcations()
-        resetStageElapsedTime = true
-        // need a delay or we try to change ui too soon
-        // toggle scrollToStageID to nil so we scroll up to an already active id
-        scrollToStageID = nil
-        if let firstActStageIndx = itinerary.firstIndexActivableStage {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].id.uuidString)
-            }
-        }
-        
-    }
-    
-    func sendItineraryToWatch()  {
-        if let watchdata = itinerary.watchDataNewUUID {
-            appDelegate.sendMessageOrData(dict: [
-                kUserInfoMessageTypeKey : kMessageItineraryData,
-                kMessageItineraryData : watchdata],
-                                        data: nil)
-        }
-    }
-}
-
-struct ItineraryActionView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("k")
-        //ItineraryActionView(itinerary: .constant(Itinerary.templateItinerary()))
-    }
-}
