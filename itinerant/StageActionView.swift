@@ -84,8 +84,13 @@ extension StageActionCommonView {
                             Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
+                                .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? .red : Color.accentColor)
+                                .background(.white)
+                                .padding(3)
+                                .border(.white, width: 3)
+                                .clipShape(Circle())
+
                         }
-                        .foregroundColor(.white)
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 46, alignment: .leading)
                     }
