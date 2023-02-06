@@ -29,10 +29,10 @@ struct ItineraryActionCommonView: View {
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
-    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
+    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
 
 #if !os(watchOS)
     @State var itineraryData = Itinerary.EditableData()
@@ -72,7 +72,7 @@ extension ItineraryActionCommonView {
         if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
             return appStorageColourStageActive.rgbaColor!
         }
-        return kAppStorageDefaultColourStageInactive.rgbaColor!
+        return appStorageColourStageInactive.rgbaColor!
     }
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {

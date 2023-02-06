@@ -10,6 +10,38 @@ import SwiftUI
 extension StageActionCommonView {
     var body_iOS: some View {
         VStack(alignment: .leading) {
+            HStack {
+                // title and expand details
+                if stage.isCommentOnly == false {
+                    Button(action: {
+                        disclosureDetailsExpanded = !disclosureDetailsExpanded
+                    }) {
+                        Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                            .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+                if stage.isCommentOnly == true {
+                    Image(systemName: "bubble.left")
+                        .foregroundColor(stageTextColour())
+                }
+                Text(stage.title)
+                // Stage title
+                    .fixedSize(horizontal: false, vertical: true)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(stageTextColour())
+                    .scenePadding(.minimum, edges: .horizontal)
+            }
+            .padding(0.0)
+            if stage.isCommentOnly == false && !stage.details.isEmpty && disclosureDetailsExpanded == true{
+                Text(stage.details)
+                // Details
+                    .font(.body)
+                    .foregroundColor(stageTextColour())
+                    .multilineTextAlignment(.leading)
+                    .padding(0.0)
+            }
             if stage.isCommentOnly == false {
                 HStack {
                     // alarm duration and button
@@ -104,41 +136,10 @@ extension StageActionCommonView {
                     .padding(0.0)
                 }
             } /*  if stage.isCommentOnly == false */
-            HStack {
-                // title and expand details
-                if stage.isCommentOnly == false {
-                    Button(action: {
-                        disclosureDetailsExpanded = !disclosureDetailsExpanded
-                    }) {
-                        Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                            .foregroundColor(.accentColor)
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                }
-                if stage.isCommentOnly == true {
-                    Image(systemName: "bubble.left")
-                        .foregroundColor(stageTextColour())
-                }
-                Text(stage.title)
-                // Stage title
-                    .fixedSize(horizontal: false, vertical: true)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(stageTextColour())
-                    .scenePadding(.minimum, edges: .horizontal)
-            }
-            .padding(0.0)
-            if stage.isCommentOnly == false && !stage.details.isEmpty && disclosureDetailsExpanded == true{
-                Text(stage.details)
-                // Details
-                    .font(.body)
-                    .foregroundColor(stageTextColour())
-                    .multilineTextAlignment(.leading)
-                    .padding(0.0)
-            }
         } /* VStack */
         .padding(0)
         .cornerRadius(8) /// make the background rounded
+        .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only
         .gesture(gestureActivateStage())
         .onAppear() { handleOnAppear() }
         .onDisappear() { handleOnDisappear() }
@@ -148,7 +149,6 @@ extension StageActionCommonView {
         .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
         .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
         .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
-        .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 }
         /* VStack mods */
     } /* body ios*/
 

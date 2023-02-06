@@ -42,11 +42,13 @@ struct StageActionCommonView: View {
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
-    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
+    
+    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
 
+    
     @EnvironmentObject private var appDelegate: AppDelegate
 
     // MARK: - body
@@ -59,9 +61,9 @@ struct StageActionCommonView: View {
     } /* body */
 } /* struct */
 
-
 extension StageActionCommonView {
     
+
     func updateUpdateTimes(forUpdateDate optDate: Date?) {
         if let date = optDate {
             // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
@@ -98,15 +100,15 @@ extension StageActionCommonView {
     
     func stageTextColour() -> Color {
         if stage.isCommentOnly {
-            return appStorageStageCommentTextDark == true ? .black : .white
+            return appStorageColourFontComment.rgbaColor!
         }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageStageRunningTextDark == true ? .black : .white
+            return appStorageColourFontRunning.rgbaColor!
         }
         if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageStageActiveTextDark == true ? .black : .white
+            return appStorageColourFontActive.rgbaColor!
         }
-        return appStorageStageInactiveTextDark == true ? .black : .white
+        return appStorageColourFontInactive.rgbaColor!
     }
 
 
@@ -235,6 +237,7 @@ extension StageActionCommonView {
                 }
             })
     }
+    
     
 }
 

@@ -17,29 +17,34 @@ struct SettingsView: View {
     @State private var prefColourRunning: Color = kAppStorageDefaultColourStageRunning.rgbaColor!
     @State private var prefColourComment: Color = kAppStorageDefaultColourStageComment.rgbaColor!
 
-    @State private var prefColourTextInactiveDark = true
-    @State private var prefColourTextActiveDark = true
-    @State private var prefColourTextRunningDark = true
-    @State private var prefColourTextCommentDark = false
+    @State private var prefColourFontInactive: Color = kAppStorageDefaultColourFontInactive.rgbaColor!
+    @State private var prefColourFontActive: Color = kAppStorageDefaultColourFontActive.rgbaColor!
+    @State private var prefColourFontRunning: Color = kAppStorageDefaultColourFontRunning.rgbaColor!
+    @State private var prefColourFontComment: Color = kAppStorageDefaultColourFontComment.rgbaColor!
 
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
-    @AppStorage(kAppStorageStageCommentTextDark) var appStorageStageCommentTextDark: Bool = false
+    
+    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
+
+
 
     func setupPrefsFromAppStore() {
         prefColourInactive = appStorageColourStageInactive.rgbaColor!
         prefColourActive = appStorageColourStageActive.rgbaColor!
         prefColourRunning = appStorageColourStageRunning.rgbaColor!
         prefColourComment = appStorageColourStageComment.rgbaColor!
-        prefColourTextActiveDark = appStorageStageActiveTextDark
-        prefColourTextRunningDark = appStorageStageRunningTextDark
-        prefColourTextInactiveDark = appStorageStageRunningTextDark
-        prefColourTextCommentDark = appStorageStageCommentTextDark
+        
+        prefColourFontInactive = appStorageColourFontInactive.rgbaColor!
+        prefColourFontActive = appStorageColourFontActive.rgbaColor!
+        prefColourFontRunning = appStorageColourFontRunning.rgbaColor!
+        prefColourFontComment = appStorageColourFontComment.rgbaColor!
+
     }
     var body: some View {
         List {
@@ -47,116 +52,42 @@ struct SettingsView: View {
                 HStack {
                     Image(systemName: "bubble.left")
                     ColorPicker("Comments", selection: $prefColourComment)
-                    HStack(spacing: 4.0) {
-                        Button("Text", action: {
-                            prefColourTextCommentDark = true
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.black)
-                        .background(prefColourComment)
-                        .background(.white)
-                        .padding(prefColourTextCommentDark == true ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextCommentDark == true ? 2 : 0)
-                        .cornerRadius(4)
-                        Button("Text", action: {
-                            prefColourTextCommentDark = false
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.white)
-                        .background(prefColourComment)
-                        .background(.white)
-                        .padding(prefColourTextCommentDark == false ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextCommentDark == false ? 2 : 0)
-                        .cornerRadius(4)
-                    }
+                    Image(systemName: "character.textbox")
+                    Spacer()
+                    ColorPicker("", selection: $prefColourFontComment)
+                        .frame(maxWidth: 48)
+                    Image(systemName: "textformat")
                 }
+                .settingsColours(background: prefColourComment, foreground: prefColourFontComment)
                 HStack {
                     Image(systemName: "play.circle.fill")
-                    ColorPicker("Active Stages", selection: $prefColourActive)
-                    HStack(spacing: 4.0) {
-                        Button("Text", action: {
-                            prefColourTextActiveDark = true
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.black)
-                        .background(prefColourActive)
-                        .background(.white)
-                        .padding(prefColourTextActiveDark == true ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextActiveDark == true ? 2 : 0)
-                        .cornerRadius(4)
-                        Button("Text", action: {
-                            prefColourTextActiveDark = false
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.white)
-                        .background(prefColourActive)
-                        .background(.white)
-                        .padding(prefColourTextActiveDark == false ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextActiveDark == false ? 2 : 0)
-                        .cornerRadius(4)
-                    }
-                }
-                HStack {
+                    ColorPicker("Active", selection: $prefColourActive)
+                    Image(systemName: "character.textbox")
+                    ColorPicker("", selection: $prefColourFontActive)
+                        .frame(maxWidth: 48)
+                   Image(systemName: "textformat")
+               }
+                .settingsColours(background: prefColourActive, foreground: prefColourFontActive)
+               HStack {
                     Image(systemName: "stop.circle")
-                    ColorPicker("Running Stages", selection: $prefColourRunning)
-                    HStack(spacing: 4.0) {
-                        Button("Text", action: {
-                            prefColourTextRunningDark = true
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.black)
-                        .background(prefColourRunning)
-                        .background(.white)
-                        .padding(prefColourTextRunningDark == true ? 4 : 0)
-                        .border(Color.accentColor,width: prefColourTextRunningDark == true ? 2 : 0)
-                        .cornerRadius(4)
-                        Button("Text", action: {
-                            prefColourTextRunningDark = false
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.white)
-                        .background(prefColourRunning)
-                        .background(.white)
-                        .padding(prefColourTextRunningDark == false ? 4 : 0)
-                        .border(Color.accentColor,width: prefColourTextRunningDark == false ? 2 : 0)
-                        .cornerRadius(4)
-
-                    }
+                    ColorPicker("Running", selection: $prefColourRunning)
+                    Image(systemName: "character.textbox")
+                    Spacer()
+                    ColorPicker("", selection: $prefColourFontRunning)
+                        .frame(maxWidth: 48)
+                   Image(systemName: "textformat")
                 }
+               .settingsColours(background: prefColourRunning, foreground: prefColourFontRunning)
                 HStack {
-                    ColorPicker("Inactive Stages", selection: $prefColourInactive)
-                    HStack(spacing: 4.0) {
-                        Button("Text", action: {
-                            prefColourTextInactiveDark = true
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.black)
-                        .background(prefColourInactive)
-                        .background(.white)
-                        .padding(prefColourTextInactiveDark == true ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextInactiveDark == true ? 2 : 0)
-                        .cornerRadius(4)
-                        Button("Text", action: {
-                            prefColourTextInactiveDark = false
-                        })
-                        .padding(4)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(.white)
-                        .background(prefColourInactive)
-                        .background(.white)
-                        .padding(prefColourTextInactiveDark == false ? 4 : 0)
-                        .border(Color.accentColor, width: prefColourTextInactiveDark == false ? 2 : 0)
-                        .cornerRadius(4)
-                    }
+                    Image(systemName: "zzz")
+                    ColorPicker("Inactive", selection: $prefColourInactive)
+                    Image(systemName: "character.textbox")
+                    Spacer()
+                    ColorPicker("", selection: $prefColourFontInactive)
+                        .frame(maxWidth: 48)
+                  Image(systemName: "textformat")
                 }
-
+                .settingsColours(background: prefColourInactive, foreground: prefColourFontInactive)
             }
         }
         .toolbar {
@@ -167,14 +98,15 @@ struct SettingsView: View {
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    if let rgbaInactive = prefColourInactive.rgbaString { appStorageColourStageActive = rgbaInactive }
+                    if let rgbaInactive = prefColourInactive.rgbaString { appStorageColourStageInactive = rgbaInactive }
                     if let rgbaActive = prefColourActive.rgbaString { appStorageColourStageActive = rgbaActive }
                     if let rgbaRun = prefColourRunning.rgbaString  { appStorageColourStageRunning = rgbaRun }
                     if let rgbaComm = prefColourComment.rgbaString  { appStorageColourStageComment = rgbaComm }
-                    appStorageStageInactiveTextDark = prefColourTextInactiveDark
-                    appStorageStageActiveTextDark = prefColourTextActiveDark
-                    appStorageStageRunningTextDark = prefColourTextRunningDark
-                    appStorageStageCommentTextDark = prefColourTextCommentDark
+
+                    if let frgbaInactive = prefColourFontInactive.rgbaString { appStorageColourFontInactive = frgbaInactive }
+                    if let frgbaActive = prefColourFontActive.rgbaString { appStorageColourFontActive = frgbaActive }
+                    if let frgbaRun = prefColourFontRunning.rgbaString  { appStorageColourFontRunning = frgbaRun }
+                    if let frgbaComm = prefColourFontComment.rgbaString  { appStorageColourFontComment = frgbaComm }
 
                     showSettingsView.toggle()
                 }
@@ -189,5 +121,23 @@ struct SettingsView: View {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         Text("")
+    }
+}
+
+struct SettingsColours: ViewModifier {
+    let background: Color
+    let foreground: Color
+
+    func body(content: Content) -> some View {
+        content
+            .padding(6)
+            .background(background)
+            .foregroundColor(foreground)
+            .cornerRadius(4)
+    }
+}
+extension View {
+    func settingsColours(background: Color, foreground: Color) -> some View {
+        modifier(SettingsColours(background: background, foreground: foreground))
     }
 }
