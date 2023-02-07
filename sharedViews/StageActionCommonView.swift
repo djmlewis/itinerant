@@ -98,6 +98,28 @@ extension StageActionCommonView {
 
 extension StageActionCommonView {
     
+    func buttonStartHalt() -> some View {
+        Button(action: {
+            // Start Stop
+            handleStartStopButtonTapped()
+        }) {
+            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? .red : Color.accentColor)
+                .background(.white)
+                .padding(3)
+                .border(.white, width: 3)
+                .clipShape(Circle())
+
+        }
+        .buttonStyle(BorderlessButtonStyle())
+        .frame(width: 46, alignment: .leading)
+        #if os(watchOS)
+        .padding(.trailing, 4.0)
+        #endif
+    }
+    
     func stageTextColour() -> Color {
         if stage.isCommentOnly {
             return appStorageColourFontComment.rgbaColor!

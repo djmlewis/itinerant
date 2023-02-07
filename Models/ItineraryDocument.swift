@@ -55,3 +55,48 @@ final class ItineraryDocument: ReferenceFileDocument {
         return fileWrapper
     }
 }
+
+final class SettingsDocument: ReferenceFileDocument {
+
+    typealias Snapshot = [ String : String ]
+    
+    @Published var dictData: [ String : String ]
+    
+    // Define the document type this app is able to load.
+    /// - Tag: ContentType
+    static var readableContentTypes: [UTType] { [.itinerarySettingsFile] }
+    
+    /// - Tag: Snapshot
+    func snapshot(contentType: UTType) throws -> [String:String] {
+        dictData // Make a copy.
+    }
+    
+    init() {
+        dictData = [String:String]()
+    }
+
+    init(dict: [String:String]) {
+        // force a new UUID for saving in itinerary AND stages!
+        self.dictData = dict
+    }
+    
+    
+    // Load a file's contents into the document.
+    /// - Tag: DocumentInit
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents
+        else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.dictData = try JSONDecoder().decode([String:String].self, from: data)
+    }
+    
+    /// Saves the document's data to a file.
+    /// - Tag: FileWrapper
+    func fileWrapper(snapshot: [String:String], configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = try JSONEncoder().encode(snapshot)
+        let fileWrapper = FileWrapper(regularFileWithContents: data)
+        return fileWrapper
+    }
+}
+

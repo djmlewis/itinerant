@@ -104,10 +104,10 @@ extension  ItineraryActionCommonView {
                         fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
                         fileExporterShown = true
                     }) {
-                        Label("Export File…", systemImage: "folder")
+                        Label("Export…", systemImage: "square.and.arrow.up")
                     }
                 } label: {
-                    Label("Export…", systemImage: "square.and.arrow.up")
+                    Label("", systemImage: "ellipsis.circle")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {

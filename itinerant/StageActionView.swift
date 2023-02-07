@@ -77,22 +77,7 @@ extension StageActionCommonView {
                     }
                     Spacer()
                     if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                        Button(action: {
-                            // Start Stop
-                            handleStartStopButtonTapped()
-                        }) {
-                            Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundColor(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? .red : Color.accentColor)
-                                .background(.white)
-                                .padding(3)
-                                .border(.white, width: 3)
-                                .clipShape(Circle())
-
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 46, alignment: .leading)
+                        buttonStartHalt()
                     }
                 }
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {

@@ -40,17 +40,7 @@ extension StageActionCommonView {
                             .opacity(0.5)
                         }
                         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                            Button(action: {
-                                handleStartStopButtonTapped()
-                            }) {
-                                Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundColor(.white)
-                            }
-                            .buttonStyle(.borderless)
-                            .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
-                            .padding(.trailing, 4.0)
+                            buttonStartHalt()
                         }
                     } /* HStack */
                     .foregroundColor(stageTextColour())

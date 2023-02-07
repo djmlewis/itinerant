@@ -83,27 +83,25 @@ struct ItineraryStoreView: View {
             .navigationTitle("Itineraries")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        showSettingsView = true
-                    }) {
-                        Label("Settings…", systemImage: "gear")
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Button(action: {
                             //fileImportFileType = .itineraryImportFile
                             fileImporterShown = true
                         }) {
-                            Label("Import file…", systemImage: "doc")
+                            Label("Import…", systemImage: "square.and.arrow.down")
                         }
                         Button(action: {
                             itineraryStore.reloadItineraries()
                         }) {
-                            Label("Refresh list…", systemImage: "arrow.counterclockwise.circle.fill")
+                            Label("Refresh…", systemImage: "arrow.counterclockwise.circle.fill")
+                        }
+                        Button(action: {
+                            showSettingsView = true
+                        }) {
+                            Label("Settings…", systemImage: "gear")
                         }
                     } label: {
-                        Label("Load…", systemImage: "square.and.arrow.down")
+                        Label("", systemImage: "ellipsis.circle")
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
@@ -170,6 +168,8 @@ struct ItineraryStoreView: View {
         }) /* fileImporter */
     } /* body */
 } /* View */
+
+
 
 
 struct ItineraryStoreView_Previews: PreviewProvider {
