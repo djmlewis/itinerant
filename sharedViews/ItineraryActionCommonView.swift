@@ -96,11 +96,13 @@ extension ItineraryActionCommonView {
     func sendItineraryToWatch()  {
         if let watchdata = itinerary.watchDataNewUUID {
             appDelegate.sendMessageOrData(dict: [
-                kUserInfoMessageTypeKey : kMessageItineraryData,
-                kMessageItineraryData : watchdata],
-                                        data: nil)
+                kUserInfoMessageTypeKey : kMessageFromPhoneWithItineraryData,
+                kMessageFromPhoneWithItineraryData : watchdata],
+                                          data: nil)
         }
     }
+    
+    
 }
 
 struct ItineraryActionCommonView_Previews: PreviewProvider {

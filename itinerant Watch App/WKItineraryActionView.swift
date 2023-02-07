@@ -15,7 +15,7 @@ extension ItineraryActionCommonView {
                 ForEach($itinerary.stages) { $stage in
                     StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.id.uuidString)
-                        .listItemTint(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourBackgroundActive") : Color("ColourBackgroundInactive") )
+                        .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 Button {

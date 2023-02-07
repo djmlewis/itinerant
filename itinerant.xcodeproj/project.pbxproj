@@ -160,6 +160,7 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
+				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
@@ -167,7 +168,6 @@
 				725FA976298FCB5A00AC7B94 /* StageActionView.swift */,
 				720C092D29741F74000AFFCC /* StageDisplayView.swift */,
 				7256AF942965D53300FBE53E /* StageEditView.swift */,
-				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,

@@ -36,7 +36,6 @@ extension StageActionCommonView {
                                     .minimumScaleFactor(0.5)
                                 Spacer()
                            }
-                            //.foregroundColor(stageTextColour())
                             .frame(maxWidth: .infinity)
                             .opacity(0.5)
                         }
@@ -52,10 +51,9 @@ extension StageActionCommonView {
                             .buttonStyle(.borderless)
                             .frame(idealWidth: 42, maxWidth: 42, minHeight: 42, alignment: .trailing)
                             .padding(.trailing, 4.0)
-                            //.disabled(!stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
-                            //.opacity(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? 1.0 : 0.0)
                         }
-                    }
+                    } /* HStack */
+                    .foregroundColor(stageTextColour())
                     .gridCellColumns(2)
                 } /* GridRow */
                 .padding(0)
@@ -69,6 +67,7 @@ extension StageActionCommonView {
                     .font(.system(.headline, design: .rounded, weight: .semibold))
                     .lineLimit(nil)
                     .multilineTextAlignment(.center)
+                    .foregroundColor(stageTextColour())
             }
             if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil) {
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {

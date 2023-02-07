@@ -32,6 +32,7 @@ struct SettingsView: View {
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
 
+    @EnvironmentObject var appDelegate: AppDelegate
 
 
     func setupPrefsFromAppStore() {
@@ -46,6 +47,27 @@ struct SettingsView: View {
         prefColourFontComment = appStorageColourFontComment.rgbaColor!
 
     }
+    
+    func sendSettingsToWatch()  {
+        var settingsDict: [String : String] = [
+            kUserInfoMessageTypeKey : kMessageFromPhoneWithSettingsData
+        ]
+        if let rgbaInactive = prefColourInactive.rgbaString { settingsDict[kAppStorageColourStageInactive] = rgbaInactive }
+        if let rgbaActive = prefColourActive.rgbaString { settingsDict[kAppStorageColourStageActive] = rgbaActive }
+        if let rgbaRun = prefColourRunning.rgbaString  { settingsDict[kAppStorageColourStageRunning] = rgbaRun }
+        if let rgbaComm = prefColourComment.rgbaString  { settingsDict[kAppStorageColourStageComment] = rgbaComm }
+
+        if let frgbaInactive = prefColourFontInactive.rgbaString { settingsDict[kAppStorageColourFontInactive] = frgbaInactive }
+        if let frgbaActive = prefColourFontActive.rgbaString { settingsDict[kAppStorageColourFontActive] = frgbaActive }
+        if let frgbaRun = prefColourFontRunning.rgbaString  { settingsDict[kAppStorageColourFontRunning] = frgbaRun }
+        if let frgbaComm = prefColourFontComment.rgbaString  { settingsDict[kAppStorageColourFontComment] = frgbaComm }
+
+        appDelegate.sendMessageOrData(dict: settingsDict, data: nil)
+
+
+    }
+
+    
     var body: some View {
         List {
             Section("Colours") {
@@ -88,8 +110,19 @@ struct SettingsView: View {
                   Image(systemName: "textformat")
                 }
                 .settingsColours(background: prefColourInactive, foreground: prefColourFontInactive)
+            } /* Section */
+            Button(action: {
+                sendSettingsToWatch()
+            }) {
+                HStack(alignment: .center) {
+                    Spacer()
+                    Text("Send Settings To Watch…")
+                    Image(systemName: "applewatch")
+                    Spacer()
+                }
             }
-        }
+
+        } /* List */
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {

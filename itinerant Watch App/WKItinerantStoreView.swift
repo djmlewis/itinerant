@@ -19,7 +19,16 @@ struct WKItinerantStoreView: View {
     @State private var presentedItineraryID: [String] = []
     @State private var showConfirmationAddDuplicateItinerary: Bool = false
     
-    
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @Environment(\.colorScheme) var colorScheme
+    func textColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (colorScheme == .dark ? .white : .black)
+    }
+    func backgroundColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
+    }
+
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
@@ -41,7 +50,8 @@ struct WKItinerantStoreView: View {
                             }
                      }
                     }
-                    .listItemTint(itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color("ColourBackgroundRunning") : Color("ColourBackgroundDarkGrey"))
+                    .listItemTint(backgroundColourForID(itineraryID))
+                    .foregroundColor(textColourForID(itineraryID))
                 } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset

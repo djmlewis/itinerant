@@ -17,11 +17,19 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var unnStageToHaltID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
-#if os(watchOS)
-    @Published var newItinerary: Itinerary?
-#endif
-  
     
+    @Published var newItinerary: Itinerary? /* watchOS only */
+  
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
+    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
+    
+    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
+
 }
 
 
@@ -166,20 +174,11 @@ extension AppDelegate {
     
     // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-#if os(watchOS)
-        if let messageData = message[kMessageItineraryData] as? Data {
-            if let itinerary = Itinerary(messageItineraryData: messageData) {
-                DispatchQueue.main.async {
-                    self.newItinerary = itinerary
-                }
-            }
+        if let messageData = message[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(messageData) }
+        else if message[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(message as! [String:String])}
+        else if let iphoneMessage = message[kMessageFromWatchKey] as? String {
+            debugPrint(iphoneMessage)
         }
-#else
-        debugPrint("iphone didReceiveMessage")
-        if let notificationText = message[kMessageKey] as? String {
-            debugPrint(notificationText)
-        }
-#endif
     }
     
     
@@ -217,21 +216,45 @@ extension AppDelegate {
     func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
         /** Called on the sending side after the user info transfer has successfully completed or failed with an error.
          Will be called on next launch if the sender was not running when the user info finished. */
-        debugPrint("didFinish userInfoTransfer", error?.localizedDescription ?? "No error")
+        //debugPrint("didFinish userInfoTransfer", error?.localizedDescription ?? "No error")
     }
     
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
-        debugPrint("didReceiveUserInfo", userInfo[kUserInfoMessageTypeKey] as Any)
-#if os(watchOS)
-        if let messageData = userInfo[kMessageItineraryData] as? Data {
-            if let itinerary = Itinerary(messageItineraryData: messageData) {
-                DispatchQueue.main.async {
-                    self.newItinerary = itinerary
-                }
-            }
-        }
-#endif
+        //debugPrint("didReceiveUserInfo")
+        if let itineraryData = userInfo[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(itineraryData) }
+        else if userInfo[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(userInfo as! [String:String])}
         
     }
     
-}
+
+    // watchOS handlers ===>
+    func handleItineraryDataFromPhone(_ messageData: Data) {
+        if let itinerary = Itinerary(messageItineraryData: messageData) {
+            DispatchQueue.main.async {
+                self.newItinerary = itinerary
+            }
+        }
+    }
+    
+    func handleSettingsDictFromPhone(_ settingsDict: [String : String ]) {
+        DispatchQueue.main.async {
+            if let rgbaInactive = settingsDict[kAppStorageColourStageInactive] {self.appStorageColourStageInactive  = rgbaInactive }
+            if let rgbaActive = settingsDict[kAppStorageColourStageActive] { self.appStorageColourStageActive = rgbaActive }
+            if let rgbaRun = settingsDict[kAppStorageColourStageRunning]  { self.appStorageColourStageRunning = rgbaRun }
+            if let rgbaComm = settingsDict[kAppStorageColourStageComment]  { self.appStorageColourStageComment = rgbaComm }
+            
+            if let frgbaInactive = settingsDict[kAppStorageColourFontInactive] { self.appStorageColourFontInactive = frgbaInactive }
+            if let frgbaActive = settingsDict[kAppStorageColourFontActive] { self.appStorageColourFontActive = frgbaActive }
+            if let frgbaRun = settingsDict[kAppStorageColourFontRunning]  { self.appStorageColourFontRunning = frgbaRun }
+            if let frgbaComm = settingsDict[kAppStorageColourFontComment]  { self.appStorageColourFontComment = frgbaComm }
+        }
+        debugPrint("handled settings")
+    }
+
+    // <=== watchOS handlers
+
+    
+} /* extension */
+
+
+

@@ -103,8 +103,9 @@ let kUIUpdateTimerFrequency = 0.2
 
 // MARK: - WatchConnectivity
 let kUserInfoMessageTypeKey = "kUserInfoMessageTypeKey"
-let kMessageKey = "message"
-let kMessageItineraryData = "kMessageItinerary"
+let kMessageFromWatchKey = "kMessageFromWatchKey"
+let kMessageFromPhoneWithItineraryData = "kMessageFromPhoneWithItineraryData"
+let kMessageFromPhoneWithSettingsData = "kMessageFromPhoneWithSettingsData"
 
 // MARK: - Color String
 let kColorStringSeparator = "\t"

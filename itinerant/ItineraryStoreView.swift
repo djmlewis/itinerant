@@ -11,12 +11,6 @@ import UniformTypeIdentifiers.UTType
 
 
 struct ItineraryStoreView: View {
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageStageInactiveTextDark) var appStorageStageInactiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageActiveTextDark) var appStorageStageActiveTextDark: Bool = true
-    @AppStorage(kAppStorageStageRunningTextDark) var appStorageStageRunningTextDark: Bool = true
 
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
     @SceneStorage(kSceneStoreUuidStrStageRunning) var uuidStrStagesRunningStr: String = ""
@@ -25,7 +19,6 @@ struct ItineraryStoreView: View {
 
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
-    @Environment(\.colorScheme) var colorScheme
 
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
@@ -37,8 +30,11 @@ struct ItineraryStoreView: View {
     @State private var showSettingsView: Bool = false
     
     
-    func textColourForID(_ itineraryID: String) -> Color {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? (appStorageStageRunningTextDark == true ? .black : .white) : (colorScheme == .dark ? .white : .black)
+    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @Environment(\.colorScheme) var colorScheme
+    func textColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (colorScheme == .dark ? .white : .black)
     }
     func backgroundColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
@@ -53,10 +49,6 @@ struct ItineraryStoreView: View {
                         VStack(alignment: .leading, spacing: 5.0) {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.system(.title, design: .rounded, weight: .semibold))
-//                            Label(itineraryStore.itineraryFileNameForID(id: itineraryID), systemImage: "doc")
-//                                .labelStyle(.titleAndIcon)
-//                                .italic()
-//                                .font(.subheadline)
                             HStack(alignment: .center) {
                                 Image(systemName: "doc")
                                 Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
