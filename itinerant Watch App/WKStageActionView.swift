@@ -8,7 +8,8 @@
 import SwiftUI
 
 extension StageActionCommonView {
-    var body_watchOS: some View {
+#if os(watchOS)
+    var body_: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
             if stage.isCommentOnly == false {
                 GridRow {
@@ -104,5 +105,5 @@ extension StageActionCommonView {
         .padding(0)
         /* Grid mods */
     } /* body */
-
+#endif
 }

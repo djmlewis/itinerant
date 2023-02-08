@@ -119,7 +119,8 @@ extension Itinerary {
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
 
     var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
-        partialResult + stage.durationSecsInt
+        // remove any negative flag values with max(...,0)
+        partialResult + max(stage.durationSecsInt, 0)
     }) }
 
 }

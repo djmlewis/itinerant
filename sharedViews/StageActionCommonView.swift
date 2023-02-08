@@ -24,15 +24,13 @@ struct StageActionCommonView: View {
     
 #if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
+    @State var disclosureDetailsExpanded: Bool = true
 #endif
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State var uiUpdateTimerCancellor: Cancellable?
     
-#if !os(watchOS)
-    @State var disclosureDetailsExpanded: Bool = true
-#endif
 
     
     
@@ -49,17 +47,11 @@ struct StageActionCommonView: View {
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
 
     
-    @EnvironmentObject private var appDelegate: AppDelegate
+    @EnvironmentObject var appDelegate: AppDelegate
 
     // MARK: - body
     var body: some View {
-        {
-#if os(watchOS)
-            body_watchOS
-#else
-            body_iOS
-#endif
-        }()
+        body_
             .gesture(gestureActivateStage())
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
@@ -280,7 +272,7 @@ extension StageActionCommonView {
             })
     }
     
-    
+        
 }
 
 

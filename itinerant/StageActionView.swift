@@ -8,7 +8,8 @@
 import SwiftUI
 
 extension StageActionCommonView {
-    var body_iOS: some View {
+#if !os(watchOS)
+    var body_: some View {
         VStack(alignment: .leading) {
             HStack {
                 // title and expand details
@@ -132,7 +133,5 @@ extension StageActionCommonView {
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only
 //        /* VStack mods */
     } /* body ios*/
-
-
-    
+#endif
 }
