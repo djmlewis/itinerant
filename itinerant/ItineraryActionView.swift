@@ -136,7 +136,7 @@ extension  ItineraryActionCommonView {
             }
         }
         .sheet(isPresented: $isPresentingItineraryEditView) {
-            NavigationView {
+            NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
                 ItineraryEditView(itinerary: $itinerary, itineraryEditableData: $itineraryData)
                     .navigationTitle(itinerary.title)

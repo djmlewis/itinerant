@@ -8,7 +8,7 @@
 			<key>CFBundleTypeName</key>
 			<string>itinerary data file</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>uk.djml.itinerant.itinerary</string>
@@ -18,7 +18,7 @@
 			<key>CFBundleTypeName</key>
 			<string>itinerary import file</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>uk.djml.itinerant.import</string>
@@ -28,32 +28,11 @@
 			<key>CFBundleTypeName</key>
 			<string>itinerary settings file</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>uk.djml.itinerant.settings</string>
 			</array>
-		</dict>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>uk.djml.itinerant.itinerary</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>uk.djml.itinerant.import</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>uk.djml.itinerant.settings</string>
 		</dict>
 	</array>
 	<key>UIApplicationSceneManifest</key>
@@ -70,7 +49,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.text</string>
+				<string>public.json</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>itinerary data file</string>
@@ -89,7 +68,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.text</string>
+				<string>public.json</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>itinerary import file</string>
@@ -108,7 +87,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.text</string>
+				<string>public.json</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>itinerary settings file</string>

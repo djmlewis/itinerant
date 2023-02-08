@@ -67,7 +67,7 @@ struct ItineraryEditView: View {
             //focusedFieldTag = .noneFocused
         }
         .sheet(isPresented: $isPresentingStageEditView) {
-            NavigationView {
+            NavigationStack {
                 StageEditView(stageEditableData: $newStageEditableData)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {

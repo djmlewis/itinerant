@@ -67,7 +67,7 @@ struct StageDisplayView: View {
         }
         .padding()
         .sheet(isPresented: $isPresentingStageEditView) {
-            NavigationView {
+            NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {

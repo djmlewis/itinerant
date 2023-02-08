@@ -120,7 +120,7 @@ struct ItineraryStoreView: View {
                 }
             })
             .sheet(isPresented: $isPresentingItineraryEditView) {
-                NavigationView {
+                NavigationStack {
                     ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
