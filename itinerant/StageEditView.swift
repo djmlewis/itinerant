@@ -18,16 +18,16 @@ struct StageEditView: View {
     
     @State private var untimedComment: Bool =  false
     @State private var snoozeAlertDuringCountUp: Bool =  false
-
+    
     @State private var hours: Int = 0
     @State private var mins: Int = 0
     @State private var secs: Int = 0
     @State private var timerDirection: TimerDirection = .countDown
-
+    
     @State private var snoozehours: Int = 0
     @State private var snoozemins: Int = 0
-//    @State private var snoozesecs: Int = 0
-
+    //    @State private var snoozesecs: Int = 0
+    
     
     //@FocusState private var focusedFieldTag: FieldFocusTag?
     
@@ -66,11 +66,8 @@ struct StageEditView: View {
                             HStack {
                                 Group {
                                     Text("Hours")
-                                    //.fontWeight(.heavy)
                                     Text("Minutes")
-                                    //.fontWeight(.heavy)
                                     Text("Seconds")
-                                    //.fontWeight(.heavy)
                                 }
                                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                             }
@@ -105,10 +102,8 @@ struct StageEditView: View {
                             }
                         }
                     }
-                    else {
-                        Toggle(isOn: $snoozeAlertDuringCountUp) {
-                            Label("Alert at Snooze intervals", systemImage:"bell")
-                        }
+                    Toggle(isOn: $snoozeAlertDuringCountUp) {
+                        Label("Alert at Snooze intervals", systemImage:"bell")
                     }
                 }
             } /* Section */
@@ -118,11 +113,7 @@ struct StageEditView: View {
                         HStack {
                             Group {
                                 Text("Hours")
-                                //.fontWeight(.heavy)
                                 Text("Minutes")
-                                //.fontWeight(.heavy)
-//                                Text("Seconds")
-                                //.fontWeight(.heavy)
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
@@ -144,14 +135,6 @@ struct StageEditView: View {
                                     }
                                 }
                                 .labelsHidden()
-//                                Picker("", selection: $snoozesecs) {
-//                                    ForEach(0..<60) {index in
-//                                        Text("\(index)").tag(index)
-//                                            .foregroundColor(.black)
-//                                            .fontWeight(.heavy)
-//                                    }
-//                                }
-//                                .labelsHidden()
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
@@ -186,9 +169,6 @@ struct StageEditView: View {
         .onChange(of: snoozemins, perform: {hrs in
             updateSnoozeDuration()
         })
-//        .onChange(of: snoozesecs, perform: {hrs in
-//            updateSnoozeDuration()
-//        })
         .onAppear() {
             untimedComment = stageEditableData.isCommentOnly
             if untimedComment == true {
@@ -202,8 +182,8 @@ struct StageEditView: View {
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
             snoozemins = ((stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN)
-//            snoozesecs = stageEditableData.snoozeDurationSecs % SEC_MIN
-
+            //            snoozesecs = stageEditableData.snoozeDurationSecs % SEC_MIN
+            
         }
         .onDisappear() {
             // !! Called AFTER the StageDisplayView Save button action

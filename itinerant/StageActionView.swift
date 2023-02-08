@@ -35,7 +35,7 @@ extension StageActionCommonView {
                     .scenePadding(.minimum, edges: .horizontal)
             }
             .padding(0.0)
-            if stage.isCommentOnly == false && !stage.details.isEmpty && disclosureDetailsExpanded == true{
+            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
                 Text(stage.details)
                 // Details
                     .font(.body)

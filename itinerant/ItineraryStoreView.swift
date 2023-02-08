@@ -82,7 +82,7 @@ struct ItineraryStoreView: View {
            }
             .navigationTitle("Itineraries")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: {
                             //fileImportFileType = .itineraryImportFile

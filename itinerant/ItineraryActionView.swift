@@ -91,7 +91,7 @@ extension  ItineraryActionCommonView {
             // after edit iiOS only
             itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: {
                         sendItineraryToWatch()
