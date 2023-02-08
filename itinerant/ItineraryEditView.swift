@@ -46,7 +46,7 @@ struct ItineraryEditView: View {
                 List {
                     ForEach($itineraryEditableData.stages) { $stage in
                         StageDisplayView(stage: $stage, stageDuplicate: $stageDuplicate)
-                            .id(stage.id.uuidString)
+                            .id(stage.idStr)
                     }
                     .onDelete { itineraryEditableData.stages.remove(atOffsets: $0) }
                     .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }

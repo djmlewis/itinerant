@@ -53,11 +53,23 @@ struct StageActionCommonView: View {
 
     // MARK: - body
     var body: some View {
+        {
 #if os(watchOS)
-        body_watchOS
+            body_watchOS
 #else
-        body_iOS
+            body_iOS
 #endif
+        }()
+            .gesture(gestureActivateStage())
+            .onAppear() { handleOnAppear() }
+            .onDisappear() { handleOnDisappear() }
+            .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
+            .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
+            .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
+            .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
+            .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
+            .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
+
     } /* body */
 } /* struct */
 
@@ -77,19 +89,19 @@ extension StageActionCommonView {
     }
     
     func  timeStartedRunning() -> TimeInterval {
-        floor(Double(dictStageStartDates[stage.id.uuidString] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
+        floor(Double(dictStageStartDates[stage.idStr] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
     }
     
     func setTimeStartedRunning(_ newValue: Double?) {
         // only set to nil when we must do that, like on RESET all stages
         // dont do it just on stopping so we can still see the elapsed times
-        dictStageStartDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+        dictStageStartDates[stage.idStr] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
     }
     
     func setTimeEndedRunning(_ newValue: Double?) {
         // only set to nil when we must do that, like on RESET all stages
         // dont do it just on stopping so we can still see the elapsed times
-        dictStageEndDates[stage.id.uuidString] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
+        dictStageEndDates[stage.idStr] = newValue == nil ? nil : String(format: "%.0f", floor(newValue!))
     }
     
 }
@@ -160,7 +172,7 @@ extension StageActionCommonView {
         setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
         timeAccumulatedAtUpdate = 0.0
-        uuidStrStagesRunningStr.append(stage.id.uuidString)
+        uuidStrStagesRunningStr.append(stage.idStr)
         // if duration == 0 it is not counted down, no notification
         if stage.postsNotifications { postNotification(stage: stage, itinerary: itinerary) }
         // need to reset the timer to reattach the cancellor
@@ -171,14 +183,14 @@ extension StageActionCommonView {
     func handleHaltRunning(andSkip: Bool) {
         setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
         uiUpdateTimerCancellor?.cancel()
-        removeNotification(stageUuidstr:stage.id.uuidString)
+        removeNotification(stageUuidstr:stage.idStr)
         // remove ourselves from active and running
-        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.id.uuidString, with: "")
-        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.id.uuidString, with: "")
+        uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.idStr, with: "")
+        uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.idStr, with: "")
         //setTimeStartedRunning(nil) <== dont do this or time disappear
         // set the next stage to active if there is one ABOVE us otherwise do nothing
-        if let nextActIndx = itinerary.indexOfNextActivableStage(fromUUIDstr: stage.id.uuidString) {
-            let nextStageUUIDstr = itinerary.stages[nextActIndx].id.uuidString
+        if let nextActIndx = itinerary.indexOfNextActivableStage(fromUUIDstr: stage.idStr) {
+            let nextStageUUIDstr = itinerary.stages[nextActIndx].idStr
             uuidStrStagesActiveStr.append(nextStageUUIDstr)
             if andSkip {
                 stageToStartRunningID = nil
@@ -207,8 +219,8 @@ extension StageActionCommonView {
             uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
             uiUpdateTimerCancellor = uiUpdateTimer.connect()
         } else {
-            // use dictStageEndDates[stage.id.uuidString] != nil to detect we have run and to update the updateTimes
-            updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.id.uuidString]?.dateFromDouble)
+            // use dictStageEndDates[stage.idStr] != nil to detect we have run and to update the updateTimes
+            updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.idStr]?.dateFromDouble)
         }
     }
     
@@ -229,21 +241,21 @@ extension StageActionCommonView {
 
     func handleReceive_stageToHandleSkipActionID(idStr: String?) {
         // handle notifications to skip to next stage
-        if idStr != nil  && idStr == stage.id.uuidString {
+        if idStr != nil  && idStr == stage.idStr {
             handleHaltRunning(andSkip: true)
         }
     }
     
     func handleReceive_stageToHandleHaltActionID(idStr: String?) {
         // handle notifications to skip to next stage
-        if idStr != nil  && idStr == stage.id.uuidString {
+        if idStr != nil  && idStr == stage.idStr {
             handleHaltRunning(andSkip: false)
         }
     }
     
     func handleReceive_stageToStartRunningID(idStr: String?) {
         // handle notifications to be skipped to this stage
-        if idStr != nil && idStr == stage.id.uuidString {
+        if idStr != nil && idStr == stage.idStr {
             handleStartRunning()
         }
     }
@@ -252,10 +264,18 @@ extension StageActionCommonView {
         return TapGesture(count: 2)
             .onEnded({ _ in
                 removeAllActiveRunningItineraryStageIDsAndNotifcations()
-                // make ourself active
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    uuidStrStagesActiveStr.append(stage.id.uuidString)
-                    // scrollTo managed by onChange uuidStrStagesActiveStr
+                // make ourself active only if we are not a comment
+                if stage.isCommentOnly {
+                    // just scroll there
+                    scrollToStageID = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        scrollToStageID = stage.idStr
+                    }
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        uuidStrStagesActiveStr.append(stage.idStr)
+                        // scrollTo managed by onChange uuidStrStagesActiveStr
+                    }
                 }
             })
     }

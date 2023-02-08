@@ -63,9 +63,9 @@ class ItineraryStore: ObservableObject {
                     Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
                     filePath.fileNameWithoutExtensionFromPath!
                 let newItinerary = Itinerary(persistentData: persistentData, filename: filename)
-                let newUUIDstr = newItinerary.id.uuidString
+                let newUUIDstr = newItinerary.idStr
                 //let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
-                if itineraries.first(where: { $0.id.uuidString == newUUIDstr}) != nil || importing {
+                if itineraries.first(where: { $0.idStr == newUUIDstr}) != nil || importing {
                     // we are loading an itinerary with the same UUID as already in our array,
                     // or importing one from outside the itineraries folder
                     // so duplicate with new UUID and save as a new file with the new UUID as the filename in the itineraries folder
@@ -132,10 +132,10 @@ class ItineraryStore: ObservableObject {
     }
     
     func itineraryForID(id:String) -> Itinerary? {
-        itineraries.first{ $0.id.uuidString == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
+        itineraries.first{ $0.idStr == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
     }
     func hasItineraryWithID(_ id: String) -> Bool {
-        return itineraries.firstIndex(where: { $0.id.uuidString == id }) != nil
+        return itineraries.firstIndex(where: { $0.idStr == id }) != nil
     }
     func itineraryForTitle(_ title: String) -> Itinerary? {
         itineraries.first { $0.title == title }
@@ -144,20 +144,20 @@ class ItineraryStore: ObservableObject {
         return itineraryForTitle(title) != nil
     }
     func itineraryTitleForID(id:String) -> String {
-        itineraries.first { $0.id.uuidString == id }?.title ?? kUnknownObjectErrorStr
+        itineraries.first { $0.idStr == id }?.title ?? kUnknownObjectErrorStr
     }
     var itineraryTitles: [String] { itineraries.map { $0.title } }
-    var itineraryUUIDStrs: [String] { itineraries.map { $0.id.uuidString } }
+    var itineraryUUIDStrs: [String] { itineraries.map { $0.idStr } }
 
     func itineraryFileNameForID(id:String) -> String {
-        itineraries.first { $0.id.uuidString == id }?.filename ?? "---"
+        itineraries.first { $0.idStr == id }?.filename ?? "---"
     }
     func itineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String) -> Bool {
-        itineraries.first { $0.id.uuidString == id }?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
+        itineraries.first { $0.idStr == id }?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
     }
 
     func itineraryModificationDateForID(id:String) -> Date? {
-        guard let timeinterval = itineraries.first(where: { $0.id.uuidString == id })?.modificationDate else { return nil }
+        guard let timeinterval = itineraries.first(where: { $0.idStr == id })?.modificationDate else { return nil }
         return Date(timeIntervalSinceReferenceDate: timeinterval)
     }
 
@@ -192,7 +192,7 @@ class ItineraryStore: ObservableObject {
         itineraries.append(itinerymutable)
     }
     func updateItinerary(itinerary: Itinerary) -> String? {
-        guard let index = itineraries.firstIndex(where: { $0.id.uuidString == itinerary.id.uuidString }) else { debugPrint("Unable to update itinerary"); return nil  }
+        guard let index = itineraries.firstIndex(where: { $0.idStr == itinerary.idStr }) else { debugPrint("Unable to update itinerary"); return nil  }
         var itinerymutable = itinerary
         itinerymutable.updateModificationDateToNow()
         itinerymutable.filename = itinerymutable.savePersistentData()

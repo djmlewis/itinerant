@@ -78,19 +78,20 @@ extension Itinerary {
 
 // MARK: - Characteristics
 extension Itinerary {
+    var idStr: String { id.uuidString }
     
-    func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } }
-    func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.id.uuidString) } != nil }
+    func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } }
+    func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } != nil }
     
-    func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } }
-    func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.id.uuidString) } != nil }
+    func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } }
+    func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } != nil }
 
     var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
         partialResult || stage.isCountUp
     } }
 
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
-        return stages.firstIndex(where: { $0.id.uuidString == uuidstr })
+        return stages.firstIndex(where: { $0.idStr == uuidstr })
     }
 
     func indexOfNextActivableStage(fromUUIDstr uuidstr: String ) -> Int? {
@@ -113,9 +114,9 @@ extension Itinerary {
         return nil
     }
 
-    var lastStageUUIDstr: String? { stages.last?.id.uuidString }
+    var lastStageUUIDstr: String? { stages.last?.idStr }
     
-    var stagesIDstrs: [String] { stages.map { $0.id.uuidString }}
+    var stagesIDstrs: [String] { stages.map { $0.idStr }}
 
     var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
         partialResult + stage.durationSecsInt

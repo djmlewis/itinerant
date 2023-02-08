@@ -14,7 +14,7 @@ extension ItineraryActionCommonView {
             List {
                 ForEach($itinerary.stages) { $stage in
                     StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
-                        .id(stage.id.uuidString)
+                        .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -63,7 +63,7 @@ extension ItineraryActionCommonView {
         .navigationTitle(itinerary.title)
         .onAppear() {
             if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itinerary.stages.isEmpty {
-                let stageuuid = itinerary.stages[0].id.uuidString
+                let stageuuid = itinerary.stages[0].idStr
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }

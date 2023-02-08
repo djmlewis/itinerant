@@ -147,9 +147,9 @@ extension Stage {
 
 // MARK: - Characteristics
 extension Stage {
-    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(id.uuidString) }
+    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(idStr) }
     
-    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(id.uuidString) }
+    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(idStr) }
     
     var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
     
@@ -169,5 +169,7 @@ extension Stage {
             return "timer"
         }
     }
+    
+    var idStr: String { id.uuidString }
 }
 

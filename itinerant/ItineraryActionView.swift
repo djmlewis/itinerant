@@ -17,10 +17,10 @@ extension  ItineraryActionCommonView {
                 List {
                     ForEach($itinerary.stages) { $stage in
                         StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
-                            .id(stage.id.uuidString)
+                            .id(stage.idStr)
                             .listRowBackground(stageBackgroundColour(stage: stage))
                             .cornerRadius(6)
-                            .padding(.bottom, stage.id.uuidString == itinerary.lastStageUUIDstr ? 0.0 : 4.0)
+                            .padding(.bottom, stage.idStr == itinerary.lastStageUUIDstr ? 0.0 : 4.0)
                     } /* ForEach */
                 } /* List */
                 .onChange(of: scrollToStageID) { stageid in
@@ -71,7 +71,7 @@ extension  ItineraryActionCommonView {
             guard let firstActindx = itinerary.firstIndexActivableStage else { return }
             if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                 // i think this should be resetItineraryStages
-                let stageuuid = itinerary.stages[firstActindx].id.uuidString
+                let stageuuid = itinerary.stages[firstActindx].idStr
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }

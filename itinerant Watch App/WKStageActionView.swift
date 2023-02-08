@@ -59,7 +59,7 @@ extension StageActionCommonView {
                     .multilineTextAlignment(.center)
                     .foregroundColor(stageTextColour())
             }
-            if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil) {
+            if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil) {
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
                     GridRow {
                         HStack(spacing:0.0) {
@@ -102,15 +102,6 @@ extension StageActionCommonView {
             } /* if nonComment, running OR ran*/
         } /* Grid */
         .padding(0)
-        .gesture(gestureActivateStage())
-        .onAppear() { handleOnAppear() }
-        .onDisappear() { handleOnDisappear() }
-        .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
-        .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
-        .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.id.uuidString} }
-        .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
-        .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
-        .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
         /* Grid mods */
     } /* body */
 

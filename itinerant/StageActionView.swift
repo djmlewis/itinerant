@@ -80,7 +80,7 @@ extension StageActionCommonView {
                         buttonStartHalt()
                     }
                 }
-                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.id.uuidString] != nil {
+                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
                         // Times elapsed
                         GridRow {
@@ -130,16 +130,7 @@ extension StageActionCommonView {
         .padding(0)
         .cornerRadius(8) /// make the background rounded
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only
-        .gesture(gestureActivateStage())
-        .onAppear() { handleOnAppear() }
-        .onDisappear() { handleOnDisappear() }
-        .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
-        .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
-        .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.id.uuidString} }
-        .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
-        .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
-        .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
-        /* VStack mods */
+//        /* VStack mods */
     } /* body ios*/
 
 

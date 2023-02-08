@@ -87,7 +87,7 @@ extension ItineraryActionCommonView {
         scrollToStageID = nil
         if let firstActStageIndx = itinerary.firstIndexActivableStage {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].id.uuidString)
+                uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].idStr)
             }
         }
         

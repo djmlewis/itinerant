@@ -67,8 +67,8 @@ func requestStageCompletedOrCountUpSnooze(stage: Stage, itinerary: Itinerary) ->
     let content = UNMutableNotificationContent()
     content.title = itinerary.title
     content.subtitle = "\(stage.title) " + (isCompleted ? "has completed" : "is running")
-    content.userInfo = [kItineraryUUIDStr : itinerary.id.uuidString,
-                            kStageUUIDStr : stage.id.uuidString,
+    content.userInfo = [kItineraryUUIDStr : itinerary.idStr,
+                            kStageUUIDStr : stage.idStr,
                               kStageTitle : stage.title,
                      kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
                           kItineraryTitle : itinerary.title,
@@ -81,7 +81,7 @@ func requestStageCompletedOrCountUpSnooze(stage: Stage, itinerary: Itinerary) ->
     let duration = isCompleted ? Double(stage.durationSecsInt) : Double(stage.snoozeDurationSecs)
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: duration,
                                                     repeats: isCompleted ? false : true)
-    let request = UNNotificationRequest(identifier: stage.id.uuidString, content: content, trigger: trigger)
+    let request = UNNotificationRequest(identifier: stage.idStr, content: content, trigger: trigger)
     return request
 }
 
