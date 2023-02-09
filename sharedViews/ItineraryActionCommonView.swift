@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UniformTypeIdentifiers
 
 
 struct ItineraryActionCommonView: View {
@@ -38,11 +38,11 @@ struct ItineraryActionCommonView: View {
     @State var itineraryData = Itinerary.EditableData()
     @State var isPresentingItineraryEditView: Bool = false
     @State var toggleDisclosureDetails: Bool = true
-    @State var fileSaverShown: Bool = false
-    @State var fileSaveDocument: ItineraryDocument?
-    @State var fileExporterShown: Bool = false
-    @State var fileExportDocument: ItineraryTextDocument?
 
+    @State var fileSaverShown: Bool = false
+    @State var fileSaveDocument: ItineraryFile?
+    @State var fileSaveType: UTType = .itineraryDataFile
+    @State var fileSaveName: String?
 
     @EnvironmentObject var itineraryStore: ItineraryStore
 #endif
@@ -52,11 +52,7 @@ struct ItineraryActionCommonView: View {
 
     
     var body: some View {
-#if os(watchOS)
-        body_watchos
-#else
-        body_ios
-#endif
+        body_
     } /* View */
     
 }

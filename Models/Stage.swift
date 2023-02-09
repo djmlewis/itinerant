@@ -105,8 +105,18 @@ extension Stage {
             }
         }
 
-        var isCountDown: Bool { !isCountUp && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
-        var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
+        var isCountDown: Bool { !isCountUp }
+        var isPostingSnoozeAlerts: Bool {
+            get {
+                flags.contains(kFlagSnoozeAlerts)
+            }
+            set(isSA) {
+                flags = flags.replacingOccurrences(of: kFlagSnoozeAlerts, with: "",options: [.literal])
+                if isSA {
+                    flags += kFlagSnoozeAlerts
+                }
+            }
+        }
         var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
 
     } /* EditableData */
@@ -202,7 +212,7 @@ extension Stage {
     
     var isActionable: Bool { !isCommentOnly }
     
-    var isCountDown: Bool { !isCountUp && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
+    var isCountDown: Bool { !isCountUp }
     var isCountUp: Bool {
         get {
             flags.contains(kFlagCountUp)
@@ -214,14 +224,22 @@ extension Stage {
             }
         }
     }
-    var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
+    var isPostingSnoozeAlerts: Bool {
+        get {
+            flags.contains(kFlagSnoozeAlerts)
+        }
+        set(isSA) {
+            flags = flags.replacingOccurrences(of: kFlagSnoozeAlerts, with: "",options: [.literal])
+            if isSA {
+                flags += kFlagSnoozeAlerts
+            }
+        }
+    }
     var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
     var durationSymbolName: String {
         if isCommentOnly { return "bubble.left" }
         if isCountUp { return "stopwatch" }
         switch durationSecsInt {
-        case kStageDurationCountUpWithSnoozeAlerts:
-            return "stopwatch"
         default:
             return "timer"
         }

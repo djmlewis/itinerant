@@ -8,8 +8,8 @@
 import SwiftUI
 
 extension ItineraryActionCommonView {
-    
-    var body_watchos: some View {
+#if os(watchOS)
+    var body_: some View {
         ScrollViewReader { scrollViewReader in
             List {
                 ForEach($itinerary.stages) { $stage in
@@ -81,6 +81,7 @@ extension ItineraryActionCommonView {
         })
         /* ScrollViewReader modifiers */
     } /* body */
+#endif
 } /* extension */
 
 

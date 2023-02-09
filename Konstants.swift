@@ -11,23 +11,20 @@ import UniformTypeIdentifiers
 // Define this document's type.
 enum ItineraryFileType: String {
     case dataFile = "uk.djml.itinerant.itinerary"
-    case importFile = "uk.djml.itinerant.import"
     case settingsFile = "uk.djml.itinerant.settings"
     case textFile = "uk.djml.itinerant.text"
 }
 
 extension UTType {
     static let itineraryDataFile = UTType(exportedAs: ItineraryFileType.dataFile.rawValue)
-    static let itineraryImportFile = UTType(exportedAs: ItineraryFileType.importFile.rawValue)
     static let itinerarySettingsFile = UTType(exportedAs: ItineraryFileType.settingsFile.rawValue)
     static let itineraryTextFile = UTType(exportedAs: ItineraryFileType.textFile.rawValue)
 }
 
 enum ItineraryFileExtension: String {
     case dataFile = "itinerary"
-    case importFile = "import"
     case settingsFile = "settings"
-    case textFile = "txt"
+    case textFile = "export"
 }
 
 // MARK: - ItineraryStore
@@ -35,9 +32,9 @@ let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"
 let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
 
 let kItineraryPerststentDataFileSuffix = ItineraryFileExtension.dataFile.rawValue
-let kItineraryPerststentImportFileSuffix = ItineraryFileExtension.importFile.rawValue
 let kItinerarySettingsFileSuffix = ItineraryFileExtension.settingsFile.rawValue
 let kItinerarySettingsFileDotSuffix = "." + ItineraryFileExtension.settingsFile.rawValue
+let kItineraryTextFileDotSuffix = "." + ItineraryFileExtension.textFile.rawValue
 let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
 let kItineraryPerststentDataFileDirectoryName = "itineraries"
 let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName + "/"
@@ -53,13 +50,14 @@ let kSeparatorImportFile = "\n"
 // MARK: - Stage
 //let kStageDurationCommentOnly: Int = -1
 //let kStageDurationCountUpTimer: Int = 0
-let kStageDurationCountUpWithSnoozeAlerts: Int = -2
+//let kStageDurationCountUpWithSnoozeAlerts: Int = -2
 let kStageInitialDurationSecs: Int = 0
 let kSnoozeDurationSecsMin: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
 let kFlagComment = "C"
 let kFlagCountUp = "U"
+let kFlagSnoozeAlerts = "Z"
 
 // MARK: - ItinerantApp
 

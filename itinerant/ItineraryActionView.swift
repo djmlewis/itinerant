@@ -10,8 +10,9 @@ import SwiftUI
 
 
 extension  ItineraryActionCommonView {
-     
-    var body_ios: some View {
+    
+#if !os(watchOS)
+    var body_: some View {
         VStack {
             ScrollViewReader { scrollViewReader in
                 List {
@@ -90,6 +91,18 @@ extension  ItineraryActionCommonView {
         .onChange(of: itinerary, perform: {
             // after edit iiOS only
             itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
+        .fileExporter(isPresented: $fileSaverShown,
+                      document: fileSaveDocument,
+                      contentType: fileSaveType,
+                      defaultFilename: fileSaveName,
+                      onCompletion: { result in
+            switch result {
+            case .success:
+                if fileSaveType == .itineraryDataFile { itineraryStore.reloadItineraries() }
+            case .failure(let error):
+                debugPrint(error.localizedDescription)
+            }
+        }) /* File Saver */
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
@@ -101,17 +114,21 @@ extension  ItineraryActionCommonView {
                     
                     Button(action: {
                         // ItineraryDocument always inits with now mod date
-                        fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
+                        fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)
+                        fileSaveType = .itineraryDataFile
+                        fileSaveName = fileSaveDocument?.itineraryPersistentData.title
                         fileSaverShown = true
-                    }) {
-                        Label("Save…", systemImage: "square.and.arrow.up")
+                   }) {
+                        Label("Save…", systemImage: "doc")
                     }
                     Button(action: {
                         // Export text file
-                        fileExportDocument = ItineraryTextDocument(string: itinerary.exportString)
-                        fileExporterShown = true
-                    }) {
-                        Label("Export…", systemImage: "square.and.arrow.up")
+                        fileSaveDocument = ItineraryFile(exportText: itinerary.exportString)
+                        fileSaveType = .itineraryTextFile
+                        fileSaveName = itinerary.title
+                        fileSaverShown = true
+                   }) {
+                        Label("Export…", systemImage: "doc.plaintext")
                     }
                     
                 } label: {
@@ -143,7 +160,7 @@ extension  ItineraryActionCommonView {
                 }
             }
         }
-        .sheet(isPresented: $isPresentingItineraryEditView) {
+        .sheet(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
                 ItineraryEditView(itinerary: $itinerary, itineraryEditableData: $itineraryData)
@@ -162,34 +179,10 @@ extension  ItineraryActionCommonView {
                         }
                     }
             }
-        } /* sheet */
-        // File Saver
-        .fileExporter(isPresented: $fileSaverShown,
-                      document: fileSaveDocument,
-                      contentType: .itineraryDataFile,
-                      defaultFilename: fileSaveDocument?.itineraryPersistentData.title) { result in
-            switch result {
-            case .success:
-                itineraryStore.reloadItineraries()
-            case .failure(let error):
-                debugPrint(error.localizedDescription)
-            }
-        } /* File Saver */
-        // File exporter
-      .fileExporter(isPresented: $fileExporterShown,
-                    document: fileExportDocument,
-                    contentType: .itineraryTextFile,
-                    defaultFilename: itinerary.title) { result in
-          switch result {
-          case .success:
-              break
-          case .failure(let error):
-              debugPrint(error.localizedDescription)
-          }
-      } /* fileExporter */
-        
+        }) /* sheet */
+
     } /* View */
-    
+#endif
 }
 
 

@@ -36,7 +36,7 @@ class ItineraryStore: ObservableObject {
     static func appFilePathForFileNameWithExtension(_ filenamewithextn: String) -> String {
         let component = "/" + filenamewithextn
         if filenamewithextn.hasSuffix(ItineraryFileExtension.dataFile.rawValue) { return appDataFilesFolderPath() + component }
-        if filenamewithextn.hasSuffix(ItineraryFileExtension.importFile.rawValue) { return appFilesFolderPath() + component }
+        if filenamewithextn.hasSuffix(ItineraryFileExtension.textFile.rawValue) { return appFilesFolderPath() + component }
         return appFilesFolderPath() + component
 
     }

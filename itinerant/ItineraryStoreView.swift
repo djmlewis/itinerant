@@ -25,6 +25,7 @@ struct ItineraryStoreView: View {
     @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
+    @State private var fileImportFileType: [UTType] = [.itineraryDataFile]
     
     @State private var presentedItineraryID: [String] = []
     @State private var showSettingsView: Bool = false
@@ -85,10 +86,16 @@ struct ItineraryStoreView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: {
-                            //fileImportFileType = .itineraryImportFile
+                            fileImportFileType = [.itineraryDataFile]
                             fileImporterShown = true
                         }) {
-                            Label("Import…", systemImage: "square.and.arrow.down")
+                            Label("Open…", systemImage: "doc")
+                        }
+                        Button(action: {
+                            fileImportFileType = [.itineraryTextFile]
+                            fileImporterShown = true
+                        }) {
+                            Label("Import…", systemImage: "doc.plaintext")
                         }
                         Button(action: {
                             itineraryStore.reloadItineraries()
@@ -116,7 +123,7 @@ struct ItineraryStoreView: View {
             }
             .sheet(isPresented: $showSettingsView, content: {
                 NavigationStack {
-                    SettingsView(showSettingsView: $showSettingsView/*, appStorageColourStageActive: $appStorageColourStageActive, appStorageColourStageRunning: $appStorageColourStageRunning*/)
+                    SettingsView(showSettingsView: $showSettingsView)
                 }
             })
             .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -147,7 +154,7 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile, .itineraryTextFile], onCompletion: { (result) in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: fileImportFileType, onCompletion: { (result) in
             // fileImporter in single file selection mode
             switch result {
             case .success(let selectedFileURL):
@@ -155,7 +162,7 @@ struct ItineraryStoreView: View {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
                         itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
-                    case ItineraryFileExtension.importFile.rawValue, ItineraryFileExtension.textFile.rawValue:
+                    case ItineraryFileExtension.textFile.rawValue:
                         itineraryStore.importItinerary(atPath: selectedFileURL.path)
                     default:
                         break

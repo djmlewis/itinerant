@@ -19,7 +19,6 @@ extension StageActionCommonView {
                         if !stage.isCountUp {
                             Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
-                                .frame(maxWidth: .infinity)
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -37,10 +36,10 @@ extension StageActionCommonView {
                                     .minimumScaleFactor(0.5)
                                 Spacer()
                            }
-                            .frame(maxWidth: .infinity)
                             .opacity(0.5)
                         }
                         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                            Spacer()
                             buttonStartHalt()
                         }
                     } /* HStack */

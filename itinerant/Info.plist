@@ -18,18 +18,6 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>itinerary import file</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>uk.djml.itinerant.import</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeName</key>
 			<string>itinerary settings file</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -89,25 +77,6 @@
 				<string>public.json</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>itinerary import file</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>uk.djml.itinerant.import</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>import</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
-			<key>UTTypeDescription</key>
 			<string>itinerary settings file</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
@@ -136,7 +105,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>txt</string>
+					<string>export</string>
 				</array>
 			</dict>
 		</dict>

@@ -62,7 +62,6 @@ extension StageActionCommonView {
                     if stage.isPostingSnoozeAlerts {
                         // Snooze Alarms time duration
                         HStack {
-                            Spacer()
                             Image(systemName: "bell.and.waves.left.and.right")
                             Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                 .font(.title3)
@@ -70,7 +69,6 @@ extension StageActionCommonView {
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
-                            Spacer()
                        }
                         .foregroundColor(stageTextColour())
                         .frame(maxWidth: .infinity)

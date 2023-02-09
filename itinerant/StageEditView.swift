@@ -148,11 +148,8 @@ struct StageEditView: View {
         .onChange(of: timerDirection, perform: {
             stageEditableData.isCountUp = $0 == .countUp
         })
-        .onChange(of: snoozeAlertsOn, perform: {newvalue in
-            // indicate post alerts during duration by negative value
-            updateSnoozeDuration()
-//            if $0 == true { stageEditableData.snoozeDurationSecs = abs(stageEditableData.snoozeDurationSecs) * -1 }
-//            else { stageEditableData.snoozeDurationSecs = abs(stageEditableData.snoozeDurationSecs) }
+        .onChange(of: snoozeAlertsOn, perform: {
+            stageEditableData.isPostingSnoozeAlerts = $0
         })
         .onChange(of: hours, perform: {hrs in
             updateDuration(andDirection: true)
@@ -174,17 +171,14 @@ struct StageEditView: View {
             if untimedComment == true {
                 // leave the defaults
             } else {
-                debugPrint("snooze \(stageEditableData.snoozeDurationSecs)")
                 timerDirection = stageEditableData.isCountUp ? .countUp : .countDown
                 snoozeAlertsOn = stageEditableData.isPostingSnoozeAlerts
                 hours = stageEditableData.durationSecsInt / SEC_HOUR
                 mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
                 secs = stageEditableData.durationSecsInt % SEC_MIN
             }
-            // snoozeDurationSecs may be negative due to flags for snooze alerts
-            let absDuration: Int = abs(stageEditableData.snoozeDurationSecs)
-            snoozehours = absDuration / SEC_HOUR
-            snoozemins = (absDuration % SEC_HOUR) / SEC_MIN
+            snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
+            snoozemins = (stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN
             
         }
         .onDisappear() {
@@ -208,8 +202,6 @@ extension StageEditView {
         if newValue < kSnoozeDurationSecsMin {
             newValue = kSnoozeDurationSecsMin
         }
-        // adjust for negative to post alerts
-        if snoozeAlertsOn { newValue.negate() }
         stageEditableData.snoozeDurationSecs = newValue
     }
     
