@@ -143,8 +143,7 @@ struct StageEditView: View {
             }
         }
         .onChange(of: untimedComment, perform: {
-            if $0 == true { stageEditableData.durationSecsInt = kStageDurationCommentOnly }
-            else { updateDuration(andDirection: true) }
+            stageEditableData.isCommentOnly = $0
         })
         .onChange(of: timerDirection, perform: {
             if $0 == .countUp { stageEditableData.durationSecsInt = kStageDurationCountUpTimer }

@@ -12,7 +12,7 @@ import SwiftUI
 
 struct StageDisplayView: View {
     @Binding var stage: Stage
-    @Binding var stageDuplicate: Stage?
+    @Binding var stageDuplicate: [String:Stage]?
 
     @Environment(\.editMode) private var editMode
 
@@ -20,51 +20,52 @@ struct StageDisplayView: View {
     @State private var stageEditableData = Stage.EditableData()
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .top) {
             VStack(alignment: .leading) {
-                Text(stage.title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                HStack {
+                HStack(alignment: .center) {
                     Image(systemName: stage.durationSymbolName)
                     if stage.isCountUp == false && stage.isCommentOnly == false {
                         Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                             .font(.title3)
                     }
-                    Spacer()
-                    // editMode is the global for when the Edit buton is tapped
-                    if editMode?.wrappedValue.isEditing == false {
-                        HStack {
-                            Button(action: {
-                                stageDuplicate = stage.duplicateWithNewID
-                            }) {
-                                Image(systemName: "doc.on.doc")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundColor( .accentColor)
-                            }
-                            .buttonStyle(BorderlessButtonStyle())
-                            .frame(width: 24, alignment: .trailing)
-                            Button(action: {
-                                stageEditableData = stage.editableData
-                                isPresentingStageEditView = true
-                            }) {
-                                Image(systemName: "square.and.pencil")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundColor( .accentColor)
-                            }
-                            .buttonStyle(BorderlessButtonStyle())
-                            .frame(width: 24, alignment: .trailing)
-                        }
-                    }
+                    Text(stage.title)
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }
-                if !stage.details.isEmpty && stage.isCommentOnly == false {
+                if !stage.details.isEmpty {
                     Text(stage.details)
                         .font(.body)
                 }
+            } /* VStack */
+            Spacer()
+            //editMode is the global for when the Edit buton is tapped
+            if editMode?.wrappedValue.isEditing == false {
+                VStack(alignment: .trailing) {
+                    Button(action: {
+                        stageEditableData = stage.editableData
+                        isPresentingStageEditView = true
+                    }) {
+                        Image(systemName: "square.and.pencil")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor( .accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    .frame(width: 24, alignment: .trailing)
+                    Spacer()
+                    Button(action: {
+                        stageDuplicate = [stage.idStr : stage.duplicateWithNewID]
+                    }) {
+                        Image(systemName: "doc.on.doc")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor( .accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    .frame(width: 24, alignment: .trailing)
+                }
             }
-        }
+        } /* HStack */
         .padding()
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {

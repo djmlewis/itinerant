@@ -147,7 +147,7 @@ struct ItineraryStoreView: View {
             guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
             presentedItineraryID = [newValue!]
         }
-        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile,.itineraryImportFile], onCompletion: { (result) in
+        .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itineraryDataFile, .itineraryTextFile], onCompletion: { (result) in
             // fileImporter in single file selection mode
             switch result {
             case .success(let selectedFileURL):
@@ -155,7 +155,7 @@ struct ItineraryStoreView: View {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
                         itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
-                    case ItineraryFileExtension.importFile.rawValue:
+                    case ItineraryFileExtension.importFile.rawValue, ItineraryFileExtension.textFile.rawValue:
                         itineraryStore.importItinerary(atPath: selectedFileURL.path)
                     default:
                         break

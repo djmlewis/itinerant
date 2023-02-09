@@ -47,16 +47,19 @@ let kUnknownObjectErrorStr = "error: Unkown"
 
 // MARK: - Itinerary
 let kImportHeadingLines: Int = 1
-let kImportLinesPerStage: Int = 3
+let kImportLinesPerStage: Int = 5
 let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
-let kStageDurationCommentOnly: Int = -1
+//let kStageDurationCommentOnly: Int = -1
 let kStageDurationCountUpTimer: Int = 0
 let kStageDurationCountUpWithSnoozeAlerts: Int = -2
 let kStageInitialDurationSecs: Int = 0
 let kSnoozeDurationSecsMin: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
+
+let kFlagComment = "C"
+
 // MARK: - ItinerantApp
 
 // MARK: - ItineraryStoreView

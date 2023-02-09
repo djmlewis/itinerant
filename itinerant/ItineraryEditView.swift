@@ -16,7 +16,7 @@ struct ItineraryEditView: View {
     @State private var isPresentingStageEditView = false
     @State private var newStage: Stage = Stage()
     @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
-    @State private var stageDuplicate: Stage?
+    @State private var stageDuplicate: [String:Stage]?
 
    // @FocusState private var focusedFieldTag: FieldFocusTag?
     
@@ -55,8 +55,10 @@ struct ItineraryEditView: View {
             }
         }
         .onChange(of: stageDuplicate) {
-            if let newStage = $0 {
-                itineraryEditableData.stages.append(newStage)
+            if let stageduplicate = $0 {
+                if let uuidstr = stageduplicate.keys.first, let indx = itinerary.stageIndex(forUUIDstr: uuidstr), let dupStage = stageduplicate.values.first {
+                    itineraryEditableData.stages.insert(dupStage, at: min(indx + 1,itineraryEditableData.stages.endIndex))
+                }
             }
         }
         .onAppear() {

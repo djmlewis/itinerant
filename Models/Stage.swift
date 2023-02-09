@@ -18,23 +18,17 @@ struct Stage: Identifiable, Codable, Hashable {
     var durationSecsInt: Int
     var details: String
     var snoozeDurationSecs: Int
+    var flags: String
     
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs) {
+    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = "") {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
         self.details = details
         self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.flags = flags
     }
     
-    init(editableData: EditableData) {
-        // force new ID
-        self.id = UUID()
-        self.title = editableData.title
-        self.durationSecsInt = editableData.durationSecsInt
-        self.details = editableData.details
-        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
-    }
     
     
 }
@@ -42,36 +36,39 @@ struct Stage: Identifiable, Codable, Hashable {
 // MARK: - WatchData
 extension Stage {
     
+    struct WatchData: Identifiable, Codable, Hashable {
+        let id: UUID
+        var title: String
+        var durationSecsInt: Int
+        var snoozeDurationSecs: Int
+        var flags: String
+
+        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, snoozeDurationSecs: Int, flags: String) {
+            self.id = id
+            self.title = title
+            self.durationSecsInt = durationSecsInt
+            self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
+            self.flags = flags
+        }
+    }
+    
+    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags) }
+
+    static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
+        return watchStages.map { Stage(watchData: $0) }
+    }
+    
+    // Init Stage from WatchData
     init(watchData: Stage.WatchData) {
         // keep the UUID it will be unique
         self.id = watchData.id
         self.title = watchData.title
         self.durationSecsInt = watchData.durationSecsInt
         self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeDurationSecsMin)
-       self.details = ""
-    }
+        self.details = ""
+        self.flags = watchData.flags
 
-    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs) }
-
-    struct WatchData: Identifiable, Codable, Hashable {
-        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, snoozeDurationSecs: Int) {
-            self.id = id
-            self.title = title
-            self.durationSecsInt = durationSecsInt
-            self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
-        }
-        
-        let id: UUID
-        var title: String
-        var durationSecsInt: Int
-        var snoozeDurationSecs: Int
     }
-    
-    static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
-        return watchStages.map { Stage(watchData: $0) }
-    }
-    
-
     
 }
 
@@ -83,8 +80,19 @@ extension Stage {
         var durationSecsInt: Int = kStageInitialDurationSecs
         var details: String = ""
         var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
-        
-        var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
+        var flags: String = ""
+
+        var isCommentOnly: Bool {
+            get {
+                flags.contains(kFlagComment)
+            }
+            set(isComment) {
+                flags = flags.replacingOccurrences(of: kFlagComment, with: "",options: [.literal])
+                if isComment {
+                    flags += kFlagComment
+                }
+            }
+        }
         var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
         var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
         var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
@@ -95,7 +103,8 @@ extension Stage {
     var editableData: Stage.EditableData { EditableData(title: self.title,
                                                         durationSecsInt: self.durationSecsInt,
                                                         details: self.details,
-                                                        snoozeDurationSecs: self.snoozeDurationSecs) }
+                                                        snoozeDurationSecs: self.snoozeDurationSecs,
+                                                        flags: self.flags) }
     
 
     mutating func updateEditableData(from editableData: Stage.EditableData) {
@@ -103,8 +112,20 @@ extension Stage {
         self.durationSecsInt = editableData.durationSecsInt
         self.details = editableData.details
         self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
-
+        self.flags = editableData.flags
     }
+    
+    // Init Stage from EditableData
+    init(editableData: EditableData) {
+        // force new ID
+        self.id = UUID()
+        self.title = editableData.title
+        self.durationSecsInt = editableData.durationSecsInt
+        self.details = editableData.details
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.flags = editableData.flags
+    }
+
 }
 
 // MARK: - Templates, duplicates, Stage StageArray
@@ -112,7 +133,7 @@ extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
     
-    var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, details: details,snoozeDurationSecs: snoozeDurationSecs) }
+    var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, details: details,snoozeDurationSecs: snoozeDurationSecs, flags: flags) }
     
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
@@ -147,11 +168,26 @@ extension Stage {
 
 // MARK: - Characteristics
 extension Stage {
+    
+    
+    
+    var isCommentOnly: Bool {
+        get {
+            flags.contains(kFlagComment)
+        }
+        set(isComment) {
+            flags = flags.replacingOccurrences(of: kFlagComment, with: "",options: [.literal])
+            if isComment {
+                flags += kFlagComment
+            }
+        }
+    }
+
+    
     func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(idStr) }
     
     func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(idStr) }
     
-    var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
     
     var isActionable: Bool { !isCommentOnly }
     
@@ -160,11 +196,10 @@ extension Stage {
     var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
     var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
     var durationSymbolName: String {
+        if isCommentOnly { return "bubble.left" }
         switch durationSecsInt {
         case kStageDurationCountUpTimer, kStageDurationCountUpWithSnoozeAlerts:
             return "stopwatch"
-        case kStageDurationCommentOnly:
-            return "bubble.left"
         default:
             return "timer"
         }

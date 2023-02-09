@@ -277,7 +277,9 @@ extension Itinerary {
         while firstIndex + kImportLinesPerStage <= lines.count {
             let stage = Stage(title: String(lines[firstIndex]),
                               durationSecsInt: Int(lines[firstIndex+2]) ?? 0,
-                              details: String(lines[firstIndex+1])
+                              details: String(lines[firstIndex+1]),
+                              snoozeDurationSecs: Int(lines[firstIndex+3]) ?? 0,
+                              flags: String(lines[firstIndex+4])
             )
             stages.append(stage)
             firstIndex += kImportLinesPerStage
