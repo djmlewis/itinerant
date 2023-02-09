@@ -93,8 +93,19 @@ extension Stage {
                 }
             }
         }
-        var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
-        var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
+        var isCountUp: Bool {
+            get {
+                flags.contains(kFlagCountUp)
+            }
+            set(isUp) {
+                flags = flags.replacingOccurrences(of: kFlagCountUp, with: "",options: [.literal])
+                if isUp {
+                    flags += kFlagCountUp
+                }
+            }
+        }
+
+        var isCountDown: Bool { !isCountUp && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
         var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
         var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
 
@@ -191,14 +202,25 @@ extension Stage {
     
     var isActionable: Bool { !isCommentOnly }
     
-    var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
-    var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts }
+    var isCountDown: Bool { !isCountUp && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
+    var isCountUp: Bool {
+        get {
+            flags.contains(kFlagCountUp)
+        }
+        set(isUp) {
+            flags = flags.replacingOccurrences(of: kFlagCountUp, with: "",options: [.literal])
+            if isUp {
+                flags += kFlagCountUp
+            }
+        }
+    }
     var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
     var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
     var durationSymbolName: String {
         if isCommentOnly { return "bubble.left" }
+        if isCountUp { return "stopwatch" }
         switch durationSecsInt {
-        case kStageDurationCountUpTimer, kStageDurationCountUpWithSnoozeAlerts:
+        case kStageDurationCountUpWithSnoozeAlerts:
             return "stopwatch"
         default:
             return "timer"

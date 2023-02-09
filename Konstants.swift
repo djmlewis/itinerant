@@ -52,13 +52,14 @@ let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
 //let kStageDurationCommentOnly: Int = -1
-let kStageDurationCountUpTimer: Int = 0
+//let kStageDurationCountUpTimer: Int = 0
 let kStageDurationCountUpWithSnoozeAlerts: Int = -2
 let kStageInitialDurationSecs: Int = 0
 let kSnoozeDurationSecsMin: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
 let kFlagComment = "C"
+let kFlagCountUp = "U"
 
 // MARK: - ItinerantApp
 

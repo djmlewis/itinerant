@@ -146,8 +146,7 @@ struct StageEditView: View {
             stageEditableData.isCommentOnly = $0
         })
         .onChange(of: timerDirection, perform: {
-            if $0 == .countUp { stageEditableData.durationSecsInt = kStageDurationCountUpTimer }
-            else { updateDuration(andDirection: false) }
+            stageEditableData.isCountUp = $0 == .countUp
         })
         .onChange(of: snoozeAlertsOn, perform: {newvalue in
             // indicate post alerts during duration by negative value
