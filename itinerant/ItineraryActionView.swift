@@ -53,14 +53,14 @@ extension  ItineraryActionCommonView {
                     .padding(.trailing,0)
                     .padding(.leading,0)
                 }
-                    HStack(alignment: .center) {
-                        Spacer()
-                       Image(systemName: "doc")
-                        Text(itinerary.filename ?? "---")
-                        Image(systemName:"square.and.pencil")
-                        Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
-                        Spacer()
-                   }
+                HStack(alignment: .center) {
+                    Spacer()
+                    Image(systemName: "doc")
+                    Text(itinerary.filename ?? "---")
+                    Image(systemName:"square.and.pencil")
+                    Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
+                    Spacer()
+                }
                 .font(.caption)
             }
             .lineSpacing(1.0)
@@ -102,10 +102,18 @@ extension  ItineraryActionCommonView {
                     Button(action: {
                         // ItineraryDocument always inits with now mod date
                         fileSaveDocument = ItineraryDocument(editableData: itinerary.itineraryEditableData)
+                        fileSaverShown = true
+                    }) {
+                        Label("Save…", systemImage: "square.and.arrow.up")
+                    }
+                    Button(action: {
+                        // Export text file
+                        fileExportDocument = ItineraryTextDocument(string: itinerary.exportString)
                         fileExporterShown = true
                     }) {
                         Label("Export…", systemImage: "square.and.arrow.up")
                     }
+                    
                 } label: {
                     Label("", systemImage: "ellipsis.circle")
                 }
@@ -155,7 +163,8 @@ extension  ItineraryActionCommonView {
                     }
             }
         } /* sheet */
-        .fileExporter(isPresented: $fileExporterShown,
+        // File Saver
+        .fileExporter(isPresented: $fileSaverShown,
                       document: fileSaveDocument,
                       contentType: .itineraryDataFile,
                       defaultFilename: fileSaveDocument?.itineraryPersistentData.title) { result in
@@ -165,7 +174,20 @@ extension  ItineraryActionCommonView {
             case .failure(let error):
                 debugPrint(error.localizedDescription)
             }
-        } /* fileExporter */
+        } /* File Saver */
+        // File exporter
+      .fileExporter(isPresented: $fileExporterShown,
+                    document: fileExportDocument,
+                    contentType: .itineraryTextFile,
+                    defaultFilename: itinerary.title) { result in
+          switch result {
+          case .success:
+              break
+          case .failure(let error):
+              debugPrint(error.localizedDescription)
+          }
+      } /* fileExporter */
+        
     } /* View */
     
 }

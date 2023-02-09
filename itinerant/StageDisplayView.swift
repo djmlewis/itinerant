@@ -77,6 +77,7 @@ struct StageDisplayView: View {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
+                                debugPrint("snooze \(stageEditableData.snoozeDurationSecs)")
                                 stage.updateEditableData(from: stageEditableData)
                                 isPresentingStageEditView = false
                             }

@@ -87,8 +87,8 @@ extension Stage {
         var isCommentOnly: Bool { durationSecsInt == kStageDurationCommentOnly }
         var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
         var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
-        var isCountUpWithSnoozeAlerts: Bool { durationSecsInt == kStageDurationCountUpWithSnoozeAlerts}
-        var postsNotifications: Bool { isCountDown == true || isCountUpWithSnoozeAlerts }
+        var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
+        var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
 
     } /* EditableData */
     
@@ -157,8 +157,8 @@ extension Stage {
     
     var isCountDown: Bool { durationSecsInt != kStageDurationCountUpTimer && durationSecsInt != kStageDurationCountUpWithSnoozeAlerts }
     var isCountUp: Bool { durationSecsInt == kStageDurationCountUpTimer || durationSecsInt == kStageDurationCountUpWithSnoozeAlerts }
-    var isCountUpWithSnoozeAlerts: Bool { durationSecsInt == kStageDurationCountUpWithSnoozeAlerts }
-    var postsNotifications: Bool { isCountDown == true || isCountUpWithSnoozeAlerts }
+    var isPostingSnoozeAlerts: Bool { snoozeDurationSecs < 0 }
+    var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
     var durationSymbolName: String {
         switch durationSecsInt {
         case kStageDurationCountUpTimer, kStageDurationCountUpWithSnoozeAlerts:

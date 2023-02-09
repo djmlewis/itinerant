@@ -17,7 +17,7 @@ struct StageEditView: View {
     @Binding var stageEditableData: Stage.EditableData
     
     @State private var untimedComment: Bool =  false
-    @State private var snoozeAlertDuringCountUp: Bool =  false
+    @State private var snoozeAlertsOn: Bool =  false
     
     @State private var hours: Int = 0
     @State private var mins: Int = 0
@@ -102,7 +102,7 @@ struct StageEditView: View {
                             }
                         }
                     }
-                    Toggle(isOn: $snoozeAlertDuringCountUp) {
+                    Toggle(isOn: $snoozeAlertsOn) {
                         Label("Alert at Snooze intervals", systemImage:"bell")
                     }
                 }
@@ -150,9 +150,11 @@ struct StageEditView: View {
             if $0 == .countUp { stageEditableData.durationSecsInt = kStageDurationCountUpTimer }
             else { updateDuration(andDirection: false) }
         })
-        .onChange(of: snoozeAlertDuringCountUp, perform: {
-            if $0 == true { stageEditableData.durationSecsInt = kStageDurationCountUpWithSnoozeAlerts }
-            else { stageEditableData.durationSecsInt = kStageDurationCountUpTimer }
+        .onChange(of: snoozeAlertsOn, perform: {newvalue in
+            // indicate post alerts during duration by negative value
+            updateSnoozeDuration()
+//            if $0 == true { stageEditableData.snoozeDurationSecs = abs(stageEditableData.snoozeDurationSecs) * -1 }
+//            else { stageEditableData.snoozeDurationSecs = abs(stageEditableData.snoozeDurationSecs) }
         })
         .onChange(of: hours, perform: {hrs in
             updateDuration(andDirection: true)
@@ -174,15 +176,17 @@ struct StageEditView: View {
             if untimedComment == true {
                 // leave the defaults
             } else {
+                debugPrint("snooze \(stageEditableData.snoozeDurationSecs)")
                 timerDirection = stageEditableData.isCountUp ? .countUp : .countDown
-                snoozeAlertDuringCountUp = stageEditableData.isCountUpWithSnoozeAlerts
+                snoozeAlertsOn = stageEditableData.isPostingSnoozeAlerts
                 hours = stageEditableData.durationSecsInt / SEC_HOUR
                 mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
                 secs = stageEditableData.durationSecsInt % SEC_MIN
             }
-            snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
-            snoozemins = ((stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN)
-            //            snoozesecs = stageEditableData.snoozeDurationSecs % SEC_MIN
+            // snoozeDurationSecs may be negative due to flags for snooze alerts
+            let absDuration: Int = abs(stageEditableData.snoozeDurationSecs)
+            snoozehours = absDuration / SEC_HOUR
+            snoozemins = (absDuration % SEC_HOUR) / SEC_MIN
             
         }
         .onDisappear() {
@@ -202,11 +206,12 @@ extension StageEditView {
     }
     
     func updateSnoozeDuration() {
-        var newValue = Int(snoozehours) * SEC_HOUR + Int(snoozemins) * SEC_MIN /*+ Int(snoozesecs)*/
+        var newValue = Int(snoozehours) * SEC_HOUR + Int(snoozemins) * SEC_MIN
         if newValue < kSnoozeDurationSecsMin {
             newValue = kSnoozeDurationSecsMin
-//            snoozesecs = 1
         }
+        // adjust for negative to post alerts
+        if snoozeAlertsOn { newValue.negate() }
         stageEditableData.snoozeDurationSecs = newValue
     }
     

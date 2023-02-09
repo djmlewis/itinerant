@@ -13,18 +13,21 @@ enum ItineraryFileType: String {
     case dataFile = "uk.djml.itinerant.itinerary"
     case importFile = "uk.djml.itinerant.import"
     case settingsFile = "uk.djml.itinerant.settings"
+    case textFile = "uk.djml.itinerant.text"
 }
 
 extension UTType {
     static let itineraryDataFile = UTType(exportedAs: ItineraryFileType.dataFile.rawValue)
     static let itineraryImportFile = UTType(exportedAs: ItineraryFileType.importFile.rawValue)
     static let itinerarySettingsFile = UTType(exportedAs: ItineraryFileType.settingsFile.rawValue)
+    static let itineraryTextFile = UTType(exportedAs: ItineraryFileType.textFile.rawValue)
 }
 
 enum ItineraryFileExtension: String {
     case dataFile = "itinerary"
     case importFile = "import"
     case settingsFile = "settings"
+    case textFile = "txt"
 }
 
 // MARK: - ItineraryStore
@@ -45,6 +48,7 @@ let kUnknownObjectErrorStr = "error: Unkown"
 // MARK: - Itinerary
 let kImportHeadingLines: Int = 1
 let kImportLinesPerStage: Int = 3
+let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
 let kStageDurationCommentOnly: Int = -1

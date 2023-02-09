@@ -38,9 +38,11 @@ struct ItineraryActionCommonView: View {
     @State var itineraryData = Itinerary.EditableData()
     @State var isPresentingItineraryEditView: Bool = false
     @State var toggleDisclosureDetails: Bool = true
-    @State var fileExporterShown: Bool = false
+    @State var fileSaverShown: Bool = false
     @State var fileSaveDocument: ItineraryDocument?
-    
+    @State var fileExporterShown: Bool = false
+    @State var fileExportDocument: ItineraryTextDocument?
+
 
     @EnvironmentObject var itineraryStore: ItineraryStore
 #endif

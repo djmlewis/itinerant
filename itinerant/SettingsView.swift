@@ -34,7 +34,7 @@ struct SettingsView: View {
 
     @EnvironmentObject var appDelegate: AppDelegate
 
-    @State var fileExporterShown: Bool = false
+    @State var fileSaverShown: Bool = false
     @State var settingsSaveDocument: SettingsDocument?
     @State var fileImporterShown: Bool = false
 
@@ -111,7 +111,7 @@ struct SettingsView: View {
                     }
                     Button(action: {
                         settingsSaveDocument = SettingsDocument(dict: self.settingsDictWithTypeKey(nil))
-                        fileExporterShown = true
+                        fileSaverShown = true
                     }) {
                         Label("Export…", systemImage: "square.and.arrow.up")
                     }
@@ -136,7 +136,7 @@ struct SettingsView: View {
         .onAppear {
             setupPrefsFromAppStore()
         }
-        .fileExporter(isPresented: $fileExporterShown,
+        .fileExporter(isPresented: $fileSaverShown,
                       document: settingsSaveDocument,
                       contentType: .itinerarySettingsFile,
                       defaultFilename: "Settings") { result in

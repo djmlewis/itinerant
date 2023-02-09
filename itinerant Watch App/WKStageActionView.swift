@@ -25,7 +25,7 @@ extension StageActionCommonView {
                                 .minimumScaleFactor(0.5)
                                 .padding(.trailing, 2.0)
                         }
-                        if stage.isCountUpWithSnoozeAlerts {
+                        if stage.isPostingSnoozeAlerts {
                             // Snooze Alarms time duration
                             HStack {
                                 Spacer()

@@ -59,7 +59,7 @@ extension StageActionCommonView {
                             .allowsTightening(true)
                             .minimumScaleFactor(0.5)
                     }
-                    if stage.isCountUpWithSnoozeAlerts {
+                    if stage.isPostingSnoozeAlerts {
                         // Snooze Alarms time duration
                         HStack {
                             Spacer()

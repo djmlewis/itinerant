@@ -267,7 +267,7 @@ extension Itinerary {
 extension Itinerary {
     
     static func importItinerary(fromString string: String) -> Itinerary? {
-        var lines = string.split { $0 == "\n"}
+        var lines = string.split(separator: kSeparatorImportFile)
         guard (lines.count - kImportHeadingLines) % kImportLinesPerStage == 0 else {
             return nil
         }
@@ -275,12 +275,29 @@ extension Itinerary {
         var stages: [Stage] = []
         var firstIndex: Int = 0
         while firstIndex + kImportLinesPerStage <= lines.count {
-            let stage = Stage(title: String(lines[firstIndex]), durationSecsInt: Int(lines[firstIndex+1]) ?? 0, details: String(lines[firstIndex+2]))
+            let stage = Stage(title: String(lines[firstIndex]),
+                              durationSecsInt: Int(lines[firstIndex+2]) ?? 0,
+                              details: String(lines[firstIndex+1])
+            )
             stages.append(stage)
             firstIndex += kImportLinesPerStage
         }
         return Itinerary(title: title, stages: stages, modificationDate: nowReferenceDateTimeInterval())
     }
+    
+    var exportString: String {
+        var lines: [String] = [title]
+        stages.forEach { stage in
+            lines.append(stage.title)
+            lines.append(stage.details)
+            lines.append(String(format: "%i", stage.durationSecsInt))
+            lines.append(String(format: "%i", stage.snoozeDurationSecs))
+            lines.append(" ")
+        }
+        
+        return  lines.joined(separator: kSeparatorImportFile)
+    }
+    
     
 }
 
