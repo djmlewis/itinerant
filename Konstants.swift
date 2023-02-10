@@ -8,7 +8,7 @@
 import Foundation
 import UniformTypeIdentifiers
 
-// Define this document's type.
+// MARK: - ItineraryFile document
 enum ItineraryFileType: String {
     case dataFile = "uk.djml.itinerant.itinerary"
     case settingsFile = "uk.djml.itinerant.settings"
@@ -57,7 +57,28 @@ let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
 let kFlagComment = "C"
 let kFlagCountUp = "U"
+let kFlagCountDown = "D" // not actually used in flags but in StageNotificationInterval
 let kFlagSnoozeAlerts = "Z"
+
+enum StageNotificationInterval: CaseIterable {
+    case countDownEnd
+    case snoozeIntervals
+    
+    var string: String {
+        switch self {
+        case .countDownEnd:
+            return  kFlagCountDown
+        case .snoozeIntervals:
+            return  kFlagSnoozeAlerts
+        }
+    }
+    
+    static func allSuffixedStrings(forString str: String) -> [String] {
+        var stringArray = [String]()
+        StageNotificationInterval.allCases.forEach { stringArray.append(str + $0.string) }
+        return stringArray
+    }
+}
 
 // MARK: - ItinerantApp
 

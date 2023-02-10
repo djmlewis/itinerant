@@ -239,12 +239,13 @@ extension Stage {
     var durationSymbolName: String {
         if isCommentOnly { return "bubble.left" }
         if isCountUp { return "stopwatch" }
-        switch durationSecsInt {
-        default:
-            return "timer"
-        }
+        return "timer"
     }
     
     var idStr: String { id.uuidString }
+    
+    var idNotificationIntervalStrings: [String] {
+        return StageNotificationInterval.allSuffixedStrings(forString: idStr)
+    }
 }
 

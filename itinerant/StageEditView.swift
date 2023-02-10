@@ -100,13 +100,13 @@ struct StageEditView: View {
                                 }
                                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                             }
-                        }
-                    }
+                        } /* VStack */
+                    } /* if timerDirection == .countDown {VStack}*/
                     Toggle(isOn: $snoozeAlertsOn) {
-                        Label("Alert at Snooze intervals", systemImage:"bell")
+                        Label("Alert at Snooze Intervals", systemImage:"bell")
                     }
-                }
-            } /* Section */
+                } /* Section */
+            } /* untimedComment != true {Section} */
             if untimedComment != true {
                 Section(header: Text("Time Interval Between Snooze Alerts")) {
                     VStack(spacing: 2) {
@@ -138,7 +138,7 @@ struct StageEditView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         }
-                    }
+                    } /* VStack */
                 } /* Section */
             }
         }

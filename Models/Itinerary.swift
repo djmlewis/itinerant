@@ -117,10 +117,15 @@ extension Itinerary {
     var lastStageUUIDstr: String? { stages.last?.idStr }
     
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
+    var stagesIdNotificationIntervalStrings: [String] {
+        var array = [String]()
+            stages.forEach { array += $0.idNotificationIntervalStrings }
+        return array
+    }
 
     var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
         // remove any negative flag values with max(...,0)
-        partialResult + max(stage.durationSecsInt, 0)
+        partialResult + stage.durationSecsInt
     }) }
 
 }
@@ -130,13 +135,14 @@ extension Itinerary {
 extension Itinerary {
     
     func removeAllStageIDsAndNotifcationsFrom(str1: String, str2: String, dict1: [String:String], dict2:[String:String]) -> (String, String, [String:String], [String:String]) {
-        let uuidstrs = stagesIDstrs
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidstrs)
+        let uuidNotifstrsArray = stagesIdNotificationIntervalStrings
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidNotifstrsArray)
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: uuidNotifstrsArray)
         var currentStr1 = str1
         var currentStr2 = str2
         var currentDict1 = dict1
         var currentDict2 = dict2
-        uuidstrs.forEach { uuidstr in
+        stagesIDstrs.forEach { uuidstr in
             currentStr1 = currentStr1.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
             currentStr2 = currentStr2.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
             currentDict1[uuidstr] = nil

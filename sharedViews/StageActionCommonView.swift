@@ -72,7 +72,7 @@ extension StageActionCommonView {
         if let date = optDate {
             // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
             timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
-            // if its a count-up timer we ignore timeDifferenceAtUpdate as stage.durationSecsInt may be weird
+            // if its a count-up timer we ignore timeDifferenceAtUpdate 
             timeDifferenceAtUpdate = stage.isCountUp ? 0.0 : (floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate))
         } else {
             timeDifferenceAtUpdate = 0.0
@@ -165,8 +165,13 @@ extension StageActionCommonView {
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.idStr)
-        // if duration == 0 it is not counted down, no notification
-        if stage.postsNotifications { postNotification(stage: stage, itinerary: itinerary) }
+        // request countdown & snooze notification if needed
+        if stage.isCountDown { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownEnd) }
+        if stage.isPostingSnoozeAlerts { // give countdown a head start
+            DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+                postNotification(stage: stage, itinerary: itinerary, intervalType: .snoozeIntervals)
+            }
+        }
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()
@@ -175,7 +180,7 @@ extension StageActionCommonView {
     func handleHaltRunning(andSkip: Bool) {
         setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
         uiUpdateTimerCancellor?.cancel()
-        removeNotification(stageUuidstr:stage.idStr)
+        removeAllPendingAndDeliveredStageNotifications(forUUIDstr:stage.idStr)
         // remove ourselves from active and running
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.idStr, with: "")
         uuidStrStagesActiveStr = uuidStrStagesActiveStr.replacingOccurrences(of: stage.idStr, with: "")
