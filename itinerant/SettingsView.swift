@@ -35,7 +35,7 @@ struct SettingsView: View {
     @EnvironmentObject var appDelegate: AppDelegate
 
     @State var fileSaverShown: Bool = false
-    @State var settingsSaveDocument: SettingsDocument?
+    @State var settingsSaveDocument: ItineraryFile?
     @State var fileImporterShown: Bool = false
 
     
@@ -110,7 +110,7 @@ struct SettingsView: View {
                         Label("Send To Watch…", systemImage: "applewatch")
                     }
                     Button(action: {
-                        settingsSaveDocument = SettingsDocument(dict: self.settingsDictWithTypeKey(nil))
+                        settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))
                         fileSaverShown = true
                     }) {
                         Label("Export…", systemImage: "square.and.arrow.up")
@@ -142,7 +142,8 @@ struct SettingsView: View {
                       defaultFilename: "Settings") { result in
             switch result {
             case .success:
-                debugPrint("saved file")
+                break
+                //debugPrint("saved settings")
             case .failure(let error):
                 debugPrint(error.localizedDescription)
             }

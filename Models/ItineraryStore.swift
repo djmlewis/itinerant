@@ -54,14 +54,15 @@ class ItineraryStore: ObservableObject {
         }
     }
     
-    func loadItinerary(atPath filePath:String, importing: Bool) {
+    func loadItinerary(atPath filePath:String, importing: Bool) -> String? {
+        var pathdelete: String? = filePath // we nil it if all success
         if let fileData = FileManager.default.contents(atPath: filePath) {
             if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
                 // if we are importing we must make a unique file name from the title so we dont overwrite an existing one in the folder,
                 // otherwise we will use the existing filename as we must overwrite anyway ones we are loading from the folder on re-load
                 let filename = importing ?
-                    Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
-                    filePath.fileNameWithoutExtensionFromPath!
+                Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
+                filePath.fileNameWithoutExtensionFromPath!
                 let newItinerary = Itinerary(persistentData: persistentData, filename: filename)
                 let newUUIDstr = newItinerary.idStr
                 //let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
@@ -81,47 +82,58 @@ class ItineraryStore: ObservableObject {
                 } else {
                     itineraries.append(newItinerary)
                     if importing { sortItineraries() }
-               }
+                }
+                // set pathDelete nil so we dont delete it!
+                pathdelete = nil
             } else {
                 debugPrint("Decode failure for: \(filePath)")
             }
         } else {
             debugPrint("No fileData for: \(filePath)")
         }
-
+        return pathdelete
     }
     
     
-    func completeLoadItineraries() {
+    func completeLoadItineraries() -> [String] {
+        var filesToDeleteArray = [String]()
         if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}).sorted() {
             if files.count > 0 {
                 // prevent duplication
                 itineraries = []
                 for fileName in files {
                     let filePath = ItineraryStore.appFilePathForFileNameWithExtension(fileName)
-                    loadItinerary(atPath: filePath, importing: false)
+                    // ignore pathdelete return as we only get sent valid itineraries..
+                    let filePathToDelete = loadItinerary(atPath: filePath, importing: false)
+                    if filePathToDelete != nil {
+                        filesToDeleteArray.append(filePathToDelete!)
+                    }
                 }
                 sortItineraries()
             } else {debugPrint("files count == 0")}
         } else { debugPrint("Directory read failed)")}
+        return filesToDeleteArray
     }
     
-    func tryToLoadItineraries() {
+    func tryToLoadItineraries() -> [String] {
         var isDir: ObjCBool = true
+        var filesToDeleteArray = [String]()
         if !FileManager.default.fileExists(atPath: ItineraryStore.appDataFilesFolderPath(), isDirectory: &isDir) {
             do {
                 try FileManager.default.createDirectory(at: ItineraryStore.appDataFilesFolderURL(), withIntermediateDirectories: true)
-                completeLoadItineraries()
+                filesToDeleteArray = completeLoadItineraries()
             } catch let error {
                 debugPrint("unable to create data files directory", error.localizedDescription)
             }
-        } else { completeLoadItineraries() }
+        } else { filesToDeleteArray = completeLoadItineraries() }
+        return filesToDeleteArray
     }
     
     
     func reloadItineraries() {
         // this force erases all the itineraries so they better be saved to file
-        tryToLoadItineraries()
+        // ignore any invalid files as we should not get any
+        _ = tryToLoadItineraries()
     }
     
     func sortItineraries() {

@@ -116,7 +116,7 @@ extension  ItineraryActionCommonView {
                         // ItineraryDocument always inits with now mod date
                         fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)
                         fileSaveType = .itineraryDataFile
-                        fileSaveName = fileSaveDocument?.itineraryPersistentData.title
+                        fileSaveName = itinerary.title
                         fileSaverShown = true
                    }) {
                         Label("Save…", systemImage: "doc")

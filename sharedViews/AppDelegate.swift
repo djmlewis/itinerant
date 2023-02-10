@@ -17,7 +17,9 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var unnStageToHaltID: String?
     @Published var permissionToNotify: Bool = false
     @Published var itineraryStore = ItineraryStore()
-    
+    @Published var fileDeleteDialogShow = false
+    @Published var fileDeletePathArray: [String]?
+
     @Published var newItinerary: Itinerary? /* watchOS only */
   
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
@@ -58,7 +60,11 @@ extension AppDelegate {
         requestNotificationPermission()
         initiateWatchConnectivity()
         DispatchQueue.main.async {
-            self.itineraryStore.tryToLoadItineraries()
+            let filesToDeleteArray = self.itineraryStore.tryToLoadItineraries()
+            if !filesToDeleteArray.isEmpty {
+                self.fileDeletePathArray = filesToDeleteArray
+                self.fileDeleteDialogShow = true
+            }
         }
     }
 

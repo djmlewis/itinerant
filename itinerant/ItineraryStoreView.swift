@@ -30,7 +30,6 @@ struct ItineraryStoreView: View {
     @State private var presentedItineraryID: [String] = []
     @State private var showSettingsView: Bool = false
     
-    
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
@@ -161,7 +160,11 @@ struct ItineraryStoreView: View {
                 if selectedFileURL.startAccessingSecurityScopedResource() {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
-                        itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
+                        let pathDelete = itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
+                        if pathDelete != nil {
+                            appDelegate.fileDeletePathArray = [pathDelete!]
+                            appDelegate.fileDeleteDialogShow = true
+                        }
                     case ItineraryFileExtension.textFile.rawValue:
                         itineraryStore.importItinerary(atPath: selectedFileURL.path)
                     default:
@@ -173,6 +176,27 @@ struct ItineraryStoreView: View {
                 debugPrint(error)
             }
         }) /* fileImporter */
+        .confirmationDialog("Invalid File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "")",
+                            isPresented: $appDelegate.fileDeleteDialogShow,
+                            titleVisibility: .visible) {
+            Button("Delete File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "")", role: .destructive) {
+                appDelegate.fileDeletePathArray?.forEach({ fileDeletePath in
+                    do {
+                        try FileManager.default.removeItem(atPath: fileDeletePath)
+                        debugPrint("Removed: \(fileDeletePath)")
+                    } catch let error {
+                        debugPrint("Remove failure for: \(fileDeletePath)", error.localizedDescription)
+                    }
+                })
+            }
+        } message: {
+            if let filesString = appDelegate.fileDeletePathArray?.compactMap({ path in (path as NSString).lastPathComponent }).joined(separator: ", ") {
+                Text("Deleting \(filesString) cannot be undone.")
+            } else {
+                Text("Deleting *Unknown files* cannot be undone.")
+            }
+        }
+
     } /* body */
 } /* View */
 
@@ -184,3 +208,6 @@ struct ItineraryStoreView_Previews: PreviewProvider {
         Text("yo")
     }
 }
+
+
+

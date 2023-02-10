@@ -10,10 +10,11 @@ import UniformTypeIdentifiers
 
 
 struct ItineraryFile: FileDocument {
-    static var readableContentTypes = [UTType.itineraryDataFile, UTType.itineraryTextFile]
+    static var readableContentTypes = [UTType.itineraryDataFile, UTType.itineraryTextFile, UTType.itinerarySettingsFile]
 
-    var exportText = ""
-    var itineraryPersistentData: Itinerary.PersistentData = Itinerary.PersistentData(title: "", stages: [], id: UUID(), modificationDate: nowReferenceDateTimeInterval())
+    var exportText: String?// = ""
+    var itineraryPersistentData: Itinerary.PersistentData? // = Itinerary.PersistentData(title: "", stages: [], id: UUID(), modificationDate: nowReferenceDateTimeInterval())
+    var settingsDict: [ String : String ]?
     
     // a simple initializer that creates new, empty documents
     init(exportText: String) {
@@ -28,6 +29,11 @@ struct ItineraryFile: FileDocument {
                                                                 modificationDate: nowReferenceDateTimeInterval() )
     }
 
+    init(settingsDict: [String:String]) {
+        // force a new UUID for saving in itinerary AND stages!
+        self.settingsDict = settingsDict
+    }
+
     // this initializer loads data that has been saved previously
     init(configuration: ReadConfiguration) throws {
         if let data = configuration.file.regularFileContents {
@@ -36,6 +42,8 @@ struct ItineraryFile: FileDocument {
                 exportText = String(decoding: data, as: UTF8.self)
             case .itineraryDataFile:
                 self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
+            case .itinerarySettingsFile:
+                self.settingsDict = try JSONDecoder().decode([String:String].self, from: data)
             default:
                 break
             }
@@ -49,10 +57,12 @@ struct ItineraryFile: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let data: Data
             switch configuration.contentType {
-            case .itineraryTextFile:
-                data = Data(exportText.utf8)
-            case .itineraryDataFile:
+            case .itineraryTextFile where exportText != nil:
+                data = Data(exportText!.utf8)
+            case .itineraryDataFile where itineraryPersistentData != nil:
                 data = try JSONEncoder().encode(itineraryPersistentData)
+            case .itinerarySettingsFile where settingsDict != nil:
+                data = try JSONEncoder().encode(settingsDict)
             default:
                 data = Data()
                 break
@@ -63,34 +73,32 @@ struct ItineraryFile: FileDocument {
 
 
 
-//final class ItineraryDocument: ReferenceFileDocument {
+
+//final class SettingsDocument: ReferenceFileDocument {
 //
-//    typealias Snapshot = Itinerary.PersistentData
-//
-//    @Published var itineraryPersistentData: Itinerary.PersistentData
-//
+//    typealias Snapshot = [ String : String ]
+//    
+//    @Published var dictData: [ String : String ]
+//    
 //    // Define the document type this app is able to load.
 //    /// - Tag: ContentType
-//    static var readableContentTypes: [UTType] { [.itineraryDataFile] }
-//
+//    static var readableContentTypes: [UTType] { [.itinerarySettingsFile] }
+//    
 //    /// - Tag: Snapshot
-//    func snapshot(contentType: UTType) throws -> Itinerary.PersistentData {
-//        itineraryPersistentData // Make a copy.
+//    func snapshot(contentType: UTType) throws -> [String:String] {
+//        dictData // Make a copy.
 //    }
-//
+//    
 //    init() {
-//        itineraryPersistentData = Itinerary.PersistentData(title: "", stages: [], id: UUID(), modificationDate: nowReferenceDateTimeInterval())
+//        dictData = [String:String]()
 //    }
 //
-//    init(editableData: Itinerary.EditableData) {
+//    init(dict: [String:String]) {
 //        // force a new UUID for saving in itinerary AND stages!
-//        self.itineraryPersistentData = Itinerary.PersistentData(title: editableData.title,
-//                                                                stages: Stage.stageArrayWithNewIDs(from: editableData.stages),
-//                                                                id: UUID(),
-//                                                                modificationDate: nowReferenceDateTimeInterval() )
+//        self.dictData = dict
 //    }
-//
-//
+//    
+//    
 //    // Load a file's contents into the document.
 //    /// - Tag: DocumentInit
 //    init(configuration: ReadConfiguration) throws {
@@ -98,102 +106,15 @@ struct ItineraryFile: FileDocument {
 //        else {
 //            throw CocoaError(.fileReadCorruptFile)
 //        }
-//        self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
+//        self.dictData = try JSONDecoder().decode([String:String].self, from: data)
 //    }
-//
+//    
 //    /// Saves the document's data to a file.
 //    /// - Tag: FileWrapper
-//    func fileWrapper(snapshot: Itinerary.PersistentData, configuration: WriteConfiguration) throws -> FileWrapper {
+//    func fileWrapper(snapshot: [String:String], configuration: WriteConfiguration) throws -> FileWrapper {
 //        let data = try JSONEncoder().encode(snapshot)
 //        let fileWrapper = FileWrapper(regularFileWithContents: data)
 //        return fileWrapper
 //    }
 //}
 
-final class SettingsDocument: ReferenceFileDocument {
-
-    typealias Snapshot = [ String : String ]
-    
-    @Published var dictData: [ String : String ]
-    
-    // Define the document type this app is able to load.
-    /// - Tag: ContentType
-    static var readableContentTypes: [UTType] { [.itinerarySettingsFile] }
-    
-    /// - Tag: Snapshot
-    func snapshot(contentType: UTType) throws -> [String:String] {
-        dictData // Make a copy.
-    }
-    
-    init() {
-        dictData = [String:String]()
-    }
-
-    init(dict: [String:String]) {
-        // force a new UUID for saving in itinerary AND stages!
-        self.dictData = dict
-    }
-    
-    
-    // Load a file's contents into the document.
-    /// - Tag: DocumentInit
-    init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents
-        else {
-            throw CocoaError(.fileReadCorruptFile)
-        }
-        self.dictData = try JSONDecoder().decode([String:String].self, from: data)
-    }
-    
-    /// Saves the document's data to a file.
-    /// - Tag: FileWrapper
-    func fileWrapper(snapshot: [String:String], configuration: WriteConfiguration) throws -> FileWrapper {
-        let data = try JSONEncoder().encode(snapshot)
-        let fileWrapper = FileWrapper(regularFileWithContents: data)
-        return fileWrapper
-    }
-}
-
-//final class ItineraryTextDocument: ReferenceFileDocument {
-//
-//    typealias Snapshot = String
-//
-//    @Published var text: String
-//
-//    // Define the document type this app is able to load.
-//    /// - Tag: ContentType
-//    static var readableContentTypes: [UTType] { [.itineraryTextFile] }
-//
-//    /// - Tag: Snapshot
-//    func snapshot(contentType: UTType) throws -> String {
-//        text // Make a copy.
-//    }
-//
-//    init() {
-//        text = String()
-//    }
-//
-//    init(string: String) {
-//        // force a new UUID for saving in itinerary AND stages!
-//        self.text = string
-//    }
-//
-//
-//    // Load a file's contents into the document.
-//    /// - Tag: DocumentInit
-//    init(configuration: ReadConfiguration) throws {
-//        guard let data = configuration.file.regularFileContents
-//        else {
-//            throw CocoaError(.fileReadCorruptFile)
-//        }
-//        self.text = String(decoding: data, as: UTF8.self)
-//    }
-//
-//    /// Saves the document's data to a file.
-//    /// - Tag: FileWrapper
-//    func fileWrapper(snapshot: String, configuration: WriteConfiguration) throws -> FileWrapper {
-//        let data =  Data(snapshot.utf8)
-//        let fileWrapper = FileWrapper(regularFileWithContents: data)
-//        return fileWrapper
-//    }
-//}
