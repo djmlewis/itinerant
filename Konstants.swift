@@ -19,12 +19,17 @@ extension UTType {
     static let itineraryDataFile = UTType(exportedAs: ItineraryFileType.dataFile.rawValue)
     static let itinerarySettingsFile = UTType(exportedAs: ItineraryFileType.settingsFile.rawValue)
     static let itineraryTextFile = UTType(exportedAs: ItineraryFileType.textFile.rawValue)
+    
 }
 
-enum ItineraryFileExtension: String {
+enum ItineraryFileExtension: String, CaseIterable {
     case dataFile = "itinerary"
     case settingsFile = "settings"
     case textFile = "export"
+    
+    static func validExtension(_ extensionStr: String) -> Bool {
+        return ItineraryFileExtension.allCases.firstIndex { $0.rawValue == extensionStr } != nil
+    }
 }
 
 // MARK: - ItineraryStore

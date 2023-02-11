@@ -45,8 +45,15 @@ extension AppDelegate: WKApplicationDelegate {
 extension AppDelegate: UIApplicationDelegate {
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         handleFinishLaunching()
+        // must return true if we handle opening files from Finder
         return true
     }
+    
+    func application( _ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil ) -> Bool {
+        // must return true if we handle opening files from Finder
+        return true
+    }
+    
 }
 #endif
 // MARK: - UserNotifications

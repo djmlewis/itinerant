@@ -29,7 +29,10 @@ struct ItineraryStoreView: View {
     
     @State private var presentedItineraryID: [String] = []
     @State private var showSettingsView: Bool = false
+    @State private var openRequestURL: URL?
+    @State private var isPresentingConfirmOpenURL: Bool = false
     
+
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
@@ -122,7 +125,7 @@ struct ItineraryStoreView: View {
             }
             .sheet(isPresented: $showSettingsView, content: {
                 NavigationStack {
-                    SettingsView(showSettingsView: $showSettingsView)
+                    SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL)
                 }
             })
             .sheet(isPresented: $isPresentingItineraryEditView) {
@@ -160,7 +163,7 @@ struct ItineraryStoreView: View {
                 if selectedFileURL.startAccessingSecurityScopedResource() {
                     switch selectedFileURL.pathExtension {
                     case ItineraryFileExtension.dataFile.rawValue:
-                        let pathDelete = itineraryStore.loadItinerary(atPath: selectedFileURL.path, importing: true)
+                        let pathDelete = itineraryStore.loadItinerary(atPath: selectedFileURL.path, externalLocation: true)
                         if pathDelete != nil {
                             appDelegate.fileDeletePathArray = [pathDelete!]
                             appDelegate.fileDeleteDialogShow = true
@@ -195,6 +198,43 @@ struct ItineraryStoreView: View {
             } else {
                 Text("Deleting *Unknown files* cannot be undone.")
             }
+        }
+        .onOpenURL {
+            guard ItineraryFileExtension.validExtension($0.pathExtension) else {
+                openRequestURL = nil
+                return
+            }
+            openRequestURL = $0
+            isPresentingConfirmOpenURL = true
+        }
+        .confirmationDialog("File Open Request", isPresented: $isPresentingConfirmOpenURL, titleVisibility: .visible) {
+            Button("Open") {
+                if let validurl = openRequestURL {
+                    switch validurl.pathExtension {
+                    case ItineraryFileExtension.dataFile.rawValue:
+                        _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
+                        openRequestURL = nil
+                   case ItineraryFileExtension.textFile.rawValue:
+                        appDelegate.itineraryStore.importItinerary(atPath: validurl.path(percentEncoded: false))
+                        openRequestURL = nil
+                    case ItineraryFileExtension.settingsFile.rawValue:
+                        openRequestURL = validurl
+                        // setting view will nil it
+                       showSettingsView = true
+                    default:
+                        openRequestURL = nil
+                       break
+                    }
+                    // do not nil openRequestURL here as its needed when settings opens
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                openRequestURL = nil
+            }
+        } message: {
+            let filename = openRequestURL?.lastPathComponent ?? "this file"
+            Text("Do you want to open \(filename) ?")
+                .font(.body)
         }
 
     } /* body */

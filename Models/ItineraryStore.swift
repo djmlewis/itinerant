@@ -54,19 +54,19 @@ class ItineraryStore: ObservableObject {
         }
     }
     
-    func loadItinerary(atPath filePath:String, importing: Bool) -> String? {
+    func loadItinerary(atPath filePath:String, externalLocation: Bool) -> String? {
         var pathdelete: String? = filePath // we nil it if all success
         if let fileData = FileManager.default.contents(atPath: filePath) {
             if let persistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: fileData) {
                 // if we are importing we must make a unique file name from the title so we dont overwrite an existing one in the folder,
                 // otherwise we will use the existing filename as we must overwrite anyway ones we are loading from the folder on re-load
-                let filename = importing ?
-                Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
-                filePath.fileNameWithoutExtensionFromPath!
+                let filename = externalLocation ?
+                    Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: persistentData.title) :
+                    filePath.fileNameWithoutExtensionFromPath!
                 let newItinerary = Itinerary(persistentData: persistentData, filename: filename)
                 let newUUIDstr = newItinerary.idStr
                 //let outsideDatFilesFolder = !filePath.contains(ItineraryStore.appDataFilesFolderPath())
-                if itineraries.first(where: { $0.idStr == newUUIDstr}) != nil || importing {
+                if itineraries.first(where: { $0.idStr == newUUIDstr}) != nil || externalLocation {
                     // we are loading an itinerary with the same UUID as already in our array,
                     // or importing one from outside the itineraries folder
                     // so duplicate with new UUID and save as a new file with the new UUID as the filename in the itineraries folder
@@ -77,11 +77,11 @@ class ItineraryStore: ObservableObject {
                     // we already updated modificationDate in the duplication
                     _ = cleanItinerary.savePersistentData()
                     itineraries.append(cleanItinerary)
-                    if importing { sortItineraries() }
+                    if externalLocation { sortItineraries() }
                     //debugPrint("added with new UUID for: \(filePath)")
                 } else {
                     itineraries.append(newItinerary)
-                    if importing { sortItineraries() }
+                    if externalLocation { sortItineraries() }
                 }
                 // set pathDelete nil so we dont delete it!
                 pathdelete = nil
@@ -104,7 +104,7 @@ class ItineraryStore: ObservableObject {
                 for fileName in files {
                     let filePath = ItineraryStore.appFilePathForFileNameWithExtension(fileName)
                     // ignore pathdelete return as we only get sent valid itineraries..
-                    let filePathToDelete = loadItinerary(atPath: filePath, importing: false)
+                    let filePathToDelete = loadItinerary(atPath: filePath, externalLocation: false)
                     if filePathToDelete != nil {
                         filesToDeleteArray.append(filePathToDelete!)
                     }

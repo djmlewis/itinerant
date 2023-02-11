@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UniformTypeIdentifiers
 
 @main
 struct ItinerantApp: App {

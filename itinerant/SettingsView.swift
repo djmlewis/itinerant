@@ -11,6 +11,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var showSettingsView: Bool
+    @Binding var urlToOpen: URL?
 
     @State private var prefColourInactive: Color = kAppStorageDefaultColourStageInactive.rgbaColor!
     @State private var prefColourActive: Color = kAppStorageDefaultColourStageActive.rgbaColor!
@@ -134,7 +135,12 @@ struct SettingsView: View {
             }
         }
         .onAppear {
-            setupPrefsFromAppStore()
+            if urlToOpen == nil {
+                setupPrefsFromAppStore()
+            } else {
+                loadSettings(atPath: urlToOpen!.path(percentEncoded: false))
+                urlToOpen = nil
+            }
         }
         .fileExporter(isPresented: $fileSaverShown,
                       document: settingsSaveDocument,
