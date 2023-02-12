@@ -13,7 +13,7 @@ enum TimerDirection: String, CaseIterable, Identifiable {
 }
 
 struct StageEditView: View {
-    
+
     @Binding var stageEditableData: Stage.EditableData
     
     @State private var untimedComment: Bool =  false
@@ -26,28 +26,27 @@ struct StageEditView: View {
     
     @State private var snoozehours: Int = 0
     @State private var snoozemins: Int = 0
-    //    @State private var snoozesecs: Int = 0
-    
+
+    @Environment(\.colorScheme) var colorScheme
+
     
     //@FocusState private var focusedFieldTag: FieldFocusTag?
     
     
     var body: some View {
         Form {
-            Toggle(isOn: $untimedComment) {
-                Label("Comment only", systemImage:"bubble.left")
-            }
-            Section(header: Text(untimedComment == true ? "Comment" : "Title")) {
+            Section("Title") {
                 TextField("Stage title", text: $stageEditableData.title)
             }
+            Section("Details") {
+                TextField("Details", text: $stageEditableData.details,  axis: .vertical)
+            }
+            Toggle(isOn: $untimedComment) {
+                Label("Comment only", systemImage:"bubble.left")
+                    .foregroundColor(textColourForScheme(colorScheme: colorScheme))
+            }
             if untimedComment != true {
-                Section(header: Text("Details")) {
-                    TextField("Details", text: $stageEditableData.details,  axis: .vertical)
-                        .lineLimit(1...10)
-                }
-            }/* Section */
-            if untimedComment != true {
-                Section(header: Text("Stage Duration")) {
+                Section("Duration") {
                     HStack {
                         Image(systemName: "timer")
                             .opacity(timerDirection == .countDown ? 1.0 : 0.0)
@@ -69,7 +68,7 @@ struct StageEditView: View {
                                     Text("Minutes")
                                     Text("Seconds")
                                 }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             }
                             HStack {
                                 Group {
@@ -98,26 +97,29 @@ struct StageEditView: View {
                                     }
                                     .labelsHidden()
                                 }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             }
                         } /* VStack */
                     } /* if timerDirection == .countDown {VStack}*/
                     Toggle(isOn: $snoozeAlertsOn) {
-                        Label("Alert at Snooze Intervals", systemImage:"bell")
+                        Label("Alert at Snooze Intervals", systemImage:"bell.and.waves.left.and.right")
+                            .foregroundColor(textColourForScheme(colorScheme: colorScheme))
                     }
                 } /* Section */
             } /* untimedComment != true {Section} */
             if untimedComment != true {
-                Section(header: Text("Time Interval Between Snooze Alerts")) {
-                    VStack(spacing: 2) {
+                Section("Time Interval Between Snooze Alerts") {
+                    VStack(spacing:0) {
                         HStack {
                             Group {
                                 Text("Hours")
                                 Text("Minutes")
                             }
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                            .padding(0)
                         }
-                        HStack {
+                        .padding(0)
+                       HStack {
                             Group {
                                 Picker("", selection: $snoozehours) {
                                     ForEach(0..<24) {index in
@@ -127,6 +129,7 @@ struct StageEditView: View {
                                     }
                                 }
                                 .labelsHidden()
+                                .padding(0)
                                 Picker("", selection: $snoozemins) {
                                     ForEach(0..<60) {index in
                                         Text("\(index)").tag(index)
@@ -135,10 +138,14 @@ struct StageEditView: View {
                                     }
                                 }
                                 .labelsHidden()
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                                .padding(0)
+                           }
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                            .padding(0)
                         }
+                        .padding(0)
                     } /* VStack */
+                    .padding(0)
                 } /* Section */
             }
         }

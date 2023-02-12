@@ -15,6 +15,7 @@ struct StageDisplayView: View {
     @Binding var stageDuplicate: [String:Stage]?
 
     @Environment(\.editMode) private var editMode
+    @EnvironmentObject var appDelegate: AppDelegate
 
     @State private var isPresentingStageEditView = false
     @State private var stageEditableData = Stage.EditableData()
@@ -22,22 +23,44 @@ struct StageDisplayView: View {
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
-                HStack(alignment: .center) {
+                HStack {
                     Image(systemName: stage.durationSymbolName)
                     if stage.isCountUp == false && stage.isCommentOnly == false {
                         Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                             .font(.title3)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.5)
                     }
-                    Text(stage.title)
-                        .font(.title3)
-                        .fontWeight(.bold)
+                    if stage.isPostingSnoozeAlerts {
+                        // Snooze Alarms time duration
+                        HStack {
+                            Image(systemName: "bell.and.waves.left.and.right")
+                            Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .minimumScaleFactor(0.5)
+                        }
+                        .frame(maxWidth: .infinity)
+                       .opacity(0.5)
+                    } else {
+                        // these is needed to push views against leading edge!! it also pulls views below... 
+                        Spacer()
+                    }
                 }
+                Text(stage.title)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.leading)
                 if !stage.details.isEmpty {
                     Text(stage.details)
                         .font(.body)
+                        .multilineTextAlignment(.leading)
                 }
             } /* VStack */
-            Spacer()
+            .frame(maxWidth: .infinity)
             //editMode is the global for when the Edit buton is tapped
             if editMode?.wrappedValue.isEditing == false {
                 VStack(alignment: .trailing) {

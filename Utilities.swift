@@ -62,7 +62,7 @@ class CancellingTimer {
     }
 }
 
-// MARK: Color extension
+// MARK: - Color extension
 extension Color {
     var rgbaString: String? {
         guard let components = self.cgColor?.components, self.cgColor?.colorSpace?.model == .rgb else { return nil }
@@ -71,8 +71,16 @@ extension Color {
     
 }
 
+func textColourForScheme(colorScheme: ColorScheme) -> Color {
+    #if os(iOS)
+    colorScheme == .dark ? Color(uiColor: UIColor.lightText) : Color(uiColor: UIColor.darkText)
+    #else
+    colorScheme == .dark ? Color.white : Color.black
+    #endif
+}
 
-// MARK: String extension
+
+// MARK: - String extension
 extension String {
     
     var dateFromDouble: Date? {

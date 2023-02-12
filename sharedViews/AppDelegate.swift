@@ -297,6 +297,20 @@ extension AppDelegate {
     // <=== watchOS handlers
 
     
+    
+    func stageTextColour(stage: Stage, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String ) -> Color {
+        if stage.isCommentOnly {
+            return appStorageColourFontComment.rgbaColor!
+        }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageColourFontRunning.rgbaColor!
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageColourFontActive.rgbaColor!
+        }
+        return appStorageColourFontInactive.rgbaColor!
+    }
+
 } /* extension */
 
 

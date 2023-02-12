@@ -236,12 +236,13 @@ extension Stage {
         }
     }
     var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
+    
     var durationSymbolName: String {
         if isCommentOnly { return "bubble.left" }
         if isCountUp { return "stopwatch" }
         return "timer"
     }
-    
+       
     var idStr: String { id.uuidString }
     
     func hasIDstr(_ idstrtotest: String?) -> Bool {
@@ -255,16 +256,16 @@ extension Stage {
     
 }
 
+// MARK: - import export
 extension Stage {
-    
     var exportArray: [String] {
-        var lines = [String]()
-        lines.append(title)
-        lines.append(details)
-        lines.append(String(format: "%i", durationSecsInt))
-        lines.append(String(format: "%i", snoozeDurationSecs))
-        lines.append(flags.isEmpty ? " " : flags)
-        return lines
+        return [
+            title,
+            details,
+            String(format: "%i", durationSecsInt),
+            String(format: "%i", snoozeDurationSecs),
+            flags.isEmpty ? " " : flags,
+        ]
     }
     
     init(fromImportLines lines: ArraySlice<Substring>) {
