@@ -299,7 +299,7 @@ extension Itinerary {
         var firstIndex: Int = 0
         while firstIndex + kImportLinesPerStage <= lines.count {
             let slice = lines[firstIndex..<(firstIndex + kImportLinesPerStage)]
-            let stage = Stage(fromImportLines: slice, firstIndex: firstIndex)
+            let stage = Stage(fromImportLines: slice)
 //            let stage = Stage(title: String(lines[firstIndex]),
 //                              durationSecsInt: Int(lines[firstIndex+2]) ?? 0,
 //                              details: String(lines[firstIndex+1]),

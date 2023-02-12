@@ -267,8 +267,9 @@ extension Stage {
         return lines
     }
     
-    init(fromImportLines lines: ArraySlice<Substring>, firstIndex: Int) {
+    init(fromImportLines lines: ArraySlice<Substring>) {
         self.id = UUID()
+        let firstIndex = lines.startIndex
         self.title =  String(lines[firstIndex])
         self.details = String(lines[firstIndex+1])
         self.durationSecsInt = Int(lines[firstIndex+2]) ?? 0
