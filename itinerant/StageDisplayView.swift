@@ -45,9 +45,6 @@ struct StageDisplayView: View {
                         }
                         .frame(maxWidth: .infinity)
                        .opacity(0.5)
-                    } else {
-                        // these is needed to push views against leading edge!! it also pulls views below... 
-                        Spacer()
                     }
                 }
                 Text(stage.title)
@@ -60,7 +57,7 @@ struct StageDisplayView: View {
                         .multilineTextAlignment(.leading)
                 }
             } /* VStack */
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .leading)
             //editMode is the global for when the Edit buton is tapped
             if editMode?.wrappedValue.isEditing == false {
                 VStack(alignment: .trailing) {
