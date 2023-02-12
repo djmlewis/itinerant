@@ -290,7 +290,7 @@ extension Itinerary {
 extension Itinerary {
     
     static func importItinerary(fromString string: String) -> Itinerary? {
-        var lines = string.split(separator: kSeparatorImportFile)
+        var lines = string.split(separator: kSeparatorImportFile, omittingEmptySubsequences: false)
         guard (lines.count - kImportHeadingLines) % kImportLinesPerStage == 0 else {
             return nil
         }
@@ -298,12 +298,14 @@ extension Itinerary {
         var stages: [Stage] = []
         var firstIndex: Int = 0
         while firstIndex + kImportLinesPerStage <= lines.count {
-            let stage = Stage(title: String(lines[firstIndex]),
-                              durationSecsInt: Int(lines[firstIndex+2]) ?? 0,
-                              details: String(lines[firstIndex+1]),
-                              snoozeDurationSecs: Int(lines[firstIndex+3]) ?? 0,
-                              flags: String(lines[firstIndex+4])
-            )
+            let slice = lines[firstIndex..<(firstIndex + kImportLinesPerStage)]
+            let stage = Stage(fromImportLines: slice, firstIndex: firstIndex)
+//            let stage = Stage(title: String(lines[firstIndex]),
+//                              durationSecsInt: Int(lines[firstIndex+2]) ?? 0,
+//                              details: String(lines[firstIndex+1]),
+//                              snoozeDurationSecs: Int(lines[firstIndex+3]) ?? 0,
+//                              flags: String(lines[firstIndex+4])
+//            )
             stages.append(stage)
             firstIndex += kImportLinesPerStage
         }
@@ -312,13 +314,7 @@ extension Itinerary {
     
     var exportString: String {
         var lines: [String] = [title]
-        stages.forEach { stage in
-            lines.append(stage.title)
-            lines.append(stage.details)
-            lines.append(String(format: "%i", stage.durationSecsInt))
-            lines.append(String(format: "%i", stage.snoozeDurationSecs))
-            lines.append(" ")
-        }
+        stages.forEach { lines += $0.exportArray }
         
         return  lines.joined(separator: kSeparatorImportFile)
     }

@@ -203,7 +203,7 @@ extension Stage {
             }
         }
     }
-
+    
     
     func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(idStr) }
     
@@ -251,6 +251,29 @@ extension Stage {
     
     var idNotificationIntervalStrings: [String] {
         return StageNotificationInterval.allSuffixedStrings(forString: idStr)
+    }
+    
+}
+
+extension Stage {
+    
+    var exportArray: [String] {
+        var lines = [String]()
+        lines.append(title)
+        lines.append(details)
+        lines.append(String(format: "%i", durationSecsInt))
+        lines.append(String(format: "%i", snoozeDurationSecs))
+        lines.append(flags.isEmpty ? " " : flags)
+        return lines
+    }
+    
+    init(fromImportLines lines: ArraySlice<Substring>, firstIndex: Int) {
+        self.id = UUID()
+        self.title =  String(lines[firstIndex])
+        self.details = String(lines[firstIndex+1])
+        self.durationSecsInt = Int(lines[firstIndex+2]) ?? 0
+        self.snoozeDurationSecs = Int(lines[firstIndex+3]) ?? 0
+        self.flags = String(lines[firstIndex+4]).replacingOccurrences(of: " ", with: "")
     }
 }
 
