@@ -106,7 +106,8 @@ extension StageActionCommonView {
         Button(action: {
             // Start Stop
             handleStartStopButtonTapped()
-        }) {
+        })
+        {
             Image(systemName: stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? "stop.circle" : "play.circle.fill")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -152,6 +153,10 @@ extension StageActionCommonView {
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
         (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
+    }
+    
+    func removeOnlyActiveRunningStatusLeavingStartEndDates() {
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr) = itinerary.removeOnlyAllStageActiveRunningStatusLeavingStartEndDates(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr)
     }
     
     func handleStartStopButtonTapped() {
@@ -260,7 +265,8 @@ extension StageActionCommonView {
     func gestureActivateStage() -> _EndedGesture<TapGesture> {
         return TapGesture(count: 2)
             .onEnded({ _ in
-                removeAllActiveRunningItineraryStageIDsAndNotifcations()
+                // dont scrub the "has run" details - just deactivate and halt other stages
+                removeOnlyActiveRunningStatusLeavingStartEndDates()
                 // make ourself active only if we are not a comment
                 if stage.isCommentOnly {
                     // just scroll there

@@ -22,6 +22,7 @@ struct WKItinerantStoreView: View {
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
+    
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (colorScheme == .dark ? .white : .black)
     }

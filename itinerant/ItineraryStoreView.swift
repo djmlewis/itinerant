@@ -43,33 +43,74 @@ struct ItineraryStoreView: View {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
     }
 
+    func buttonStartHalt(forItineraryID itineraryID: String) -> some View {
+        Button(action: {
+            // Only Stop
+            if let itinerary = itineraryStore.itineraryForID(id: itineraryID),
+                let stageRunning = itinerary.stageRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+                appDelegate.unnItineraryToOpenID = nil
+                appDelegate.unnStageToHaltID = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    appDelegate.unnItineraryToOpenID = itinerary.idStr
+                    appDelegate.unnStageToHaltID = stageRunning.idStr
+                }
+            }
+        })
+        {
+            Image(systemName: "stop.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundColor(Color.red)
+                .background(.white)
+                .padding(3)
+                .border(.white, width: 3)
+                .clipShape(Circle())
+                .padding(0)
+
+        }
+        .buttonStyle(BorderlessButtonStyle())
+        .frame(width: 46, alignment: .leading)
+        .padding(4)
+    }
+
     
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
+                    let itineraryActual = itineraryStore.itineraryForID(id: itineraryID)
                     NavigationLink(value: itineraryID) {
-                        VStack(alignment: .leading, spacing: 5.0) {
-                            Text(itineraryStore.itineraryTitleForID(id: itineraryID))
-                                .font(.system(.title, design: .rounded, weight: .semibold))
-                            HStack(alignment: .center) {
-                                Image(systemName: "doc")
-                                Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
-                                Spacer()
-                                if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
-                                    Image(systemName:"square.and.pencil")
-                                    Text(date.formatted(date: .numeric, time: .shortened))
-                                }
+                        HStack(spacing: 0) {
+                            if (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) {
+                                buttonStartHalt(forItineraryID: itineraryID)
                             }
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.5)
-                            .opacity(0.6)
+                            VStack(alignment: .leading, spacing: 5.0) {
+                                Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                                    .font(.system(.title, design: .rounded, weight: .semibold))
+                                HStack(alignment: .center) {
+                                    Image(systemName: "doc")
+                                    Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
+                                    Spacer()
+                                    if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
+                                        Image(systemName:"square.and.pencil")
+                                        Text(date.formatted(date: .numeric, time: .shortened))
+                                    }
+                                }
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .minimumScaleFactor(0.5)
+                                .opacity(0.6)
+                            }
+                            .padding(0)
                         }
-                        .foregroundColor(textColourForID(itineraryID))
+                        .padding(0)
                   }
-                    .listRowBackground(backgroundColourForID(itineraryID))
+                    .foregroundColor(textColourForID(itineraryID))
+                   .listRowBackground(backgroundColourForID(itineraryID))
+                   .listRowInsets(.init(top: 10,
+                                        leading: (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
+                                        bottom: 10, trailing: 10))
                } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset

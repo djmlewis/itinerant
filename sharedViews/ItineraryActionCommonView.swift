@@ -16,11 +16,12 @@ struct ItineraryActionCommonView: View {
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
     @Binding var dictStageEndDates: [String:String]
+    
+    @State var stageToHandleHaltActionID: String?
+    @State var stageToHandleSkipActionID: String?
 
     @State var resetStageElapsedTime: Bool?
     @State var scrollToStageID: String?
-    @State var stageToHandleSkipActionID: String?
-    @State var stageToHandleHaltActionID: String?
     @State var stageToStartRunningID: String?
 
     @EnvironmentObject var appDelegate: AppDelegate

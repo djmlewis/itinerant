@@ -156,7 +156,19 @@ extension Itinerary {
         return (currentStr1, currentStr2, currentDict1,currentDict2)
     }
     
-    
+    func removeOnlyAllStageActiveRunningStatusLeavingStartEndDates(str1: String, str2: String) -> (String, String) {
+        let uuidNotifstrsArray = stagesIdNotificationIntervalStrings
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: uuidNotifstrsArray)
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: uuidNotifstrsArray)
+        var currentStr1 = str1
+        var currentStr2 = str2
+        stagesIDstrs.forEach { uuidstr in
+            currentStr1 = currentStr1.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
+            currentStr2 = currentStr2.replacingOccurrences(of: uuidstr, with: "",options: [.literal])
+        }
+        return (currentStr1, currentStr2)
+    }
+
     
 }
 
