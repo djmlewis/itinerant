@@ -68,7 +68,7 @@ func requestStageCompletedSingleSnoozeNotification(toResponse response: UNNotifi
     content.categoryIdentifier = kNotificationCategoryPostCompletedSnoozeIntervalCompleted
     let snoozeInterval = Double(userinfo[kStageSnoozeDurationSecs] as! Int)
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeInterval, repeats: false)
-    let request = UNNotificationRequest(identifier: userinfo[kStageUUIDStr] as! String, content: content, trigger: trigger)
+    let request = UNNotificationRequest(identifier: (userinfo[kStageUUIDStr] as! String) + StageNotificationInterval.snoozeSingleInterval.string, content: content, trigger: trigger)
 
     return request
 }
@@ -91,10 +91,15 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
         duration = Double(stage.durationSecsInt)
         repeats = false
         interruption = .timeSensitive
-    case .snoozeIntervals:
+    case .snoozeRepeatingIntervals:
         categoryIdentifier = kNotificationCategoryRepeatingSnoozeIntervalCompleted
         duration = Double(stage.snoozeDurationSecs)
         repeats = true
+        interruption = .active
+    case .snoozeSingleInterval:
+        categoryIdentifier = kNotificationCategoryPostCompletedSnoozeIntervalCompleted
+        duration = Double(stage.snoozeDurationSecs)
+        repeats = false
         interruption = .active
     }
     content.categoryIdentifier = categoryIdentifier

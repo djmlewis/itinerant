@@ -60,28 +60,46 @@ let kStageInitialDurationSecs: Int = 0
 let kSnoozeDurationSecsMin: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
-let kFlagComment = "C"
-let kFlagCountUp = "U"
-let kFlagCountDown = "D" // not actually used in flags but in StageNotificationInterval
-let kFlagSnoozeAlerts = "Z"
+let kFlagComment = "Ⓒ"
+let kFlagCountUp = "Ⓤ"
+let kFlagCountDown = "Ⓓ" // not actually used in flags but in StageNotificationInterval
+let kFlagSnoozeRepeatingAlerts = "Ⓡ"
+let kFlagSnoozeSingleAlert = "Ⓩ"
 
 enum StageNotificationInterval: CaseIterable {
     case countDownEnd
-    case snoozeIntervals
+    case snoozeRepeatingIntervals
+    case snoozeSingleInterval
     
     var string: String {
         switch self {
         case .countDownEnd:
             return  kFlagCountDown
-        case .snoozeIntervals:
-            return  kFlagSnoozeAlerts
+        case .snoozeRepeatingIntervals:
+            return  kFlagSnoozeRepeatingAlerts
+        case .snoozeSingleInterval:
+            return  kFlagSnoozeSingleAlert
         }
+    }
+    
+    static func stripAllSuffixesFromStr(_ str: String?) -> String? {
+        guard var validstr = str else { return nil }
+        StageNotificationInterval.allCases.forEach {
+            validstr = validstr.replacingOccurrences(of: $0.string, with: "")
+        }
+        return str
     }
     
     static func allSuffixedStrings(forString str: String) -> [String] {
         var stringArray = [String]()
         StageNotificationInterval.allCases.forEach { stringArray.append(str + $0.string) }
         return stringArray
+    }
+}
+
+extension String {
+    func strippedOfNotificationFlags() -> String {
+        return StageNotificationInterval.stripAllSuffixesFromStr(self)!
     }
 }
 

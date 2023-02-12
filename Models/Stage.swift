@@ -106,18 +106,18 @@ extension Stage {
         }
 
         var isCountDown: Bool { !isCountUp }
-        var isPostingSnoozeAlerts: Bool {
+        var isPostingRepeatingSnoozeAlerts: Bool {
             get {
-                flags.contains(kFlagSnoozeAlerts)
+                flags.contains(kFlagSnoozeRepeatingAlerts)
             }
             set(isSA) {
-                flags = flags.replacingOccurrences(of: kFlagSnoozeAlerts, with: "",options: [.literal])
+                flags = flags.replacingOccurrences(of: kFlagSnoozeRepeatingAlerts, with: "",options: [.literal])
                 if isSA {
-                    flags += kFlagSnoozeAlerts
+                    flags += kFlagSnoozeRepeatingAlerts
                 }
             }
         }
-        var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
+        var postsNotifications: Bool { isCountDown == true || isPostingRepeatingSnoozeAlerts }
 
     } /* EditableData */
     
@@ -226,12 +226,12 @@ extension Stage {
     }
     var isPostingSnoozeAlerts: Bool {
         get {
-            flags.contains(kFlagSnoozeAlerts)
+            flags.contains(kFlagSnoozeRepeatingAlerts)
         }
         set(isSA) {
-            flags = flags.replacingOccurrences(of: kFlagSnoozeAlerts, with: "",options: [.literal])
+            flags = flags.replacingOccurrences(of: kFlagSnoozeRepeatingAlerts, with: "",options: [.literal])
             if isSA {
-                flags += kFlagSnoozeAlerts
+                flags += kFlagSnoozeRepeatingAlerts
             }
         }
     }
@@ -243,6 +243,11 @@ extension Stage {
     }
     
     var idStr: String { id.uuidString }
+    
+    func hasIDstr(_ idstrtotest: String?) -> Bool {
+        // notification ID strings may have suffixes so use contains not ==
+        return idstrtotest != nil && idStr.contains(idstrtotest!)
+    }
     
     var idNotificationIntervalStrings: [String] {
         return StageNotificationInterval.allSuffixedStrings(forString: idStr)

@@ -149,7 +149,7 @@ struct StageEditView: View {
             stageEditableData.isCountUp = $0 == .countUp
         })
         .onChange(of: snoozeAlertsOn, perform: {
-            stageEditableData.isPostingSnoozeAlerts = $0
+            stageEditableData.isPostingRepeatingSnoozeAlerts = $0
         })
         .onChange(of: hours, perform: {hrs in
             updateDuration(andDirection: true)
@@ -172,7 +172,7 @@ struct StageEditView: View {
                 // leave the defaults
             } else {
                 timerDirection = stageEditableData.isCountUp ? .countUp : .countDown
-                snoozeAlertsOn = stageEditableData.isPostingSnoozeAlerts
+                snoozeAlertsOn = stageEditableData.isPostingRepeatingSnoozeAlerts
                 hours = stageEditableData.durationSecsInt / SEC_HOUR
                 mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
                 secs = stageEditableData.durationSecsInt % SEC_MIN

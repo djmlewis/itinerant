@@ -214,16 +214,16 @@ struct ItineraryStoreView: View {
                     case ItineraryFileExtension.dataFile.rawValue:
                         _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
                         openRequestURL = nil
-                   case ItineraryFileExtension.textFile.rawValue:
+                    case ItineraryFileExtension.textFile.rawValue:
                         appDelegate.itineraryStore.importItinerary(atPath: validurl.path(percentEncoded: false))
                         openRequestURL = nil
                     case ItineraryFileExtension.settingsFile.rawValue:
                         openRequestURL = validurl
                         // setting view will nil it
-                       showSettingsView = true
+                        showSettingsView = true
                     default:
                         openRequestURL = nil
-                       break
+                        break
                     }
                     // do not nil openRequestURL here as its needed when settings opens
                 }

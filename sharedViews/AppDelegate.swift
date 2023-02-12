@@ -117,12 +117,11 @@ extension AppDelegate {
         // NOT CALLED when app is in background (or foreground) but ONLY when:
         // the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction.
         //debugPrint("Notification received with identifier \(response.notification.request.identifier)")
-        guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr]
+        guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr], let stageID = response.notification.request.content.userInfo[kStageUUIDStr] as? String
         else { completionHandler(); return }
         
         debugPrint("didReceive", response.notification.request.content.categoryIdentifier)
         
-        let stageID = response.notification.request.content.userInfo[kStageUUIDStr] as! String
         switch response.notification.request.content.categoryIdentifier  {
         case kNotificationCategoryStageCompleted:
             removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
@@ -137,6 +136,7 @@ extension AppDelegate {
         }
         
         // whatever the category, respond to the action
+        // NEVER use response.notification.request.identifier for stageID as this has flags!!!
         switch response.actionIdentifier {
         case kNotificationActionOpenAppToItinerary: // UNNotificationDismissActionIdentifier user opened the application from the notification
             // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
@@ -150,7 +150,7 @@ extension AppDelegate {
             unnStageToStopAndStartNextID = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.unnItineraryToOpenID = notifiedItineraryID as? String
-                self.unnStageToStopAndStartNextID = response.notification.request.identifier
+                self.unnStageToStopAndStartNextID = stageID
             }
         case kNotificationActionStageHalt:
             // we have to clear the previous IDs so we log an onChange with the newValue - in case the new value was used before
@@ -158,7 +158,7 @@ extension AppDelegate {
             unnStageToHaltID = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.unnItineraryToOpenID = notifiedItineraryID as? String
-                self.unnStageToHaltID = response.notification.request.identifier
+                self.unnStageToHaltID = stageID
             }
         case kNotificationActionSnooze:
             let center = UNUserNotificationCenter.current()
@@ -171,7 +171,7 @@ extension AppDelegate {
             break
         case UNNotificationDefaultActionIdentifier:
             //user just tapped the notification
-            // this just opens the app wherever it was left as the erquest has foreground
+            // this just opens the app wherever it was left as the request has foreground
             break
         default:
             break

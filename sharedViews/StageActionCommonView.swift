@@ -58,9 +58,9 @@ struct StageActionCommonView: View {
             .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
-            .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idStr: $0)  }
-            .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idStr: $0)  }
-            .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idStr: $0) }
+            .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
+            .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
+            .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idstrtotest: $0) }
 
     } /* body */
 } /* struct */
@@ -169,7 +169,7 @@ extension StageActionCommonView {
         if stage.isCountDown { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownEnd) }
         if stage.isPostingSnoozeAlerts { // give countdown a head start
             DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
-                postNotification(stage: stage, itinerary: itinerary, intervalType: .snoozeIntervals)
+                postNotification(stage: stage, itinerary: itinerary, intervalType: .snoozeRepeatingIntervals)
             }
         }
         // need to reset the timer to reattach the cancellor
@@ -236,23 +236,23 @@ extension StageActionCommonView {
         }
     }
 
-    func handleReceive_stageToHandleSkipActionID(idStr: String?) {
+    func handleReceive_stageToHandleSkipActionID(idstrtotest: String?) {
         // handle notifications to skip to next stage
-        if idStr != nil  && idStr == stage.idStr {
+        if idstrtotest != nil  && stage.hasIDstr(idstrtotest) {
             handleHaltRunning(andSkip: true)
         }
     }
     
-    func handleReceive_stageToHandleHaltActionID(idStr: String?) {
+    func handleReceive_stageToHandleHaltActionID(idstrtotest: String?) {
         // handle notifications to skip to next stage
-        if idStr != nil  && idStr == stage.idStr {
+        if idstrtotest != nil  && stage.hasIDstr(idstrtotest) {
             handleHaltRunning(andSkip: false)
         }
     }
     
-    func handleReceive_stageToStartRunningID(idStr: String?) {
+    func handleReceive_stageToStartRunningID(idstrtotest: String?) {
         // handle notifications to be skipped to this stage
-        if idStr != nil && idStr == stage.idStr {
+        if idstrtotest != nil && stage.hasIDstr(idstrtotest) {
             handleStartRunning()
         }
     }

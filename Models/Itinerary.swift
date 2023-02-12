@@ -79,7 +79,11 @@ extension Itinerary {
 // MARK: - Characteristics
 extension Itinerary {
     var idStr: String { id.uuidString }
-    
+    func hasIDstr(_ idstrtotest: String?) -> Bool {
+        // notification ID strings may have suffixes so use contains not ==
+        return idstrtotest != nil && idStr.contains(idstrtotest!)
+    }
+
     func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } }
     func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } != nil }
     
@@ -91,7 +95,7 @@ extension Itinerary {
     } }
 
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
-        return stages.firstIndex(where: { $0.idStr == uuidstr })
+        return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
     }
 
     func indexOfNextActivableStage(fromUUIDstr uuidstr: String ) -> Int? {
@@ -117,6 +121,7 @@ extension Itinerary {
     var lastStageUUIDstr: String? { stages.last?.idStr }
     
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
+    
     var stagesIdNotificationIntervalStrings: [String] {
         var array = [String]()
             stages.forEach { array += $0.idNotificationIntervalStrings }

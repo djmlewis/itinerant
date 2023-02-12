@@ -144,10 +144,10 @@ class ItineraryStore: ObservableObject {
     }
     
     func itineraryForID(id:String) -> Itinerary? {
-        itineraries.first{ $0.idStr == id }// ?? Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval())
+        itineraries.first{ $0.idStr.contains(id) }
     }
     func hasItineraryWithID(_ id: String) -> Bool {
-        return itineraries.firstIndex(where: { $0.idStr == id }) != nil
+        return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil
     }
     func itineraryForTitle(_ title: String) -> Itinerary? {
         itineraries.first { $0.title == title }
@@ -156,20 +156,20 @@ class ItineraryStore: ObservableObject {
         return itineraryForTitle(title) != nil
     }
     func itineraryTitleForID(id:String) -> String {
-        itineraries.first { $0.idStr == id }?.title ?? kUnknownObjectErrorStr
+        itineraryForID(id: id)?.title ?? kUnknownObjectErrorStr
     }
     var itineraryTitles: [String] { itineraries.map { $0.title } }
     var itineraryUUIDStrs: [String] { itineraries.map { $0.idStr } }
 
     func itineraryFileNameForID(id:String) -> String {
-        itineraries.first { $0.idStr == id }?.filename ?? "---"
+        itineraryForID(id: id)?.filename ?? "---"
     }
     func itineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String) -> Bool {
-        itineraries.first { $0.idStr == id }?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
+        itineraryForID(id: id)?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false
     }
 
     func itineraryModificationDateForID(id:String) -> Date? {
-        guard let timeinterval = itineraries.first(where: { $0.idStr == id })?.modificationDate else { return nil }
+        guard let timeinterval = itineraryForID(id: id)?.modificationDate else { return nil }
         return Date(timeIntervalSinceReferenceDate: timeinterval)
     }
 
