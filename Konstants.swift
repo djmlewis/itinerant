@@ -60,25 +60,31 @@ let kStageInitialDurationSecs: Int = 0
 let kSnoozeDurationSecsMin: Int = 60
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
-let kFlagComment = "Ⓒ"
-let kFlagCountUp = "Ⓤ"
-let kFlagCountDown = "Ⓓ" // not actually used in flags but in StageNotificationInterval
-let kFlagSnoozeRepeatingAlerts = "Ⓡ"
-let kFlagSnoozeSingleAlert = "Ⓩ"
+//let kFlagComment = "Ⓒ"
+//let kFlagCountUp = "Ⓤ"
+//let kFlagCountDown = "Ⓓ" // not actually used in flags but in StageNotificationInterval
+//let kFlagSnoozeRepeatingAlerts = "Ⓡ"
+//let kFlagSnoozeSingleAlert = "Ⓩ"
 
 enum StageNotificationInterval: CaseIterable {
+    case comment  // here for completeness for string func
+    case countUp // here for completeness for string func
     case countDownEnd
     case snoozeRepeatingIntervals
     case snoozeSingleInterval
     
     var string: String {
         switch self {
+        case .comment:
+            return  "Ⓒ"
+        case .countUp:
+            return  "Ⓤ"
         case .countDownEnd:
-            return  kFlagCountDown
+            return  "Ⓓ"
         case .snoozeRepeatingIntervals:
-            return  kFlagSnoozeRepeatingAlerts
+            return  "Ⓡ"
         case .snoozeSingleInterval:
-            return  kFlagSnoozeSingleAlert
+            return  "Ⓩ"
         }
     }
     

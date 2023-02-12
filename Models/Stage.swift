@@ -84,23 +84,23 @@ extension Stage {
 
         var isCommentOnly: Bool {
             get {
-                flags.contains(kFlagComment)
+                flags.contains(StageNotificationInterval.comment.string)
             }
             set(isComment) {
-                flags = flags.replacingOccurrences(of: kFlagComment, with: "",options: [.literal])
+                flags = flags.replacingOccurrences(of: StageNotificationInterval.comment.string, with: "",options: [.literal])
                 if isComment {
-                    flags += kFlagComment
+                    flags += StageNotificationInterval.comment.string
                 }
             }
         }
         var isCountUp: Bool {
             get {
-                flags.contains(kFlagCountUp)
+                flags.contains(StageNotificationInterval.countUp.string)
             }
             set(isUp) {
-                flags = flags.replacingOccurrences(of: kFlagCountUp, with: "",options: [.literal])
+                flags = flags.replacingOccurrences(of: StageNotificationInterval.countUp.string, with: "",options: [.literal])
                 if isUp {
-                    flags += kFlagCountUp
+                    flags += StageNotificationInterval.countUp.string
                 }
             }
         }
@@ -108,12 +108,12 @@ extension Stage {
         var isCountDown: Bool { !isCountUp }
         var isPostingRepeatingSnoozeAlerts: Bool {
             get {
-                flags.contains(kFlagSnoozeRepeatingAlerts)
+                flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
             }
             set(isSA) {
-                flags = flags.replacingOccurrences(of: kFlagSnoozeRepeatingAlerts, with: "",options: [.literal])
+                flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
                 if isSA {
-                    flags += kFlagSnoozeRepeatingAlerts
+                    flags += StageNotificationInterval.snoozeRepeatingIntervals.string
                 }
             }
         }
@@ -194,12 +194,12 @@ extension Stage {
     
     var isCommentOnly: Bool {
         get {
-            flags.contains(kFlagComment)
+            flags.contains(StageNotificationInterval.comment.string)
         }
         set(isComment) {
-            flags = flags.replacingOccurrences(of: kFlagComment, with: "",options: [.literal])
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.comment.string, with: "",options: [.literal])
             if isComment {
-                flags += kFlagComment
+                flags += StageNotificationInterval.comment.string
             }
         }
     }
@@ -215,23 +215,23 @@ extension Stage {
     var isCountDown: Bool { !isCountUp }
     var isCountUp: Bool {
         get {
-            flags.contains(kFlagCountUp)
+            flags.contains(StageNotificationInterval.countUp.string)
         }
         set(isUp) {
-            flags = flags.replacingOccurrences(of: kFlagCountUp, with: "",options: [.literal])
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.countUp.string, with: "",options: [.literal])
             if isUp {
-                flags += kFlagCountUp
+                flags += StageNotificationInterval.countUp.string
             }
         }
     }
     var isPostingSnoozeAlerts: Bool {
         get {
-            flags.contains(kFlagSnoozeRepeatingAlerts)
+            flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
         }
         set(isSA) {
-            flags = flags.replacingOccurrences(of: kFlagSnoozeRepeatingAlerts, with: "",options: [.literal])
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
             if isSA {
-                flags += kFlagSnoozeRepeatingAlerts
+                flags += StageNotificationInterval.snoozeRepeatingIntervals.string
             }
         }
     }
@@ -246,7 +246,7 @@ extension Stage {
     
     func hasIDstr(_ idstrtotest: String?) -> Bool {
         // notification ID strings may have suffixes so use contains not ==
-        return idstrtotest != nil && idStr.contains(idstrtotest!)
+        return idstrtotest != nil && idStr == idstrtotest!
     }
     
     var idNotificationIntervalStrings: [String] {

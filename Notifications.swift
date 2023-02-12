@@ -13,6 +13,7 @@ let kNotificationActionOpenAppToItinerary = "OPEN_APP_TO_ITINERARY_ACTION"
 let kNotificationActionSnooze = "SNOOZE_ACTION"
 let kNotificationActionStageStartNext = "STAGE_START_NEXT_ACTION"
 let kNotificationActionStageHalt = "STAGE_HALT_ACTION"
+let kNotificationCategoryUnknown = "CATEGORY_UNKNOWN"
 let kNotificationCategoryStageCompleted = "CATEGORY_STAGE_COMPLETED"
 let kNotificationCategoryRepeatingSnoozeIntervalCompleted = "CATEGORY_REPEATING_SNOOZE_COMPLETED"
 let kNotificationCategoryPostCompletedSnoozeIntervalCompleted = "CATEGORY_POSTCOMPLETED_SNOOZE_COMPLETED"
@@ -101,6 +102,12 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
         duration = Double(stage.snoozeDurationSecs)
         repeats = false
         interruption = .active
+    default:
+        categoryIdentifier = kNotificationCategoryUnknown
+        duration = 0.0
+        repeats = false
+        interruption = .passive
+        debugPrint("!! kNotificationCategoryUnknown ")
     }
     content.categoryIdentifier = categoryIdentifier
     content.interruptionLevel = interruption

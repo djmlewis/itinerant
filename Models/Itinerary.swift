@@ -81,7 +81,7 @@ extension Itinerary {
     var idStr: String { id.uuidString }
     func hasIDstr(_ idstrtotest: String?) -> Bool {
         // notification ID strings may have suffixes so use contains not ==
-        return idstrtotest != nil && idStr.contains(idstrtotest!)
+        return idstrtotest != nil && idStr == idstrtotest
     }
 
     func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } }
