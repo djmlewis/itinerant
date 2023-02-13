@@ -22,7 +22,6 @@ struct ItineraryStoreView: View {
 
     @State private var isPresentingItineraryEditView = false
     @State private var isPresentingNewItineraryView = false
-    @State private var newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
     @State private var newItineraryEditableData = Itinerary.EditableData()
     @State private var fileImporterShown: Bool = false
     @State private var fileImportFileType: [UTType] = [.itineraryDataFile]
@@ -157,7 +156,6 @@ struct ItineraryStoreView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
-                        newItinerary = Itinerary(title: "",modificationDate: nowReferenceDateTimeInterval())
                         newItineraryEditableData = Itinerary.EditableData()
                         isPresentingItineraryEditView = true
                     }) {
@@ -172,7 +170,7 @@ struct ItineraryStoreView: View {
             })
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationStack {
-                    ItineraryEditView(itinerary: $newItinerary, itineraryEditableData: $newItineraryEditableData)
+                    ItineraryEditView(itineraryEditableData: $newItineraryEditableData)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {
@@ -181,9 +179,8 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
-                                    // set the filename first before any updates
+                                    var newItinerary = Itinerary(editableData: newItineraryEditableData, modificationDate: Date.now.timeIntervalSinceReferenceDate)
                                     newItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: newItineraryEditableData.title)
-                                    newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
                                     itineraryStore.addItinerary(itinerary: newItinerary)
                                     itineraryStore.sortItineraries()
                                     isPresentingItineraryEditView = false

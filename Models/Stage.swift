@@ -12,7 +12,7 @@ typealias StageArray = [Stage]
 typealias StageWatchMessageDataArray = [Stage.WatchData]
 
 
-struct Stage: Identifiable, Codable, Hashable {
+struct Stage: Identifiable, Codable, Hashable, Equatable {
     let id: UUID
     var title: String
     var durationSecsInt: Int

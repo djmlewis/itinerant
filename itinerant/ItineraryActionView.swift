@@ -163,7 +163,7 @@ extension  ItineraryActionCommonView {
         .sheet(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
-                ItineraryEditView(itinerary: $itinerary, itineraryEditableData: $itineraryData)
+                ItineraryEditView(itineraryEditableData: $itineraryData)
                     .navigationTitle(itinerary.title)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {

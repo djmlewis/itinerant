@@ -10,9 +10,23 @@
 
 import SwiftUI
 
+
+struct NewStageMeta: Equatable {
+    internal init(stageInitiatingIDstr: String, duplicate: Bool, newStage: Stage) {
+        self.stageInitiatingIDstr = stageInitiatingIDstr
+        self.duplicate = duplicate
+        self.newStage = newStage
+    }
+    
+    let stageInitiatingIDstr: String
+    let duplicate: Bool
+    let newStage: Stage
+    
+}
+
 struct StageDisplayView: View {
     @Binding var stage: Stage
-    @Binding var stageDuplicate: [String:Stage]?
+    @Binding var newStageMeta: NewStageMeta?
 
     @Environment(\.editMode) private var editMode
     @EnvironmentObject var appDelegate: AppDelegate
@@ -20,31 +34,37 @@ struct StageDisplayView: View {
     @State private var isPresentingStageEditView = false
     @State private var stageEditableData = Stage.EditableData()
 
+    //@State private var newStage: Stage = Stage()
+    @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
+    @State private var isPresentingNewStageEditView = false
+
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 HStack {
                     Image(systemName: stage.durationSymbolName)
-                    if stage.isCountUp == false && stage.isCommentOnly == false {
-                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                            .font(.title3)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.5)
-                    }
-                    if stage.isPostingSnoozeAlerts {
-                        // Snooze Alarms time duration
-                        HStack {
-                            Image(systemName: "bell.and.waves.left.and.right")
-                            Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                    if stage.isCommentOnly == false {
+                        if stage.isCountUp == false {
+                            Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                                 .font(.title3)
-                                .fontWeight(.bold)
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
                         }
-                        .frame(maxWidth: .infinity)
-                       .opacity(0.5)
+                        if stage.isPostingSnoozeAlerts {
+                            // Snooze Alarms time duration
+                            HStack {
+                                Image(systemName: "bell.and.waves.left.and.right")
+                                Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .lineLimit(1)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.5)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .opacity(0.5)
+                        }
                     }
                 }
                 Text(stage.title)
@@ -74,9 +94,24 @@ struct StageDisplayView: View {
                     .frame(width: 24, alignment: .trailing)
                     Spacer()
                     Button(action: {
-                        stageDuplicate = [stage.idStr : stage.duplicateWithNewID]
+                        newStageMeta = nil
+                        newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: true, newStage: stage.duplicateWithNewID)
                     }) {
                         Image(systemName: "doc.on.doc")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor( .accentColor)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                    .frame(width: 24, alignment: .trailing)
+                    Spacer()
+                    Button(action: {
+                        //newStage = Stage()
+                        newStageEditableData = Stage.EditableData()
+                        newStageMeta = nil
+                        isPresentingNewStageEditView = true
+                    }) {
+                        Image(systemName: "plus")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor( .accentColor)
@@ -105,6 +140,28 @@ struct StageDisplayView: View {
                     }
             }
         }
+        .sheet(isPresented: $isPresentingNewStageEditView) {
+            NavigationStack {
+                StageEditView(stageEditableData: $newStageEditableData)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                isPresentingNewStageEditView = false
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Add") {
+                                // amend the var itineraryEditableData only
+                                let newStage = Stage(editableData: newStageEditableData)
+                                //itineraryEditableData.stages.append(newStage)
+                                newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: false, newStage: newStage)
+                                isPresentingNewStageEditView = false
+                            }
+                        }
+                    }
+            }
+        }
+
     } /* body */
     
 }

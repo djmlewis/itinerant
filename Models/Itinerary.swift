@@ -215,6 +215,12 @@ extension Itinerary {
     struct EditableData {
         var title: String = ""
         var stages: StageArray = []
+        
+        
+        func stageIndex(forUUIDstr uuidstr: String) -> Int? {
+            return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
+        }
+        
     }
     
     var itineraryEditableData: EditableData {
@@ -228,6 +234,7 @@ extension Itinerary {
         _ = self.savePersistentData()
     }
     
+
 }
 
 
