@@ -51,8 +51,9 @@ extension ItineraryActionCommonView {
             })
             .onChange(of: scrollToStageID) { stageid in
                 if stageid != nil {
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         withAnimation {
+                            // always on main and after a delay
                             scrollViewReader.scrollTo(stageid!, anchor: .top)
                         }
                     }
