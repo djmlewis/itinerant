@@ -12,6 +12,8 @@ import SwiftUI
 extension  ItineraryActionCommonView {
     
 #if !os(watchOS)
+    
+
     var body_: some View {
         VStack {
             ScrollViewReader { scrollViewReader in

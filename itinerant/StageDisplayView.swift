@@ -73,8 +73,9 @@ struct StageDisplayView: View {
                     .multilineTextAlignment(.leading)
                 if !stage.details.isEmpty {
                     Text(stage.details)
-                        .font(.body)
+                        .font(.footnote)
                         .multilineTextAlignment(.leading)
+                        .lineLimit(1...2)
                 }
             } /* VStack */
             .frame(maxWidth: .infinity, alignment: .leading)

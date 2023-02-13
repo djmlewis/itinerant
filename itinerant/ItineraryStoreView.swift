@@ -36,6 +36,7 @@ struct ItineraryStoreView: View {
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
     
+    
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
     }

@@ -34,7 +34,7 @@ struct ItineraryActionCommonView: View {
     @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-
+    
 #if !os(watchOS)
     @State var itineraryData = Itinerary.EditableData()
     @State var isPresentingItineraryEditView: Bool = false
@@ -46,10 +46,11 @@ struct ItineraryActionCommonView: View {
     @State var fileSaveName: String?
 
     @EnvironmentObject var itineraryStore: ItineraryStore
+
 #endif
 
 
-    
+
 
     
     var body: some View {

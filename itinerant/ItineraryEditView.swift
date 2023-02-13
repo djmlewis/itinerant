@@ -10,7 +10,6 @@ import SwiftUI
 struct ItineraryEditView: View {
     //@Binding var itinerary: Itinerary
     @Binding var itineraryEditableData: Itinerary.EditableData
-    
     @State private var newStageMeta: NewStageMeta?
     
     // @FocusState private var focusedFieldTag: FieldFocusTag?
@@ -20,16 +19,10 @@ struct ItineraryEditView: View {
     var body: some View {
         ScrollViewReader { svrproxy in
             Form {
-                Section(header: Text("Title")) {
+                Section("Title") {
                     TextField("Itinerary title", text: $itineraryEditableData.title)
                 }
-                Section(header: HStack(){
-                    Text("Stages")
-                    Spacer()
-                    EditButton()
-                        .textCase(nil)
-                    Spacer()
-                }) {
+                Section("Stages") {
                     List {
                         ForEach($itineraryEditableData.stages) { $stage in
                             StageDisplayView(stage: $stage, newStageMeta: $newStageMeta)
@@ -59,12 +52,13 @@ struct ItineraryEditView: View {
                 }  /* Section */
             } /* Form */
         } /* SVR */
+        
     } /* body */
     
 } /* struct */
 struct ItineraryEditView_Previews: PreviewProvider {
     static var previews: some View {
-        ItineraryEditView(itineraryEditableData: .constant(Itinerary.templateItinerary().itineraryEditableData))
+        Text("")
     }
 }
 
