@@ -15,17 +15,34 @@ typealias StageWatchMessageDataArray = [Stage.WatchData]
 struct Stage: Identifiable, Codable, Hashable, Equatable {
     let id: UUID
     var title: String
-    var durationSecsInt: Int
     var details: String
     var snoozeDurationSecs: Int
     var flags: String
+    var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
+    var durationSecsInt: Int {
+        get { durationsArray.first! }
+        set(newDuration) { durationsArray[0] = newDuration }
+    }
+    var additionalDurationsArray: [Int] {
+        var array = durationsArray
+        _ = array.remove(at: 0)
+        return array
+    }
+    mutating func updateAdditionalDurationsArray(additionalDurations: [Int]?) {
+        // assumes another struct is adding removing from additionalDurations and then presenting the final additionalDurations to replace existing
+        durationsArray = [Int]() + [durationsArray[0]]
+        if let validadditionalDurations = additionalDurations, !validadditionalDurations.isEmpty {
+            durationsArray += validadditionalDurations
+        }
+    }
     
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = "") {
+    // simple init with a durationSecsInt
+    init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = "") {
         self.id = id
         self.title = title
-        self.durationSecsInt = durationSecsInt
+        self.durationsArray = durationsArray
         self.details = details
-        self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeMinimumDurationSecs)
         self.flags = flags
     }
     
@@ -39,20 +56,24 @@ extension Stage {
     struct WatchData: Identifiable, Codable, Hashable {
         let id: UUID
         var title: String
-        var durationSecsInt: Int
+        var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
+        var durationSecsInt: Int {
+            get { durationsArray.first! }
+            set(newDuration) { durationsArray[0] = newDuration }
+        }
         var snoozeDurationSecs: Int
         var flags: String
 
-        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, snoozeDurationSecs: Int, flags: String) {
+        internal init(id: UUID = UUID(), title: String, durationsArray: [Int]  = [kStageInitialDurationSecs], snoozeDurationSecs: Int, flags: String) {
             self.id = id
             self.title = title
-            self.durationSecsInt = durationSecsInt
-            self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeDurationSecsMin)
+            self.durationsArray = durationsArray
+            self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeMinimumDurationSecs)
             self.flags = flags
         }
     }
     
-    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags) }
+    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationsArray: self.durationsArray, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags) }
 
     static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
         return watchStages.map { Stage(watchData: $0) }
@@ -63,8 +84,8 @@ extension Stage {
         // keep the UUID it will be unique
         self.id = watchData.id
         self.title = watchData.title
-        self.durationSecsInt = watchData.durationSecsInt
-        self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.durationsArray = watchData.durationsArray
+        self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
         self.details = ""
         self.flags = watchData.flags
 
@@ -77,10 +98,27 @@ extension Stage {
 extension Stage {
     struct EditableData {
         var title: String = ""
-        var durationSecsInt: Int = kStageInitialDurationSecs
+        var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
         var details: String = ""
         var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
         var flags: String = ""
+
+        var durationSecsInt: Int {
+            get { durationsArray.first! }
+            set(newDuration) { durationsArray[0] = newDuration }
+        }
+        var additionalDurationsArray: [Int] {
+            var array = durationsArray
+            _ = array.remove(at: 0)
+            return array
+        }
+        mutating func updateAdditionalDurationsArray(additionalDurations: [Int]?) {
+            // assumes another struct is adding removing from additionalDurations and then presenting the final additionalDurations to replace existing
+            durationsArray = [Int]() + [durationsArray[0]]
+            if let validadditionalDurations = additionalDurations, !validadditionalDurations.isEmpty {
+                durationsArray += validadditionalDurations
+            }
+        }
 
         var isCommentOnly: Bool {
             get {
@@ -121,8 +159,10 @@ extension Stage {
 
     } /* EditableData */
     
+    
+    /* Stage inits from EditableData */
     var editableData: Stage.EditableData { EditableData(title: self.title,
-                                                        durationSecsInt: self.durationSecsInt,
+                                                        durationsArray: self.durationsArray,
                                                         details: self.details,
                                                         snoozeDurationSecs: self.snoozeDurationSecs,
                                                         flags: self.flags) }
@@ -130,9 +170,9 @@ extension Stage {
 
     mutating func updateEditableData(from editableData: Stage.EditableData) {
         self.title = editableData.title
-        self.durationSecsInt = editableData.durationSecsInt
+        self.durationsArray = editableData.durationsArray
         self.details = editableData.details
-        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
         self.flags = editableData.flags
     }
     
@@ -141,9 +181,9 @@ extension Stage {
         // force new ID
         self.id = UUID()
         self.title = editableData.title
-        self.durationSecsInt = editableData.durationSecsInt
+        self.durationsArray = editableData.durationsArray
         self.details = editableData.details
-        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeDurationSecsMin)
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
         self.flags = editableData.flags
     }
 
@@ -154,7 +194,7 @@ extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
     
-    var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, details: details,snoozeDurationSecs: snoozeDurationSecs, flags: flags) }
+    var duplicateWithNewID: Stage { Stage(title: title, durationsArray: durationsArray, details: details, snoozeDurationSecs: snoozeDurationSecs, flags: flags) }
     
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
@@ -251,18 +291,30 @@ extension Stage {
     }
     
     var idNotificationIntervalStrings: [String] {
-        return StageNotificationInterval.allSuffixedStrings(forString: idStr)
+        var stringArray = StageNotificationInterval.allSuffixedStrings(forString: idStr)
+        for i in 0..<additionalDurationsArray.count {
+            stringArray.append(notificationString(additionalDurationIndex: i))
+        }
+        return stringArray
     }
-    
+    func notificationString(additionalDurationIndex: Int) -> String {
+        idStr + kStageNotificationAdditionalDurationIndicator + String(format: "%i", additionalDurationIndex) + kStageNotificationAdditionalDurationIndicator
+    }
 }
 
 // MARK: - import export
 extension Stage {
+    
+    var durationsArrayString: String {
+        guard durationsArray.isEmpty else { return String(format: "%i", kStageInitialDurationSecs) }
+        return durationsArray.map( { String(format: "%i", $0) } ).joined(separator: kStageDurationsArraySeparator)
+    }
+    
     var exportArray: [String] {
         return [
             title,
             details,
-            String(format: "%i", durationSecsInt),
+            durationsArrayString,
             String(format: "%i", snoozeDurationSecs),
             flags.isEmpty ? " " : flags,
         ]
@@ -273,8 +325,9 @@ extension Stage {
         let firstIndex = lines.startIndex
         self.title =  String(lines[firstIndex])
         self.details = String(lines[firstIndex+1])
-        self.durationSecsInt = Int(lines[firstIndex+2]) ?? 0
-        self.snoozeDurationSecs = Int(lines[firstIndex+3]) ?? 0
+        self.durationsArray = lines[firstIndex+2].components(separatedBy: kStageDurationsArraySeparator).compactMap({ max(Int($0) ?? kStageInitialDurationSecs, kStageInitialDurationSecs) })
+        if self.durationsArray.isEmpty { durationsArray = [kStageInitialDurationSecs] }
+        self.snoozeDurationSecs = Int(lines[firstIndex+3]) ?? kStageInitialSnoozeDurationSecs
         self.flags = String(lines[firstIndex+4]).replacingOccurrences(of: " ", with: "")
     }
 }

@@ -29,7 +29,12 @@ struct StageEditView: View {
 
     @Environment(\.colorScheme) var colorScheme
 
-    
+    @State private var additionaldurationsarray = [Int]()
+    @State private var showingAddAlertSheet = false
+    @State private var addedhours: Int = 0
+    @State private var addedmins: Int = 0
+    @State private var addedsecs: Int = 0
+
     //@FocusState private var focusedFieldTag: FieldFocusTag?
     
     
@@ -47,6 +52,7 @@ struct StageEditView: View {
             }
             if untimedComment != true {
                 Section("Duration") {
+                    /* Duration Pickers */
                     HStack {
                         Image(systemName: "timer")
                             .opacity(timerDirection == .countDown ? 1.0 : 0.0)
@@ -94,14 +100,49 @@ struct StageEditView: View {
                             }
                         } /* VStack */
                     } /* if timerDirection == .countDown {VStack}*/
-                    Toggle(isOn: $snoozeAlertsOn) {
-                        Label("Alert at Snooze Intervals", systemImage:"bell.and.waves.left.and.right")
-                            .foregroundColor(textColourForScheme(colorScheme: colorScheme))
-                    }
+                    /* Duration Pickers */
                 } /* Section */
+                Section {
+                    if !additionaldurationsarray.isEmpty {
+                        List {
+                            ForEach(additionaldurationsarray, id: \.self) { secsInt in
+                                HStack {
+                                    Image(systemName: "alarm.waves.left.and.right")
+                                    Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                            .onDelete {
+                                additionaldurationsarray.remove(atOffsets: $0)
+                                stageEditableData.updateAdditionalDurationsArray(additionalDurations: additionaldurationsarray)
+                           }
+                        }
+                    } else {
+                        Text("Tap + to add")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .opacity(0.5)
+                            .italic()
+
+                    }
+                } header: {
+                    HStack {
+                        Text("Additional Alerts")
+                        Spacer()
+                        Button {
+                            addedhours = 0
+                            addedmins = 0
+                            addedsecs = 0
+                            showingAddAlertSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    }
+                }
+                /* Section */
+            //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
             if untimedComment != true {
-                Section("Time Interval Between Snooze Alerts") {
+                Section("Interval Between Snooze Alerts") {
                     VStack(spacing:0) {
                         HStack {
                             Group {
@@ -139,6 +180,18 @@ struct StageEditView: View {
                         .padding(0)
                     } /* VStack */
                     .padding(0)
+                    Toggle(isOn: $snoozeAlertsOn) {
+                        HStack {
+                            VStack {
+                                Image(systemName: "bell.and.waves.left.and.right")
+                            }
+                            VStack {
+                                Text("Repeating Alert At Snooze Intervals")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                            .foregroundColor(textColourForScheme(colorScheme: colorScheme))
+                    }
                 } /* Section */
             }
         }
@@ -167,6 +220,7 @@ struct StageEditView: View {
             updateSnoozeDuration()
         })
         .onAppear() {
+            additionaldurationsarray = stageEditableData.additionalDurationsArray
             untimedComment = stageEditableData.isCommentOnly
             if untimedComment == true {
                 // leave the defaults
@@ -185,6 +239,64 @@ struct StageEditView: View {
             // !! Called AFTER the StageDisplayView Save button action
             // pointless to change EditableData
         }
+        .sheet(isPresented: $showingAddAlertSheet) {
+            NavigationStack {
+                VStack {
+                    HStack {
+                        Group {
+                            Text("Hours")
+                            Text("Minutes")
+                            Text("Seconds")
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                    }
+                    HStack {
+                        Group {
+                            Picker("", selection: $addedhours) {
+                                ForEach(0..<24) {index in
+                                    Text("\(index)").tag(index)
+                                }
+                            }
+                            .labelsHidden()
+                            Picker("", selection: $addedmins) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                }
+                            }
+                            .labelsHidden()
+                            Picker("", selection: $addedsecs) {
+                                ForEach(0..<60) {index in
+                                    Text("\(index)").tag(index)
+                                }
+                            }
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                    }
+                } /* VStack */
+                .navigationTitle("Additional Alert Time")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            showingAddAlertSheet = false
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Add") {
+                            let duration = durationFromAdditionalHMS()
+                            if !additionaldurationsarray.contains(duration) && duration >= kStageAlertMinimumDurationSecs {
+                                DispatchQueue.main.async {
+                                    additionaldurationsarray.append(duration)
+                                    additionaldurationsarray.sort()
+                                }
+                                stageEditableData.updateAdditionalDurationsArray(additionalDurations: additionaldurationsarray)
+                            }
+                            showingAddAlertSheet = false
+                        }
+                    }
+                }
+            }
+        } /* sheet */
+
     }
     
     
@@ -192,15 +304,22 @@ struct StageEditView: View {
 
 extension StageEditView {
     
+    func durationFromHMS() -> Int {
+        Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
+    }
+    func durationFromAdditionalHMS() -> Int {
+        Int(addedhours) * SEC_HOUR + Int(addedmins) * SEC_MIN + Int(addedsecs)
+    }
+
     func updateDuration(andDirection changeDirection: Bool) -> Void {
-        stageEditableData.durationSecsInt = Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
+        stageEditableData.durationSecsInt = durationFromHMS()
         if changeDirection == true { timerDirection = stageEditableData.isCountUp ? .countUp : .countDown }
     }
     
     func updateSnoozeDuration() {
         var newValue = Int(snoozehours) * SEC_HOUR + Int(snoozemins) * SEC_MIN
-        if newValue < kSnoozeDurationSecsMin {
-            newValue = kSnoozeDurationSecsMin
+        if newValue < kSnoozeMinimumDurationSecs {
+            newValue = kSnoozeMinimumDurationSecs
         }
         stageEditableData.snoozeDurationSecs = newValue
     }

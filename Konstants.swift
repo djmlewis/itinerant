@@ -53,18 +53,13 @@ let kImportLinesPerStage: Int = 5
 let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
-//let kStageDurationCommentOnly: Int = -1
-//let kStageDurationCountUpTimer: Int = 0
-//let kStageDurationCountUpWithSnoozeAlerts: Int = -2
-let kStageInitialDurationSecs: Int = 0
-let kSnoozeDurationSecsMin: Int = 60
-let kStageInitialSnoozeDurationSecs: Int = kSnoozeDurationSecsMin
 
-//let kFlagComment = "Ⓒ"
-//let kFlagCountUp = "Ⓤ"
-//let kFlagCountDown = "Ⓓ" // not actually used in flags but in StageNotificationInterval
-//let kFlagSnoozeRepeatingAlerts = "Ⓡ"
-//let kFlagSnoozeSingleAlert = "Ⓩ"
+let kStageInitialDurationSecs: Int = 0
+let kSnoozeMinimumDurationSecs: Int = 60
+let kStageAlertMinimumDurationSecs: Int = 1
+let kStageInitialSnoozeDurationSecs: Int = kSnoozeMinimumDurationSecs
+let kStageDurationsArraySeparator = ","
+let kStageNotificationAdditionalDurationIndicator = "&"
 
 enum StageNotificationInterval: CaseIterable {
     case comment  // here for completeness for string func
