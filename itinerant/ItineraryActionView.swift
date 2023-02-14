@@ -41,13 +41,10 @@ extension  ItineraryActionCommonView {
             VStack(alignment: .center, spacing: 0.0) {
                 HStack(alignment: .firstTextBaseline) {
                     Group {
-                        Text("Total")
-                            .font(.title2)
                         Image(systemName: "timer")
                             .resizable()
                             .frame(width: 16, height: 16)
                         Text(Stage.stageDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
-                            .font(.title2)
                         if(itinerary.someStagesAreCountUp) {
                             Image(systemName: "stopwatch")
                                 .resizable()
@@ -56,6 +53,7 @@ extension  ItineraryActionCommonView {
                     }
                     .padding(.trailing,0)
                     .padding(.leading,0)
+                    .bold()
                 }
                 HStack(alignment: .center) {
                     Spacer()
@@ -65,8 +63,8 @@ extension  ItineraryActionCommonView {
                     Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
                     Spacer()
                 }
-                .font(.caption)
             }
+            .font(.caption)
             .lineSpacing(1.0)
         } /* VStack */
         .navigationTitle(itinerary.title)
@@ -167,7 +165,6 @@ extension  ItineraryActionCommonView {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
                 ItineraryEditView(itineraryEditableData: $itineraryData)
-                    .navigationTitle(itinerary.title)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {

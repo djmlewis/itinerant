@@ -52,7 +52,6 @@ struct ItineraryEditView: View {
                 }  /* Section */
             } /* Form */
         } /* SVR */
-        
     } /* body */
     
 } /* struct */

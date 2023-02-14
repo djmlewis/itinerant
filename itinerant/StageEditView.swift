@@ -75,27 +75,20 @@ struct StageEditView: View {
                                     Picker("", selection: $hours) {
                                         ForEach(0..<24) {index in
                                             Text("\(index)").tag(index)
-                                                .foregroundColor(.black)
-                                                .fontWeight(.heavy)
                                         }
                                     }
                                     .labelsHidden()
                                     Picker("", selection: $mins) {
                                         ForEach(0..<60) {index in
                                             Text("\(index)").tag(index)
-                                                .foregroundColor(.black)
-                                                .fontWeight(.heavy)
                                         }
                                     }
                                     .labelsHidden()
                                     Picker("", selection: $secs) {
                                         ForEach(0..<60) {index in
                                             Text("\(index)").tag(index)
-                                                .foregroundColor(.black)
-                                                .fontWeight(.heavy)
                                         }
                                     }
-                                    .labelsHidden()
                                 }
                                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             }
