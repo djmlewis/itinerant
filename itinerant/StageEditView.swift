@@ -114,7 +114,7 @@ struct StageEditView: View {
                             }
                             .onDelete {
                                 additionaldurationsarray.remove(atOffsets: $0)
-                                stageEditableData.updateAdditionalDurationsArray(additionalDurations: additionaldurationsarray)
+                                stageEditableData.additionalDurationsArray = additionaldurationsarray
                            }
                         }
                     } else {
@@ -287,8 +287,8 @@ struct StageEditView: View {
                                 DispatchQueue.main.async {
                                     additionaldurationsarray.append(duration)
                                     additionaldurationsarray.sort()
-                                }
-                                stageEditableData.updateAdditionalDurationsArray(additionalDurations: additionaldurationsarray)
+                                    stageEditableData.additionalDurationsArray = additionaldurationsarray
+                               }
                             }
                             showingAddAlertSheet = false
                         }

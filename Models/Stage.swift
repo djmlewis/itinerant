@@ -24,18 +24,21 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
         set(newDuration) { durationsArray[0] = newDuration }
     }
     var additionalDurationsArray: [Int] {
-        var array = durationsArray
-        _ = array.remove(at: 0)
-        return array
-    }
-    mutating func updateAdditionalDurationsArray(additionalDurations: [Int]?) {
-        // assumes another struct is adding removing from additionalDurations and then presenting the final additionalDurations to replace existing
-        durationsArray = [Int]() + [durationsArray[0]]
-        if let validadditionalDurations = additionalDurations, !validadditionalDurations.isEmpty {
-            durationsArray += validadditionalDurations
+        get {
+            var array = durationsArray
+            _ = array.remove(at: 0)
+            return array
+        }
+        set(array) {
+            var newdurationsarray = [Int]()
+            newdurationsarray.append(durationsArray[0])
+            if !array.isEmpty {
+                newdurationsarray += array
+            }
+            durationsArray = newdurationsarray
         }
     }
-    
+
     // simple init with a durationSecsInt
     init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = "") {
         self.id = id
@@ -108,15 +111,18 @@ extension Stage {
             set(newDuration) { durationsArray[0] = newDuration }
         }
         var additionalDurationsArray: [Int] {
-            var array = durationsArray
-            _ = array.remove(at: 0)
-            return array
-        }
-        mutating func updateAdditionalDurationsArray(additionalDurations: [Int]?) {
-            // assumes another struct is adding removing from additionalDurations and then presenting the final additionalDurations to replace existing
-            durationsArray = [Int]() + [durationsArray[0]]
-            if let validadditionalDurations = additionalDurations, !validadditionalDurations.isEmpty {
-                durationsArray += validadditionalDurations
+            get {
+                var array = durationsArray
+                _ = array.remove(at: 0)
+                return array
+            }
+            set(array) {
+                var newdurationsarray = [Int]()
+                newdurationsarray.append(durationsArray[0])
+                if !array.isEmpty {
+                    newdurationsarray += array
+                }
+                durationsArray = newdurationsarray
             }
         }
 
@@ -290,15 +296,8 @@ extension Stage {
         return idstrtotest != nil && idStr == idstrtotest!
     }
     
-    var idNotificationIntervalStrings: [String] {
-        var stringArray = StageNotificationInterval.allSuffixedStrings(forString: idStr)
-        for i in 0..<additionalDurationsArray.count {
-            stringArray.append(notificationString(additionalDurationIndex: i))
-        }
-        return stringArray
-    }
-    func notificationString(additionalDurationIndex: Int) -> String {
-        idStr + kStageNotificationAdditionalDurationIndicator + String(format: "%i", additionalDurationIndex) + kStageNotificationAdditionalDurationIndicator
+    func additionalAlertNotificationString(index: Int) -> String {
+        idStr + StageNotificationInterval.additionalAlert.string + String(format: "%i", index)
     }
 }
 

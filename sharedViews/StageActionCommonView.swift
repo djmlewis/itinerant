@@ -173,10 +173,11 @@ extension StageActionCommonView {
         // request countdown & snooze notification if needed
         if stage.isCountDown { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownEnd) }
         if stage.isPostingSnoozeAlerts { // give countdown a head start
-            DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
                 postNotification(stage: stage, itinerary: itinerary, intervalType: .snoozeRepeatingIntervals)
             }
         }
+        postAllAdditionalAlertNotifications(stage: stage, itinerary: itinerary)
         // need to reset the timer to reattach the cancellor
         uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
         uiUpdateTimerCancellor = uiUpdateTimer.connect()

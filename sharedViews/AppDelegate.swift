@@ -63,7 +63,7 @@ extension AppDelegate {
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.delegate = self
         // Register the notification type.
-        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory, kUNNCountUpSnoozeCompletedCategory])
+        notificationCenter.setNotificationCategories([kUNNStageCompletedCategory,kUNNSingleSnoozeCompletedCategory, kUNNAdditionalAlertCompletedCategory, kUNNCountUpSnoozeCompletedCategory])
         requestNotificationPermission()
         initiateWatchConnectivity()
         DispatchQueue.main.async {
@@ -94,12 +94,14 @@ extension AppDelegate {
         // Always call the completionHandler
         debugPrint("willPresent",notification.request.content.categoryIdentifier)
         
-        let stageID = notification.request.content.userInfo[kStageUUIDStr] as! String
+        //let stageID = notification.request.content.userInfo[kStageUUIDStr] as! String
         switch notification.request.content.categoryIdentifier  {
         case kNotificationCategoryStageCompleted:
-            removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
-        case kNotificationCategoryPostCompletedSnoozeIntervalCompleted:
-            removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
+            break
+            //removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
+        case kNotificationCategoryPostStageSingleSnoozeIntervalCompleted:
+            break
+            //removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
         case kNotificationCategoryRepeatingSnoozeIntervalCompleted:
             // allow repeating, dont remove
             break
@@ -124,9 +126,11 @@ extension AppDelegate {
         
         switch response.notification.request.content.categoryIdentifier  {
         case kNotificationCategoryStageCompleted:
-            removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
-        case kNotificationCategoryPostCompletedSnoozeIntervalCompleted:
-            removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
+            break
+            //removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
+        case kNotificationCategoryPostStageSingleSnoozeIntervalCompleted:
+            break
+            //removeAllPendingAndDeliveredStageNotifications(forUUIDstr: stageID)
         case kNotificationCategoryRepeatingSnoozeIntervalCompleted:
             // allow repeating, dont remove
             break
@@ -160,7 +164,7 @@ extension AppDelegate {
                 self.unnItineraryToOpenID = notifiedItineraryID as? String
                 self.unnStageToHaltID = stageID
             }
-        case kNotificationActionSnooze:
+        case kNotificationActionSingleSnooze:
             let center = UNUserNotificationCenter.current()
             let request = requestStageCompletedSingleSnoozeNotification(toResponse: response)
             center.add(request) { (error) in

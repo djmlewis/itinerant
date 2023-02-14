@@ -59,14 +59,14 @@ let kSnoozeMinimumDurationSecs: Int = 60
 let kStageAlertMinimumDurationSecs: Int = 1
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeMinimumDurationSecs
 let kStageDurationsArraySeparator = ","
-let kStageNotificationAdditionalDurationIndicator = "&"
 
 enum StageNotificationInterval: CaseIterable {
     case comment  // here for completeness for string func
     case countUp // here for completeness for string func
     case countDownEnd
     case snoozeRepeatingIntervals
-    case snoozeSingleInterval
+    case snoozeSingleInterval  // here for completeness for string func
+    case additionalAlert  // here for completeness for string func
     
     var string: String {
         switch self {
@@ -80,29 +80,12 @@ enum StageNotificationInterval: CaseIterable {
             return  "Ⓡ"
         case .snoozeSingleInterval:
             return  "Ⓩ"
+        case .additionalAlert:
+            return "Ⓐ"
         }
-    }
-    
-    static func stripAllSuffixesFromStr(_ str: String?) -> String? {
-        guard var validstr = str else { return nil }
-        StageNotificationInterval.allCases.forEach {
-            validstr = validstr.replacingOccurrences(of: $0.string, with: "")
-        }
-        return str
-    }
-    
-    static func allSuffixedStrings(forString str: String) -> [String] {
-        var stringArray = [String]()
-        StageNotificationInterval.allCases.forEach { stringArray.append(str + $0.string) }
-        return stringArray
     }
 }
 
-extension String {
-    func strippedOfNotificationFlags() -> String {
-        return StageNotificationInterval.stripAllSuffixesFromStr(self)!
-    }
-}
 
 // MARK: - ItinerantApp
 
