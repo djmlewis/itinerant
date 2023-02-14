@@ -14,30 +14,42 @@ extension StageActionCommonView {
             if stage.isCommentOnly == false {
                 GridRow {
                     HStack(spacing: 0.0) {
-                        Image(systemName: stage.isCountUp ? "stopwatch" : "timer")
-                            .padding(.leading, 2.0)
-                        if !stage.isCountUp {
-                            Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                                .font(.system(.title3, design: .rounded, weight: .semibold))
-                                .lineLimit(1)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                                .padding(.trailing, 2.0)
-                        }
-                        if stage.isPostingSnoozeAlerts {
-                            // Snooze Alarms time duration
+                        VStack {
                             HStack {
-                                Spacer()
-                                Image(systemName: "bell.and.waves.left.and.right")
-                                Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                    .font(.title3)
-                                    .lineLimit(1)
-                                    .allowsTightening(true)
-                                    .minimumScaleFactor(0.5)
-                                Spacer()
-                           }
-                            .opacity(0.5)
-                        }
+                                Image(systemName: stage.isCountUp ? "stopwatch" : "timer")
+                                    .padding(.leading, 2.0)
+                                if !stage.isCountUp {
+                                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                                        .lineLimit(1)
+                                        .allowsTightening(true)
+                                        .minimumScaleFactor(0.5)
+                                        .padding(.trailing, 2.0)
+                                }
+                                if stage.isPostingSnoozeAlerts {
+                                    // Snooze Alarms time duration
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: "bell.and.waves.left.and.right")
+                                        Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                            .font(.title3)
+                                            .lineLimit(1)
+                                            .allowsTightening(true)
+                                            .minimumScaleFactor(0.5)
+                                        Spacer()
+                                    }
+                                    .opacity(0.5)
+                                }
+                            } /* HStack */
+                            if !stage.additionalDurationsArray.isEmpty {
+                                    HStack {
+                                        Image(systemName: "alarm.waves.left.and.right")
+                                        Text(stage.additionalAlertsDurationsString)
+                                    }
+                                    .foregroundColor(stageTextColour())
+                                    .opacity(0.5)
+                            } /* if !stage.additionalDurationsArray.isEmpty */
+                        } /* VStack */
                         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                             Spacer()
                             buttonStartHalt()
@@ -63,7 +75,7 @@ extension StageActionCommonView {
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
                     GridRow {
                         HStack(spacing:0.0) {
-                            Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                            Image(systemName: "timer")
                             Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         }
                         .font(.system(.title3, design: .rounded, weight: .semibold))

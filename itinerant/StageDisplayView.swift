@@ -43,10 +43,13 @@ struct StageDisplayView: View {
             VStack(alignment: .leading) {
                 HStack {
                     Image(systemName: stage.durationSymbolName)
+                        .font(.title3)
+                        .fontWeight(.bold)
                     if stage.isCommentOnly == false {
                         if stage.isCountUp == false {
                             Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                                 .font(.title3)
+                                .fontWeight(.bold)
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -57,7 +60,6 @@ struct StageDisplayView: View {
                                 Image(systemName: "bell.and.waves.left.and.right")
                                 Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                     .font(.title3)
-                                    .fontWeight(.bold)
                                     .lineLimit(1)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
@@ -67,7 +69,17 @@ struct StageDisplayView: View {
                         }
                     }
                 }
-                Text(stage.title)
+                if !stage.additionalDurationsArray.isEmpty {
+                    HStack {
+                        Image(systemName: "alarm.waves.left.and.right")
+                        Text(stage.additionalAlertsDurationsString)
+                    }
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .opacity(0.5)
+                }
+               Text(stage.title)
                     .font(.title3)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.leading)

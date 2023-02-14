@@ -45,34 +45,47 @@ extension StageActionCommonView {
             }
             if stage.isCommentOnly == false {
                 HStack {
-                    // alarm duration and button
-                    Image(systemName: stage.durationSymbolName)
-                    // Timer type icon
-                        .foregroundColor(stageTextColour())
-                    if !stage.isCountUp {
-                        Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                        // Alarm time duration
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(stageTextColour())
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.5)
-                    }
-                    if stage.isPostingSnoozeAlerts {
-                        // Snooze Alarms time duration
+                    VStack {
                         HStack {
-                            Image(systemName: "bell.and.waves.left.and.right")
-                            Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .lineLimit(1)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                       }
-                        .foregroundColor(stageTextColour())
-                        .frame(maxWidth: .infinity)
-                        .opacity(0.5)
+                            // alarm duration and button
+                            Image(systemName: stage.durationSymbolName)
+                            // Timer type icon
+                                .foregroundColor(stageTextColour())
+                            if !stage.isCountUp {
+                                Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                                // Alarm time duration
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(stageTextColour())
+                                    .lineLimit(1)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.5)
+                            }
+                            if stage.isPostingSnoozeAlerts {
+                                // Snooze Alarms time duration
+                                HStack {
+                                    Image(systemName: "bell.and.waves.left.and.right")
+                                    Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .lineLimit(1)
+                                        .allowsTightening(true)
+                                        .minimumScaleFactor(0.5)
+                                }
+                                .foregroundColor(stageTextColour())
+                                .frame(maxWidth: .infinity)
+                                .opacity(0.5)
+                            }
+                        }
+                        if !stage.additionalDurationsArray.isEmpty {
+                            HStack {
+                                Image(systemName: "alarm.waves.left.and.right")
+                                Text(stage.additionalAlertsDurationsString)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(stageTextColour())
+                            .opacity(0.5)
+                        }
                     }
                     Spacer()
                     if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
@@ -102,7 +115,7 @@ extension StageActionCommonView {
                             .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                             if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
                                 HStack {
-                                    Image(systemName: stageRunningOvertime ?  "bell.and.waves.left.and.right" : "bell")
+                                    Image(systemName: "timer")
                                     // time remaining or overtime
                                     Text("\(stageRunningOvertime ? "+" : "" )" +
                                          Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))

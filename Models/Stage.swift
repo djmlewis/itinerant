@@ -229,7 +229,14 @@ extension Stage {
     static func stageDurationStringFromDouble(_ time: Double) -> String {
         Stage.stageDurationFormatter.string(from: time) ?? ""
     }
+    static func stageDurationStringHardPaddedFromDouble(_ time: Double) -> String {
+        stageDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{00A0}")
+    }
 
+    var additionalAlertsDurationsString: String {
+        let array = additionalDurationsArray.map( {Stage.stageDurationStringHardPaddedFromDouble(Double($0)) } )
+        return array.joined(separator: ", ")
+    }
 }
 
 

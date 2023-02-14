@@ -122,12 +122,6 @@ extension Itinerary {
     
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
     
-//    var stagesIdNotificationIntervalStrings: [String] {
-//        var array = [String]()
-//            stages.forEach { array += $0.idNotificationIntervalStrings }
-//        return array
-//    }
-
     var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
         // remove any negative flag values with max(...,0)
         partialResult + stage.durationSecsInt
