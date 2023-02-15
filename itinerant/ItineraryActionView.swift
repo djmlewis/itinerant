@@ -39,7 +39,7 @@ extension  ItineraryActionCommonView {
                 /* List mods */
             } /* ScrollViewReader */
             VStack(alignment: .center, spacing: 0.0) {
-                HStack(alignment: .firstTextBaseline) {
+                HStack(alignment: .center) {
                     Group {
                         Image(systemName: "timer")
                             .resizable()
@@ -53,7 +53,7 @@ extension  ItineraryActionCommonView {
                     }
                     .padding(.trailing,0)
                     .padding(.leading,0)
-                    .bold()
+                    .font(.system(.subheadline, design: .rounded, weight: .regular))
                 }
                 HStack(alignment: .center) {
                     Spacer()
@@ -63,6 +63,7 @@ extension  ItineraryActionCommonView {
                     Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
                     Spacer()
                 }
+                .font(.system(.caption, design: .rounded, weight: .regular))
             }
             .font(.caption)
             .lineSpacing(1.0)

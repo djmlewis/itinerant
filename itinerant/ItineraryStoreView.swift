@@ -106,13 +106,13 @@ struct ItineraryStoreView: View {
                             .padding(0)
                         }
                         .padding(0)
-                  }
+                    }
                     .foregroundColor(textColourForID(itineraryID))
-                   .listRowBackground(backgroundColourForID(itineraryID))
-                   .listRowInsets(.init(top: 10,
-                                        leading: (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
-                                        bottom: 10, trailing: 10))
-               } /* ForEach */
+                    .listRowBackground(backgroundColourForID(itineraryID))
+                    .listRowInsets(.init(top: 10,
+                                         leading: (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
+                                         bottom: 10, trailing: 10))
+                } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
                     offsets.forEach { index in
@@ -124,7 +124,7 @@ struct ItineraryStoreView: View {
             } /* List */
             .navigationDestination(for: String.self) { id in
                 ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
-           }
+            }
             .navigationTitle("Itineraries")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -276,7 +276,7 @@ struct ItineraryStoreView: View {
             Text("Do you want to open \(filename) ?")
                 .font(.body)
         }
-
+        
     } /* body */
 } /* View */
 

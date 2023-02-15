@@ -32,25 +32,28 @@ extension StageActionCommonView {
                                         Spacer()
                                         Image(systemName: "bell.and.waves.left.and.right")
                                         Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                            .font(.title3)
                                             .lineLimit(1)
                                             .allowsTightening(true)
                                             .minimumScaleFactor(0.5)
                                         Spacer()
                                     }
-                                    .opacity(0.5)
+                                   .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                    .opacity(0.7)
                                 }
                             } /* HStack */
                             if !stage.additionalDurationsArray.isEmpty {
                                     HStack {
-                                        Image(systemName: "alarm.waves.left.and.right")
-                                        Text(stage.additionalAlertsDurationsString)
+                                        // Image(systemName: "alarm.waves.left.and.right")
+                                        Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
+                                            .allowsTightening(true)
+                                            .minimumScaleFactor(0.5)
                                     }
-                                    .foregroundColor(stageTextColour())
-                                    .opacity(0.5)
+                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                    .opacity(0.7)
                             } /* if !stage.additionalDurationsArray.isEmpty */
                         } /* VStack */
-                        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        .foregroundColor(stageTextColour())
+                       if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                             Spacer()
                             buttonStartHalt()
                         }

@@ -102,47 +102,7 @@ struct StageEditView: View {
                     } /* if timerDirection == .countDown {VStack}*/
                     /* Duration Pickers */
                 } /* Section */
-                Section {
-                    if !additionaldurationsarray.isEmpty {
-                        List {
-                            ForEach(additionaldurationsarray, id: \.self) { secsInt in
-                                HStack {
-                                    Image(systemName: "alarm.waves.left.and.right")
-                                    Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                            }
-                            .onDelete {
-                                additionaldurationsarray.remove(atOffsets: $0)
-                                stageEditableData.additionalDurationsArray = additionaldurationsarray
-                           }
-                        }
-                    } else {
-                        Text("Tap + to add")
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .opacity(0.5)
-                            .italic()
-
-                    }
-                } header: {
-                    HStack {
-                        Text("Additional Alerts")
-                        Spacer()
-                        Button {
-                            addedhours = 0
-                            addedmins = 0
-                            addedsecs = 0
-                            showingAddAlertSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
-                /* Section */
-            //} /* if !stageEditableData.durationsArray.isEmpty */
-            } /* untimedComment != true {Section} */
-            if untimedComment != true {
-                Section("Interval Between Snooze Alerts") {
+                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Interval Between Snooze Notifications") {
                     VStack(spacing:0) {
                         HStack {
                             Group {
@@ -186,14 +146,53 @@ struct StageEditView: View {
                                 Image(systemName: "bell.and.waves.left.and.right")
                             }
                             VStack {
-                                Text("Repeating Alert At Snooze Intervals")
+                                Text("Repeating Notifications At Snooze Intervals")
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                             .foregroundColor(textColourForScheme(colorScheme: colorScheme))
                     }
                 } /* Section */
-            }
+                Section {
+                    if !additionaldurationsarray.isEmpty {
+                        List {
+                            ForEach(additionaldurationsarray, id: \.self) { secsInt in
+                                HStack {
+                                    //Image(systemName: "alarm.waves.left.and.right")
+                                    Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                            .onDelete {
+                                additionaldurationsarray.remove(atOffsets: $0)
+                                stageEditableData.additionalDurationsArray = additionaldurationsarray
+                           }
+                        }
+                    } else {
+                        Text("Tap + to add")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .opacity(0.5)
+                            .italic()
+
+                    }
+                } header: {
+                    HStack {
+                        Text("\(Image(systemName: "alarm.waves.left.and.right")) Additional Notifications")
+                        Spacer()
+                        Button {
+                            addedhours = 0
+                            addedmins = 0
+                            addedsecs = 0
+                            showingAddAlertSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                /* Section */
+            //} /* if !stageEditableData.durationsArray.isEmpty */
+            } /* untimedComment != true {Section} */
         }
         .onChange(of: untimedComment, perform: {
             stageEditableData.isCommentOnly = $0

@@ -13,7 +13,18 @@ extension StageActionCommonView {
         VStack(alignment: .leading) {
             HStack {
                 // title and expand details
-                if stage.isCommentOnly == false {
+                if stage.isCommentOnly == true {
+                    Image(systemName: "bubble.left")
+                        .foregroundColor(stageTextColour())
+                }
+                Text(stage.title)
+                // Stage title
+                    .fixedSize(horizontal: false, vertical: true)
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundColor(stageTextColour())
+                    .scenePadding(.minimum, edges: .horizontal)
+                Spacer()
+                if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                     Button(action: {
                         disclosureDetailsExpanded = !disclosureDetailsExpanded
                     }) {
@@ -22,39 +33,33 @@ extension StageActionCommonView {
                     }
                     .buttonStyle(BorderlessButtonStyle())
                 }
-                if stage.isCommentOnly == true {
-                    Image(systemName: "bubble.left")
-                        .foregroundColor(stageTextColour())
-                }
-                Text(stage.title)
-                // Stage title
-                    .fixedSize(horizontal: false, vertical: true)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(stageTextColour())
-                    .scenePadding(.minimum, edges: .horizontal)
             }
             .padding(0.0)
-            if !stage.details.isEmpty && disclosureDetailsExpanded == true{
+            if !stage.details.isEmpty &&
+                (disclosureDetailsExpanded == true ||
+                 stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
+                 stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
+            {
                 Text(stage.details)
                 // Details
-                    .font(.body)
+                    .font(.system(.body, design: .rounded, weight: .regular))
                     .foregroundColor(stageTextColour())
                     .multilineTextAlignment(.leading)
                     .padding(0.0)
             }
             if stage.isCommentOnly == false {
                 HStack {
-                    VStack {
+                    VStack(spacing: 4.0) {
                         HStack {
                             // alarm duration and button
                             Image(systemName: stage.durationSymbolName)
                             // Timer type icon
+                                .font(.system(.title3, design: .rounded, weight: .bold))
                                 .foregroundColor(stageTextColour())
                             if !stage.isCountUp {
                                 Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                                 // Alarm time duration
-                                    .font(.title3)
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
                                     .fontWeight(.bold)
                                     .foregroundColor(stageTextColour())
                                     .lineLimit(1)
@@ -66,7 +71,7 @@ extension StageActionCommonView {
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")
                                     Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                        .font(.title3)
+                                        .font(.system(.subheadline, design: .rounded, weight: .regular))
                                         .fontWeight(.bold)
                                         .lineLimit(1)
                                         .allowsTightening(true)
@@ -74,17 +79,18 @@ extension StageActionCommonView {
                                 }
                                 .foregroundColor(stageTextColour())
                                 .frame(maxWidth: .infinity)
-                                .opacity(0.5)
+                                .opacity(0.7)
                             }
                         }
                         if !stage.additionalDurationsArray.isEmpty {
                             HStack {
-                                Image(systemName: "alarm.waves.left.and.right")
-                                Text(stage.additionalAlertsDurationsString)
-                            }
-                            .frame(maxWidth: .infinity)
+                                //Image(systemName: "alarm.waves.left.and.right")
+                                Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                           }
                             .foregroundColor(stageTextColour())
-                            .opacity(0.5)
+                            .opacity(0.7)
                         }
                     }
                     Spacer()
@@ -100,7 +106,6 @@ extension StageActionCommonView {
                                 Image(systemName: "hourglass")
                                 // elapsed time
                                 Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
-                                    .bold()
                             }
                             .padding(4.0)
                             .frame(maxWidth: .infinity)
@@ -119,7 +124,6 @@ extension StageActionCommonView {
                                     // time remaining or overtime
                                     Text("\(stageRunningOvertime ? "+" : "" )" +
                                          Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
-                                    .bold()
                                 }
                                 .padding(4.0)
                                 .frame(maxWidth: .infinity)
@@ -133,6 +137,7 @@ extension StageActionCommonView {
                                 //.opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                             }
                         } /* GridRow */
+                        .font(.system(.title3, design: .rounded, weight: .bold))
                         .padding(0.0)
                     } /* Grid */
                     .padding(0.0)

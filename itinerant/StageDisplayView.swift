@@ -40,16 +40,12 @@ struct StageDisplayView: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2.0) {
                 HStack {
                     Image(systemName: stage.durationSymbolName)
-                        .font(.title3)
-                        .fontWeight(.bold)
                     if stage.isCommentOnly == false {
                         if stage.isCountUp == false {
                             Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                                .font(.title3)
-                                .fontWeight(.bold)
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -59,37 +55,41 @@ struct StageDisplayView: View {
                             HStack {
                                 Image(systemName: "bell.and.waves.left.and.right")
                                 Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                    .font(.title3)
                                     .lineLimit(1)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
                             }
+                            .font(.system(.subheadline, design: .rounded, weight: .regular))
                             .frame(maxWidth: .infinity)
                             .opacity(0.5)
                         }
                     }
                 }
+                .font(.system(.title3, design: .rounded, weight: .bold))
                 if !stage.additionalDurationsArray.isEmpty {
                     HStack {
-                        Image(systemName: "alarm.waves.left.and.right")
-                        Text(stage.additionalAlertsDurationsString)
-                    }
-                    .font(.subheadline)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                        //Image(systemName: "alarm.waves.left.and.right")
+                        Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                   }
+                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                    .multilineTextAlignment(.leading)
                     .opacity(0.5)
+                    .padding(.top, 4.0)
                 }
                Text(stage.title)
-                    .font(.title3)
-                    .fontWeight(.bold)
+                    .font(.system(.title3, design: .rounded, weight: .bold))
                     .multilineTextAlignment(.leading)
+                    .padding(.top, 6.0)
                 if !stage.details.isEmpty {
                     Text(stage.details)
-                        .font(.footnote)
+                        .font(.system(.footnote, design: .rounded, weight: .regular))
                         .multilineTextAlignment(.leading)
                         .lineLimit(1...2)
+                        .padding(0)
                 }
             } /* VStack */
+            .padding(0)
             .frame(maxWidth: .infinity, alignment: .leading)
             //editMode is the global for when the Edit buton is tapped
             if editMode?.wrappedValue.isEditing == false {
@@ -132,9 +132,10 @@ struct StageDisplayView: View {
                     .buttonStyle(BorderlessButtonStyle())
                     .frame(width: 24, alignment: .trailing)
                 }
+                .padding(.bottom, 6.0)
+                .padding(.top, 6.0)
             }
         } /* HStack */
-        .padding()
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)
