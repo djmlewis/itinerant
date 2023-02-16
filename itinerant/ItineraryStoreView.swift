@@ -88,6 +88,7 @@ struct ItineraryStoreView: View {
                             VStack(alignment: .leading, spacing: 5.0) {
                                 Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                     .font(.system(.title, design: .rounded, weight: .semibold))
+                                    .multilineTextAlignment(.leading)
                                 HStack(alignment: .center) {
                                     Image(systemName: "doc")
                                     Text(itineraryStore.itineraryFileNameForID(id: itineraryID))

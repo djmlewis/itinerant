@@ -19,6 +19,7 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var itineraryStore = ItineraryStore()
     @Published var fileDeleteDialogShow = false
     @Published var fileDeletePathArray: [String]?
+    @Published var watchConnectionProblem: String?
 
     @Published var newItinerary: Itinerary? /* watchOS only */
   
@@ -230,24 +231,19 @@ extension AppDelegate {
     
     
     func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
-#if os(iOS)
-        guard WCSession.default.isWatchAppInstalled else {
-            debugPrint("isCompanionAppInstalled false")
-            return
-        }
-#endif
-        guard WCSession.default.activationState == .activated else {
-            debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
+        let message = watchConnectionUnusableMessage()
+        guard message == nil else {
+            debugPrint(message!)
             return
         }
         if let messageDict = dict {
             if WCSession.default.isReachable {
-                print("sending by message")
+                debugPrint("sending by message")
                 WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
                     print("Cannot send messageString: \(String(describing: error))")
                 }
             } else {
-                print("sending by transferUserInfo")
+                debugPrint("sending by transferUserInfo")
                 WCSession.default.transferUserInfo(messageDict)
             }
             

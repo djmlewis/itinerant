@@ -11,6 +11,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import WatchConnectivity
 
 // MARK: Time formatting & second-min
 let SEC_MIN = 60
@@ -129,3 +130,24 @@ extension String {
     }
 }
 
+
+// MARK: - Watch Connectivity
+func watchConnectionUnusableMessage() -> String? {
+#if os(iOS)
+    guard WCSession.default.isWatchAppInstalled else {
+        debugPrint("isCompanionAppInstalled false")
+        return "No app installed on Watch"
+    }
+#endif
+    guard WCSession.default.activationState == .activated else {
+        debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
+        return "No active session - force quit the app and restart"
+    }
+
+    // nil indicates usable
+    return nil
+}
+
+func watchConnectionUnusable() ->  Bool {
+    return watchConnectionUnusableMessage() != nil
+}

@@ -113,7 +113,7 @@ extension  ItineraryActionCommonView {
                     }) {
                         Label("Send to Watch…", systemImage: "applewatch")
                     }
-                    
+                    .disabled(watchConnectionUnusable())
                     Button(action: {
                         // ItineraryDocument always inits with now mod date
                         fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)

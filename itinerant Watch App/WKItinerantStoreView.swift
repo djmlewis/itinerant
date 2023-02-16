@@ -35,21 +35,25 @@ struct WKItinerantStoreView: View {
             List {
                 ForEach($itineraryStore.itineraries.map({ $0.id.uuidString}), id:\.self) { itineraryID in
                     NavigationLink(value: itineraryID) {
-                        VStack(alignment: .center, spacing: 0.0) {
+                        VStack(spacing: 0.0) {
                             Text(itineraryStore.itineraryTitleForID(id: itineraryID))
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
-                            if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                           if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
                                 HStack {
                                     Image(systemName:"square.and.pencil")
                                     Text(date.formatted(date: .numeric, time: .shortened))
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
-                                }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                               }
                                 .font(.system(.caption, design: .rounded, weight: .regular))
                                 .opacity(0.6)
                             }
                      }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .listItemTint(backgroundColourForID(itineraryID))
                     .foregroundColor(textColourForID(itineraryID))
