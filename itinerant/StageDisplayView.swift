@@ -168,6 +168,7 @@ struct StageDisplayView: View {
                 .padding()
             }
         } /* HStack */
+        .animation(.linear(duration: 0.1), value: isEditing)
         .padding([.top,.bottom],1)
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
