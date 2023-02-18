@@ -27,19 +27,35 @@ struct NewStageMeta: Equatable {
 struct StageDisplayView: View {
     @Binding var stage: Stage
     @Binding var newStageMeta: NewStageMeta?
+    @Binding var isEditing: Bool
+    @Binding var stageIDtoDelete: String?
 
-    @Environment(\.editMode) private var editMode
+//    @Environment(\.editMode) private var editMode
     @EnvironmentObject var appDelegate: AppDelegate
 
     @State private var isPresentingStageEditView = false
     @State private var stageEditableData = Stage.EditableData()
 
-    //@State private var newStage: Stage = Stage()
     @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
     @State private var isPresentingNewStageEditView = false
 
     var body: some View {
         HStack(alignment: .top) {
+            if isEditing == true {
+                VStack {
+                    Button {
+                        stageIDtoDelete = stage.idStr
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .foregroundColor(.white)
+                    .buttonStyle(.borderless)
+                    .controlSize(.large)
+                }
+                .frame(maxHeight: .infinity)
+                .padding()
+                .background(.red)
+            }
             VStack(alignment: .leading, spacing: 2.0) {
                 HStack {
                     Image(systemName: stage.durationSymbolName)
@@ -97,7 +113,7 @@ struct StageDisplayView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             //editMode is the global for when the Edit buton is tapped
-            if editMode?.wrappedValue.isEditing == false {
+            if isEditing == false {
                 VStack {
                     VStack(alignment: .trailing) {
                         Button(action: {
@@ -140,12 +156,19 @@ struct StageDisplayView: View {
                     .padding(12)
                     .background(Color("ColourControlsBackground"))
                     .foregroundColor( .accentColor)
-                }
+                } /* VStack buttons*/
                 .background(.clear)
                 .padding([.top,.bottom],1)
-            } /* if editMode?.wrappedValue.isEditing == false */
+            } /* if isEditing == false */
+            else {
+                VStack {
+                    Image(systemName: "line.3.horizontal")
+                }
+                .frame(maxHeight: .infinity)
+                .padding()
+            }
         } /* HStack */
-        .padding(0)
+        .padding([.top,.bottom],1)
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)

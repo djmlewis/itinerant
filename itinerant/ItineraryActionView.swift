@@ -15,6 +15,7 @@ extension  ItineraryActionCommonView {
     
 
     var body_: some View {
+
         VStack {
             ScrollViewReader { scrollViewReader in
                 List {

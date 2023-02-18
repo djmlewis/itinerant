@@ -50,9 +50,7 @@ struct ItineraryActionCommonView: View {
 #endif
 
 
-
-
-    
+   
     var body: some View {
         body_
     } /* View */
