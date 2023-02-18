@@ -235,7 +235,7 @@ extension Stage {
 
     var additionalAlertsDurationsString: String {
         let array = additionalDurationsArray.map( {Stage.stageDurationStringHardPaddedFromDouble(Double($0)) } )
-        return array.joined(separator: " • ")
+        return array.joined(separator: "\u{202F}• ")
     }
 }
 
