@@ -92,11 +92,11 @@ struct ItineraryStoreView: View {
                                 HStack(alignment: .center) {
                                     Image(systemName: "doc")
                                     Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
-                                    Spacer()
                                     if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
                                         Image(systemName:"square.and.pencil")
                                         Text(date.formatted(date: .numeric, time: .shortened))
                                     }
+                                    Spacer()
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .lineLimit(1)
@@ -131,6 +131,12 @@ struct ItineraryStoreView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: {
+                            showSettingsView = true
+                        }) {
+                            Label("Settings…", systemImage: "gear")
+                        }
+                        Divider()
+                        Button(action: {
                             fileImportFileType = [.itineraryDataFile]
                             fileImporterShown = true
                         }) {
@@ -142,15 +148,11 @@ struct ItineraryStoreView: View {
                         }) {
                             Label("Import…", systemImage: "doc.plaintext")
                         }
+                        Divider()
                         Button(action: {
                             itineraryStore.reloadItineraries()
                         }) {
                             Label("Refresh…", systemImage: "arrow.counterclockwise.circle.fill")
-                        }
-                        Button(action: {
-                            showSettingsView = true
-                        }) {
-                            Label("Settings…", systemImage: "gear")
                         }
                     } label: {
                         Label("", systemImage: "ellipsis.circle")

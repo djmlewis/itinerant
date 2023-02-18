@@ -86,7 +86,8 @@ func requestStageCompletedSingleSnoozeNotification(toResponse response: UNNotifi
     content.interruptionLevel = .active
     content.sound = .default
     content.categoryIdentifier = kNotificationCategoryPostStageSingleSnoozeIntervalCompleted
-    let snoozeInterval = Double(userinfo[kStageSnoozeDurationSecs] as! Int)
+    // has to be at least min. This is the final check
+    let snoozeInterval = Double(max(userinfo[kStageSnoozeDurationSecs] as! Int, kSnoozeMinimumDurationSecs))
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeInterval, repeats: false)
     let request = UNNotificationRequest(identifier: (userinfo[kStageUUIDStr] as! String) + StageNotificationInterval.snoozeSingleInterval.string, content: content, trigger: trigger)
 
@@ -107,7 +108,8 @@ func requestAdditionalAlertCompleted(stage: Stage, itinerary: Itinerary, interva
     content.categoryIdentifier = kNotificationCategoryStageAdditionalAlertCompleted
     content.interruptionLevel = .active
     content.sound = .default
-    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(intervalToAlarmSecs), repeats: false)
+    // has to be at least min. This is the final check
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(max(intervalToAlarmSecs,kStageMinimumDurationSecs)), repeats: false)
     let request = UNNotificationRequest(identifier: stage.additionalAlertNotificationString(index: index), content: content, trigger: trigger)
     return request
 }
@@ -147,17 +149,20 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
     switch intervalType {
     case .countDownEnd:
         categoryIdentifier = kNotificationCategoryStageCompleted
-        duration = Double(stage.durationSecsInt)
+        // has to be at least min. This is the final check
+        duration = Double(max(stage.durationSecsInt, kStageMinimumDurationSecs))
         repeats = false
         interruption = .timeSensitive
     case .snoozeRepeatingIntervals:
         categoryIdentifier = kNotificationCategoryRepeatingSnoozeIntervalCompleted
-        duration = Double(stage.snoozeDurationSecs)
+        // has to be at least min. This is the final check
+        duration = Double(max(stage.snoozeDurationSecs, kSnoozeMinimumDurationSecs))
         repeats = true
         interruption = .active
     default:
         categoryIdentifier = kNotificationCategoryUnknown
-        duration = 0.0
+        // has to be at least min. This is the final check
+        duration = Double(kStageMinimumDurationSecs)
         repeats = false
         interruption = .passive
         debugPrint("!! kNotificationCategoryUnknown ")

@@ -7,6 +7,32 @@
 
 import SwiftUI
 
+struct SettingsViewStageColours: View {
+    var title: String
+    var imageName: String
+    @Binding var colourBackground: Color
+    @Binding var colourForeground: Color
+
+    var body: some View {
+        VStack {
+            Label(title, systemImage: imageName)
+            HStack {
+                Spacer()
+                Image(systemName: "character.textbox")
+                ColorPicker("", selection: $colourBackground)
+                    .frame(maxWidth: 28)
+                Spacer()
+                    .frame(maxWidth: 32)
+                ColorPicker("", selection: $colourForeground)
+                    .frame(maxWidth: 28)
+                Image(systemName: "textformat")
+                    .padding(.leading, 8)
+                Spacer()
+            }
+        }
+        .settingsColours(background: colourBackground, foreground: colourForeground)
+    }
+}
 
 
 struct SettingsView: View {
@@ -38,50 +64,14 @@ struct SettingsView: View {
     @State var fileSaverShown: Bool = false
     @State var settingsSaveDocument: ItineraryFile?
     @State var fileImporterShown: Bool = false
-
     
     var body: some View {
         List {
             Section {
-                HStack {
-                    Image(systemName: "bubble.left")
-                    ColorPicker("Comments", selection: $prefColourComment)
-                    Image(systemName: "character.textbox")
-                    Spacer()
-                    ColorPicker("", selection: $prefColourFontComment)
-                        .frame(maxWidth: 48)
-                    Image(systemName: "textformat")
-                }
-                .settingsColours(background: prefColourComment, foreground: prefColourFontComment)
-                HStack {
-                    Image(systemName: "play.circle.fill")
-                    ColorPicker("Active", selection: $prefColourActive)
-                    Image(systemName: "character.textbox")
-                    ColorPicker("", selection: $prefColourFontActive)
-                        .frame(maxWidth: 48)
-                    Image(systemName: "textformat")
-                }
-                .settingsColours(background: prefColourActive, foreground: prefColourFontActive)
-                HStack {
-                    Image(systemName: "stop.circle")
-                    ColorPicker("Running", selection: $prefColourRunning)
-                    Image(systemName: "character.textbox")
-                    Spacer()
-                    ColorPicker("", selection: $prefColourFontRunning)
-                        .frame(maxWidth: 48)
-                    Image(systemName: "textformat")
-                }
-                .settingsColours(background: prefColourRunning, foreground: prefColourFontRunning)
-                HStack {
-                    Image(systemName: "zzz")
-                    ColorPicker("Inactive", selection: $prefColourInactive)
-                    Image(systemName: "character.textbox")
-                    Spacer()
-                    ColorPicker("", selection: $prefColourFontInactive)
-                        .frame(maxWidth: 48)
-                    Image(systemName: "textformat")
-                }
-                .settingsColours(background: prefColourInactive, foreground: prefColourFontInactive)
+                SettingsViewStageColours(title: "Comments", imageName: "bubble.left", colourBackground: $prefColourComment, colourForeground: $prefColourFontComment)
+                SettingsViewStageColours(title: "Active", imageName: "play.circle.fill", colourBackground: $prefColourActive, colourForeground: $prefColourFontActive)
+                SettingsViewStageColours(title: "Running", imageName: "stop.circle", colourBackground: $prefColourRunning, colourForeground: $prefColourFontRunning)
+                SettingsViewStageColours(title: "Inactive", imageName: "zzz", colourBackground: $prefColourInactive, colourForeground: $prefColourFontInactive)
             } header: {
                 HStack {
                     Text("Background & Text Colours")
@@ -109,8 +99,9 @@ struct SettingsView: View {
                         sendSettingsToWatch()
                     }) {
                         Label("Send To Watch…", systemImage: "applewatch")
-                    }
+                   }
                     .disabled(watchConnectionUnusable())
+                    Divider()
                     Button(action: {
                         settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))
                         fileSaverShown = true
@@ -122,6 +113,7 @@ struct SettingsView: View {
                     }) {
                         Label("Import…", systemImage: "square.and.arrow.down")
                     }
+                    Divider()
                     Button(role: .destructive, action: {
                         resetColoursToDefaults()
                     }) {

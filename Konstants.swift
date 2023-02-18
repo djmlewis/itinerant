@@ -54,6 +54,7 @@ let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
 
+let kStageMinimumDurationSecs: Int = 1
 let kStageInitialDurationSecs: Int = 0
 let kSnoozeMinimumDurationSecs: Int = 60
 let kStageAlertMinimumDurationSecs: Int = 1

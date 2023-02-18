@@ -15,13 +15,10 @@ struct ItinerantApp: App {
     var body: some Scene {
         WindowGroup {
             ItineraryStoreView()
-            // environmentObject are accessed by Type so only 1 of any type can go in environment
+            // environmentObject are accessed by Type so only 1 of ANY type can go in environment
                 .environmentObject(appDelegate.itineraryStore)
             /* .environmentObject(appDelegate) NOT NEEDED auto put in environment by Adaptor above */
-                .onAppear() {
-                    /* !!! This gets called every time a sheet or dialog gets called in WKItineraryStoreView !!! */
-
-                }
+            /* .onAppear() { /* !!! This gets called every time a sheet or dialog gets called in WKItineraryStoreView !!! */ } */
         } /* WindowGroup */
     }
 }

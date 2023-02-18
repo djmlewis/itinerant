@@ -52,31 +52,44 @@ struct StageDisplayView: View {
                         }
                         if stage.isPostingSnoozeAlerts {
                             // Snooze Alarms time duration
-                            HStack {
-                                Image(systemName: "bell.and.waves.left.and.right")
-                                Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                    .lineLimit(1)
-                                    .allowsTightening(true)
-                                    .minimumScaleFactor(0.5)
-                            }
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                            .frame(maxWidth: .infinity)
-                            .opacity(0.5)
+                            VStack(alignment: .center) {
+                                HStack {
+                                    Image(systemName: "bell.and.waves.left.and.right")
+                                    Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                        .lineLimit(1)
+                                        .allowsTightening(true)
+                                        .minimumScaleFactor(0.5)
+                                        .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                }
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .padding([.leading,.trailing], 6)
+                                .padding([.top,.bottom], 2)
+                                .background(Color("ColourAdditionalAlarmsBackground"))
+                                .cornerRadius(6)
+                          }
+                            .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
                 }
                 .font(.system(.title3, design: .rounded, weight: .bold))
                 if !stage.additionalDurationsArray.isEmpty {
-                    HStack {
-                        //Image(systemName: "alarm.waves.left.and.right")
-                        Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                   }
-                    .font(.system(.subheadline, design: .rounded, weight: .regular))
-                    .multilineTextAlignment(.leading)
-                    .opacity(0.5)
+                    VStack(alignment: .center) {
+                        HStack {
+                            Image(systemName: "alarm.waves.left.and.right")
+                            Text("\(stage.additionalAlertsDurationsString)")
+                                .frame(alignment: .leading)
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                        }
+                        .padding([.leading,.trailing], 6)
+                        .padding([.top,.bottom], 2)
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
+                        .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .background(Color("ColourAdditionalAlarmsBackground"))
+                    .cornerRadius(6)
                     .padding(.top, 4.0)
-                }
+               }
                Text(stage.title)
                     .font(.system(.title3, design: .rounded, weight: .bold))
                     .multilineTextAlignment(.leading)
@@ -89,53 +102,58 @@ struct StageDisplayView: View {
                         .padding(0)
                 }
             } /* VStack */
-            .padding(0)
+            .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             //editMode is the global for when the Edit buton is tapped
             if editMode?.wrappedValue.isEditing == false {
-                VStack(alignment: .trailing) {
-                    Button(action: {
-                        stageEditableData = stage.editableData
-                        isPresentingStageEditView = true
-                    }) {
-                        Image(systemName: "square.and.pencil")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor( .accentColor)
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(width: 24, alignment: .trailing)
-                    Spacer()
-                    Button(action: {
-                        newStageMeta = nil
-                        newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: true, newStage: stage.duplicateWithNewID)
-                    }) {
-                        Image(systemName: "doc.on.doc")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor( .accentColor)
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(width: 24, alignment: .trailing)
-                    Spacer()
-                    Button(action: {
-                        //newStage = Stage()
-                        newStageEditableData = Stage.EditableData()
-                        newStageMeta = nil
-                        isPresentingNewStageEditView = true
-                    }) {
-                        Image(systemName: "plus")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor( .accentColor)
-                    }
-                    .buttonStyle(BorderlessButtonStyle())
-                    .frame(width: 24, alignment: .trailing)
+                VStack {
+                    VStack(alignment: .trailing) {
+                        Button(action: {
+                            stageEditableData = stage.editableData
+                            isPresentingStageEditView = true
+                        }) {
+                            Image(systemName: "square.and.pencil")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                            //                            .foregroundColor( .accentColor)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 24, alignment: .trailing)
+                        Spacer()
+                        Button(action: {
+                            newStageMeta = nil
+                            newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: true, newStage: stage.duplicateWithNewID)
+                        }) {
+                            Image(systemName: "doc.on.doc")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                            //                            .foregroundColor( .accentColor)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 24, alignment: .trailing)
+                        Spacer()
+                        Button(action: {
+                            newStageEditableData = Stage.EditableData()
+                            newStageMeta = nil
+                            isPresentingNewStageEditView = true
+                        }) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                            //                            .foregroundColor( .accentColor)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .frame(width: 24, alignment: .trailing)
+                    } /* VStack */
+                    .padding(12)
+                    .background(Color("ColourControlsBackground"))
+                    .foregroundColor( .accentColor)
                 }
-                .padding(.bottom, 6.0)
-                .padding(.top, 6.0)
-            }
+                .background(.clear)
+                .padding([.top,.bottom],1)
+            } /* if editMode?.wrappedValue.isEditing == false */
         } /* HStack */
+        .padding(0)
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)

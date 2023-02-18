@@ -31,10 +31,14 @@ extension StageActionCommonView {
                         Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                             .foregroundColor(.accentColor)
                     }
-                    .buttonStyle(BorderlessButtonStyle())
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                    .padding(0)
                 }
             }
+            .frame(maxWidth: .infinity)
             .padding(0.0)
+            .padding(.trailing, 2)
             if !stage.details.isEmpty &&
                 (disclosureDetailsExpanded == true ||
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
@@ -42,10 +46,12 @@ extension StageActionCommonView {
             {
                 Text(stage.details)
                 // Details
+                    .frame(maxWidth: .infinity)
                     .font(.system(.body, design: .rounded, weight: .regular))
                     .foregroundColor(stageTextColour())
                     .multilineTextAlignment(.leading)
                     .padding(0.0)
+                    .padding(.trailing, 8)
             }
             if stage.isCommentOnly == false {
                 HStack {
@@ -60,7 +66,6 @@ extension StageActionCommonView {
                                 Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
                                 // Alarm time duration
                                     .font(.system(.title3, design: .rounded, weight: .bold))
-                                    .fontWeight(.bold)
                                     .foregroundColor(stageTextColour())
                                     .lineLimit(1)
                                     .allowsTightening(true)
@@ -71,26 +76,36 @@ extension StageActionCommonView {
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")
                                     Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                        .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                        .fontWeight(.bold)
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
                                 }
-                                .foregroundColor(stageTextColour())
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                .padding([.leading,.trailing], 6)
+                                .padding([.top,.bottom], 2)
+                                .background(Color("ColourAdditionalAlarmsBackground"))
+                                .cornerRadius(6)
                                 .frame(maxWidth: .infinity)
-                                .opacity(0.7)
                             }
                         }
                         if !stage.additionalDurationsArray.isEmpty {
-                            HStack {
-                                //Image(systemName: "alarm.waves.left.and.right")
-                                Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
-                           }
-                            .foregroundColor(stageTextColour())
-                            .opacity(0.7)
+                            VStack(alignment: .center) {
+                                HStack {
+                                    Image(systemName: "alarm.waves.left.and.right")
+                                    Text("\(stage.additionalAlertsDurationsString)")
+                                        .frame(alignment: .leading)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                .padding([.leading,.trailing], 6)
+                                .padding([.top,.bottom], 2)
+                                .background(Color("ColourAdditionalAlarmsBackground"))
+                                .cornerRadius(6)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(0.0)
                         }
                     }
                     Spacer()
@@ -98,6 +113,8 @@ extension StageActionCommonView {
                         buttonStartHalt()
                     }
                 }
+                .padding(0.0)
+                .padding(.trailing, 2)
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
                         // Times elapsed

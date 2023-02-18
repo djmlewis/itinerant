@@ -102,7 +102,7 @@ struct StageEditView: View {
                     } /* if timerDirection == .countDown {VStack}*/
                     /* Duration Pickers */
                 } /* Section */
-                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Interval Between Snooze Notifications") {
+                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Snooze Notifications Interval") {
                     VStack(spacing:0) {
                         HStack {
                             Group {
@@ -157,27 +157,27 @@ struct StageEditView: View {
                     if !additionaldurationsarray.isEmpty {
                         List {
                             ForEach(additionaldurationsarray, id: \.self) { secsInt in
-                                HStack {
-                                    //Image(systemName: "alarm.waves.left.and.right")
-                                    Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
+                                Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
                             }
                             .onDelete {
                                 additionaldurationsarray.remove(atOffsets: $0)
                                 stageEditableData.additionalDurationsArray = additionaldurationsarray
-                           }
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(0)
                     } else {
                         Text("Tap + to add")
                             .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(0)
                             .opacity(0.5)
                             .italic()
-
+                        
                     }
                 } header: {
                     HStack {
                         Text("\(Image(systemName: "alarm.waves.left.and.right")) Additional Notifications")
+                            .padding(0)
                         Spacer()
                         Button {
                             addedhours = 0
@@ -187,7 +187,9 @@ struct StageEditView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
+                        .padding(0)
                         .buttonStyle(.bordered)
+                        .controlSize(.small)
                     }
                 }
                 /* Section */
