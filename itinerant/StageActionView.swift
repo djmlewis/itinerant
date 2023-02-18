@@ -81,11 +81,7 @@ extension StageActionCommonView {
                                         .minimumScaleFactor(0.5)
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                .padding([.leading,.trailing], 6)
-                                .padding([.top,.bottom], 2)
-                                .background(Color("ColourAdditionalAlarmsBackground"))
-                                .cornerRadius(6)
+                                .modifier(AdditionalAlarmsFontBackgroundColour())
                                 .frame(maxWidth: .infinity)
                             }
                         }
@@ -98,11 +94,7 @@ extension StageActionCommonView {
                                         .multilineTextAlignment(.leading)
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                .padding([.leading,.trailing], 6)
-                                .padding([.top,.bottom], 2)
-                                .background(Color("ColourAdditionalAlarmsBackground"))
-                                .cornerRadius(6)
+                                .modifier(AdditionalAlarmsFontBackgroundColour())
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(0.0)

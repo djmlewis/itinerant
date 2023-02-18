@@ -21,6 +21,8 @@
 		722A58D3297FF1D10061620C /* Konstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722A58D1297FF1D10061620C /* Konstants.swift */; };
 		72382CB22979D3F900DE76E3 /* itinerantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72382CB12979D3F900DE76E3 /* itinerantApp.swift */; };
 		72430EA22987F2830046A2DF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72430EA12987F2830046A2DF /* SettingsView.swift */; };
+		7243361629A15144004EE79E /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7243361529A15144004EE79E /* CustomViewModifiers.swift */; };
+		7243361729A15144004EE79E /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7243361529A15144004EE79E /* CustomViewModifiers.swift */; };
 		725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725666772965AFC200B678CB /* ItineraryEditView.swift */; };
 		7256AF952965D53300FBE53E /* StageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF942965D53300FBE53E /* StageEditView.swift */; };
 		72586236298FF46B00B8331D /* ItineraryActionCommonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72586235298FF46B00B8331D /* ItineraryActionCommonView.swift */; };
@@ -79,6 +81,7 @@
 		722A58D1297FF1D10061620C /* Konstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Konstants.swift; sourceTree = "<group>"; };
 		72382CB12979D3F900DE76E3 /* itinerantApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
 		72430EA12987F2830046A2DF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7243361529A15144004EE79E /* CustomViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewModifiers.swift; sourceTree = "<group>"; };
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
 		7256AF942965D53300FBE53E /* StageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageEditView.swift; sourceTree = "<group>"; };
 		72586235298FF46B00B8331D /* ItineraryActionCommonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItineraryActionCommonView.swift; sourceTree = "<group>"; };
@@ -140,6 +143,7 @@
 				722A58D1297FF1D10061620C /* Konstants.swift */,
 				72E7ADB429636E8400D22D37 /* Utilities.swift */,
 				7272F08F29855AD700F58305 /* Notifications.swift */,
+				7243361529A15144004EE79E /* CustomViewModifiers.swift */,
 				72E7F09A295F3F8200367612 /* Models */,
 				72430EA02987F2370046A2DF /* sharedViews */,
 				72E7F075295F3F6400367612 /* itinerant */,
@@ -326,6 +330,7 @@
 				720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */,
 				722A58D2297FF1D10061620C /* Konstants.swift in Sources */,
 				72586236298FF46B00B8331D /* ItineraryActionCommonView.swift in Sources */,
+				7243361629A15144004EE79E /* CustomViewModifiers.swift in Sources */,
 				728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */,
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
 				725FA977298FCB5A00AC7B94 /* StageActionView.swift in Sources */,
@@ -345,6 +350,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7243361729A15144004EE79E /* CustomViewModifiers.swift in Sources */,
 				72038453298EF03E005DC2C6 /* StageActionCommonView.swift in Sources */,
 				72038450298EEFB1005DC2C6 /* AppDelegate.swift in Sources */,
 				722A58D0297FF1570061620C /* Stage.swift in Sources */,

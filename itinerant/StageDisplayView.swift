@@ -59,13 +59,9 @@ struct StageDisplayView: View {
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
-                                        .foregroundColor(Color("ColourAdditionalAlarmsText"))
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .padding([.leading,.trailing], 6)
-                                .padding([.top,.bottom], 2)
-                                .background(Color("ColourAdditionalAlarmsBackground"))
-                                .cornerRadius(6)
+                                .modifier(AdditionalAlarmsFontBackgroundColour())
                           }
                             .frame(maxWidth: .infinity, alignment: .center)
                         }
@@ -78,16 +74,12 @@ struct StageDisplayView: View {
                             Image(systemName: "alarm.waves.left.and.right")
                             Text("\(stage.additionalAlertsDurationsString)")
                                 .frame(alignment: .leading)
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
                         }
-                        .padding([.leading,.trailing], 6)
-                        .padding([.top,.bottom], 2)
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                         .multilineTextAlignment(.leading)
                     }
+                    .modifier(AdditionalAlarmsFontBackgroundColour())
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .background(Color("ColourAdditionalAlarmsBackground"))
-                    .cornerRadius(6)
                     .padding(.top, 4.0)
                }
                Text(stage.title)
