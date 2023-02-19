@@ -112,7 +112,6 @@ struct StageDisplayView: View {
             } /* VStack */
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            //editMode is the global for when the Edit buton is tapped
             if isEditing == false {
                 VStack {
                     VStack(alignment: .trailing) {
@@ -123,7 +122,6 @@ struct StageDisplayView: View {
                             Image(systemName: "square.and.pencil")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                            //                            .foregroundColor( .accentColor)
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
@@ -135,7 +133,6 @@ struct StageDisplayView: View {
                             Image(systemName: "doc.on.doc")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                            //                            .foregroundColor( .accentColor)
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
@@ -148,7 +145,6 @@ struct StageDisplayView: View {
                             Image(systemName: "plus")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                            //                            .foregroundColor( .accentColor)
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
