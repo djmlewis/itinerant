@@ -135,12 +135,12 @@ extension String {
 func watchConnectionUnusableMessage() -> String? {
 #if os(iOS)
     guard WCSession.default.isWatchAppInstalled else {
-        debugPrint("isCompanionAppInstalled false")
+        //debugPrint("isCompanionAppInstalled false")
         return "No app installed on Watch"
     }
 #endif
     guard WCSession.default.activationState == .activated else {
-        debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
+        //debugPrint("WCSession.activationState not activated", WCSession.default.activationState)
         return "No active session - force quit the app and restart"
     }
 

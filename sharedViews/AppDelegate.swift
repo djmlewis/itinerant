@@ -22,6 +22,7 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var watchConnectionProblem: String?
 
     @Published var newItinerary: Itinerary? /* watchOS only */
+    
   
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
@@ -80,9 +81,9 @@ extension AppDelegate {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             DispatchQueue.main.async {
-                if let error = error {
-                    debugPrint(error.localizedDescription)
-                }
+//                if let error = error {
+//                    //debugPrint(error.localizedDescription)
+//                }
                 self.permissionToNotify = granted
             }
         }
@@ -93,7 +94,7 @@ extension AppDelegate {
         // The method will be called on the delegate only if the application is in the foreground.
         /* This is always called when the app is open - wait for the user to tap the notification and call didReceive to jump to itinerary etc  */
         // Always call the completionHandler
-        debugPrint("willPresent",notification.request.content.categoryIdentifier)
+        //debugPrint("willPresent",notification.request.content.categoryIdentifier)
         
         //let stageID = notification.request.content.userInfo[kStageUUIDStr] as! String
         switch notification.request.content.categoryIdentifier  {
@@ -123,7 +124,7 @@ extension AppDelegate {
         guard let notifiedItineraryID = response.notification.request.content.userInfo[kItineraryUUIDStr], let stageID = response.notification.request.content.userInfo[kStageUUIDStr] as? String
         else { completionHandler(); return }
         
-        debugPrint("didReceive", response.notification.request.content.categoryIdentifier)
+        //debugPrint("didReceive", response.notification.request.content.categoryIdentifier)
         
         switch response.notification.request.content.categoryIdentifier  {
         case kNotificationCategoryStageCompleted:
@@ -169,7 +170,9 @@ extension AppDelegate {
             let center = UNUserNotificationCenter.current()
             let request = requestStageCompletedSingleSnoozeNotification(toResponse: response)
             center.add(request) { (error) in
-                if error != nil {  debugPrint(error!.localizedDescription) }
+                if error != nil {
+                    //debugPrint(error!.localizedDescription)
+                }
             }
         case UNNotificationDismissActionIdentifier:
             // * user dismissed the notification
@@ -197,13 +200,13 @@ extension AppDelegate {
             session.delegate = self
             session.activate()
         } else {
-            debugPrint("WCSession.isSupported false")
+            //debugPrint("WCSession.isSupported false")
         }
         
     }
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        debugPrint("WCSession activationDidCompleteWith", activationState.rawValue.description, error?.localizedDescription ?? "No error")
+        //debugPrint("WCSession activationDidCompleteWith", activationState.rawValue.description, error?.localizedDescription ?? "No error")
         
     }
     
@@ -224,33 +227,33 @@ extension AppDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         if let messageData = message[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(messageData) }
         else if message[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(message as! [String:String])}
-        else if let iphoneMessage = message[kMessageFromWatchKey] as? String {
-            debugPrint(iphoneMessage)
-        }
+//        else if let iphoneMessage = message[kMessageFromWatchKey] as? String {
+//            //debugPrint(iphoneMessage)
+//        }
     }
     
     
     func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
         let message = watchConnectionUnusableMessage()
         guard message == nil else {
-            debugPrint(message!)
+            //debugPrint(message!)
             return
         }
         if let messageDict = dict {
             if WCSession.default.isReachable {
-                debugPrint("sending by message")
+                //debugPrint("sending by message")
                 WCSession.default.sendMessage(messageDict, replyHandler: nil) { error in
-                    print("Cannot send messageString: \(String(describing: error))")
+                    //print("Cannot send messageString: \(String(describing: error))")
                 }
             } else {
-                debugPrint("sending by transferUserInfo")
+                //debugPrint("sending by transferUserInfo")
                 WCSession.default.transferUserInfo(messageDict)
             }
             
         }
         if let messageData = data {
             WCSession.default.sendMessageData(messageData, replyHandler: nil) { error in
-                print("Cannot send messageData: \(String(describing: error))")
+                //print("Cannot send messageData: \(String(describing: error))")
             }
             
         }
@@ -291,7 +294,7 @@ extension AppDelegate {
             if let frgbaRun = settingsDict[kAppStorageColourFontRunning]  { self.appStorageColourFontRunning = frgbaRun }
             if let frgbaComm = settingsDict[kAppStorageColourFontComment]  { self.appStorageColourFontComment = frgbaComm }
         }
-        debugPrint("handled settings")
+        //debugPrint("handled settings")
     }
 
     // <=== watchOS handlers

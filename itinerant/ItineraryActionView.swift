@@ -102,9 +102,10 @@ extension  ItineraryActionCommonView {
                       onCompletion: { result in
             switch result {
             case .success:
-                if fileSaveType == .itineraryDataFile { itineraryStore.reloadItineraries() }
-            case .failure(let error):
-                debugPrint(error.localizedDescription)
+                if fileSaveType == .itineraryDataFile { _ = itineraryStore.reloadItineraries() }
+            case .failure/*(let error)*/:
+                break
+                //debugPrint(error.localizedDescription)
             }
         }) /* File Saver */
         .toolbar {

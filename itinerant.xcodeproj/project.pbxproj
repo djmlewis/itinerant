@@ -32,6 +32,7 @@
 		725FA975298FC30A00AC7B94 /* WKStageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725FA974298FC30A00AC7B94 /* WKStageActionView.swift */; };
 		725FA977298FCB5A00AC7B94 /* StageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725FA976298FCB5A00AC7B94 /* StageActionView.swift */; };
 		72717ECE29844D2200CA84FD /* WKItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */; };
+		7271D06A29A27B54008B4C0F /* ItineraryStoreNavStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7271D06929A27B54008B4C0F /* ItineraryStoreNavStackView.swift */; };
 		7272F09029855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
 		7272F09129855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
 		7282F4012985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
@@ -47,6 +48,7 @@
 		72E7F090295F3F6500367612 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F08F295F3F6500367612 /* Preview Assets.xcassets */; };
 		72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09B295F405300367612 /* ItineraryStore.swift */; };
 		72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09D295F42BE00367612 /* Itinerary.swift */; };
+		72F3A1EE29A21F0B0070273B /* ItineraryStoreSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F3A1ED29A21F0B0070273B /* ItineraryStoreSplitView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +92,7 @@
 		725FA974298FC30A00AC7B94 /* WKStageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKStageActionView.swift; sourceTree = "<group>"; };
 		725FA976298FCB5A00AC7B94 /* StageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageActionView.swift; sourceTree = "<group>"; };
 		72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKItineraryActionView.swift; sourceTree = "<group>"; };
+		7271D06929A27B54008B4C0F /* ItineraryStoreNavStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStoreNavStackView.swift; sourceTree = "<group>"; };
 		7272F08F29855AD700F58305 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		7282F4002985A473009B87E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		728BCF7A2982FFE2005CE71C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -106,6 +109,7 @@
 		72E7F09B295F405300367612 /* ItineraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStore.swift; sourceTree = "<group>"; };
 		72E7F09D295F42BE00367612 /* Itinerary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Itinerary.swift; sourceTree = "<group>"; };
 		72E7F09F295F4ADA00367612 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		72F3A1ED29A21F0B0070273B /* ItineraryStoreSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStoreSplitView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +171,8 @@
 				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
+				7271D06929A27B54008B4C0F /* ItineraryStoreNavStackView.swift */,
+				72F3A1ED29A21F0B0070273B /* ItineraryStoreSplitView.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
 				725666772965AFC200B678CB /* ItineraryEditView.swift */,
 				725FA976298FCB5A00AC7B94 /* StageActionView.swift */,
@@ -335,6 +341,7 @@
 				7258974729643C7D00EA782E /* Stage.swift in Sources */,
 				725FA977298FCB5A00AC7B94 /* StageActionView.swift in Sources */,
 				7212D0DA29804ADD002A6848 /* ItineraryDocument.swift in Sources */,
+				72F3A1EE29A21F0B0070273B /* ItineraryStoreSplitView.swift in Sources */,
 				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
 				72430EA22987F2830046A2DF /* SettingsView.swift in Sources */,
 				72038452298EF03E005DC2C6 /* StageActionCommonView.swift in Sources */,
@@ -343,6 +350,7 @@
 				7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */,
 				72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */,
 				7256AF952965D53300FBE53E /* StageEditView.swift in Sources */,
+				7271D06A29A27B54008B4C0F /* ItineraryStoreNavStackView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

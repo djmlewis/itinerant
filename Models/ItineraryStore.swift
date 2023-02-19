@@ -130,10 +130,10 @@ class ItineraryStore: ObservableObject {
     }
     
     
-    func reloadItineraries() {
+    func reloadItineraries() -> [String] {
         // this force erases all the itineraries so they better be saved to file
         // ignore any invalid files as we should not get any
-        _ = tryToLoadItineraries()
+        return tryToLoadItineraries()
     }
     
     func sortItineraries() {
@@ -144,7 +144,7 @@ class ItineraryStore: ObservableObject {
     }
     
     func itineraryForID(id:String) -> Itinerary? {
-        itineraries.first{ $0.idStr.contains(id) }
+        return itineraries.first{ $0.idStr.contains(id) }
     }
     func hasItineraryWithID(_ id: String) -> Bool {
         return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil

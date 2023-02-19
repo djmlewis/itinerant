@@ -143,8 +143,9 @@ struct SettingsView: View {
             case .success:
                 break
                 //debugPrint("saved settings")
-            case .failure(let error):
-                debugPrint(error.localizedDescription)
+            case .failure://(let error):
+                //debugPrint(error.localizedDescription)
+                break
             }
         } /* fileExporter */
       .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: [.itinerarySettingsFile], onCompletion: { (result) in
@@ -155,8 +156,9 @@ struct SettingsView: View {
                   loadSettings(atPath: selectedFileURL.path)
               }
               selectedFileURL.stopAccessingSecurityScopedResource()
-          case .failure(let error):
-              debugPrint(error)
+          case .failure://(let error):
+              //debugPrint(error)
+              break
           }
       }) /* fileImporter */
     } /* body */
