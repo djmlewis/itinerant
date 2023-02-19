@@ -9,7 +9,8 @@ import SwiftUI
 
 extension ItineraryStoreView {
     var body_split: some View {
-        NavigationSplitView {
+        
+        NavigationSplitView() {
             List(selection: $itineraryIDselected) {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
                     HStack(spacing: 0) {
@@ -52,15 +53,16 @@ extension ItineraryStoreView {
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
                 })
             } /* List */
-            .modifier(ItineraryStoreViewNavTitleToolBar(editButton: true, showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView))
+            .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
+
         } detail: {
-            if let itineraryidselected = itineraryIDselected {
-                if let itin = itineraryStore.itineraryForID(id: itineraryidselected) {
-                    ItineraryActionCommonView(itinerary: itin, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
-                        .id(itin.idStr)
-                }
+        if let itineraryidselected = itineraryIDselected {
+            if let itin = itineraryStore.itineraryForID(id: itineraryidselected) {
+                ItineraryActionCommonView(itinerary: itin, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                    .id(itin.idStr)
             }
-        } /* detail */
+        }
+    } /* detail */
         /* NavSplitView*/
     } /* body */
     

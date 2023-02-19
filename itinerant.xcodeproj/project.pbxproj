@@ -38,6 +38,7 @@
 		7282F4012985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		7282F4022985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7A2982FFE2005CE71C /* AppDelegate.swift */; };
+		72C5846C29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C5846B29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift */; };
 		72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7ADB429636E8400D22D37 /* Utilities.swift */; };
 		72E7F079295F3F6400367612 /* ItineraryStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F078295F3F6400367612 /* ItineraryStoreView.swift */; };
 		72E7F07B295F3F6500367612 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F07A295F3F6500367612 /* Assets.xcassets */; };
@@ -97,6 +98,7 @@
 		7282F4002985A473009B87E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		728BCF7A2982FFE2005CE71C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		72BAE1ED29872AF1006E3068 /* itinerant-Watch-App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "itinerant-Watch-App-Info.plist"; sourceTree = SOURCE_ROOT; };
+		72C5846B29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStoreViewNavTitleToolBar.swift; sourceTree = "<group>"; };
 		72E7ADB429636E8400D22D37 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		72E7F073295F3F6400367612 /* itinerant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itinerant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72E7F078295F3F6400367612 /* ItineraryStoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStoreView.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
+				72C5846B29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift */,
 			);
 			path = itinerant;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */,
 				720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */,
 				722A58D2297FF1D10061620C /* Konstants.swift in Sources */,
+				72C5846C29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift in Sources */,
 				72586236298FF46B00B8331D /* ItineraryActionCommonView.swift in Sources */,
 				7243361629A15144004EE79E /* CustomViewModifiers.swift in Sources */,
 				728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */,

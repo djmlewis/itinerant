@@ -10,73 +10,6 @@ import UniformTypeIdentifiers.UTType
 import UIKit.UIDevice
 
 extension ItineraryStoreView {
-    
-    struct ItineraryStoreViewNavTitleToolBar: ViewModifier {
-        var editButton: Bool
-        @Binding var showSettingsView: Bool
-        var itineraryStore: ItineraryStore
-        @Binding var fileImporterShown: Bool
-        @Binding var fileImportFileType: [UTType]
-        @Binding var newItineraryEditableData: Itinerary.EditableData
-        @Binding var isPresentingItineraryEditView: Bool
-
-        @EnvironmentObject var appDelegate: AppDelegate
-
-        func body(content: Content) -> some View {
-            content
-                .navigationTitle("Itineraries")
-                .toolbar {
-                    if editButton == true {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            EditButton()
-                        }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            Button(action: {
-                                showSettingsView = true
-                            }) {
-                                Label("Settings…", systemImage: "gear")
-                            }
-                            Divider()
-                            Button(action: {
-                                fileImportFileType = [.itineraryDataFile]
-                                fileImporterShown = true
-                            }) {
-                                Label("Open…", systemImage: "doc")
-                            }
-                            Button(action: {
-                                fileImportFileType = [.itineraryTextFile]
-                                fileImporterShown = true
-                            }) {
-                                Label("Import…", systemImage: "doc.plaintext")
-                            }
-                            Divider()
-                            Button(action: {
-                                let filesToDeleteArray = itineraryStore.reloadItineraries()
-                                if !filesToDeleteArray.isEmpty {
-                                    appDelegate.fileDeletePathArray = filesToDeleteArray
-                                    appDelegate.fileDeleteDialogShow = true
-                                }
-                            }) {
-                                Label("Refresh…", systemImage: "arrow.counterclockwise.circle.fill")
-                            }
-                        } label: {
-                            Label("", systemImage: "ellipsis.circle")
-                        }
-                    }
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: {
-                            newItineraryEditableData = Itinerary.EditableData()
-                            isPresentingItineraryEditView = true
-                        }) {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
-
-        }
-    }
 
     var body_stack: some View {
         NavigationStack(path: $presentedItineraryID) {
@@ -130,7 +63,7 @@ extension ItineraryStoreView {
             .navigationDestination(for: String.self) { id in
                 ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
             }
-            .modifier(ItineraryStoreViewNavTitleToolBar(editButton: false, showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView))
+            .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
 
         } /* NavStack */
     } /* body */

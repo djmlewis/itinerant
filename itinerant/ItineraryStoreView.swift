@@ -36,7 +36,10 @@ struct ItineraryStoreView: View {
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
     
+    // split nav
     @State var itineraryIDselected: String?
+    @State var columnVisibility = NavigationSplitViewVisibility.all
+
 
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
@@ -141,26 +144,6 @@ struct ItineraryStoreView: View {
                     debugPrint(error)
                 }
             }) /* fileImporter */
-            .confirmationDialog("Invalid File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "")",
-                                isPresented: $appDelegate.fileDeleteDialogShow,
-                                titleVisibility: .visible) {
-                Button("Delete File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "")", role: .destructive) {
-                    appDelegate.fileDeletePathArray?.forEach({ fileDeletePath in
-                        do {
-                            try FileManager.default.removeItem(atPath: fileDeletePath)
-                            debugPrint("Removed: \(fileDeletePath)")
-                        } catch let error {
-                            debugPrint("Remove failure for: \(fileDeletePath)", error.localizedDescription)
-                        }
-                    })
-                }
-            } message: {
-                if let filesString = appDelegate.fileDeletePathArray?.compactMap({ path in (path as NSString).lastPathComponent }).joined(separator: ", ") {
-                    Text("File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "") “\(filesString)” \(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "are" : "is") invalid.\nDeletion cannot be undone.")
-                } else {
-                    Text("Deleting *Unknown files* cannot be undone.")
-                }
-            }
             .onOpenURL {
                 guard ItineraryFileExtension.validExtension($0.pathExtension) else {
                     openRequestURL = nil
@@ -168,35 +151,6 @@ struct ItineraryStoreView: View {
                 }
                 openRequestURL = $0
                 isPresentingConfirmOpenURL = true
-            }
-            .confirmationDialog("File Open Request", isPresented: $isPresentingConfirmOpenURL, titleVisibility: .visible) {
-                Button("Open") {
-                    if let validurl = openRequestURL {
-                        switch validurl.pathExtension {
-                        case ItineraryFileExtension.dataFile.rawValue:
-                            _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
-                            openRequestURL = nil
-                        case ItineraryFileExtension.textFile.rawValue:
-                            appDelegate.itineraryStore.importItinerary(atPath: validurl.path(percentEncoded: false))
-                            openRequestURL = nil
-                        case ItineraryFileExtension.settingsFile.rawValue:
-                            openRequestURL = validurl
-                            // setting view will nil it
-                            showSettingsView = true
-                        default:
-                            openRequestURL = nil
-                            break
-                        }
-                        // do not nil openRequestURL here as its needed when settings opens
-                    }
-                }
-                Button("Cancel", role: .cancel) {
-                    openRequestURL = nil
-                }
-            } message: {
-                let filename = openRequestURL?.lastPathComponent ?? "this file"
-                Text("Do you want to open \(filename) ?")
-                    .font(.body)
             }
 
     } /* body */
