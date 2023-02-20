@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UserNotifications
 
 struct StageActionCommonView: View {
     
@@ -30,7 +31,7 @@ struct StageActionCommonView: View {
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State var uiUpdateTimerCancellor: Cancellable?
-    
+    @State var presentUnableToNotifyAlert: Bool = false
 
     
     
@@ -46,7 +47,8 @@ struct StageActionCommonView: View {
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
 
-    
+    @AppStorage(kAppStorageShowUnableToNotifyWarning) var showUnableToNotifyWarning: Bool = true
+
     @EnvironmentObject var appDelegate: AppDelegate
 
     // MARK: - body
@@ -61,6 +63,12 @@ struct StageActionCommonView: View {
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
             .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
             .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idstrtotest: $0) }
+            .alert("Unable To Post Notifications", isPresented: $presentUnableToNotifyAlert) {
+                Button("Do Not Show This Warning Again") { showUnableToNotifyWarning = false }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Permission to show Notifications must be granted to this App in Settings or you will not be notified when stages complete")
+            }
 
     } /* body */
 } /* struct */
@@ -165,7 +173,18 @@ extension StageActionCommonView {
         
     }
     
+    func alertIfUnableToPostNotifications() {
+        guard showUnableToNotifyWarning == true else { return }
+        UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
+            if (notificationSettings.authorizationStatus != .authorized)  {
+                debugPrint("unable to alert in any way"); return
+                presentUnableToNotifyAlert = true
+            }
+        }
+    }
+    
     func handleStartRunning() {
+        alertIfUnableToPostNotifications()
         setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
         timeDifferenceAtUpdate = Double(stage.durationSecsInt)
         timeAccumulatedAtUpdate = 0.0
@@ -210,6 +229,9 @@ extension StageActionCommonView {
         } else {
             // do nothing we have completed
         }
+        // its handled so clear it
+        appDelegate.unnStageToHaltID = nil
+        appDelegate.unnStageToStopAndStartNextID = nil
     }
     
 }

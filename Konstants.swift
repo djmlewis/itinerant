@@ -142,7 +142,7 @@ let kNotificationDueTime = "kNotificationDueTime"
 let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
 let kUIUpdateTimerFrequency = 0.2
 
-
+let kAppStorageShowUnableToNotifyWarning = "kAppStorageShowUnableToNotifyWarning"
 
 // MARK: - WatchConnectivity
 let kUserInfoMessageTypeKey = "kUserInfoMessageTypeKey"

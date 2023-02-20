@@ -119,7 +119,15 @@ struct ItineraryStoreView: View {
             .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in
                 // handle notifications to switch itinerary
                 guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
-                presentedItineraryID = [newValue!]
+                // pop back
+                DispatchQueue.main.async {
+                    presentedItineraryID = []
+                    itineraryIDselected = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
+                        presentedItineraryID = [newValue!] // stack
+                        itineraryIDselected = newValue // split
+                   }
+                }
             }
             .fileImporter(isPresented: $fileImporterShown, allowedContentTypes: fileImportFileType, onCompletion: { (result) in
                 // fileImporter in single file selection mode
