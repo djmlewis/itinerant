@@ -65,6 +65,7 @@ enum StageNotificationInterval: CaseIterable {
     case comment  // here for completeness for string func
     case countUp // here for completeness for string func
     case countDownEnd
+    case countDownToDate
     case snoozeRepeatingIntervals
     case snoozeSingleInterval  // here for completeness for string func
     case additionalAlert  // here for completeness for string func
@@ -77,6 +78,8 @@ enum StageNotificationInterval: CaseIterable {
             return  "Ⓤ"
         case .countDownEnd:
             return  "Ⓓ"
+        case .countDownToDate:
+            return  "Ⓚ"
         case .snoozeRepeatingIntervals:
             return  "Ⓡ"
         case .snoozeSingleInterval:

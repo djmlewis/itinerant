@@ -23,7 +23,8 @@ struct StageEditView: View {
     @State private var mins: Int = 0
     @State private var secs: Int = 0
     @State private var timerDirection: TimerDirection = .countDown
-    
+    @State private var durationDate: Date = Date.now
+
     @State private var snoozehours: Int = 0
     @State private var snoozemins: Int = 0
 
@@ -98,6 +99,13 @@ struct StageEditView: View {
                                 }
                                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             }
+                            Divider()
+                            DatePicker(
+                                "Start Date",
+                                selection: $durationDate,
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
+
                         } /* VStack */
                     } /* if timerDirection == .countDown {VStack}*/
                     /* Duration Pickers */

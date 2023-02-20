@@ -148,8 +148,18 @@ extension Stage {
                 }
             }
         }
-
-        var isCountDown: Bool { !isCountUp }
+        var isCountDown: Bool { !isCountUp && !isCountDownToDate }
+        var isCountDownToDate: Bool {
+            get {
+                flags.contains(StageNotificationInterval.countDownToDate.string)
+            }
+            set(isdowntodate) {
+                flags = flags.replacingOccurrences(of: StageNotificationInterval.countDownToDate.string, with: "",options: [.literal])
+                if isdowntodate {
+                    flags += StageNotificationInterval.countDownToDate.string
+                }
+            }
+        }
         var isPostingRepeatingSnoozeAlerts: Bool {
             get {
                 flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
@@ -265,7 +275,18 @@ extension Stage {
     
     var isActionable: Bool { !isCommentOnly }
     
-    var isCountDown: Bool { !isCountUp }
+    var isCountDown: Bool { !isCountUp && !isCountDownToDate }
+    var isCountDownToDate: Bool {
+        get {
+            flags.contains(StageNotificationInterval.countDownToDate.string)
+        }
+        set(isdowntodate) {
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.countDownToDate.string, with: "",options: [.literal])
+            if isdowntodate {
+                flags += StageNotificationInterval.countDownToDate.string
+            }
+        }
+    }
     var isCountUp: Bool {
         get {
             flags.contains(StageNotificationInterval.countUp.string)

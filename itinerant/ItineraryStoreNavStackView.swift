@@ -58,6 +58,7 @@ extension ItineraryStoreView {
                     }
                     // now its safe to delete those Itineraries
                     itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
+                    itineraryIDselected = ""
                 })
             } /* List */
             .navigationDestination(for: String.self) { id in
