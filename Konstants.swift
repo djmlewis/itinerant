@@ -64,8 +64,11 @@ let kStageDurationsArraySeparator = ","
 enum StageNotificationInterval: CaseIterable {
     case comment  // here for completeness for string func
     case countUp // here for completeness for string func
+    // count types are mutually exclusive
     case countDownEnd
     case countDownToDate
+    case countTypeUnknown // results when any count type is set false
+    // --
     case snoozeRepeatingIntervals
     case snoozeSingleInterval  // here for completeness for string func
     case additionalAlert  // here for completeness for string func
@@ -80,6 +83,8 @@ enum StageNotificationInterval: CaseIterable {
             return  "Ⓓ"
         case .countDownToDate:
             return  "Ⓚ"
+        case .countTypeUnknown:
+            return "Ⓧ"
         case .snoozeRepeatingIntervals:
             return  "Ⓡ"
         case .snoozeSingleInterval:
@@ -88,7 +93,56 @@ enum StageNotificationInterval: CaseIterable {
             return "Ⓐ"
         }
     }
+    
+    var timerDirection: TimerDirection {
+        switch self {
+        case .countUp: return .countUp
+        case .countDownEnd: return .countDownEnd
+        case .countDownToDate: return .countDownToDate
+        default: return .countUp
+        }
+    }
+    
+    static var countFlags: [StageNotificationInterval] { [.countDownEnd, .countDownToDate, .countUp, .countTypeUnknown] }
+    static var countFlagStrings: [String] { StageNotificationInterval.countFlags.map { $0.string } }
+    static func stripCountFlags(_ flags: String) -> String {
+        var flagsvar = flags
+        StageNotificationInterval.countFlagStrings.forEach { flagsvar = flagsvar.replacingOccurrences(of: $0, with: "") }
+        return flagsvar
+    }
 }
+
+extension String {
+    var strippedOfCountFlags: String { StageNotificationInterval.stripCountFlags(self) }
+}
+
+enum TimerDirection: String, CaseIterable, Identifiable {
+    case countDownEnd = "Count Down"
+    case countDownToDate = "End Date"
+    case countUp = "Count Up"
+    
+    var id: Self { self }
+    
+    var symbolName: String {
+        switch self {
+        case .countUp:
+            return "stopwatch"
+        case .countDownEnd:
+            return "timer"
+        case .countDownToDate:
+            return "calendar.badge.clock"
+        }
+    }
+    
+    var stageNotificationIntervalType: StageNotificationInterval {
+        switch self {
+        case .countDownEnd: return .countDownEnd
+        case .countDownToDate: return .countDownToDate
+        case .countUp: return .countUp
+        }
+    }
+}
+
 
 
 // MARK: - ItinerantApp

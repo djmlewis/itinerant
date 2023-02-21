@@ -64,7 +64,8 @@ struct ItineraryEditView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     withAnimation {
                                         // always on main and after a delay
-                                        svrproxy.scrollTo(newstagemeta.newStage.idStr)
+                                        #warning("crash on third")
+                                        //svrproxy.scrollTo(newstagemeta.newStage.idStr)
                                     }
                                 }
                             }

@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-enum TimerDirection: String, CaseIterable, Identifiable {
-    case countDown = "Count Down", countUp = "Count Up"
-    var id: Self { self }
-}
 
 struct StageEditView: View {
 
@@ -22,7 +18,7 @@ struct StageEditView: View {
     @State private var hours: Int = 0
     @State private var mins: Int = 0
     @State private var secs: Int = 0
-    @State private var timerDirection: TimerDirection = .countDown
+    @State private var timerDirection: TimerDirection = .countDownEnd
     @State private var durationDate: Date = Date.now
 
     @State private var snoozehours: Int = 0
@@ -53,63 +49,61 @@ struct StageEditView: View {
             }
             if untimedComment != true {
                 Section("Duration") {
-                    /* Duration Pickers */
-                    HStack {
-                        Image(systemName: "timer")
-                            .opacity(timerDirection == .countDown ? 1.0 : 0.0)
-                        Picker("", selection: $timerDirection) {
-                            ForEach(TimerDirection.allCases) { direction in
-                                Text(direction.rawValue)
+                        /* Duration Pickers */
+                        HStack {
+                            Image(systemName: timerDirection.symbolName)
+                            Picker("", selection: $timerDirection) {
+                                ForEach(TimerDirection.allCases) { direction in
+                                    Text(direction.rawValue)
+                                }
                             }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
                         }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        Image(systemName: "stopwatch")
-                            .opacity(timerDirection == .countUp ? 1.0 : 0.0)
-                    }
-                    if timerDirection == .countDown {
-                        VStack(spacing: 2) {
-                            HStack {
-                                Group {
-                                    Text("Hours")
-                                    Text("Minutes")
-                                    Text("Seconds")
+                        if timerDirection == .countDownEnd {
+                            VStack(spacing: 2) {
+                                HStack {
+                                    Group {
+                                        Text("Hours")
+                                        Text("Minutes")
+                                        Text("Seconds")
+                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                 }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                            }
-                            HStack {
-                                Group {
-                                    Picker("", selection: $hours) {
-                                        ForEach(0..<24) {index in
-                                            Text("\(index)").tag(index)
+                                HStack {
+                                    Group {
+                                        Picker("", selection: $hours) {
+                                            ForEach(0..<24) {index in
+                                                Text("\(index)").tag(index)
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        Picker("", selection: $mins) {
+                                            ForEach(0..<60) {index in
+                                                Text("\(index)").tag(index)
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        Picker("", selection: $secs) {
+                                            ForEach(0..<60) {index in
+                                                Text("\(index)").tag(index)
+                                            }
                                         }
                                     }
-                                    .labelsHidden()
-                                    Picker("", selection: $mins) {
-                                        ForEach(0..<60) {index in
-                                            Text("\(index)").tag(index)
-                                        }
-                                    }
-                                    .labelsHidden()
-                                    Picker("", selection: $secs) {
-                                        ForEach(0..<60) {index in
-                                            Text("\(index)").tag(index)
-                                        }
-                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                 }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                            }
-                            Divider()
+                            } /* VStack */
+                        } /* if timerDirection == .countDown {VStack}*/
+                        if timerDirection == .countDownToDate {
                             DatePicker(
-                                "Start Date",
+                                "End On:",
                                 selection: $durationDate,
                                 displayedComponents: [.date, .hourAndMinute]
                             )
-
-                        } /* VStack */
-                    } /* if timerDirection == .countDown {VStack}*/
-                    /* Duration Pickers */
+                        }
+                        /* Duration Pickers */
                 } /* Section */
+
                 Section("\(Image(systemName: "bell.and.waves.left.and.right")) Snooze Notifications Interval") {
                     VStack(spacing:0) {
                         HStack {
@@ -148,24 +142,26 @@ struct StageEditView: View {
                         .padding(0)
                     } /* VStack */
                     .padding(0)
+                } /* Section */
+                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Repeating Notifications") {
                     Toggle(isOn: $snoozeAlertsOn) {
                         HStack {
                             VStack {
                                 Image(systemName: "bell.and.waves.left.and.right")
                             }
                             VStack {
-                                Text("Repeating Notifications At Snooze Intervals")
+                                Text("Show Repeating Notifications At Snooze Intervals")
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                             .foregroundColor(textColourForScheme(colorScheme: colorScheme))
                     }
-                } /* Section */
+                }
                 Section {
                     if !additionaldurationsarray.isEmpty {
                         List {
                             ForEach(additionaldurationsarray, id: \.self) { secsInt in
-                                Text(Stage.stageDurationStringFromDouble(Double(secsInt)))
+                                Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
                             }
                             .onDelete {
                                 additionaldurationsarray.remove(atOffsets: $0)
@@ -184,7 +180,7 @@ struct StageEditView: View {
                     }
                 } header: {
                     HStack {
-                        Text("\(Image(systemName: "alarm.waves.left.and.right")) Additional Notifications")
+                        Text("\(Image(systemName: "alarm.waves.left.and.right")) Timed Notifications")
                             .padding(0)
                         Spacer()
                         Button {
@@ -208,7 +204,9 @@ struct StageEditView: View {
             stageEditableData.isCommentOnly = $0
         })
         .onChange(of: timerDirection, perform: {
-            stageEditableData.isCountUp = $0 == .countUp
+            stageEditableData.durationCountType = $0.stageNotificationIntervalType
+            debugPrint("onChange(of: timerDirection", $0, $0.stageNotificationIntervalType, stageEditableData.durationCountType, stageEditableData.flags)
+            updateDuration(andDirection: false)
         })
         .onChange(of: snoozeAlertsOn, perform: {
             stageEditableData.isPostingRepeatingSnoozeAlerts = $0
@@ -220,6 +218,9 @@ struct StageEditView: View {
             updateDuration(andDirection: true)
         })
         .onChange(of: secs, perform: {hrs in
+            updateDuration(andDirection: true)
+        })
+        .onChange(of: durationDate, perform: {date in
             updateDuration(andDirection: true)
         })
         .onChange(of: snoozehours, perform: {hrs in
@@ -234,11 +235,16 @@ struct StageEditView: View {
             if untimedComment == true {
                 // leave the defaults
             } else {
-                timerDirection = stageEditableData.isCountUp ? .countUp : .countDown
+                timerDirection = stageEditableData.durationCountType.timerDirection
                 snoozeAlertsOn = stageEditableData.isPostingRepeatingSnoozeAlerts
-                hours = stageEditableData.durationSecsInt / SEC_HOUR
-                mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
-                secs = stageEditableData.durationSecsInt % SEC_MIN
+                if stageEditableData.isCountDown {
+                    hours = stageEditableData.durationSecsInt / SEC_HOUR
+                    mins = ((stageEditableData.durationSecsInt % SEC_HOUR) / SEC_MIN)
+                    secs = stageEditableData.durationSecsInt % SEC_MIN
+                }
+                if stageEditableData.isCountDownToDate {
+                    durationDate = Date(timeIntervalSinceReferenceDate: Double(stageEditableData.durationSecsInt))
+                }
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
             snoozemins = (stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN
@@ -321,8 +327,18 @@ extension StageEditView {
     }
 
     func updateDuration(andDirection changeDirection: Bool) -> Void {
-        stageEditableData.durationSecsInt = durationFromHMS()
-        if changeDirection == true { timerDirection = stageEditableData.isCountUp ? .countUp : .countDown }
+        switch stageEditableData.durationCountType {
+        case .countDownEnd:
+            stageEditableData.durationSecsInt = durationFromHMS()
+        case .countDownToDate:
+            let ti = durationDate.timeIntervalSinceReferenceDate
+            let tii = Int(ti)
+            stageEditableData.durationSecsInt = tii
+        default:
+            stageEditableData.durationSecsInt = 0
+        }
+        debugPrint("updateDuration",stageEditableData.flags)
+        //if changeDirection == true { timerDirection = stageEditableData.isCountUp ? .countUp : .countDownEnd }
     }
     
     func updateSnoozeDuration() {

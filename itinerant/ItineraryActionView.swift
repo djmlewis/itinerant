@@ -46,7 +46,7 @@ extension  ItineraryActionCommonView {
                         Image(systemName: "timer")
                             .resizable()
                             .frame(width: 16, height: 16)
-                        Text(Stage.stageDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
+                        Text(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
                         if(itinerary.someStagesAreCountUp) {
                             Image(systemName: "stopwatch")
                                 .resizable()

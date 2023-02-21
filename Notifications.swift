@@ -97,7 +97,7 @@ func requestStageCompletedSingleSnoozeNotification(toResponse response: UNNotifi
 func requestAdditionalAlertCompleted(stage: Stage, itinerary: Itinerary, intervalToAlarmSecs: Int, index: Int) -> UNNotificationRequest {
     let content = UNMutableNotificationContent()
     content.title = itinerary.title
-    content.subtitle = "\(stage.title) " +  "has run for " + Stage.stageDurationStringFromDouble(Double(intervalToAlarmSecs))
+    content.subtitle = "\(stage.title) " +  "has run for " + Stage.stageFormattedDurationStringFromDouble(Double(intervalToAlarmSecs))
     content.userInfo = [kItineraryUUIDStr : itinerary.idStr,
                             kStageUUIDStr : stage.idStr,
                               kStageTitle : stage.title,

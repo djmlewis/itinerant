@@ -59,12 +59,10 @@ extension StageActionCommonView {
                         HStack {
                             // alarm duration and button
                             Image(systemName: stage.durationSymbolName)
-                            // Timer type icon
                                 .font(.system(.title3, design: .rounded, weight: .bold))
                                 .foregroundColor(stageTextColour())
-                            if !stage.isCountUp {
-                                Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
-                                // Alarm time duration
+                            if stage.isCountDownType {
+                                Text(stage.durationString)
                                     .font(.system(.title3, design: .rounded, weight: .bold))
                                     .foregroundColor(stageTextColour())
                                     .lineLimit(1)
@@ -75,7 +73,7 @@ extension StageActionCommonView {
                                 // Snooze Alarms time duration
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")
-                                    Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                    Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
@@ -114,7 +112,7 @@ extension StageActionCommonView {
                             HStack {
                                 Image(systemName: "hourglass")
                                 // elapsed time
-                                Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                                Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
                             }
                             .padding(4.0)
                             .frame(maxWidth: .infinity)
@@ -132,7 +130,7 @@ extension StageActionCommonView {
                                     Image(systemName: "timer")
                                     // time remaining or overtime
                                     Text("\(stageRunningOvertime ? "+" : "" )" +
-                                         Stage.stageDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                         Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
                                 }
                                 .padding(4.0)
                                 .frame(maxWidth: .infinity)

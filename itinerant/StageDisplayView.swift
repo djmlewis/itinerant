@@ -60,8 +60,8 @@ struct StageDisplayView: View {
                 HStack {
                     Image(systemName: stage.durationSymbolName)
                     if stage.isCommentOnly == false {
-                        if stage.isCountUp == false {
-                            Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                        if stage.isCountDownType {
+                            Text(stage.durationString)
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -71,7 +71,7 @@ struct StageDisplayView: View {
                             VStack(alignment: .center) {
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")
-                                    Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                    Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)

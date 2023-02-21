@@ -16,10 +16,10 @@ extension StageActionCommonView {
                     HStack(spacing: 0.0) {
                         VStack {
                             HStack {
-                                Image(systemName: stage.isCountUp ? "stopwatch" : "timer")
+                                Image(systemName: stage.durationSymbolName)
                                     .padding(.leading, 2.0)
-                                if !stage.isCountUp {
-                                    Text(Stage.stageDurationStringFromDouble(Double(stage.durationSecsInt)))
+                                if stage.isCountDownType {
+                                    Text(stage.durationString)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))
                                         .lineLimit(1)
                                         .allowsTightening(true)
@@ -31,7 +31,7 @@ extension StageActionCommonView {
                                     HStack {
                                         Spacer()
                                         Image(systemName: "bell.and.waves.left.and.right")
-                                        Text(Stage.stageDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                        Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                             .lineLimit(1)
                                             .allowsTightening(true)
                                             .minimumScaleFactor(0.5)
@@ -79,7 +79,7 @@ extension StageActionCommonView {
                     GridRow {
                         HStack(spacing:0.0) {
                             Image(systemName: "timer")
-                            Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                            Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageFormattedDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         }
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .frame(maxWidth: .infinity)
@@ -98,7 +98,7 @@ extension StageActionCommonView {
                 GridRow {
                     HStack(spacing:0.0) {
                         Image(systemName: "hourglass")
-                        Text(Stage.stageDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                        Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
                     }
                     .font(.system(.title3, design: .rounded, weight: .semibold))
                     .frame(maxWidth: .infinity)

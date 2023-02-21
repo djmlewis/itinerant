@@ -40,7 +40,7 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     }
 
     // simple init with a durationSecsInt
-    init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = "") {
+    init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = StageNotificationInterval.countUp.string) {
         self.id = id
         self.title = title
         self.durationsArray = durationsArray
@@ -104,7 +104,7 @@ extension Stage {
         var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
         var details: String = ""
         var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
-        var flags: String = ""
+        var flags: String = StageNotificationInterval.countUp.string
 
         var durationSecsInt: Int {
             get { durationsArray.first! }
@@ -137,29 +137,32 @@ extension Stage {
                 }
             }
         }
-        var isCountUp: Bool {
+        // count flags are mutually exclusive
+        // setting any flag to false results in an indeterminate state
+        var durationCountType: StageNotificationInterval {
             get {
-                flags.contains(StageNotificationInterval.countUp.string)
+                if self.isCountUp { return .countUp }
+                if self.isCountDownToDate { return .countDownToDate }
+                if self.isCountDown { return .countDownEnd }
+                return .countTypeUnknown
             }
-            set(isUp) {
-                flags = flags.replacingOccurrences(of: StageNotificationInterval.countUp.string, with: "",options: [.literal])
-                if isUp {
-                    flags += StageNotificationInterval.countUp.string
-                }
+            set(newType) {
+                flags = flags.strippedOfCountFlags
+                flags += newType.string
+                debugPrint("durationCountType", newType, newType.string, flags)
             }
         }
-        var isCountDown: Bool { !isCountUp && !isCountDownToDate }
+        var isCountDownType: Bool {durationCountType == .countDownToDate || durationCountType == .countDownEnd }
+        var isCountDown: Bool {
+            get { flags.contains(StageNotificationInterval.countDownEnd.string) }
+        }
         var isCountDownToDate: Bool {
-            get {
-                flags.contains(StageNotificationInterval.countDownToDate.string)
-            }
-            set(isdowntodate) {
-                flags = flags.replacingOccurrences(of: StageNotificationInterval.countDownToDate.string, with: "",options: [.literal])
-                if isdowntodate {
-                    flags += StageNotificationInterval.countDownToDate.string
-                }
-            }
+            get { flags.contains(StageNotificationInterval.countDownToDate.string) }
         }
+        var isCountUp: Bool {
+            get { flags.contains(StageNotificationInterval.countUp.string) }
+        }
+        // - count flags
         var isPostingRepeatingSnoozeAlerts: Bool {
             get {
                 flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
@@ -236,11 +239,34 @@ extension Stage {
         return formatter
     }()
 
-    static func stageDurationStringFromDouble(_ time: Double) -> String {
+    static func stageDateString(fromDate date: Date) -> String {
+        let formatted = date.formatted(
+            .dateTime
+                .day().month(.abbreviated).year()
+                .hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+        )
+        return formatted
+    }
+    
+    var durationString: String {
+        if isCountDown {
+            return Stage.stageDurationFormatter.string(from: Double(durationSecsInt)) ?? ""
+        }
+        if isCountDownToDate  {
+            let date = Date(timeIntervalSinceReferenceDate: Double(durationSecsInt))
+            let str = Stage.stageDateString(fromDate: date)
+            return str
+        }
+        return "---"
+    }
+    var durationStringHardPadded: String {
+        durationString.replacingOccurrences(of: " ", with: "\u{202F}")
+    }
+    static func stageFormattedDurationStringFromDouble(_ time: Double) -> String {
         Stage.stageDurationFormatter.string(from: time) ?? ""
     }
     static func stageDurationStringHardPaddedFromDouble(_ time: Double) -> String {
-        stageDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{202F}")
+        stageFormattedDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{202F}")
     }
 
     var additionalAlertsDurationsString: String {
@@ -275,46 +301,54 @@ extension Stage {
     
     var isActionable: Bool { !isCommentOnly }
     
-    var isCountDown: Bool { !isCountUp && !isCountDownToDate }
-    var isCountDownToDate: Bool {
+    // count flags are mutually exclusive
+    // setting any flag to false results in an indeterminate state
+    var durationCountType: StageNotificationInterval {
         get {
-            flags.contains(StageNotificationInterval.countDownToDate.string)
+            if self.isCountUp { return .countUp }
+            if self.isCountDownToDate { return .countDownToDate }
+            if self.isCountDown { return .countDownEnd }
+            return .countTypeUnknown
         }
-        set(isdowntodate) {
-            flags = flags.replacingOccurrences(of: StageNotificationInterval.countDownToDate.string, with: "",options: [.literal])
-            if isdowntodate {
-                flags += StageNotificationInterval.countDownToDate.string
-            }
+        set(newType) {
+            flags = flags.strippedOfCountFlags
+            flags += newType.string
         }
+    }
+    var isCountDownType: Bool {durationCountType == .countDownToDate || durationCountType == .countDownEnd }
+    var isCountDown: Bool {
+        get { flags.contains(StageNotificationInterval.countDownEnd.string) }
+//            set(isdownend) {
+//                flags = flags.strippedOfCountFlags
+//                flags += (isdownend ? StageNotificationInterval.countDownEnd.string : StageNotificationInterval.countTypeUnknown.string)
+//            }
+    }
+    var isCountDownToDate: Bool {
+        get { flags.contains(StageNotificationInterval.countDownToDate.string) }
+//            set(isdowntodate) {
+//                flags = flags.strippedOfCountFlags
+//                flags += (isdowntodate ? StageNotificationInterval.countDownToDate.string : StageNotificationInterval.countTypeUnknown.string)
+//            }
     }
     var isCountUp: Bool {
-        get {
-            flags.contains(StageNotificationInterval.countUp.string)
-        }
-        set(isUp) {
-            flags = flags.replacingOccurrences(of: StageNotificationInterval.countUp.string, with: "",options: [.literal])
-            if isUp {
-                flags += StageNotificationInterval.countUp.string
-            }
-        }
+        get { flags.contains(StageNotificationInterval.countUp.string) }
+//            set(isUp) {
+//                flags = flags.strippedOfCountFlags
+//                flags += (isUp ? StageNotificationInterval.countUp.string : StageNotificationInterval.countTypeUnknown.string)
+//            }
     }
+    // - count flags
     var isPostingSnoozeAlerts: Bool {
-        get {
-            flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
-        }
+        get { flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string) }
         set(isSA) {
             flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
-            if isSA {
-                flags += StageNotificationInterval.snoozeRepeatingIntervals.string
-            }
+            if isSA { flags += StageNotificationInterval.snoozeRepeatingIntervals.string }
         }
     }
     var postsNotifications: Bool { isCountDown == true || isPostingSnoozeAlerts }
     
     var durationSymbolName: String {
-        if isCommentOnly { return "bubble.left" }
-        if isCountUp { return "stopwatch" }
-        return "timer"
+        return durationCountType.timerDirection.symbolName
     }
        
     var idStr: String { id.uuidString }
@@ -343,7 +377,7 @@ extension Stage {
             details,
             durationsArrayString,
             String(format: "%i", snoozeDurationSecs),
-            flags.isEmpty ? " " : flags,
+            flags.isEmpty ? StageNotificationInterval.countUp.string : flags,
         ]
     }
     
@@ -356,6 +390,8 @@ extension Stage {
         if self.durationsArray.isEmpty { durationsArray = [kStageInitialDurationSecs] }
         self.snoozeDurationSecs = Int(lines[firstIndex+3]) ?? kStageInitialSnoozeDurationSecs
         self.flags = String(lines[firstIndex+4]).replacingOccurrences(of: " ", with: "")
+        // default to countdown
+        if self.flags.isEmpty { self.flags = StageNotificationInterval.countUp.string }
     }
 }
 
