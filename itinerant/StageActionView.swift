@@ -60,8 +60,11 @@ extension StageActionCommonView {
                             // alarm duration and button
                             Image(systemName: stage.durationSymbolName)
                                 .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundColor(stageTextColour())
-                            if stage.isCountDownType {
+                                .foregroundColor(stageDurationDateInvalid ?  Color(red: 1.0, green: 0.149, blue: 0.0) : stageTextColour())
+                                .padding(stageDurationDateInvalid ? 3 : 0)
+                                .background(stageDurationDateInvalid ? .white : .clear)
+                                .cornerRadius(stageDurationDateInvalid ? 8 : 0)
+                           if stage.isCountDownType {
                                 Text(stage.durationString)
                                     .font(.system(.title3, design: .rounded, weight: .bold))
                                     .foregroundColor(stageTextColour())
@@ -69,7 +72,7 @@ extension StageActionCommonView {
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
                             }
-                            if stage.isPostingSnoozeAlerts {
+                            if stage.isPostingRepeatingSnoozeAlerts {
                                 // Snooze Alarms time duration
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")

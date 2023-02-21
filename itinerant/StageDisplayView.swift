@@ -34,9 +34,9 @@ struct StageDisplayView: View {
     @EnvironmentObject var appDelegate: AppDelegate
 
     @State private var isPresentingStageEditView = false
-    @State private var stageEditableData = Stage.EditableData()
+    @State private var stageEditableData = Stage()
 
-    @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
+    @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
 
     var body: some View {
@@ -66,7 +66,7 @@ struct StageDisplayView: View {
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
                         }
-                        if stage.isPostingSnoozeAlerts {
+                        if stage.isPostingRepeatingSnoozeAlerts {
                             // Snooze Alarms time duration
                             VStack(alignment: .center) {
                                 HStack {
@@ -138,7 +138,7 @@ struct StageDisplayView: View {
                         .frame(width: 24, alignment: .trailing)
                         Spacer()
                         Button(action: {
-                            newStageEditableData = Stage.EditableData()
+                            newStageEditableData = Stage()
                             newStageMeta = nil
                             isPresentingNewStageEditView = true
                         }) {

@@ -31,9 +31,11 @@ struct StageActionCommonView: View {
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State var uiUpdateTimerCancellor: Cancellable?
+    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+    @State var uiSlowUpdateTimerCancellor: Cancellable?
     @State var presentUnableToNotifyAlert: Bool = false
+    @State var stageDurationDateInvalid: Bool = false
 
-    
     
     var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
         
@@ -58,6 +60,7 @@ struct StageActionCommonView: View {
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
             .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
+            .onReceive(uiSlowUpdateTimer) { handleReceive_uiSlowUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
@@ -191,7 +194,8 @@ extension StageActionCommonView {
         uuidStrStagesRunningStr.append(stage.idStr)
         // request countdown & snooze notification if needed
         if stage.isCountDown { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownEnd) }
-        if stage.isPostingSnoozeAlerts { // give countdown a head start
+        if stage.isCountDownToDate { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownToDate) }
+        if stage.isPostingRepeatingSnoozeAlerts { // give countdown a head start
             DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
                 postNotification(stage: stage, itinerary: itinerary, intervalType: .snoozeRepeatingIntervals)
             }
@@ -239,6 +243,10 @@ extension StageActionCommonView {
 extension StageActionCommonView {
     
     func handleOnAppear() {
+        stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(Date.now)
+        uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+        uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+
         if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // need to reset the timer to reattach the cancellor
             uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -251,11 +259,11 @@ extension StageActionCommonView {
     
     func handleOnDisappear() {
         uiUpdateTimerCancellor?.cancel()
+        uiSlowUpdateTimerCancellor?.cancel()
     }
     
     func handleReceive_uiUpdateTimer(newDate: Date) {
         // we initialise at head and never set to nil, so never nil and can use !
-        //$0 is the date of this update
         if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             updateUpdateTimes(forUpdateDate: newDate)
         } else {
@@ -263,7 +271,9 @@ extension StageActionCommonView {
             uiUpdateTimerCancellor?.cancel()
         }
     }
-
+    func handleReceive_uiSlowUpdateTimer(newDate: Date) {
+        stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(newDate)
+    }
     func handleReceive_stageToHandleSkipActionID(idstrtotest: String?) {
         // handle notifications to skip to next stage
         if idstrtotest != nil  && stage.hasIDstr(idstrtotest) {

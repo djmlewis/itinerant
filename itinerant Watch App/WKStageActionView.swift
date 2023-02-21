@@ -21,12 +21,12 @@ extension StageActionCommonView {
                                 if stage.isCountDownType {
                                     Text(stage.durationString)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))
-                                        .lineLimit(1)
+                                        .lineLimit(2)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
                                         .padding(.trailing, 2.0)
                                 }
-                                if stage.isPostingSnoozeAlerts {
+                                if stage.isPostingRepeatingSnoozeAlerts {
                                     // Snooze Alarms time duration
                                     HStack {
                                         Spacer()

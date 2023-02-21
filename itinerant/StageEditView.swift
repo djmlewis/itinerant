@@ -10,7 +10,7 @@ import SwiftUI
 
 struct StageEditView: View {
 
-    @Binding var stageEditableData: Stage.EditableData
+    @Binding var stageEditableData: Stage
     
     @State private var untimedComment: Bool =  false
     @State private var snoozeAlertsOn: Bool =  false
@@ -354,6 +354,6 @@ extension StageEditView {
 
 struct StageRowEditView_Previews: PreviewProvider {
     static var previews: some View {
-        StageEditView(stageEditableData: .constant(Stage.EditableData()))
+        Text("")
     }
 }

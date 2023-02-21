@@ -12,7 +12,7 @@ struct ItineraryEditView: View {
     @Binding var itineraryEditableData: Itinerary.EditableData
 
     @State private var newStageMeta: NewStageMeta?
-    @State private var newStageEditableData: Stage.EditableData = Stage.EditableData()
+    @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
 
     @State private var isEditing: Bool = false
@@ -82,7 +82,7 @@ struct ItineraryEditView: View {
                             .buttonStyle(.borderless)
                             .controlSize(.small)
                             Button {
-                                newStageEditableData = Stage.EditableData()
+                                newStageEditableData = Stage()
                                 newStageMeta = nil
                                 isPresentingNewStageEditView = true
                             } label: {

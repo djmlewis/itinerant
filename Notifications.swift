@@ -153,6 +153,12 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
         duration = Double(max(stage.durationSecsInt, kStageMinimumDurationSecs))
         repeats = false
         interruption = .timeSensitive
+    case .countDownToDate:
+        categoryIdentifier = kNotificationCategoryStageCompleted
+        // has to be at least min. This is the final check
+        duration = max(Double(stage.durationSecsInt) - Date.now.timeIntervalSinceReferenceDate, Double(kStageMinimumDurationSecs))
+        repeats = false
+        interruption = .timeSensitive
     case .snoozeRepeatingIntervals:
         categoryIdentifier = kNotificationCategoryRepeatingSnoozeIntervalCompleted
         // has to be at least min. This is the final check
@@ -177,6 +183,10 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
 }
 
 func postNotification(stage: Stage, itinerary: Itinerary, intervalType: StageNotificationInterval ) -> Void {
+    if !stage.durationValidForNotificationInterval(intervalType)  {
+        debugPrint("invalid duration")
+    }
+    
     let center = UNUserNotificationCenter.current()
     center.getNotificationSettings { notificationSettings in
         guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
@@ -189,5 +199,4 @@ func postNotification(stage: Stage, itinerary: Itinerary, intervalType: StageNot
         }
     }
 }
-
 
