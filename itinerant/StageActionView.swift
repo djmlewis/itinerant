@@ -128,7 +128,7 @@ extension StageActionCommonView {
                                 HStack {
                                     Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
                                     // time remaining or overtime
-                                    Text("\(stageRunningOvertime ? "+" : "" )" +
+                                    Text("\(stageRunningOvertime ? "+" : " -" )" +
                                          Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
                                 }
                                 .padding(4.0)

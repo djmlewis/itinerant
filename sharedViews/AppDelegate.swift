@@ -20,6 +20,7 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var fileDeleteDialogShow = false
     @Published var fileDeletePathArray: [String]?
     @Published var watchConnectionProblem: String?
+    @Published var syncItineraries: Bool = false
 
     @Published var newItinerary: Itinerary? /* watchOS only */
     
@@ -225,13 +226,23 @@ extension AppDelegate {
     
     // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        debugPrint(message)
         if let messageData = message[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(messageData) }
         else if message[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(message as! [String:String])}
-//        else if let iphoneMessage = message[kMessageFromWatchKey] as? String {
-//            //debugPrint(iphoneMessage)
-//        }
+        else if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchInitiateSyncNow {
+            DispatchQueue.main.async {
+                self.syncItineraries = true
+            }
+        }
     }
     
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void ) {
+        debugPrint(message)
+        if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchRequestingItinerariesSync {
+            replyHandler([kUserInfoMessageTypeKey : kMessageFromPhoneStandingByToSync])
+        }
+    }
     
     func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
         let message = watchConnectionUnusableMessage()
@@ -272,6 +283,17 @@ extension AppDelegate {
         
     }
     
+
+    // iOS handlers ===>
+    func sendItineraryDataToWatch(_ watchdata: Data?)  {
+        if let data = watchdata {
+            sendMessageOrData(dict: [
+                kUserInfoMessageTypeKey : kMessageFromPhoneWithItineraryData,
+                kMessageFromPhoneWithItineraryData : data], data: nil)
+        }
+    }
+
+    // <=== iOS handlers
 
     // watchOS handlers ===>
     func handleItineraryDataFromPhone(_ messageData: Data) {

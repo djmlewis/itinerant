@@ -27,21 +27,21 @@ extension ItineraryActionCommonView {
                     .padding(.trailing,0)
                     .padding(.leading,0)
                     .font(.system(.subheadline, design: .rounded, weight: .regular))
-                Button {
-                    resetItineraryStages()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "arrow.counterclockwise.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 32, alignment: .center)
-                        Spacer()
-                    }
-               }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listItemTint(.red)
-                .padding()
+//                Button {
+//                    resetItineraryStages()
+//                } label: {
+//                    HStack {
+//                        Spacer()
+//                        Image(systemName: "arrow.counterclockwise.circle.fill")
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
+//                            .frame(height: 32, alignment: .center)
+//                        Spacer()
+//                    }
+//               }
+//                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                .listItemTint(.red)
+//                .padding()
             } /* List */
             .toolbar(content: {
                 Button {

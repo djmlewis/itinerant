@@ -210,6 +210,10 @@ let kUserInfoMessageTypeKey = "kUserInfoMessageTypeKey"
 let kMessageFromWatchKey = "kMessageFromWatchKey"
 let kMessageFromPhoneWithItineraryData = "kMessageFromPhoneWithItineraryData"
 let kMessageFromPhoneWithSettingsData = "kMessageFromPhoneWithSettingsData"
+let kMessageFromWatchRequestingItinerariesSync = "kMessageFromWatchRequestingItinerariesSync"
+let kMessageFromPhoneStandingByToSync = "kMessageFromPhoneStandingByToSync"
+let kMessageFromWatchInitiateSyncNow = "kMessageFromWatchInitiateSyncNow"
+
 
 // MARK: - Color String
 let kColorStringSeparator = "\t"

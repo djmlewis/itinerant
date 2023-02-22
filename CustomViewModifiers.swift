@@ -29,7 +29,7 @@ struct StageInvalidDurationSymbolBackground: ViewModifier {
           .padding(stageDurationDateInvalid ? 3 : 0)
           .background(stageDurationDateInvalid ? .white : .clear)
           .cornerRadius(stageDurationDateInvalid ? 3 : 0)
-          .padding(stageDurationDateInvalid ? 2 : 0)
+          .padding(stageDurationDateInvalid ? 1 : 0)
           .background(stageDurationDateInvalid ? .black : .clear)
           .cornerRadius(stageDurationDateInvalid ? 3 : 0)
           .padding(stageDurationDateInvalid ? 2 : 0)

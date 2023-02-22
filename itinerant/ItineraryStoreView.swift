@@ -116,6 +116,11 @@ struct ItineraryStoreView: View {
                         }
                 }
             }
+            .onChange(of: appDelegate.syncItineraries) { doSync in
+                guard doSync == true else { return }
+                itineraryStore.itineraries.forEach { appDelegate.sendItineraryDataToWatch($0.watchDataNewUUID) }
+                appDelegate.syncItineraries = false
+            }
             .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in
                 // handle notifications to switch itinerary
                 guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }

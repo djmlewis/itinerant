@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import WatchConnectivity
+
 
 struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
@@ -23,13 +25,6 @@ struct WKItinerantStoreView: View {
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
     
-    func textColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
-    }
-    func backgroundColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
-    }
-
     var body: some View {
         NavigationStack(path: $presentedItineraryID) {
             List {
@@ -60,11 +55,7 @@ struct WKItinerantStoreView: View {
                 } /* ForEach */
                 .onDelete(perform: { offsets in
                     // remove all references to any stage ids for these itineraries first. offsets is the indexset
-                    offsets.forEach { index in
-                        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
-                    }
-                    // now its safe to delete those Itineraries
-                    itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
+                    removeItinerariesAtOffsets(offsets)
                 })
                 
             } /* List */
@@ -72,6 +63,17 @@ struct WKItinerantStoreView: View {
                 ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
             }
             .navigationTitle("Itineraries")
+            .toolbar{
+                Button(action: {
+                    requestItinerariesSync()
+                }, label: {
+                    Text("Sync \(Image(systemName: "iphone.gen3")) \(Image(systemName: "arrowshape.right")) \(Image(systemName: "applewatch"))")
+                        .font(.system(.title3, design: .rounded, weight: .regular))
+                })
+                .tint(.red)
+                .padding()
+            }
+
             
         }
         .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in
@@ -99,6 +101,43 @@ struct WKItinerantStoreView: View {
     } /* View */
     
 }
+
+
+extension WKItinerantStoreView {
+    
+    func removeItinerariesAtOffsets(_ offsets: IndexSet) {
+        // remove all references to any stage ids for these itineraries first. offsets is the indexset
+        offsets.forEach { index in
+            (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
+        }
+        // now its safe to delete those Itineraries
+        itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
+    }
+    
+    func requestItinerariesSync() {
+        if WCSession.default.isReachable {
+            //debugPrint("sending by message")
+            WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchRequestingItinerariesSync]) { replyDict in
+                if replyDict[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneStandingByToSync {
+                    if !itineraryStore.itineraries.isEmpty { removeItinerariesAtOffsets(IndexSet(integersIn: itineraryStore.itineraries.startIndex..<itineraryStore.itineraries.endIndex)) }
+                    WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchInitiateSyncNow], replyHandler: nil)
+                }
+
+            }
+        }
+    }
+
+    
+    func textColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
+    }
+    func backgroundColourForID(_ itineraryID: String) -> Color? {
+        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
+    }
+
+}
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
