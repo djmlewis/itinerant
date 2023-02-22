@@ -7,7 +7,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
-
+import Combine
 
 struct ItineraryActionCommonView: View {
     
@@ -23,6 +23,10 @@ struct ItineraryActionCommonView: View {
     @State var resetStageElapsedTime: Bool?
     @State var scrollToStageID: String?
     @State var stageToStartRunningID: String?
+    
+    @State var dateAtUpdate: Date = Date.now
+    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+    @State var uiSlowUpdateTimerCancellor: Cancellable?
 
     @EnvironmentObject var appDelegate: AppDelegate
 
@@ -53,6 +57,14 @@ struct ItineraryActionCommonView: View {
    
     var body: some View {
         body_
+            .onReceive(uiSlowUpdateTimer) { dateAtUpdate = $0 }
+            .onAppear {
+                uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+                uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+            }
+            .onDisappear {
+                uiSlowUpdateTimerCancellor?.cancel()
+            }
     } /* View */
     
 }

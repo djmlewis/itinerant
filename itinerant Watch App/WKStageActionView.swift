@@ -18,6 +18,10 @@ extension StageActionCommonView {
                             HStack {
                                 Image(systemName: stage.durationSymbolName)
                                     .padding(.leading, 2.0)
+                                    .foregroundColor(stageDurationDateInvalid ?  Color(red: 1.0, green: 0.149, blue: 0.0) : stageTextColour())
+                                    .padding(stageDurationDateInvalid ? 3 : 0)
+                                    .background(stageDurationDateInvalid ? .white : .clear)
+                                    .cornerRadius(stageDurationDateInvalid ? 8 : 0)
                                 if stage.isCountDownType {
                                     Text(stage.durationString)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))
@@ -43,7 +47,6 @@ extension StageActionCommonView {
                             } /* HStack */
                             if !stage.additionalDurationsArray.isEmpty {
                                     HStack {
-                                        // Image(systemName: "alarm.waves.left.and.right")
                                         Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
                                             .allowsTightening(true)
                                             .minimumScaleFactor(0.5)

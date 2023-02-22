@@ -83,21 +83,21 @@ extension Itinerary {
         // notification ID strings may have suffixes so use contains not ==
         return idstrtotest != nil && idStr == idstrtotest
     }
-
+    
     func stageActive(uuidStrStagesActiveStr: String) -> Stage? { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } }
     func isActive(uuidStrStagesActiveStr: String) -> Bool { stages.first { uuidStrStagesActiveStr.contains($0.idStr) } != nil }
     
     func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } }
     func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } != nil }
-
+    
     var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
         partialResult || stage.isCountUp
     } }
-
+    
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
         return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
     }
-
+    
     func indexOfNextActivableStage(fromUUIDstr uuidstr: String ) -> Int? {
         // stops at .count
         guard stages.count > 0, let currindex = stageIndex(forUUIDstr: uuidstr) else { return nil }
@@ -117,16 +117,21 @@ extension Itinerary {
         }
         return nil
     }
-
+    
     var lastStageUUIDstr: String? { stages.last?.idStr }
     
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
     
-    var totalDuration: Double { Double(stages.reduce(0) { partialResult, stage in
+    func totalDurationAtDate(atDate date: Date) -> Double { Double(stages.reduce(0) { partialResult, stage in
         // remove any negative flag values with max(...,0)
-        partialResult + stage.durationSecsInt
+        partialResult + stage.durationSecsIntCorrected(atDate: date)
     }) }
-
+        
+    func totalDurationText(atDate dateAtUpdate: Date) -> Text {
+        return Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(totalDurationAtDate(atDate: dateAtUpdate)))") +
+        (someStagesAreCountUp ? Text(" +") : Text("")) +
+        (someStagesAreCountUp ? Text("\(Image(systemName: "stopwatch"))") : Text(""))
+    }
 }
 
 

@@ -243,7 +243,7 @@ struct StageEditView: View {
                     secs = stageEditableData.durationSecsInt % SEC_MIN
                 }
                 if stageEditableData.isCountDownToDate {
-                    durationDate = Date(timeIntervalSinceReferenceDate: Double(stageEditableData.durationSecsInt))
+                    durationDate = stageEditableData.durationAsDate //Date(timeIntervalSinceReferenceDate: Double(stageEditableData.durationSecsInt))
                 }
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR

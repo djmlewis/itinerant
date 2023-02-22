@@ -42,17 +42,7 @@ extension  ItineraryActionCommonView {
             } /* ScrollViewReader */
             VStack(alignment: .center, spacing: 0.0) {
                 HStack(alignment: .center) {
-                    Group {
-                        Image(systemName: "timer")
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                        Text(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDuration) + (itinerary.someStagesAreCountUp ? " +" : ""))
-                        if(itinerary.someStagesAreCountUp) {
-                            Image(systemName: "stopwatch")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                    }
+                    itinerary.totalDurationText(atDate: dateAtUpdate)
                     .padding(.trailing,0)
                     .padding(.leading,0)
                     .font(.system(.subheadline, design: .rounded, weight: .regular))

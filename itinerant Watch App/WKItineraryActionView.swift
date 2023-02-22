@@ -17,7 +17,16 @@ extension ItineraryActionCommonView {
                         .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                itinerary.totalDurationText(atDate: dateAtUpdate)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+                    .listItemTint(.clear)
+                    .lineLimit(1)
+                    .allowsTightening(true)
+                    .minimumScaleFactor(0.5)
+                    .padding(.trailing,0)
+                    .padding(.leading,0)
+                    .font(.system(.subheadline, design: .rounded, weight: .regular))
                 Button {
                     resetItineraryStages()
                 } label: {
@@ -30,6 +39,7 @@ extension ItineraryActionCommonView {
                         Spacer()
                     }
                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listItemTint(.red)
                 .padding()
             } /* List */

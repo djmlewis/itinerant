@@ -16,6 +16,8 @@ import WatchConnectivity
 // MARK: Time formatting & second-min
 let SEC_MIN = 60
 let SEC_HOUR = 3600
+let SEC_MIN_DBL = 60.0
+let SEC_HOUR_DBL = 3600.0
 
 func hmsToSecsInt(hours: Int, mins: Int, secs: Int) -> Int {
     return hours * SEC_HOUR + mins * SEC_MIN + secs

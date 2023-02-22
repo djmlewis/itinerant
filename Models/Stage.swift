@@ -122,118 +122,6 @@ extension Stage {
 }
 
 
-// MARK: - EditableData
-//extension Stage {
-//    struct EditableData {
-//        var title: String = ""
-//        var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
-//        var details: String = ""
-//        var snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs
-//        var flags: String = StageNotificationInterval.countUp.string
-//
-//        var durationSecsInt: Int {
-//            get { durationsArray.first! }
-//            set(newDuration) { durationsArray[0] = newDuration }
-//        }
-//        var additionalDurationsArray: [Int] {
-//            get {
-//                var array = durationsArray
-//                _ = array.remove(at: 0)
-//                return array
-//            }
-//            set(array) {
-//                var newdurationsarray = [Int]()
-//                newdurationsarray.append(durationsArray[0])
-//                if !array.isEmpty {
-//                    newdurationsarray += array
-//                }
-//                durationsArray = newdurationsarray
-//            }
-//        }
-//
-//        var isCommentOnly: Bool {
-//            get {
-//                flags.contains(StageNotificationInterval.comment.string)
-//            }
-//            set(isComment) {
-//                flags = flags.replacingOccurrences(of: StageNotificationInterval.comment.string, with: "",options: [.literal])
-//                if isComment {
-//                    flags += StageNotificationInterval.comment.string
-//                }
-//            }
-//        }
-//        // count flags are mutually exclusive
-//        // setting any flag to false results in an indeterminate state
-//        var durationCountType: StageNotificationInterval {
-//            get {
-//                if self.isCountUp { return .countUp }
-//                if self.isCountDownToDate { return .countDownToDate }
-//                if self.isCountDown { return .countDownEnd }
-//                return .countTypeUnknown
-//            }
-//            set(newType) {
-//                flags = flags.strippedOfCountFlags
-//                flags += newType.string
-//                debugPrint("durationCountType", newType, newType.string, flags)
-//            }
-//        }
-//        var isCountDownType: Bool {durationCountType == .countDownToDate || durationCountType == .countDownEnd }
-//        var isCountDown: Bool {
-//            get { flags.contains(StageNotificationInterval.countDownEnd.string) }
-//        }
-//        var isCountDownToDate: Bool {
-//            get { flags.contains(StageNotificationInterval.countDownToDate.string) }
-//        }
-//        var isCountUp: Bool {
-//            get { flags.contains(StageNotificationInterval.countUp.string) }
-//        }
-//        // - count flags
-//        var isPostingRepeatingSnoozeAlerts: Bool {
-//            get {
-//                flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string)
-//            }
-//            set(isSA) {
-//                flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
-//                if isSA {
-//                    flags += StageNotificationInterval.snoozeRepeatingIntervals.string
-//                }
-//            }
-//        }
-//        var postsNotifications: Bool { isCountDown == true || isPostingRepeatingSnoozeAlerts }
-//
-//    } /* EditableData */
-//    
-//    
-//    /* Stage inits from EditableData */
-//    var editableData: Stage.EditableData { EditableData(title: self.title,
-//                                                        durationsArray: self.durationsArray,
-//                                                        details: self.details,
-//                                                        snoozeDurationSecs: self.snoozeDurationSecs,
-//                                                        flags: self.flags) }
-//    
-//
-//    mutating func updateEditableData(from editableData: Stage.EditableData) {
-//        self.title = editableData.title
-//        self.durationsArray = editableData.durationsArray
-//        self.details = editableData.details
-//        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-//        self.flags = editableData.flags
-//    }
-//    
-//    // Init Stage from EditableData
-//    init(editableData: EditableData) {
-//        // force new ID
-//        self.id = UUID()
-//        self.title = editableData.title
-//        self.durationsArray = editableData.durationsArray
-//        self.details = editableData.details
-//        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-//        self.flags = editableData.flags
-//    }
-//
-//}
-//
-// MARK: - Templates, duplicates, Stage StageArray
 extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
@@ -274,14 +162,8 @@ extension Stage {
     }
     
     var durationString: String {
-        if isCountDown {
-            return Stage.stageDurationFormatter.string(from: Double(durationSecsInt)) ?? ""
-        }
-        if isCountDownToDate  {
-            let date = Date(timeIntervalSinceReferenceDate: Double(durationSecsInt))
-            let str = Stage.stageDateString(fromDate: date)
-            return str
-        }
+        if isCountDown { return Stage.stageDurationFormatter.string(from: Double(durationSecsInt)) ?? "" }
+        if isCountDownToDate  { return Stage.stageDateString(fromDate: durationAsDate) }
         return "---"
     }
     var durationStringHardPadded: String {
@@ -351,6 +233,16 @@ extension Stage {
         get { flags.contains(StageNotificationInterval.countUp.string) }
     }
     // - count flags
+    
+    var durationAsDate: Date { Date(timeIntervalSinceReferenceDate: Double(durationSecsInt)) }
+    
+    func durationSecsIntCorrected(atDate date: Date) -> Int {
+        if isCountDown { return durationSecsInt }
+        if isCountDownToDate { return Int(durationAsDate.timeIntervalSince(date)) }
+        return 0
+    }
+    
+    
     
     var isPostingRepeatingSnoozeAlerts: Bool {
         get { flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string) }
