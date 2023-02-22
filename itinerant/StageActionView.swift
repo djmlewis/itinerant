@@ -60,14 +60,10 @@ extension StageActionCommonView {
                             // alarm duration and button
                             Image(systemName: stage.durationSymbolName)
                                 .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundColor(stageDurationDateInvalid ?  Color(red: 1.0, green: 0.149, blue: 0.0) : stageTextColour())
-                                .padding(stageDurationDateInvalid ? 3 : 0)
-                                .background(stageDurationDateInvalid ? .white : .clear)
-                                .cornerRadius(stageDurationDateInvalid ? 8 : 0)
                            if stage.isCountDownType {
                                 Text(stage.durationString)
                                     .font(.system(.title3, design: .rounded, weight: .bold))
-                                    .foregroundColor(stageTextColour())
+                                    .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
                                     .lineLimit(1)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
@@ -128,9 +124,9 @@ extension StageActionCommonView {
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                            if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
+                            if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                                 HStack {
-                                    Image(systemName: "timer")
+                                    Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
                                     // time remaining or overtime
                                     Text("\(stageRunningOvertime ? "+" : "" )" +
                                          Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
@@ -144,7 +140,6 @@ extension StageActionCommonView {
                                         .stroke( .black, lineWidth: 1.0)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                                //.opacity(timeDifferenceAtUpdate == 0.0 || stage.isCountUp  ? 0.0 : 1.0)
                             }
                         } /* GridRow */
                         .font(.system(.title3, design: .rounded, weight: .bold))
@@ -157,6 +152,8 @@ extension StageActionCommonView {
         .padding(0)
         .cornerRadius(8) /// make the background rounded
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only
+        .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
+
 //        /* VStack mods */
     } /* body ios*/
 #endif

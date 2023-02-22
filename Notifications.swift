@@ -136,16 +136,7 @@ func postAdditionalAlertNotification(stage: Stage, itinerary: Itinerary, interva
 
 func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itinerary, intervalType: StageNotificationInterval) -> UNNotificationRequest {
     let content = UNMutableNotificationContent()
-    content.title = itinerary.title
-    content.subtitle = "\(stage.title) " + (intervalType == .countDownEnd ? "has completed" : "is running")
-    content.userInfo = [kItineraryUUIDStr : itinerary.idStr,
-                            kStageUUIDStr : stage.idStr,
-                              kStageTitle : stage.title,
-                     kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
-                          kItineraryTitle : itinerary.title,
-                     kNotificationDueTime : Date.now.timeIntervalSinceReferenceDate + Double(stage.snoozeDurationSecs)
-    ]
-    let categoryIdentifier: String, duration: Double, repeats: Bool, interruption: UNNotificationInterruptionLevel
+    let categoryIdentifier: String, duration: Double, repeats: Bool, interruption: UNNotificationInterruptionLevel, suffix: String
     switch intervalType {
     case .countDownEnd:
         categoryIdentifier = kNotificationCategoryStageCompleted
@@ -153,26 +144,39 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
         duration = Double(max(stage.durationSecsInt, kStageMinimumDurationSecs))
         repeats = false
         interruption = .timeSensitive
+        suffix = "has completed"
     case .countDownToDate:
         categoryIdentifier = kNotificationCategoryStageCompleted
         // has to be at least min. This is the final check
-        duration = max(Double(stage.durationSecsInt) - Date.now.timeIntervalSinceReferenceDate, Double(kStageMinimumDurationSecs))
+        duration = max(Double(stage.durationSecsInt) - Date.now.timeIntervalSinceReferenceDate, kStageMinimumDurationForDateDbl)
         repeats = false
         interruption = .timeSensitive
+        suffix = "has completed"
     case .snoozeRepeatingIntervals:
         categoryIdentifier = kNotificationCategoryRepeatingSnoozeIntervalCompleted
         // has to be at least min. This is the final check
         duration = Double(max(stage.snoozeDurationSecs, kSnoozeMinimumDurationSecs))
         repeats = true
         interruption = .active
+        suffix = "is running"
     default:
         categoryIdentifier = kNotificationCategoryUnknown
         // has to be at least min. This is the final check
         duration = Double(kStageMinimumDurationSecs)
         repeats = false
         interruption = .passive
+        suffix = ""
         debugPrint("!! kNotificationCategoryUnknown ")
     }
+    content.title = itinerary.title
+    content.subtitle = "\(stage.title) " + suffix
+    content.userInfo = [kItineraryUUIDStr : itinerary.idStr,
+                            kStageUUIDStr : stage.idStr,
+                              kStageTitle : stage.title,
+                     kStageSnoozeDurationSecs : stage.snoozeDurationSecs,
+                          kItineraryTitle : itinerary.title,
+                     kNotificationDueTime : Date.now.timeIntervalSinceReferenceDate + Double(stage.snoozeDurationSecs)
+    ]
     content.categoryIdentifier = categoryIdentifier
     content.interruptionLevel = interruption
     content.sound = .default
@@ -183,10 +187,9 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
 }
 
 func postNotification(stage: Stage, itinerary: Itinerary, intervalType: StageNotificationInterval ) -> Void {
-    if !stage.durationValidForNotificationInterval(intervalType)  {
-        debugPrint("invalid duration")
-    }
-    
+//    if !stage.durationValidForNotificationInterval(intervalType)  {
+//        debugPrint("invalid duration")
+//    }
     let center = UNUserNotificationCenter.current()
     center.getNotificationSettings { notificationSettings in
         guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }

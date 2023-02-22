@@ -95,11 +95,18 @@ struct StageEditView: View {
                             } /* VStack */
                         } /* if timerDirection == .countDown {VStack}*/
                         if timerDirection == .countDownToDate {
-                            DatePicker(
-                                "End On:",
-                                selection: $durationDate,
-                                displayedComponents: [.date, .hourAndMinute]
-                            )
+                            Group{
+                                DatePicker(
+                                    "End On:",
+                                    selection: $durationDate,
+                                    in: Date().addingTimeInterval(kStageMinimumDurationForDateDbl)...,
+                                    displayedComponents: [.date, .hourAndMinute]
+                                )
+                                Text("The end time must be at least 1 minute in the future when the stage starts")
+                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                    .multilineTextAlignment(.center)
+                                    .opacity(0.5)
+                            }
                         }
                         /* Duration Pickers */
                 } /* Section */
@@ -205,7 +212,7 @@ struct StageEditView: View {
         })
         .onChange(of: timerDirection, perform: {
             stageEditableData.durationCountType = $0.stageNotificationIntervalType
-            debugPrint("onChange(of: timerDirection", $0, $0.stageNotificationIntervalType, stageEditableData.durationCountType, stageEditableData.flags)
+            //debugPrint("onChange(of: timerDirection", $0, $0.stageNotificationIntervalType, stageEditableData.durationCountType, stageEditableData.flags)
             updateDuration(andDirection: false)
         })
         .onChange(of: snoozeAlertsOn, perform: {
@@ -243,7 +250,7 @@ struct StageEditView: View {
                     secs = stageEditableData.durationSecsInt % SEC_MIN
                 }
                 if stageEditableData.isCountDownToDate {
-                    durationDate = stageEditableData.durationAsDate //Date(timeIntervalSinceReferenceDate: Double(stageEditableData.durationSecsInt))
+                    durationDate = max(stageEditableData.durationAsDate,dateYMDHM(fromDate: Date()).addingTimeInterval(kStageMinimumDurationForDateDbl))
                 }
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
@@ -319,6 +326,7 @@ struct StageEditView: View {
 
 extension StageEditView {
     
+    
     func durationFromHMS() -> Int {
         Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
     }
@@ -331,13 +339,10 @@ extension StageEditView {
         case .countDownEnd:
             stageEditableData.durationSecsInt = durationFromHMS()
         case .countDownToDate:
-            let ti = durationDate.timeIntervalSinceReferenceDate
-            let tii = Int(ti)
-            stageEditableData.durationSecsInt = tii
+            stageEditableData.durationSecsInt = Int(dateYMDHM(fromDate: durationDate).timeIntervalSinceReferenceDate)
         default:
             stageEditableData.durationSecsInt = 0
         }
-        debugPrint("updateDuration",stageEditableData.flags)
         //if changeDirection == true { timerDirection = stageEditableData.isCountUp ? .countUp : .countDownEnd }
     }
     
@@ -351,6 +356,8 @@ extension StageEditView {
     
     
 }
+
+
 
 struct StageRowEditView_Previews: PreviewProvider {
     static var previews: some View {

@@ -153,3 +153,14 @@ func watchConnectionUnusableMessage() -> String? {
 func watchConnectionUnusable() ->  Bool {
     return watchConnectionUnusableMessage() != nil
 }
+
+// MARK: - Dates
+func dateYMDHM(fromDate date: Date) -> Date {
+    let calendar = Calendar.current
+    let components = calendar.dateComponents(
+        [.year, .month, .day, .hour, .minute],
+        from: date
+    )
+    return calendar.date(from: components) ?? Date()
+}
+

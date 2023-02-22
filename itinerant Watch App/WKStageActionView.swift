@@ -18,13 +18,10 @@ extension StageActionCommonView {
                             HStack {
                                 Image(systemName: stage.durationSymbolName)
                                     .padding(.leading, 2.0)
-                                    .foregroundColor(stageDurationDateInvalid ?  Color(red: 1.0, green: 0.149, blue: 0.0) : stageTextColour())
-                                    .padding(stageDurationDateInvalid ? 3 : 0)
-                                    .background(stageDurationDateInvalid ? .white : .clear)
-                                    .cornerRadius(stageDurationDateInvalid ? 8 : 0)
                                 if stage.isCountDownType {
                                     Text(stage.durationString)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))
+                                        .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
                                         .lineLimit(2)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
@@ -78,10 +75,10 @@ extension StageActionCommonView {
                     .foregroundColor(stageTextColour())
             }
             if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil) {
-                if timeDifferenceAtUpdate != 0.0 && stage.isCountDown {
+                if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                     GridRow {
                         HStack(spacing:0.0) {
-                            Image(systemName: "timer")
+                            Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
                             Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageFormattedDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         }
                         .font(.system(.title3, design: .rounded, weight: .semibold))

@@ -90,10 +90,12 @@ extension Itinerary {
     func stageRunning(uuidStrStagesRunningStr: String) ->  Stage? { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } }
     func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } != nil }
     
-    var someStagesAreCountUp: Bool { stages.reduce(false) { partialResult, stage in
-        partialResult || stage.isCountUp
-    } }
-    
+    var someStagesAreCountUp: Bool { stages.firstIndex { $0.isCountUp } != nil }
+//        stages.reduce(false) { partialResult, stage in
+//        partialResult || stage.isCountUp
+//    } }
+    var someStagesAreCountDownToDate: Bool { stages.firstIndex { $0.isCountDownToDate } != nil }
+
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
         return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
     }
@@ -124,13 +126,13 @@ extension Itinerary {
     
     func totalDurationAtDate(atDate date: Date) -> Double { Double(stages.reduce(0) { partialResult, stage in
         // remove any negative flag values with max(...,0)
-        partialResult + stage.durationSecsIntCorrected(atDate: date)
+        partialResult + max(stage.durationSecsIntCorrected(atDate: date),0)
     }) }
         
     func totalDurationText(atDate dateAtUpdate: Date) -> Text {
-        return Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(totalDurationAtDate(atDate: dateAtUpdate)))") +
-        (someStagesAreCountUp ? Text(" +") : Text("")) +
-        (someStagesAreCountUp ? Text("\(Image(systemName: "stopwatch"))") : Text(""))
+        var text = Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(totalDurationAtDate(atDate: dateAtUpdate)))")
+        if someStagesAreCountUp { text = text + Text(" +\(Image(systemName: "stopwatch"))") }
+        return text
     }
 }
 

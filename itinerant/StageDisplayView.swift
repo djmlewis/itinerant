@@ -9,7 +9,7 @@
 // a StageActionView but without the actionable elements, displayed in Itinerary Edit View
 
 import SwiftUI
-
+import Combine
 
 struct NewStageMeta: Equatable {
     internal init(stageInitiatingIDstr: String, duplicate: Bool, newStage: Stage) {
@@ -30,7 +30,7 @@ struct StageDisplayView: View {
     @Binding var isEditing: Bool
     @Binding var stageIDtoDelete: String?
 
-//    @Environment(\.editMode) private var editMode
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var appDelegate: AppDelegate
 
     @State private var isPresentingStageEditView = false
@@ -38,6 +38,10 @@ struct StageDisplayView: View {
 
     @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
+
+    @State var stageDurationDateInvalid: Bool = false
+    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+    @State var uiSlowUpdateTimerCancellor: Cancellable?
 
     var body: some View {
         HStack(alignment: .top) {
@@ -62,6 +66,7 @@ struct StageDisplayView: View {
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
                             Text(stage.durationString)
+                                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -165,6 +170,10 @@ struct StageDisplayView: View {
             }
         } /* HStack */
         .animation(.linear(duration: 0.1), value: isEditing)
+        .onAppear() { checkUIupdateSlowTimerStatus() }
+        .onDisappear() { uiSlowUpdateTimerCancellor?.cancel() }
+        .onReceive(uiSlowUpdateTimer) { stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate($0) }
+        .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
         .padding([.top,.bottom],1)
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
@@ -210,6 +219,17 @@ struct StageDisplayView: View {
     
 }
 
+extension StageDisplayView {
+    
+    func checkUIupdateSlowTimerStatus() {
+        uiSlowUpdateTimerCancellor?.cancel()
+        if stage.isCountDownToDate {
+            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+        }
+    }
+
+}
 
 struct StageDisplayView_Previews: PreviewProvider {
     static var previews: some View {

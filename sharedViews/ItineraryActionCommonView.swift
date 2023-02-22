@@ -58,13 +58,9 @@ struct ItineraryActionCommonView: View {
     var body: some View {
         body_
             .onReceive(uiSlowUpdateTimer) { dateAtUpdate = $0 }
-            .onAppear {
-                uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-                uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
-            }
-            .onDisappear {
-                uiSlowUpdateTimerCancellor?.cancel()
-            }
+            .onAppear { checkUIupdateSlowTimerStatus() }
+            .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
+            .onDisappear { uiSlowUpdateTimerCancellor?.cancel() }
     } /* View */
     
 }
@@ -72,6 +68,15 @@ struct ItineraryActionCommonView: View {
 
 
 extension ItineraryActionCommonView {
+    
+    func checkUIupdateSlowTimerStatus() {
+        uiSlowUpdateTimerCancellor?.cancel()
+        if itinerary.someStagesAreCountDownToDate {
+            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+        }
+    }
+    
     func stageBackgroundColour(stage: Stage) -> Color {
         if stage.isCommentOnly {
             return appStorageColourStageComment.rgbaColor!

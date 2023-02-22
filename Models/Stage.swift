@@ -206,7 +206,10 @@ extension Stage {
     func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(idStr) }
     
     
-    var isActionable: Bool { !isCommentOnly }
+    var isActionable: Bool {
+        if isCommentOnly { return false }
+        return true
+    }
     
     // count flags are mutually exclusive
     // setting any flag to false results in an indeterminate state
@@ -238,12 +241,11 @@ extension Stage {
     
     func durationSecsIntCorrected(atDate date: Date) -> Int {
         if isCountDown { return durationSecsInt }
+        // date may return a negative value
         if isCountDownToDate { return Int(durationAsDate.timeIntervalSince(date)) }
         return 0
     }
-    
-    
-    
+        
     var isPostingRepeatingSnoozeAlerts: Bool {
         get { flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string) }
         set(isSA) {
@@ -254,7 +256,7 @@ extension Stage {
     var postsNotifications: Bool { isCountDown == true || isPostingRepeatingSnoozeAlerts }
     
     var durationSymbolName: String {
-        if !validDurationForCountDownTypeAtDate(Date.now) { return "exclamationmark.triangle.fill"}
+        //if !validDurationForCountDownTypeAtDate(Date.now) { return "exclamationmark.triangle.fill"}
         return durationCountType.timerDirection.symbolName
     }
        
@@ -263,7 +265,7 @@ extension Stage {
         case .countDownEnd:
             if durationSecsInt < kStageMinimumDurationSecs { return false }
         case .countDownToDate:
-            if durationSecsInt - Int(date.timeIntervalSinceReferenceDate) < kStageMinimumDurationSecs { return false }
+            if Double(durationSecsInt) - date.timeIntervalSinceReferenceDate < kStageMinimumDurationForDateDbl { return false }
         default:
             break
         }

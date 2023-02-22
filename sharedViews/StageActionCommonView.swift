@@ -31,10 +31,11 @@ struct StageActionCommonView: View {
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
     @State var uiUpdateTimerCancellor: Cancellable?
+    @State var presentUnableToNotifyAlert: Bool = false
+    @State var presentUnableToPostDateNotification: Bool = false
+    @State var stageDurationDateInvalid: Bool = false
     @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
     @State var uiSlowUpdateTimerCancellor: Cancellable?
-    @State var presentUnableToNotifyAlert: Bool = false
-    @State var stageDurationDateInvalid: Bool = false
 
     
     var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
@@ -66,6 +67,10 @@ struct StageActionCommonView: View {
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
             .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
             .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idstrtotest: $0) }
+            .alert("Invalid Date", isPresented: $presentUnableToPostDateNotification) {
+            } message: {
+                Text("The end date must be at least 1 minute into the future for the stage to be started")
+            }
             .alert("Unable To Post Notifications", isPresented: $presentUnableToNotifyAlert) {
                 Button("Do Not Show This Warning Again") { showUnableToNotifyWarning = false }
                 Button("Cancel", role: .cancel) { }
@@ -77,20 +82,30 @@ struct StageActionCommonView: View {
 } /* struct */
 
 extension StageActionCommonView {
-    
+
 
     func updateUpdateTimes(forUpdateDate optDate: Date?) {
         if let date = optDate {
             // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
             timeAccumulatedAtUpdate = floor(date.timeIntervalSinceReferenceDate - timeStartedRunning())
-            // if its a count-up timer we ignore timeDifferenceAtUpdate 
-            timeDifferenceAtUpdate = stage.isCountUp ? 0.0 : (floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate))
-        } else {
-            timeDifferenceAtUpdate = 0.0
-            timeAccumulatedAtUpdate = 0.0
+            // if its a count-up timer we ignore timeDifferenceAtUpdate
+            // countDownEnd just use durationSecsInt  - timeAccumulatedAtUpdate
+            // countDownDate stage.durationSecsIntCorrected(atDate: date) already calculates time remaining between date and the end and goes negative
+            if stage.isCountDownType {
+                switch stage.durationCountType {
+                case .countDownEnd:
+                    timeDifferenceAtUpdate =  floor(Double(stage.durationSecsInt) - timeAccumulatedAtUpdate)
+                case .countDownToDate:
+                    timeDifferenceAtUpdate = Double(stage.durationSecsIntCorrected(atDate: date))
+                default:
+                    timeDifferenceAtUpdate = 0.0
+                }
+            } else {
+                timeDifferenceAtUpdate = 0.0
+                timeAccumulatedAtUpdate = 0.0
+            }
         }
     }
-    
     func  timeStartedRunning() -> TimeInterval {
         floor(Double(dictStageStartDates[stage.idStr] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
     }
@@ -188,8 +203,14 @@ extension StageActionCommonView {
     
     func handleStartRunning() {
         alertIfUnableToPostNotifications()
+        
+        if stage.isCountDownToDate && stage.validDurationForCountDownTypeAtDate(Date()) == false {
+            presentUnableToPostDateNotification = true
+            return
+        }
+        
         setTimeStartedRunning(Date().timeIntervalSinceReferenceDate)
-        timeDifferenceAtUpdate = Double(stage.durationSecsInt)
+        timeDifferenceAtUpdate = Double(stage.durationSecsIntCorrected(atDate: Date()))
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.idStr)
         // request countdown & snooze notification if needed
@@ -241,12 +262,18 @@ extension StageActionCommonView {
 }
 
 extension StageActionCommonView {
-    
+    func checkUIupdateSlowTimerStatus() {
+        uiSlowUpdateTimerCancellor?.cancel()
+        if stage.isCountDownToDate {
+            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+        }
+    }
+
     func handleOnAppear() {
         stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(Date.now)
-        uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-        uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
-
+        checkUIupdateSlowTimerStatus()
+        
         if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // need to reset the timer to reattach the cancellor
             uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -272,6 +299,7 @@ extension StageActionCommonView {
         }
     }
     func handleReceive_uiSlowUpdateTimer(newDate: Date) {
+        //debugPrint(newDate)
         stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(newDate)
     }
     func handleReceive_stageToHandleSkipActionID(idstrtotest: String?) {
