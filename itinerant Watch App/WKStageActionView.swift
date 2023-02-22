@@ -79,7 +79,7 @@ extension StageActionCommonView {
                     GridRow {
                         HStack(spacing:0.0) {
                             Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
-                            Text("\(stageRunningOvertime ? "+" : "" )" + Stage.stageFormattedDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
+                            Text("\(stageRunningOvertime ? "+" : " -" )" + Stage.stageFormattedDurationStringFromDouble(fabs((timeDifferenceAtUpdate))))
                         }
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                         .frame(maxWidth: .infinity)
