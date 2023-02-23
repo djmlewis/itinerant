@@ -28,7 +28,7 @@ struct ItineraryEditView: View {
         NavigationStack {
             VStack {
                 Text("Title")
-                    .font(.system(.title2, design: .rounded, weight: .semibold))
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
                     .padding(0)
                 TextField("Itinerary title", text: $itineraryEditableData.title)
                     .textFieldStyle(.roundedBorder)
@@ -46,7 +46,7 @@ struct ItineraryEditView: View {
                 .controlSize(.regular)
                 Spacer()
                 Text("Stages")
-                    .font(.system(.title2, design: .rounded, weight: .semibold))
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
                 Spacer()
                 Button {
                     newStageEditableData = Stage()
