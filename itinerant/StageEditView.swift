@@ -19,7 +19,7 @@ struct StageEditView: View {
     @State private var mins: Int = 0
     @State private var secs: Int = 0
     @State private var timerDirection: TimerDirection = .countDownEnd
-    @State private var durationDate: Date = Date.now
+    @State private var durationDate: Date = validFutureDate()
 
     @State private var snoozehours: Int = 0
     @State private var snoozemins: Int = 0

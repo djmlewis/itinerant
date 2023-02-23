@@ -26,6 +26,9 @@ struct StageActionCommonView: View {
 #if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
     @State var disclosureDetailsExpanded: Bool = true
+#else
+    @State var durationDate: Date = validFutureDate()
+    @State var presentDatePicker: Bool = false
 #endif
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
@@ -77,7 +80,6 @@ struct StageActionCommonView: View {
             } message: {
                 Text("Permission to show Notifications must be granted to this App in Settings or you will not be notified when stages complete")
             }
-
     } /* body */
 } /* struct */
 
@@ -102,7 +104,6 @@ extension StageActionCommonView {
                 }
             } else {
                 timeDifferenceAtUpdate = 0.0
-                timeAccumulatedAtUpdate = 0.0
             }
         }
     }

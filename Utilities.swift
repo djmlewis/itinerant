@@ -167,3 +167,30 @@ func dateYMDHM(fromDate date: Date) -> Date {
 func validFutureDate() -> Date {
     Date().addingTimeInterval(kStageMinimumDurationForFutureDateDbl)
 }
+
+func getDaysInMonth(month: Int, year: Int) -> Int? {
+        let calendar = Calendar.current
+
+        var startComps = DateComponents()
+        startComps.day = 1
+        startComps.month = month
+        startComps.year = year
+
+        var endComps = DateComponents()
+        endComps.day = 1
+        endComps.month = month == 12 ? 1 : month + 1
+        endComps.year = month == 12 ? year + 1 : year
+
+        
+        let startDate = calendar.date(from: startComps)!
+        let endDate = calendar.date(from:endComps)!
+
+        
+        let diff = calendar.dateComponents([Calendar.Component.day], from: startDate, to: endDate)
+
+        return diff.day
+    }
+//    if let numberOfDays = getDaysInMonth(month: 1, year: 2015) {
+//     print(numberOfDays)
+//
+//     }

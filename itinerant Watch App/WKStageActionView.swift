@@ -36,14 +36,20 @@ extension StageActionCommonView {
                                 Image(systemName: stage.durationSymbolName)
                                     .padding(.leading, 2.0)
                                 if stage.isCountDownType {
-                                    Text(stage.durationString)
-                                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
-                                        .lineLimit(2)
-                                        .allowsTightening(true)
-                                        .minimumScaleFactor(0.5)
-                                        .padding(.trailing, 2.0)
+                                    Button(action: {
+                                        debugPrint("buuton aye")
+                                    }, label: {
+                                        Text(stage.durationString)
+                                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                                            .lineLimit(2)
+                                            .allowsTightening(true)
+                                            .minimumScaleFactor(0.5)
+                                    })
+                                    .disabled(stage.isCountDownToDate == false || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) == false)
+                                    .buttonStyle(.borderless)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
+                                    .padding(.trailing, 2.0)
                                 }
                             } /* HStack */
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -122,6 +128,14 @@ extension StageActionCommonView {
         } /* Grid */
         .padding(0)
         /* Grid mods */
+        .sheet(isPresented: $presentDatePicker, content: {
+            Group{
+                Text("The end time must be at least 1 minute in the future when the stage starts")
+                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                    .multilineTextAlignment(.center)
+                    .opacity(0.5)
+            }
+        })
     } /* body */
 #endif
 }
