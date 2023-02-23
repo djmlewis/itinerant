@@ -118,7 +118,7 @@ struct ItineraryStoreView: View {
             }
             .onChange(of: appDelegate.syncItineraries) { doSync in
                 guard doSync == true else { return }
-                itineraryStore.itineraries.forEach { appDelegate.sendItineraryDataToWatch($0.watchDataNewUUID) }
+                itineraryStore.itineraries.forEach { appDelegate.sendItineraryDataToWatch($0.watchDataKeepingUUID) }
                 appDelegate.syncItineraries = false
             }
             .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in

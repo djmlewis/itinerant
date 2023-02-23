@@ -55,11 +55,12 @@ extension StageActionCommonView {
             }
             if stage.isCommentOnly == false {
                 HStack {
-                    VStack(spacing: 4.0) {
+                    VStack( alignment: .leading,spacing: 4.0) {
                         HStack {
                             // alarm duration and button
                             Image(systemName: stage.durationSymbolName)
                                 .font(.system(.title3, design: .rounded, weight: .bold))
+                                .foregroundColor(stageTextColour())
                            if stage.isCountDownType {
                                 Text(stage.durationString)
                                     .font(.system(.title3, design: .rounded, weight: .bold))
@@ -83,6 +84,7 @@ extension StageActionCommonView {
                                 .modifier(AdditionalAlarmsFontBackgroundColour())
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         if !stage.additionalDurationsArray.isEmpty {
                             VStack(alignment: .center) {
                                 HStack {

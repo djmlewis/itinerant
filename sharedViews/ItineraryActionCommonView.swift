@@ -109,7 +109,7 @@ extension ItineraryActionCommonView {
     }
     
     func sendItineraryToWatch()  {
-        appDelegate.sendItineraryDataToWatch(itinerary.watchDataNewUUID)
+        appDelegate.sendItineraryDataToWatch(itinerary.watchDataKeepingUUID)
     }
     
     

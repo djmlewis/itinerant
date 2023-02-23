@@ -91,9 +91,7 @@ extension Itinerary {
     func isRunning(uuidStrStagesRunningStr: String) ->   Bool { stages.first { uuidStrStagesRunningStr.contains($0.idStr) } != nil }
     
     var someStagesAreCountUp: Bool { stages.firstIndex { $0.isCountUp } != nil }
-//        stages.reduce(false) { partialResult, stage in
-//        partialResult || stage.isCountUp
-//    } }
+
     var someStagesAreCountDownToDate: Bool { stages.firstIndex { $0.isCountDownToDate } != nil }
 
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
@@ -173,7 +171,7 @@ extension Itinerary {
 extension Itinerary {
     init?(messageItineraryData data: Data) {
         if let watchData = try? JSONDecoder().decode(Itinerary.WatchMessageData.self, from: data) {
-            self.id = watchData.id
+            self.id = watchData.id // !!! will MATCH the sending Itinerary on phone !!!
             self.title = watchData.title
             self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
             self.filename = watchData.filename // start with this
@@ -188,7 +186,7 @@ extension Itinerary {
         var messageStages: StageWatchMessageDataArray
         var filename: String
 
-        internal init(id: UUID = UUID(), modificationDate: TimeInterval, title: String, messageStages: StageWatchMessageDataArray, filename: String) {
+        internal init(id: UUID, modificationDate: TimeInterval, title: String, messageStages: StageWatchMessageDataArray, filename: String) {
             self.id = id
             self.modificationDate = modificationDate
             self.title = title
@@ -197,11 +195,12 @@ extension Itinerary {
         }
     }
         
-    var watchDataNewUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchMessageData(// UUID is allocated in init
-                                                                                        modificationDate: modificationDate,
-                                                                                        title: title,
-                                                                                        messageStages: watchStages(),
-                                                                                        filename: filename ?? "") ) }
+    var watchDataKeepingUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchMessageData(
+        id: id,
+        modificationDate: modificationDate,
+        title: title,
+        messageStages: watchStages(),
+        filename: filename ?? "") ) }
     
     func watchStages() -> StageWatchMessageDataArray { stages.map { $0.watchDataNewUUID } }
 
@@ -327,6 +326,5 @@ extension Itinerary {
 }
 
 
-//typealias ItineraryArray = [Itinerary]
 
 

@@ -21,37 +21,49 @@ extension StageActionCommonView {
                                 if stage.isCountDownType {
                                     Text(stage.durationString)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                         .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
                                         .lineLimit(2)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
                                         .padding(.trailing, 2.0)
                                 }
-                                if stage.isPostingRepeatingSnoozeAlerts {
-                                    // Snooze Alarms time duration
-                                    HStack {
-                                        Spacer()
-                                        Image(systemName: "bell.and.waves.left.and.right")
-                                        Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                            .lineLimit(1)
-                                            .allowsTightening(true)
-                                            .minimumScaleFactor(0.5)
-                                        Spacer()
-                                    }
-                                   .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                    .opacity(0.7)
-                                }
                             } /* HStack */
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            if stage.isPostingRepeatingSnoozeAlerts {
+                                // Snooze Alarms time duration
+                                HStack {
+                                    Image(systemName: "bell.and.waves.left.and.right")
+                                    Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                        .lineLimit(1)
+                                        .allowsTightening(true)
+                                        .minimumScaleFactor(0.5)
+                                }
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(6)
+                                .background(.black)
+                                .opacity(0.6)
+                                .cornerRadius(6)
+                            }
                             if !stage.additionalDurationsArray.isEmpty {
-                                    HStack {
+                                    //HStack {
                                         Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
                                             .allowsTightening(true)
                                             .minimumScaleFactor(0.5)
-                                    }
+                                    //}
                                     .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                    .opacity(0.7)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(6)
+                                    .background(.black)
+                                    .opacity(0.6)
+                                    .cornerRadius(6)
+                                    .foregroundColor(.white)
                             } /* if !stage.additionalDurationsArray.isEmpty */
                         } /* VStack */
+                        .frame(maxWidth: .infinity)
                         .foregroundColor(stageTextColour())
                        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                             Spacer()
