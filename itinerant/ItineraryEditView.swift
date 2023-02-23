@@ -28,11 +28,13 @@ struct ItineraryEditView: View {
         NavigationStack {
             VStack {
                 Text("Title")
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                    .opacity(0.5)
                     .padding(0)
-                TextField("Itinerary title", text: $itineraryEditableData.title)
+                TextField("", text: $itineraryEditableData.title)
+                    .labelsHidden()
                     .textFieldStyle(.roundedBorder)
-                    .padding([.leading,.trailing],12)
+                    .padding([.leading,.trailing],24)
                     .multilineTextAlignment(.center)
                     .focused($titleFocused)
             }
@@ -46,7 +48,8 @@ struct ItineraryEditView: View {
                 .controlSize(.regular)
                 Spacer()
                 Text("Stages")
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                    .opacity(0.5)
                 Spacer()
                 Button {
                     newStageEditableData = Stage()
@@ -70,6 +73,7 @@ struct ItineraryEditView: View {
                         }
                         .onMove(perform: isEditing ? { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) } : nil)
                     }
+                    .padding([.leading,.trailing], 24)
                     .onChange(of: titleFocuseState, perform: { newValue in
                         // respond to a toggle with false
                         titleFocused = false

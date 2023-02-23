@@ -64,62 +64,65 @@ struct StageDisplayView: View {
                 .background(.red)
             }
             VStack(alignment: .leading, spacing: 2.0) {
+                Text(stage.title)
+                     .font(.system(.title3, design: .rounded, weight: .bold))
+                     .multilineTextAlignment(.leading)
+                     .padding(.top, 6.0)
+                 if !stage.details.isEmpty {
+                     Text(stage.details)
+                         .font(.system(.footnote, design: .rounded, weight: .regular))
+                         .multilineTextAlignment(.leading)
+                         .lineLimit(1...2)
+                         .padding(0)
+                 }
                 HStack {
                     Image(systemName: stage.durationSymbolName)
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
                             Text(stage.durationString)
                                 .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
-                                .lineLimit(1)
+                                .lineLimit(1...2)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
-                        }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                       }
                         if stage.isPostingRepeatingSnoozeAlerts {
                             // Snooze Alarms time duration
-                            VStack(alignment: .center) {
+                            VStack(alignment: .trailing) {
                                 HStack {
                                     Image(systemName: "bell.and.waves.left.and.right")
                                     Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
-                                }
+                                        .frame(alignment: .center)
+                               }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
+                                .frame(alignment: .center)
                                 .modifier(AdditionalAlarmsFontBackgroundColour())
                           }
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            .frame(alignment: .trailing)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity)
                 .font(.system(.title3, design: .rounded, weight: .bold))
                 if !stage.additionalDurationsArray.isEmpty {
                     VStack(alignment: .center) {
                         HStack {
                             Image(systemName: "alarm.waves.left.and.right")
                             Text("\(stage.additionalAlertsDurationsString)")
-                                .frame(alignment: .leading)
                         }
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.center)
                     }
-                    .modifier(AdditionalAlarmsFontBackgroundColour())
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .modifier(AdditionalAlarmsFontBackgroundColour())
                     .padding(.top, 4.0)
                }
-               Text(stage.title)
-                    .font(.system(.title3, design: .rounded, weight: .bold))
-                    .multilineTextAlignment(.leading)
-                    .padding(.top, 6.0)
-                if !stage.details.isEmpty {
-                    Text(stage.details)
-                        .font(.system(.footnote, design: .rounded, weight: .regular))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(1...2)
-                        .padding(0)
-                }
             } /* VStack */
             .padding(.leading, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             if isEditing == false {
                 VStack {
                     VStack(alignment: .trailing) {

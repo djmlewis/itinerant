@@ -164,3 +164,6 @@ func dateYMDHM(fromDate date: Date) -> Date {
     return calendar.date(from: components) ?? Date()
 }
 
+func validFutureDate() -> Date {
+    Date().addingTimeInterval(kStageMinimumDurationForFutureDateDbl)
+}

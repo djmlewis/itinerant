@@ -64,10 +64,11 @@ extension StageActionCommonView {
                                 Text(stage.durationString)
                                     .font(.system(.title3, design: .rounded, weight: .bold))
                                     .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
-                                    .lineLimit(1)
+                                    .lineLimit(1...2)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
-                            }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                           }
                             if stage.isPostingRepeatingSnoozeAlerts {
                                 // Snooze Alarms time duration
                                 HStack {
@@ -76,10 +77,10 @@ extension StageActionCommonView {
                                         .lineLimit(1)
                                         .allowsTightening(true)
                                         .minimumScaleFactor(0.5)
-                                }
+                                        .frame(alignment: .trailing)
+                               }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .modifier(AdditionalAlarmsFontBackgroundColour())
-                                .frame(maxWidth: .infinity)
                             }
                         }
                         if !stage.additionalDurationsArray.isEmpty {
@@ -90,13 +91,15 @@ extension StageActionCommonView {
                                         .frame(alignment: .leading)
                                         .multilineTextAlignment(.leading)
                                 }
+                                .frame(maxWidth: .infinity, alignment: .center)
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .modifier(AdditionalAlarmsFontBackgroundColour())
-                            }
+                          }
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(0.0)
                         }
                     }
+                    .frame(maxWidth: .infinity)
                     Spacer()
                     if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                         buttonStartHalt()

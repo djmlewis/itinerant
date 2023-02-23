@@ -12,7 +12,7 @@ struct AdditionalAlarmsFontBackgroundColour: ViewModifier {
     content
           .foregroundColor(Color("ColourAdditionalAlarmsText"))
           .padding([.leading,.trailing], 6)
-          .padding([.top,.bottom], 2)
+          .padding([.top,.bottom], 6)
           .background(Color("ColourAdditionalAlarmsBackground"))
           .cornerRadius(6)
 

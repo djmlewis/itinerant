@@ -99,7 +99,7 @@ struct StageEditView: View {
                                 DatePicker(
                                     "End On:",
                                     selection: $durationDate,
-                                    in: Date().addingTimeInterval(kStageMinimumDurationForDateDbl)...,
+                                    in: validFutureDate()...,
                                     displayedComponents: [.date, .hourAndMinute]
                                 )
                                 Text("The end time must be at least 1 minute in the future when the stage starts")
@@ -250,7 +250,7 @@ struct StageEditView: View {
                     secs = stageEditableData.durationSecsInt % SEC_MIN
                 }
                 if stageEditableData.isCountDownToDate {
-                    durationDate = max(stageEditableData.durationAsDate,dateYMDHM(fromDate: Date()).addingTimeInterval(kStageMinimumDurationForDateDbl))
+                    durationDate = max(stageEditableData.durationAsDate,validFutureDate())
                 }
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
