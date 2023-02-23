@@ -29,7 +29,10 @@ struct StageDisplayView: View {
     @Binding var newStageMeta: NewStageMeta?
     @Binding var isEditing: Bool
     @Binding var stageIDtoDelete: String?
+    @Binding var itineraryTitleFocused: Bool
 
+    
+    
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var appDelegate: AppDelegate
 
@@ -115,13 +118,14 @@ struct StageDisplayView: View {
                         .padding(0)
                 }
             } /* VStack */
-            .padding(12)
+            .padding(.leading, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
             if isEditing == false {
                 VStack {
                     VStack(alignment: .trailing) {
                         Button(action: {
                             stageEditableData = stage.editableData
+                            itineraryTitleFocused.toggle()
                             isPresentingStageEditView = true
                         }) {
                             Image(systemName: "square.and.pencil")
@@ -130,6 +134,7 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
+                        .padding([.bottom], 4)
                         Spacer()
                         Button(action: {
                             newStageMeta = nil
@@ -141,7 +146,8 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        Spacer()
+                        .padding([.top,.bottom], 4)
+                       Spacer()
                         Button(action: {
                             newStageEditableData = Stage()
                             newStageMeta = nil
@@ -153,13 +159,14 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                    } /* VStack */
-                    .padding(12)
-                    .background(Color("ColourControlsBackground"))
+                        .padding([.top], 4)
+                   } /* VStack */
+                    .padding(.trailing, 12)
+                    //.background(Color("ColourControlsBackground"))
                     .foregroundColor( .accentColor)
                 } /* VStack buttons*/
-                .background(.clear)
-                .padding([.top,.bottom],1)
+                //.background(.clear)
+                //.padding([.top,.bottom],1)
             } /* if isEditing == false */
             else {
                 VStack {
