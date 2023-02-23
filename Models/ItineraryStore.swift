@@ -149,6 +149,12 @@ class ItineraryStore: ObservableObject {
     func hasItineraryWithID(_ id: String) -> Bool {
         return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil
     }
+    func itineraryForUUID(uuid:UUID) -> Itinerary? {
+        return itineraries.first{ $0.id == uuid }
+    }
+    func hasItineraryWithUUID(_ uuid: UUID) -> Bool {
+        return itineraries.firstIndex(where: { $0.id == uuid }) != nil
+    }
     func itineraryForTitle(_ title: String) -> Itinerary? {
         itineraries.first { $0.title == title }
     }
@@ -186,15 +192,15 @@ class ItineraryStore: ObservableObject {
         }
         itineraries.remove(atOffsets: offsets)
     }
-    func removeItineraryWithTitle(_ title: String) -> Void {
-        guard let itineraryToDelete = itineraryForTitle(title), let filename =  itineraryToDelete.filename else { return }
+    func removeItineraryWithUUID(_ uuid: UUID) -> Void {
+        guard let itineraryToDelete = itineraryForUUID(uuid: uuid), let filename =  itineraryToDelete.filename else { return }
         let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(filename)
         do {
             try FileManager.default.removeItem(atPath: filePath)
         } catch {
             debugPrint(error.localizedDescription)
         }
-        itineraries.removeAll(where: { $0.title == title })
+        itineraries.removeAll(where: { $0.id == uuid })
     }
 
     func addItinerary(itinerary: Itinerary) {
@@ -216,10 +222,11 @@ class ItineraryStore: ObservableObject {
         var mutableItinerary = itinerary
         switch duplicateOption {
         case .keepBoth:
+            mutableItinerary = Itinerary.duplicateItineraryWithAllNewIDsAndModDate(from: mutableItinerary)
             mutableItinerary.title = mutableItinerary.title.uniqueifiedStringForArray(itineraryTitles)
             // uuids
         case .replaceExisting:
-            removeItineraryWithTitle(mutableItinerary.title)
+            removeItineraryWithUUID(mutableItinerary.id)
         case .noDuplicate:
             break
         }

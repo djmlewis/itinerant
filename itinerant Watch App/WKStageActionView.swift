@@ -11,9 +11,26 @@ extension StageActionCommonView {
 #if os(watchOS)
     var body_: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
+            GridRow {
+                HStack(spacing: 0.0) {
+                    Text(stage.title)
+                        .padding(0)
+                        .gridCellColumns(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
+                        .font(.system(.headline, design: .rounded, weight: .semibold))
+                        .lineLimit(nil)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(stageTextColour())
+                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        buttonStartHalt()
+                    }
+                } /* HStack */
+                .frame(maxWidth: .infinity)
+                .gridCellColumns(2)
+            }
             if stage.isCommentOnly == false {
                 GridRow {
-                    HStack(spacing: 0.0) {
                         VStack {
                             HStack {
                                 Image(systemName: stage.durationSymbolName)
@@ -40,12 +57,8 @@ extension StageActionCommonView {
                                         .minimumScaleFactor(0.5)
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(6)
-                                .background(.black)
-                                .opacity(0.6)
-                                .cornerRadius(6)
+                                .modifier(WKStageAlertslBackground())
                             }
                             if !stage.additionalDurationsArray.isEmpty {
                                     //HStack {
@@ -56,36 +69,15 @@ extension StageActionCommonView {
                                     .font(.system(.subheadline, design: .rounded, weight: .regular))
                                     .multilineTextAlignment(.center)
                                     .frame(maxWidth: .infinity, alignment: .center)
-                                    .padding(6)
-                                    .background(.black)
-                                    .opacity(0.6)
-                                    .cornerRadius(6)
-                                    .foregroundColor(.white)
+                                    .modifier(WKStageAlertslBackground())
                             } /* if !stage.additionalDurationsArray.isEmpty */
                         } /* VStack */
                         .frame(maxWidth: .infinity)
                         .foregroundColor(stageTextColour())
-                       if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                            Spacer()
-                            buttonStartHalt()
-                        }
-                    } /* HStack */
-                    .foregroundColor(stageTextColour())
-                    .gridCellColumns(2)
+                        .gridCellColumns(2)
                 } /* GridRow */
                 .padding(0)
             } /* isCommentOnly */
-            GridRow {
-                Text(stage.title)
-                    .padding(0)
-                    .gridCellColumns(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity)
-                    .font(.system(.headline, design: .rounded, weight: .semibold))
-                    .lineLimit(nil)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(stageTextColour())
-            }
             if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil) {
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                     GridRow {

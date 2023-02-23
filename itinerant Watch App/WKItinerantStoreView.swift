@@ -8,6 +8,7 @@
 import SwiftUI
 import WatchConnectivity
 
+let names: [String] = ["iphone.gen3","arrowshape.right","applewatch"]
 
 struct WKItinerantStoreView: View {
     @SceneStorage(kSceneStoreUuidStrStageActive) var uuidStrStagesActiveStr: String = ""
@@ -68,9 +69,9 @@ struct WKItinerantStoreView: View {
                     requestItinerariesSync()
                 }, label: {
                     Text("Sync \(Image(systemName: "iphone.gen3")) \(Image(systemName: "arrowshape.right")) \(Image(systemName: "applewatch"))")
-                        .font(.system(.title3, design: .rounded, weight: .regular))
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
                 })
-                .tint(.red)
+                .tint(.accentColor)
                 .padding()
             }
 
@@ -84,15 +85,15 @@ struct WKItinerantStoreView: View {
         .onChange(of: appDelegate.newItinerary) { itineraryToAdd in
             // for messages with Itinerary to load
             if let validItinerary = itineraryToAdd {
-                if itineraryStore.hasItineraryWithTitle(validItinerary.title) {
+                if itineraryStore.hasItineraryWithUUID(validItinerary.id) {
                     showConfirmationAddDuplicateItinerary = true
                 } else {
                     itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary, duplicateOption: .noDuplicate)
                 }
             }
         }
-        .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ already exists", isPresented: $showConfirmationAddDuplicateItinerary) {
-            // we only get called when appDelegate.newItinerary is non-nil so !
+        .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ already exists",
+                            isPresented: $showConfirmationAddDuplicateItinerary) {
             if let validItinerary = appDelegate.newItinerary {
                 Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
                 Button("Replace Existing", role: .destructive, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary,duplicateOption: .replaceExisting) })
@@ -119,7 +120,8 @@ extension WKItinerantStoreView {
             //debugPrint("sending by message")
             WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchRequestingItinerariesSync]) { replyDict in
                 if replyDict[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneStandingByToSync {
-                    if !itineraryStore.itineraries.isEmpty { removeItinerariesAtOffsets(IndexSet(integersIn: itineraryStore.itineraries.startIndex..<itineraryStore.itineraries.endIndex)) }
+                    // dont bother to erase and we will check clashes
+//                    if !itineraryStore.itineraries.isEmpty { removeItinerariesAtOffsets(IndexSet(integersIn: itineraryStore.itineraries.startIndex..<itineraryStore.itineraries.endIndex)) }
                     WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchInitiateSyncNow], replyHandler: nil)
                 }
 

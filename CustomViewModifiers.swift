@@ -37,3 +37,17 @@ struct StageInvalidDurationSymbolBackground: ViewModifier {
 
   }
 }
+
+struct WKStageAlertslBackground: ViewModifier {
+    
+  func body(content: Content) -> some View {
+    content
+          .foregroundColor(.white)
+          .padding(6)
+          .background(.black)
+          .opacity(0.6)
+          .cornerRadius(6)
+
+  }
+}
+

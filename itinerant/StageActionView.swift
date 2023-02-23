@@ -21,9 +21,9 @@ extension StageActionCommonView {
                 // Stage title
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.system(.title3, design: .rounded, weight: .bold))
+                    .frame(maxWidth: .infinity)
                     .foregroundColor(stageTextColour())
                     .scenePadding(.minimum, edges: .horizontal)
-                Spacer()
                 if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                     Button(action: {
                         disclosureDetailsExpanded = !disclosureDetailsExpanded
@@ -34,6 +34,9 @@ extension StageActionCommonView {
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
                     .padding(0)
+                }
+                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                    buttonStartHalt()
                 }
             }
             .frame(maxWidth: .infinity)
@@ -102,13 +105,9 @@ extension StageActionCommonView {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    Spacer()
-                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                        buttonStartHalt()
-                    }
-                }
+                } /* HStack */
                 .padding(0.0)
-                .padding(.trailing, 2)
+                .padding(.trailing, 8.0)
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     Grid (horizontalSpacing: 3.0, verticalSpacing: 0.0) {
                         // Times elapsed

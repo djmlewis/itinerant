@@ -125,8 +125,14 @@ extension StageActionCommonView {
 }
 
 
+#if os(watchOS)
+let kHaltButtonWidth = 42.0
+#else
+let kHaltButtonWidth = 48.0
+#endif
 
 extension StageActionCommonView {
+    
     
     func buttonStartHalt() -> some View {
         Button(action: {
@@ -145,7 +151,8 @@ extension StageActionCommonView {
 
         }
         .buttonStyle(BorderlessButtonStyle())
-        .frame(width: 46, alignment: .leading)
+        .frame(idealWidth: kHaltButtonWidth, idealHeight: kHaltButtonWidth, alignment: .trailing)
+        .fixedSize(horizontal: true, vertical: true)
         #if os(watchOS)
         .padding(.trailing, 4.0)
         #endif
