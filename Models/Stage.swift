@@ -219,7 +219,7 @@ extension Stage {
         case .countDownEnd:
             if durationSecsInt < kStageMinimumDurationSecs { return false }
         case .countDownToDate:
-            if Double(durationSecsInt) - date.timeIntervalSinceReferenceDate < kStageMinimumDurationForDateDbl { return false }
+            if Double(durationSecsInt) - date.timeIntervalSinceReferenceDate < kStageMinimumDurationForDateDbl * 2.0 { return false }
         default:
             break
         }

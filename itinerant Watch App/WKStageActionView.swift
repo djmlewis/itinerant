@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 let yearsAheadBlock = 5
 
@@ -51,8 +52,8 @@ extension StageActionCommonView {
                                               stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
                                     .buttonStyle(.bordered)
                                     .controlSize(.regular)
-                                    .foregroundColor(stageDurationDateInvalid ?  Color.accentColor : stageTextColour())
-                                    .tint(stage.isCountDownToDate ? Color.black : Color.clear)
+                                    .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color.accentColor : stageTextColour())
+                                    .tint(stage.isCountDownToDate && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.black : Color.clear)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding([.top], 6)
                                 }
@@ -153,6 +154,7 @@ extension StageActionCommonView {
         @Binding var durationDate: Date
         @Binding var presentDatePicker: Bool
         
+        
         @State var year: Int = 2023
         @State var yearStarting: Int = 2023
         @State var yearsAhead: Int = yearsAheadBlock
@@ -162,7 +164,9 @@ extension StageActionCommonView {
         @State var hour: Int = 0
         @State var minute: Int = 0
         @State var selectedDateInvalid = false
-        
+        @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+        @State var uiSlowUpdateTimerCancellor: Cancellable?
+
         let monthNames = Calendar.autoupdatingCurrent.shortMonthSymbols
                 
         var body: some View {
@@ -200,7 +204,7 @@ extension StageActionCommonView {
                         ForEach(0...59, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
                     })
                 }
-                    Text("Invalid Date")
+                Text("\(Image(systemName: "exclamationmark.triangle.fill")) Invalid Date")
                         .foregroundColor(.red)
                         .opacity(selectedDateInvalid ? 1.0 : 0.0)
                 Button( action: {
@@ -212,7 +216,7 @@ extension StageActionCommonView {
                     Text("Save")
                 })
                 .buttonStyle(.bordered)
-                .tint(.accentColor)
+                .foregroundColor(.accentColor)
                 
             }
             .onAppear {
@@ -226,7 +230,15 @@ extension StageActionCommonView {
                     hour = components.hour!
                     minute = components.minute! + 1 // tweak or date starts invalid even when validFutureDate()
                 }
-                
+                uiSlowUpdateTimerCancellor?.cancel()
+                uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+                uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+            }
+            .onDisappear {
+                uiSlowUpdateTimerCancellor?.cancel()
+            }
+            .onReceive(uiSlowUpdateTimer) { _ in
+                selectedDateInvalid = isInvalidDate()
             }
             /* VStack */
         } /* body */
