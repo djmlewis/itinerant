@@ -95,8 +95,9 @@ struct WKItinerantStoreView: View {
         .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ already exists",
                             isPresented: $showConfirmationAddDuplicateItinerary) {
             if let validItinerary = appDelegate.newItinerary {
-                Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
                 Button("Replace Existing", role: .destructive, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary,duplicateOption: .replaceExisting) })
+                Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
+                Button("Skip", role: nil, action: { })
             }
         }
     } /* View */

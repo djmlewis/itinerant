@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+let yearsAheadBlock = 5
+
 extension StageActionCommonView {
 #if os(watchOS)
     var body_: some View {
@@ -32,12 +34,12 @@ extension StageActionCommonView {
             if stage.isCommentOnly == false {
                 GridRow {
                         VStack {
-                            HStack {
+                            HStack(alignment: .firstTextBaseline) {
                                 Image(systemName: stage.durationSymbolName)
                                     .padding(.leading, 2.0)
                                 if stage.isCountDownType {
                                     Button(action: {
-                                        debugPrint("buuton aye")
+                                        presentDatePicker = true
                                     }, label: {
                                         Text(stage.durationString)
                                             .font(.system(.title3, design: .rounded, weight: .semibold))
@@ -45,11 +47,14 @@ extension StageActionCommonView {
                                             .allowsTightening(true)
                                             .minimumScaleFactor(0.5)
                                     })
-                                    .disabled(stage.isCountDownToDate == false || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) == false)
-                                    .buttonStyle(.borderless)
+                                    .disabled(!stage.isCountDownToDate ||
+                                              stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
+                                    .buttonStyle(.bordered)
+                                    .controlSize(.regular)
+                                    .foregroundColor(stageDurationDateInvalid ?  Color.accentColor : stageTextColour())
+                                    .tint(stage.isCountDownToDate ? Color.black : Color.clear)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
-                                    .padding(.trailing, 2.0)
+                                    .padding([.top], 6)
                                 }
                             } /* HStack */
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -128,14 +133,131 @@ extension StageActionCommonView {
         } /* Grid */
         .padding(0)
         /* Grid mods */
+        .onChange(of: durationDate, perform: {
+            if stage.isCountDownToDate {
+                // the bindings are flakey or slow so we have to set all copies of stage everywhere to be sure we get the views aligned
+                stage.setDurationFromDate($0)
+                itineraryStore.updateStageDurationFromDate(stageUUID: stage.id, itineraryUUID: itinerary.id, durationDate: $0)
+            }
+            
+        })
         .sheet(isPresented: $presentDatePicker, content: {
-            Group{
-                Text("The end time must be at least 1 minute in the future when the stage starts")
-                    .font(.system(.subheadline, design: .rounded, weight: .regular))
-                    .multilineTextAlignment(.center)
-                    .opacity(0.5)
+            VStack {
+                WKStageActionDatePickerView(durationDate: $durationDate, presentDatePicker: $presentDatePicker)
             }
         })
     } /* body */
+    
+
+    struct WKStageActionDatePickerView: View {
+        @Binding var durationDate: Date
+        @Binding var presentDatePicker: Bool
+        
+        @State var year: Int = 2023
+        @State var yearStarting: Int = 2023
+        @State var yearsAhead: Int = yearsAheadBlock
+        @State var month: Int = 0 // 1! months zero indexed
+        @State var day: Int = 1
+        @State var daysInMonth: Int = 31
+        @State var hour: Int = 0
+        @State var minute: Int = 0
+        @State var selectedDateInvalid = false
+        
+        let monthNames = Calendar.autoupdatingCurrent.shortMonthSymbols
+                
+        var body: some View {
+            VStack{
+                HStack {
+                    Picker("Day", selection: $day, content: {
+                        ForEach(1...daysInMonth, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
+                    })
+                    Picker("Month", selection: $month, content: {
+                        ForEach(1...monthNames.count, id: \.self) { Text(monthNames[$0-1]).tag($0) }
+                    })
+                    Picker("Year", selection: $year, content: {
+                        ForEach(yearStarting...yearStarting + yearsAhead, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
+                    })
+                }
+                .onChange(of: month) {
+                    correctDaysInMonth(month: $0, year: year)
+                    selectedDateInvalid = isInvalidDate()
+                }
+                .onChange(of: year) {
+                    correctDaysInMonth(month: month, year: $0)
+                    if year == yearStarting + yearsAhead { yearsAhead += yearsAheadBlock
+                        selectedDateInvalid = isInvalidDate()
+                    }
+                }
+                .onChange(of: day) { _ in selectedDateInvalid = isInvalidDate() }
+                .onChange(of: hour) {  _ in selectedDateInvalid = isInvalidDate() }
+                .onChange(of: minute) {  _ in selectedDateInvalid = isInvalidDate() }
+
+                HStack {
+                    Picker("Hour", selection: $hour, content: {
+                        ForEach(0...23, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
+                    })
+                    Picker("Minute", selection: $minute, content: {
+                        ForEach(0...59, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
+                    })
+                }
+                    Text("Invalid Date")
+                        .foregroundColor(.red)
+                        .opacity(selectedDateInvalid ? 1.0 : 0.0)
+                Button( action: {
+                    if let validnewdate = dateFromComponents() {
+                        durationDate = validnewdate
+                    }
+                    presentDatePicker = false
+                }, label: {
+                    Text("Save")
+                })
+                .buttonStyle(.bordered)
+                .tint(.accentColor)
+                
+            }
+            .onAppear {
+                let startdate = max(durationDate,validFutureDate())
+                let components = Calendar.autoupdatingCurrent.dateComponents(kPickersDateComponents, from: startdate)
+                DispatchQueue.main.async {
+                    yearStarting = components.year!
+                    year = components.year!
+                    month = components.month!
+                    day = components.day!
+                    hour = components.hour!
+                    minute = components.minute! + 1 // tweak or date starts invalid even when validFutureDate()
+                }
+                
+            }
+            /* VStack */
+        } /* body */
+        
+        
+        func correctDaysInMonth(month: Int, year: Int) {
+            let currentDay = day
+            if let daysinmonth = getDaysInIndexedMonth(indexedMonth: month, zeroIndexed: false, year: year) {
+                daysInMonth = daysinmonth
+                day = min(currentDay, daysinmonth)
+            }
+        }
+        
+        func dateFromComponents() -> Date? {
+            var dateComponents = DateComponents()
+            dateComponents.year = year
+            dateComponents.month = month
+            dateComponents.day = day
+            dateComponents.hour = hour
+            dateComponents.minute = minute
+            
+            return Calendar.autoupdatingCurrent.date(from: dateComponents)
+        }
+        
+        func isInvalidDate() -> Bool {
+            if let validdate = dateFromComponents() {
+                if validdate >= validFutureDate() { return false }
+            }
+            return true
+        }
+        
+    } /* struct */
 #endif
 }

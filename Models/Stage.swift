@@ -155,62 +155,25 @@ extension Stage {
     static func stageDateString(fromDate date: Date) -> String {
         let formatted = date.formatted(
             .dateTime
-                .day().month(.abbreviated).year()
-                .hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+                .day()
+                .month(.abbreviated)
+                .year()
+                .hour()
+                .minute(.twoDigits)
         )
         return formatted
+        
+        //        let verbatim = Date.VerbatimFormatStyle(
+        //            format: "\(day: .defaultDigits) \(month: .abbreviated) \(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .oneBased)):\(minute: .twoDigits)",
+        //            locale: Locale.autoupdatingCurrent,
+        //            timeZone: TimeZone.autoupdatingCurrent,
+        //            calendar: .autoupdatingCurrent
+        //        )
+        //        return verbatim.format(date)
     }
     
-    var durationString: String {
-        if isCountDown { return Stage.stageDurationFormatter.string(from: Double(durationSecsInt)) ?? "" }
-        if isCountDownToDate  { return Stage.stageDateString(fromDate: durationAsDate) }
-        return "---"
-    }
-    var durationStringHardPadded: String {
-        durationString.replacingOccurrences(of: " ", with: "\u{202F}")
-    }
-    static func stageFormattedDurationStringFromDouble(_ time: Double) -> String {
-        Stage.stageDurationFormatter.string(from: time) ?? ""
-    }
-    static func stageDurationStringHardPaddedFromDouble(_ time: Double) -> String {
-        stageFormattedDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{202F}")
-    }
+    mutating func setDurationFromDate(_ date: Date) { durationSecsInt = Int(dateYMDHM(fromDate: date).timeIntervalSinceReferenceDate) }
 
-    var additionalAlertsDurationsString: String {
-        let array = additionalDurationsArray.map( {Stage.stageDurationStringHardPaddedFromDouble(Double($0)) } )
-        return array.joined(separator: "\u{202F}• ")
-    }
-}
-
-
-// MARK: - Characteristics
-extension Stage {
-    
-    
-    
-    var isCommentOnly: Bool {
-        get {
-            flags.contains(StageNotificationInterval.comment.string)
-        }
-        set(isComment) {
-            flags = flags.replacingOccurrences(of: StageNotificationInterval.comment.string, with: "",options: [.literal])
-            if isComment {
-                flags += StageNotificationInterval.comment.string
-            }
-        }
-    }
-    
-    
-    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(idStr) }
-    
-    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(idStr) }
-    
-    
-    var isActionable: Bool {
-        if isCommentOnly { return false }
-        return true
-    }
-    
     // count flags are mutually exclusive
     // setting any flag to false results in an indeterminate state
     var durationCountType: StageNotificationInterval {
@@ -246,15 +209,6 @@ extension Stage {
         return 0
     }
         
-    var isPostingRepeatingSnoozeAlerts: Bool {
-        get { flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string) }
-        set(isSA) {
-            flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
-            if isSA { flags += StageNotificationInterval.snoozeRepeatingIntervals.string }
-        }
-    }
-    var postsNotifications: Bool { isCountDown == true || isPostingRepeatingSnoozeAlerts }
-    
     var durationSymbolName: String {
         //if !validDurationForCountDownTypeAtDate(Date.now) { return "exclamationmark.triangle.fill"}
         return durationCountType.timerDirection.symbolName
@@ -289,13 +243,69 @@ extension Stage {
 
     }
 
+    var durationString: String {
+        if isCountDown { return Stage.stageDurationFormatter.string(from: Double(durationSecsInt)) ?? "" }
+        if isCountDownToDate  { return Stage.stageDateString(fromDate: durationAsDate) }
+        return "---"
+    }
+    var durationStringHardPadded: String {
+        durationString.replacingOccurrences(of: " ", with: "\u{202F}")
+    }
+    static func stageFormattedDurationStringFromDouble(_ time: Double) -> String {
+        Stage.stageDurationFormatter.string(from: time) ?? ""
+    }
+    static func stageDurationStringHardPaddedFromDouble(_ time: Double) -> String {
+        stageFormattedDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{202F}")
+    }
+
+    var additionalAlertsDurationsString: String {
+        let array = additionalDurationsArray.map( {Stage.stageDurationStringHardPaddedFromDouble(Double($0)) } )
+        return array.joined(separator: "\u{202F}• ")
+    }
+}
+
+
+// MARK: - Characteristics
+extension Stage {
+    
     var idStr: String { id.uuidString }
     
     func hasIDstr(_ idstrtotest: String?) -> Bool {
         // notification ID strings may have suffixes so use contains not ==
         return idstrtotest != nil && idStr == idstrtotest!
     }
+
+    func isActive(uuidStrStagesActiveStr: String) -> Bool { uuidStrStagesActiveStr.contains(idStr) }
     
+    func isRunning(uuidStrStagesRunningStr: String) -> Bool { uuidStrStagesRunningStr.contains(idStr) }
+    
+    var isCommentOnly: Bool {
+        get {
+            flags.contains(StageNotificationInterval.comment.string)
+        }
+        set(isComment) {
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.comment.string, with: "",options: [.literal])
+            if isComment {
+                flags += StageNotificationInterval.comment.string
+            }
+        }
+    }
+        
+    var isActionable: Bool {
+        if isCommentOnly { return false }
+        return true
+    }
+    
+    var isPostingRepeatingSnoozeAlerts: Bool {
+        get { flags.contains(StageNotificationInterval.snoozeRepeatingIntervals.string) }
+        set(isSA) {
+            flags = flags.replacingOccurrences(of: StageNotificationInterval.snoozeRepeatingIntervals.string, with: "",options: [.literal])
+            if isSA { flags += StageNotificationInterval.snoozeRepeatingIntervals.string }
+        }
+    }
+    var postsNotifications: Bool { isCountDown == true || isPostingRepeatingSnoozeAlerts }
+    
+
     func additionalAlertNotificationString(index: Int) -> String {
         idStr + StageNotificationInterval.additionalAlert.string + String(format: "%i", index)
     }

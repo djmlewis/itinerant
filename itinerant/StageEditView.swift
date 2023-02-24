@@ -339,7 +339,7 @@ extension StageEditView {
         case .countDownEnd:
             stageEditableData.durationSecsInt = durationFromHMS()
         case .countDownToDate:
-            stageEditableData.durationSecsInt = Int(dateYMDHM(fromDate: durationDate).timeIntervalSinceReferenceDate)
+            stageEditableData.setDurationFromDate(durationDate)//durationSecsInt = Int(dateYMDHM(fromDate: durationDate).timeIntervalSinceReferenceDate)
         default:
             stageEditableData.durationSecsInt = 0
         }

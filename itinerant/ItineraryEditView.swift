@@ -19,6 +19,8 @@ struct ItineraryEditView: View {
     @State var stageIDtoDelete: String?
     @State var stageIDtoScrollTo: String?
     
+    @Environment(\.colorScheme) var colorScheme
+
     @FocusState private var titleFocused: Bool
     @State var titleFocuseState: Bool = false
     
@@ -28,29 +30,30 @@ struct ItineraryEditView: View {
         NavigationStack {
             VStack {
                 Text("Title")
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                     .opacity(0.5)
-                    .padding(0)
+                    .padding(.leading,24)
                 TextField("", text: $itineraryEditableData.title)
                     .labelsHidden()
                     .textFieldStyle(.roundedBorder)
                     .padding([.leading,.trailing],24)
-                    .multilineTextAlignment(.center)
+                    .multilineTextAlignment(.leading)
                     .focused($titleFocused)
             }
             .padding(.bottom, 12)
             HStack {
+                Text("Stages")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                    .opacity(0.5)
+                    .padding(.leading,24)
                 Button(isEditing ? "Done" : "Edit") {
                     isEditing.toggle()
                 }
-                .padding(.leading,12)
+                .padding(.trailing,36)
                 .buttonStyle(.borderless)
                 .controlSize(.regular)
-                Spacer()
-                Text("Stages")
-                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
-                    .opacity(0.5)
-                Spacer()
                 Button {
                     newStageEditableData = Stage()
                     newStageMeta = nil
@@ -61,19 +64,23 @@ struct ItineraryEditView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.regular)
-                .padding(.trailing,12)
+                .padding(.trailing,24)
             }
             ScrollViewReader { svrproxy in
                 ScrollView {
                     VStack {
                         ForEach($itineraryEditableData.stages) { $stage in
                             StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete, itineraryTitleFocused: $titleFocuseState)
-                            Divider()
+                                .padding()
+                                .background(Color("ColourStageDisplayBackground"))
+                                .cornerRadius(8)
+                            //Divider()
                                 .id(stage.idStr)
                         }
                         .onMove(perform: isEditing ? { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) } : nil)
                     }
                     .padding([.leading,.trailing], 24)
+                    .padding([.top], 12)
                     .onChange(of: titleFocuseState, perform: { newValue in
                         // respond to a toggle with false
                         titleFocused = false

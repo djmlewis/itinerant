@@ -77,6 +77,7 @@ struct StageDisplayView: View {
                  }
                 HStack {
                     Image(systemName: stage.durationSymbolName)
+                        .frame(alignment: .leading)
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
                             Text(stage.durationString)
@@ -105,7 +106,7 @@ struct StageDisplayView: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .font(.system(.title3, design: .rounded, weight: .bold))
                 if !stage.additionalDurationsArray.isEmpty {
                     VStack(alignment: .center) {
@@ -121,8 +122,8 @@ struct StageDisplayView: View {
                     .padding(.top, 4.0)
                }
             } /* VStack */
-            .padding(.leading, 12)
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.leading, 12)
             if isEditing == false {
                 VStack {
                     VStack(alignment: .trailing) {
@@ -164,8 +165,7 @@ struct StageDisplayView: View {
                         .frame(width: 24, alignment: .trailing)
                         .padding([.top], 4)
                    } /* VStack */
-                    .padding(.trailing, 12)
-                    //.background(Color("ColourControlsBackground"))
+                    .padding(.leading, 6)
                     .foregroundColor( .accentColor)
                 } /* VStack buttons*/
                 //.background(.clear)
@@ -179,12 +179,12 @@ struct StageDisplayView: View {
                 .padding()
             }
         } /* HStack */
+        //.padding([.top,.bottom],1)
         .animation(.linear(duration: 0.1), value: isEditing)
         .onAppear() { checkUIupdateSlowTimerStatus() }
         .onDisappear() { uiSlowUpdateTimerCancellor?.cancel() }
         .onReceive(uiSlowUpdateTimer) { stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate($0) }
         .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
-        .padding([.top,.bottom],1)
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)

@@ -156,21 +156,23 @@ func watchConnectionUnusable() ->  Bool {
 
 // MARK: - Dates
 func dateYMDHM(fromDate date: Date) -> Date {
-    let calendar = Calendar.current
+    let calendar = Calendar.autoupdatingCurrent
     let components = calendar.dateComponents(
-        [.year, .month, .day, .hour, .minute],
+        kPickersDateComponents,
         from: date
     )
-    return calendar.date(from: components) ?? Date()
+    let newdate = calendar.date(from: components) ?? Date()
+    //debugPrint("dateYMDHM",date, "-->", newdate)
+    return newdate
 }
 
 func validFutureDate() -> Date {
     Date().addingTimeInterval(kStageMinimumDurationForFutureDateDbl)
 }
 
-func getDaysInMonth(month: Int, year: Int) -> Int? {
-        let calendar = Calendar.current
-
+func getDaysInIndexedMonth(indexedMonth: Int, zeroIndexed: Bool, year: Int) -> Int? {
+        let calendar = Calendar.autoupdatingCurrent
+        let month = indexedMonth + (zeroIndexed ? 1 : 0)
         var startComps = DateComponents()
         startComps.day = 1
         startComps.month = month
@@ -190,7 +192,4 @@ func getDaysInMonth(month: Int, year: Int) -> Int? {
 
         return diff.day
     }
-//    if let numberOfDays = getDaysInMonth(month: 1, year: 2015) {
-//     print(numberOfDays)
-//
-//     }
+

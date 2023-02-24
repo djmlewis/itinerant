@@ -60,6 +60,15 @@ struct Itinerary: Identifiable, Codable, Hashable {
         modificationDate = nowReferenceDateTimeInterval()
     }
     
+    mutating func updateStageDurationFromDate(stageUUID: UUID, durationDate date: Date) {
+        if var stage = stageForUUID(stageUUID), let index = stageIndex(forUUIDstr: stageUUID.uuidString) {
+            stage.setDurationFromDate(date)
+            stages[index] = stage
+            updateModificationDateToNow()
+            _ = savePersistentData()
+        }
+    }
+
 }
 
 extension Itinerary {
@@ -117,6 +126,8 @@ extension Itinerary {
         }
         return nil
     }
+    
+    func stageForUUID(_ stageUUID: UUID) -> Stage? { stages.first(where: { $0.id == stageUUID }) }
     
     var lastStageUUIDstr: String? { stages.last?.idStr }
     

@@ -149,9 +149,13 @@ class ItineraryStore: ObservableObject {
     func hasItineraryWithID(_ id: String) -> Bool {
         return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil
     }
-    func itineraryForUUID(uuid:UUID) -> Itinerary? {
+    func itineraryForUUID(_ uuid:UUID) -> Itinerary? {
         return itineraries.first{ $0.id == uuid }
     }
+    func itineraryIndexForUUID(_ uuid: UUID) -> Int? {
+        return itineraries.firstIndex(where: { $0.id == uuid })
+    }
+
     func hasItineraryWithUUID(_ uuid: UUID) -> Bool {
         return itineraries.firstIndex(where: { $0.id == uuid }) != nil
     }
@@ -193,7 +197,7 @@ class ItineraryStore: ObservableObject {
         itineraries.remove(atOffsets: offsets)
     }
     func removeItineraryWithUUID(_ uuid: UUID) -> Void {
-        guard let itineraryToDelete = itineraryForUUID(uuid: uuid), let filename =  itineraryToDelete.filename else { return }
+        guard let itineraryToDelete = itineraryForUUID(uuid), let filename =  itineraryToDelete.filename else { return }
         let filePath = ItineraryStore.appDataFilePathWithSuffixForFileNameWithoutSuffix(filename)
         do {
             try FileManager.default.removeItem(atPath: filePath)
@@ -236,5 +240,10 @@ class ItineraryStore: ObservableObject {
         sortItineraries()
     }
 
-    
+    func updateStageDurationFromDate(stageUUID: UUID, itineraryUUID: UUID, durationDate date: Date) {
+        if var itinerary = itineraryForUUID(itineraryUUID), let index = itineraryIndexForUUID(itineraryUUID) {
+            itinerary.updateStageDurationFromDate(stageUUID: stageUUID, durationDate: date)
+            itineraries[index] = itinerary
+        }
+    }
 }

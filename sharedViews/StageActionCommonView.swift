@@ -9,6 +9,13 @@ import SwiftUI
 import Combine
 import UserNotifications
 
+#if os(watchOS)
+let kHaltButtonWidth = 42.0
+#else
+let kHaltButtonWidth = 48.0
+#endif
+
+
 struct StageActionCommonView: View {
     
     @Binding var stage: Stage
@@ -29,7 +36,11 @@ struct StageActionCommonView: View {
 #else
     @State var durationDate: Date = validFutureDate()
     @State var presentDatePicker: Bool = false
+
+    @EnvironmentObject var itineraryStore: ItineraryStore
+
 #endif
+    
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -40,9 +51,6 @@ struct StageActionCommonView: View {
     @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
     @State var uiSlowUpdateTimerCancellor: Cancellable?
 
-    
-    var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
-        
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
@@ -56,6 +64,7 @@ struct StageActionCommonView: View {
     @AppStorage(kAppStorageShowUnableToNotifyWarning) var showUnableToNotifyWarning: Bool = true
 
     @EnvironmentObject var appDelegate: AppDelegate
+
 
     // MARK: - body
     var body: some View {
@@ -84,8 +93,7 @@ struct StageActionCommonView: View {
 } /* struct */
 
 extension StageActionCommonView {
-
-
+    
     func updateUpdateTimes(forUpdateDate optDate: Date?) {
         if let date = optDate {
             // we have a dateStarted date either from a timer update or onAppear when we havve/had run since reset
@@ -107,7 +115,10 @@ extension StageActionCommonView {
             }
         }
     }
-    func  timeStartedRunning() -> TimeInterval {
+    
+    var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
+
+    func timeStartedRunning() -> TimeInterval {
         floor(Double(dictStageStartDates[stage.idStr] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
     }
     
@@ -125,12 +136,6 @@ extension StageActionCommonView {
     
 }
 
-
-#if os(watchOS)
-let kHaltButtonWidth = 42.0
-#else
-let kHaltButtonWidth = 48.0
-#endif
 
 extension StageActionCommonView {
     

@@ -218,3 +218,7 @@ let kMessageFromWatchInitiateSyncNow = "kMessageFromWatchInitiateSyncNow"
 
 // MARK: - Color String
 let kColorStringSeparator = "\t"
+
+// MARK: - Dates
+
+let kPickersDateComponents: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute]

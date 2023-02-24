@@ -25,12 +25,12 @@ struct StageInvalidDurationSymbolBackground: ViewModifier {
     
   func body(content: Content) -> some View {
     content
-          .foregroundColor(stageDurationDateInvalid ?  Color(red: 1.0, green: 0.149, blue: 0.0) : stageTextColour)
+          .foregroundColor(stageDurationDateInvalid ? Color.accentColor /*Color(red: 1.0, green: 0.149, blue: 0.0)*/ : stageTextColour)
           .padding(stageDurationDateInvalid ? 3 : 0)
-          .background(stageDurationDateInvalid ? .white : .clear)
+          .background(stageDurationDateInvalid ? .gray : .clear)
           .cornerRadius(stageDurationDateInvalid ? 3 : 0)
           .padding(stageDurationDateInvalid ? 1 : 0)
-          .background(stageDurationDateInvalid ? .black : .clear)
+          .background(stageDurationDateInvalid ? Color.accentColor : .clear)
           .cornerRadius(stageDurationDateInvalid ? 3 : 0)
           .padding(stageDurationDateInvalid ? 2 : 0)
           .background(.clear)
