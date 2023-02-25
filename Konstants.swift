@@ -198,6 +198,8 @@ let kNotificationDueTime = "kNotificationDueTime"
 // MARK: - StageActionView
 let kSceneStoreStageTimeStartedRunning = "timeStartedRunning"
 let kUIUpdateTimerFrequency = 0.2
+let yearsAheadBlock = 5
+
 #if os(watchOS)
 let kUISlowUpdateTimerFrequency = 1.0
 #else

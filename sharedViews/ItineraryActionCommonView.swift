@@ -61,6 +61,7 @@ struct ItineraryActionCommonView: View {
             .onAppear { checkUIupdateSlowTimerStatus() }
             .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
             .onDisappear { uiSlowUpdateTimerCancellor?.cancel() }
+
     } /* View */
     
 }

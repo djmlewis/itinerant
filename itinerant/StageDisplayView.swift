@@ -33,6 +33,7 @@ struct StageDisplayView: View {
 
     
     
+    @Environment(\.scenePhase) var scenePhase
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var appDelegate: AppDelegate
 

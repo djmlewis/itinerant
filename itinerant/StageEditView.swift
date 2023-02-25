@@ -90,6 +90,7 @@ struct StageEditView: View {
                                             }
                                         }
                                     }
+                                    .pickerStyle(.wheel)
                                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                 }
                             } /* VStack */
@@ -127,7 +128,7 @@ struct StageEditView: View {
                                 Picker("", selection: $snoozehours) {
                                     ForEach(0..<24) {index in
                                         Text("\(index)").tag(index)
-                                            .foregroundColor(.black)
+                                            //.foregroundColor(.black)
                                             .fontWeight(.heavy)
                                     }
                                 }
@@ -136,13 +137,14 @@ struct StageEditView: View {
                                 Picker("", selection: $snoozemins) {
                                     ForEach(0..<60) {index in
                                         Text("\(index)").tag(index)
-                                            .foregroundColor(.black)
+                                            //.foregroundColor(.black)
                                             .fontWeight(.heavy)
                                     }
                                 }
                                 .labelsHidden()
                                 .padding(0)
                            }
+                            .pickerStyle(.wheel)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             .padding(0)
                         }

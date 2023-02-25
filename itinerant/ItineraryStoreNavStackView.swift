@@ -28,11 +28,11 @@ extension ItineraryStoreView {
                                 HStack(alignment: .center) {
                                     Image(systemName: "doc")
                                     Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
+                                    Spacer()
                                     if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
                                         Image(systemName:"square.and.pencil")
                                         Text(date.formatted(date: .numeric, time: .shortened))
                                     }
-                                    Spacer()
                                 }
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .lineLimit(1)

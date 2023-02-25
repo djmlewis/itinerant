@@ -148,20 +148,21 @@ extension Stage {
     static let stageDurationFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .abbreviated
-        formatter.allowedUnits = [.hour,.minute,.second]
+        formatter.allowedUnits = [.year,.day,.hour,.minute,.second]
         return formatter
     }()
 
     static func stageDateString(fromDate date: Date) -> String {
-        let formatted = date.formatted(
-            .dateTime
-                .day()
-                .month(.abbreviated)
-                .year()
-                .hour()
-                .minute(.twoDigits)
-        )
-        return formatted
+        date.formatted(date: .numeric, time: .shortened)
+//        let formatted = date.formatted(
+//            .dateTime
+//                .day()
+//                .month(.abbreviated)
+//                .year()
+//                .hour()
+//                .minute(.twoDigits)
+//        )
+//        return formatted
         
         //        let verbatim = Date.VerbatimFormatStyle(
         //            format: "\(day: .defaultDigits) \(month: .abbreviated) \(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .oneBased)):\(minute: .twoDigits)",

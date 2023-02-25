@@ -65,13 +65,39 @@ extension StageActionCommonView {
                                 .font(.system(.title3, design: .rounded, weight: .bold))
                                 .foregroundColor(stageTextColour())
                            if stage.isCountDownType {
-                                Text(stage.durationString)
-                                    .font(.system(.title3, design: .rounded, weight: .bold))
-                                    .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: stageTextColour()))
-                                    .lineLimit(1...2)
-                                    .allowsTightening(true)
-                                    .minimumScaleFactor(0.5)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                               if stage.isCountDownToDate {
+                                   VStack {
+                                       Button(action: {
+                                           presentDatePicker = true
+                                       }, label: {
+                                           Text(stage.durationString)
+                                               .fixedSize(horizontal: true, vertical: true)
+                                               .font(.system(.title3, design: .rounded, weight: .semibold))
+                                               .lineLimit(2)
+                                               .allowsTightening(true)
+                                               .minimumScaleFactor(0.5)
+                                               .padding(12)
+                                           
+                                       })
+                                       .disabled(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
+                                       .buttonStyle(.borderless)
+                                       .controlSize(.regular)
+                                       .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color.accentColor : stageTextColour())
+    //                                   .padding([.top,.bottom])
+                                       .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
+                                       .clipShape(Capsule(style: .continuous))
+                                   }
+                                   .frame(maxWidth: .infinity, alignment: .center)
+                                   .padding([.top], 6)
+                              } else {
+                                   Text(stage.durationString)
+                                       .frame(maxWidth: .infinity, alignment: .leading)
+                                       .font(.system(.title3, design: .rounded, weight: .semibold))
+                                       .foregroundColor(stageTextColour())
+                                       .lineLimit(2)
+                                       .allowsTightening(true)
+                                       .minimumScaleFactor(0.5)
+                               }
                            }
                             if stage.isPostingRepeatingSnoozeAlerts {
                                 // Snooze Alarms time duration
@@ -132,7 +158,7 @@ extension StageActionCommonView {
                                 HStack {
                                     Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
                                     // time remaining or overtime
-                                    Text("\(stageRunningOvertime ? "+" : " -" )" +
+                                    Text("\(stageRunningOvertime ? "+" : "" )" +
                                          Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
                                 }
                                 .padding(4.0)
@@ -157,6 +183,11 @@ extension StageActionCommonView {
         .cornerRadius(8) /// make the background rounded
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only
         .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
+        .sheet(isPresented: $presentDatePicker, content: {
+            NavigationStack {
+                WKStageActionDatePickerView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
+            }
+        })
 
 //        /* VStack mods */
     } /* body ios*/
