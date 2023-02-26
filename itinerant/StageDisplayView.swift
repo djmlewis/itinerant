@@ -86,6 +86,7 @@ struct StageDisplayView: View {
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
                             Text(stage.durationString)
+                                .foregroundColor(stageDurationDateInvalid ?  Color("ColourInvalidDate") : textColourForScheme(colorScheme: colorScheme))
                                 .lineLimit(1...2)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
@@ -96,7 +97,7 @@ struct StageDisplayView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.leading,.bottom], kRowPad)
                 .font(.system(.title3, design: .rounded, weight: .bold))
-                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
+//                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
                 HStack(spacing: 0.0) {
                     if stage.isPostingRepeatingSnoozeAlerts {
                         HStack {

@@ -83,7 +83,7 @@ extension StageActionCommonView {
                                 .disabled(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
                                 .buttonStyle(.borderless)
                                 .controlSize(.regular)
-                                .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color.accentColor : stageTextColour())
+                                .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColour())
                                 .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
                                 .clipShape(Capsule(style: .continuous))
                             }
@@ -173,7 +173,7 @@ extension StageActionCommonView {
         .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
         .sheet(isPresented: $presentDatePicker, content: {
             NavigationStack {
-                WKStageActionDatePickerView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
+                StageActionDatePickerCommonView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
             }
         })
         

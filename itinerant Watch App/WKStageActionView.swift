@@ -52,7 +52,7 @@ extension StageActionCommonView {
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .buttonStyle(.borderless)
                                     .controlSize(.regular)
-                                    .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color.accentColor : stageTextColour())
+                                    .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColour())
                                     .padding()
                                     .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
                                     .clipShape(Capsule(style: .continuous))
@@ -150,7 +150,7 @@ extension StageActionCommonView {
         .padding(0)
         /* Grid mods */
         .sheet(isPresented: $presentDatePicker, content: {
-            WKStageActionDatePickerView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
+            StageActionDatePickerCommonView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
         })
 
     } /* body */

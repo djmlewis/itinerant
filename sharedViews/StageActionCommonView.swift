@@ -394,7 +394,7 @@ extension StageActionCommonView {
 }
 
 extension StageActionCommonView {
-    struct WKStageActionDatePickerView: View {
+    struct StageActionDatePickerCommonView: View {
         @Binding var durationDate: Date
         @Binding var presentDatePicker: Bool
         var initialDurationDate: Date
@@ -441,7 +441,7 @@ extension StageActionCommonView {
                         ForEach(0...59, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
                     })
                 }
-                .pickerStyle(.wheel)
+                Spacer()
             }
             .pickerStyle(.wheel)
             .onChange(of: month) {
