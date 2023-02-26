@@ -30,8 +30,8 @@ extension StageActionCommonView {
                 } /* HStack */
                 .frame(maxWidth: .infinity)
                 .gridCellColumns(2)
-            }
-            if stage.isCommentOnly == false {
+            } /* GridRow */
+           if stage.isCommentOnly == false {
                 GridRow {
                     VStack {
                         HStack(alignment: .center) {
@@ -106,6 +106,25 @@ extension StageActionCommonView {
                 .padding(0)
             } /* isCommentOnly */
             if stage.isCommentOnly == false && (stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil) {
+                GridRow {
+                    HStack(spacing:0.0) {
+                        Image(systemName: "hourglass")
+                        Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                    }
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(Color("ColourTimeAccumulatedText"))
+                    .background(Color("ColourTimeAccumulatedBackground"))
+                    .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                    .lineLimit(1)
+                    .allowsTightening(true)
+                    .minimumScaleFactor(0.5)
+                    .border(timeAccumulatedAtUpdate > 0.0 ? .white : .clear, width: 1.0)
+                    .padding(.leading,2.0)
+                    .padding(.trailing,2.0)
+                    .gridCellColumns(2)
+                }  /* GridRow */
+                .padding(.top,3.0)
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                     GridRow {
                         HStack(spacing:0.0) {
@@ -125,26 +144,7 @@ extension StageActionCommonView {
                         .gridCellColumns(2)
                     }  /* GridRow */
                     .padding(.top,3.0)
-                }
-                GridRow {
-                    HStack(spacing:0.0) {
-                        Image(systemName: "hourglass")
-                        Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
-                    }
-                    .font(.system(.title3, design: .rounded, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(.black)
-                    .background(.white)
-                    .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                    .lineLimit(1)
-                    .allowsTightening(true)
-                    .minimumScaleFactor(0.5)
-                    .border(timeAccumulatedAtUpdate > 0.0 ? .black : .clear, width: 1.0)
-                    .padding(.leading,2.0)
-                    .padding(.trailing,2.0)
-                    .gridCellColumns(2)
-                }  /* GridRow */
-                .padding(.top,3.0)
+                } /* if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType */
             } /* if nonComment, running OR ran*/
         } /* Grid */
         .padding(0)

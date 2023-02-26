@@ -96,18 +96,20 @@ struct StageEditView: View {
                             } /* VStack */
                         } /* if timerDirection == .countDown {VStack}*/
                         if timerDirection == .countDownToDate {
-                            Group{
+                            VStack(alignment: .center){
                                 DatePicker(
                                     "End On:",
                                     selection: $durationDate,
                                     in: validFutureDate()...,
                                     displayedComponents: [.date, .hourAndMinute]
                                 )
+                                .labelsHidden()
                                 Text("The end time must be at least 1 minute in the future when the stage starts")
                                     .font(.system(.subheadline, design: .rounded, weight: .regular))
                                     .multilineTextAlignment(.center)
                                     .opacity(0.5)
                             }
+                            .frame(maxWidth: .infinity,alignment: .center)
                         }
                         /* Duration Pickers */
                 } /* Section */

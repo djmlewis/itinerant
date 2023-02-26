@@ -48,7 +48,7 @@ struct StageActionCommonView: View {
     @State var stageDurationDateInvalid: Bool = false
     @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
     @State var uiSlowUpdateTimerCancellor: Cancellable?
-
+    
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
@@ -58,12 +58,12 @@ struct StageActionCommonView: View {
     @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-
+    
     @AppStorage(kAppStorageShowUnableToNotifyWarning) var showUnableToNotifyWarning: Bool = true
-
+    
     @EnvironmentObject var appDelegate: AppDelegate
-
-
+    
+    
     // MARK: - body
     var body: some View {
         body_
@@ -95,7 +95,7 @@ struct StageActionCommonView: View {
                     itineraryStore.updateStageDurationFromDate(stageUUID: stage.id, itineraryUUID: itinerary.id, durationDate: $0)
                 }
             })
-
+        
     } /* body */
 } /* struct */
 
@@ -124,7 +124,7 @@ extension StageActionCommonView {
     }
     
     var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
-
+    
     func timeStartedRunning() -> TimeInterval {
         floor(Double(dictStageStartDates[stage.idStr] ?? "\(Date.timeIntervalSinceReferenceDate)")!)
     }
@@ -161,14 +161,14 @@ extension StageActionCommonView {
                 .padding(3)
                 .border(.white, width: 3)
                 .clipShape(Circle())
-
+            
         }
         .buttonStyle(BorderlessButtonStyle())
         .frame(idealWidth: kHaltButtonWidth, idealHeight: kHaltButtonWidth, alignment: .trailing)
         .fixedSize(horizontal: true, vertical: true)
-        #if os(watchOS)
+#if os(watchOS)
         .padding(.trailing, 4.0)
-        #endif
+#endif
     }
     
     func stageBackgroundColour(stage: Stage) -> Color {
@@ -183,7 +183,7 @@ extension StageActionCommonView {
         }
         return appStorageColourStageInactive.rgbaColor!
     }
-
+    
     
     func stageTextColour() -> Color {
         if stage.isCommentOnly {
@@ -197,8 +197,8 @@ extension StageActionCommonView {
         }
         return appStorageColourFontInactive.rgbaColor!
     }
-
-
+    
+    
     func resetStage(newValue: Bool?) {
         DispatchQueue.main.async {
             if newValue == true {
@@ -207,10 +207,10 @@ extension StageActionCommonView {
                 resetStageElapsedTime = nil
                 setTimeStartedRunning(nil)
                 setTimeEndedRunning(nil)
-          }
+            }
         }
     }
-
+    
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
         (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }
@@ -305,7 +305,7 @@ extension StageActionCommonView {
             uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
         }
     }
-
+    
     func handleOnAppear() {
         stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(Date.now)
         handleTimersOnAppearActive()
@@ -390,7 +390,7 @@ extension StageActionCommonView {
             })
     }
     
-        
+    
 }
 
 extension StageActionCommonView {
@@ -400,6 +400,7 @@ extension StageActionCommonView {
         var initialDurationDate: Date
         
         
+#if os(watchOS)
         @State var year: Int = 2023
         @State var yearStarting: Int = 2023
         @State var yearsAhead: Int = yearsAheadBlock
@@ -408,55 +409,78 @@ extension StageActionCommonView {
         @State var daysInMonth: Int = 31
         @State var hour: Int = 0
         @State var minute: Int = 0
+#else
+        @State var selectedDurationDate: Date = validFutureDate()
+#endif
+        
         @State var selectedDateInvalid = false
         @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
         @State var uiSlowUpdateTimerCancellor: Cancellable?
-
+        
         @Environment(\.scenePhase) var scenePhase
-
+        
         let monthNames = Calendar.autoupdatingCurrent.shortMonthSymbols
-
+        
         var body: some View {
             VStack{
                 Text("\(Image(systemName: "exclamationmark.triangle.fill")) Invalid Date")
-                        .foregroundColor(.red)
-                        .opacity(selectedDateInvalid ? 1.0 : 0.0)
-                        .padding([.top, .bottom])
-                HStack {
-                    Picker("Day", selection: $day, content: {
-                        ForEach(1...daysInMonth, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
-                    })
-                    Picker("Month", selection: $month, content: {
-                        ForEach(1...monthNames.count, id: \.self) { Text(monthNames[$0-1]).tag($0) }
-                    })
-                    Picker("Year", selection: $year, content: {
-                        ForEach(yearStarting...yearStarting + yearsAhead, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
-                    })
+                    .foregroundColor(Color("ColourInvalidDate"))
+                    .opacity(selectedDateInvalid ? 1.0 : 0.0)
+#if os(watchOS)
+                Group {
+                    HStack {
+                        Picker("Day", selection: $day, content: {
+                            ForEach(1...daysInMonth, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
+                        })
+                        Picker("Month", selection: $month, content: {
+                            ForEach(1...monthNames.count, id: \.self) { Text(monthNames[$0-1]).tag($0) }
+                        })
+                        Picker("Year", selection: $year, content: {
+                            ForEach(yearStarting...yearStarting + yearsAhead, id: \.self) { Text(String(format: "%i",$0)).tag($0) }
+                        })
+                    }
+                    HStack {
+                        Picker("Hour", selection: $hour, content: {
+                            ForEach(0...23, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
+                        })
+                        Picker("Minute", selection: $minute, content: {
+                            ForEach(0...59, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
+                        })
+                    }
                 }
-                HStack {
-                    Picker("Hour", selection: $hour, content: {
-                        ForEach(0...23, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
-                    })
-                    Picker("Minute", selection: $minute, content: {
-                        ForEach(0...59, id: \.self) { Text(String(format: "%02i",$0)).tag($0) }
-                    })
-                }
-                Spacer()
-            }
-            .pickerStyle(.wheel)
-            .onChange(of: month) {
-                correctDaysInMonth(month: $0, year: year)
-                selectedDateInvalid = isInvalidDate()
-            }
-            .onChange(of: year) {
-                correctDaysInMonth(month: month, year: $0)
-                if year == yearStarting + yearsAhead { yearsAhead += yearsAheadBlock
+                .pickerStyle(.wheel)
+                .onChange(of: month) {
+                    correctDaysInMonth(month: $0, year: year)
                     selectedDateInvalid = isInvalidDate()
                 }
+                .onChange(of: year) {
+                    correctDaysInMonth(month: month, year: $0)
+                    if year == yearStarting + yearsAhead { yearsAhead += yearsAheadBlock
+                        selectedDateInvalid = isInvalidDate()
+                    }
+                }
+                .onChange(of: day) { _ in selectedDateInvalid = isInvalidDate() }
+                .onChange(of: hour) {  _ in selectedDateInvalid = isInvalidDate() }
+                .onChange(of: minute) {  _ in selectedDateInvalid = isInvalidDate() }
+#else
+                VStack(alignment: .center){
+                    DatePicker(
+                        "End On:",
+                        selection: $selectedDurationDate,
+                        in: validFutureDate()...,
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+                    .labelsHidden()
+                    Text("The end time must be at least 1 minute in the future when the stage starts")
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
+                        .multilineTextAlignment(.center)
+                        .opacity(0.5)
+                }
+                .frame(maxWidth: .infinity,alignment: .center)
+                .padding()
+#endif
+                Spacer()
             }
-            .onChange(of: day) { _ in selectedDateInvalid = isInvalidDate() }
-            .onChange(of: hour) {  _ in selectedDateInvalid = isInvalidDate() }
-            .onChange(of: minute) {  _ in selectedDateInvalid = isInvalidDate() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", role: .cancel, action: {
@@ -471,6 +495,7 @@ extension StageActionCommonView {
             }
             .onAppear {
                 let startdate = max(initialDurationDate,validFutureDate())
+#if os(watchOS)
                 let components = Calendar.autoupdatingCurrent.dateComponents(kPickersDateComponents, from: startdate)
                 DispatchQueue.main.async {
                     yearStarting = components.year!
@@ -480,6 +505,9 @@ extension StageActionCommonView {
                     hour = components.hour!
                     minute = components.minute! + 1 // tweak or date starts invalid even when validFutureDate()
                 }
+#else
+                selectedDurationDate = startdate
+#endif
                 uiSlowUpdateTimerCancellor?.cancel()
                 uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
                 uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
@@ -494,12 +522,17 @@ extension StageActionCommonView {
         } /* body */
         
         func handleSave() {
+#if os(watchOS)
             if let validnewdate = dateFromComponents() {
                 durationDate = validnewdate
             }
+#else
+            durationDate = selectedDurationDate
+#endif
             presentDatePicker = false
         }
         
+#if os(watchOS)
         func correctDaysInMonth(month: Int, year: Int) {
             let currentDay = day
             if let daysinmonth = getDaysInIndexedMonth(indexedMonth: month, zeroIndexed: false, year: year) {
@@ -525,9 +558,15 @@ extension StageActionCommonView {
             }
             return true
         }
+#else
+        func isInvalidDate() -> Bool {
+            if selectedDurationDate >= validFutureDate() { return false }
+            return true
+        }
+#endif
         
     } /* struct */
-
+    
 }
 
 // MARK: - Preview

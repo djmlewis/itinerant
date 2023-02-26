@@ -17,36 +17,41 @@ extension StageActionCommonView {
     var body_: some View {
         VStack(alignment: .leading, spacing: 0.0) {
             HStack {
-                // title and expand details
-                if stage.isCommentOnly == true {
-                    Image(systemName: "bubble.left")
-                        .foregroundColor(stageTextColour())
-                }
-                Text(stage.title)
-                // Stage title
-                    .fixedSize(horizontal: false, vertical: true)
-                    .font(.system(.title3, design: .rounded, weight: .bold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(stageTextColour())
-                    .scenePadding(.minimum, edges: .horizontal)
-                    .multilineTextAlignment(.leading)
-                if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                    Button(action: {
-                        disclosureDetailsExpanded = !disclosureDetailsExpanded
-                    }) {
-                        Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                            .foregroundColor(.accentColor)
+                HStack {
+                    // title and expand details
+                    if stage.isCommentOnly == true {
+                        Image(systemName: "bubble.left")
+                            .foregroundColor(stageTextColour())
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
-                    .padding(0)
+                    Text(stage.title)
+                    // Stage title
+                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundColor(stageTextColour())
+                        .scenePadding(.minimum, edges: .horizontal)
+                        .multilineTextAlignment(.leading)
+                    if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        Button(action: {
+                            disclosureDetailsExpanded = !disclosureDetailsExpanded
+                        }) {
+                            Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                                .foregroundColor(.accentColor)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.mini)
+                        .padding(0)
+                    }
+                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        buttonStartHalt()
+                    }
                 }
-                if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-                    buttonStartHalt()
-                }
+                .frame(maxWidth: .infinity)
+                .padding(kRowPad)
             }
             .frame(maxWidth: .infinity)
-            .padding(kRowPad)
+            .padding(0)
+            .background(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourStageActiveHeading") : Color.clear)
             if !stage.details.isEmpty &&
                 (disclosureDetailsExpanded == true ||
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
@@ -137,30 +142,31 @@ extension StageActionCommonView {
                 .frame(maxWidth: .infinity)
                 .background(Color("ColourAdditionalAlarmsBackground"))
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
-                    HStack(spacing:0.0) {
-                        HStack {
-                            Image(systemName: "hourglass")
-                            // elapsed time
-                            Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(kRowPad)
-                        .foregroundColor(.black)
-                        .background(.white)
-                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                        if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
+                    HStack(spacing: 0) {
                             HStack {
-                                Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
-                                // time remaining or overtime
-                                Text("\(stageRunningOvertime ? "+" : "" )" +
-                                     Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                Image(systemName: "hourglass")
+                                // elapsed time
+                                Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(kRowPad)
-                            .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
-                            .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                        }
-                    } /* HStack */
+                            .background(Color("ColourTimeAccumulatedBackground"))
+                            .foregroundColor(Color("ColourTimeAccumulatedText"))
+                            .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                          if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
+                                HStack {
+                                    Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
+                                    // time remaining or overtime
+                                    Text("\(stageRunningOvertime ? "+" : "" )" +
+                                         Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
+                                .padding(kRowPad)
+                                .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                           }
+                        } /* HStack */
+                        .fixedSize(horizontal: false, vertical: true)
                     .font(.system(.title3, design: .rounded, weight: .bold))
                     .frame(maxWidth: .infinity)
                 } /* if running */
