@@ -67,6 +67,7 @@ struct StageActionCommonView: View {
     // MARK: - body
     var body: some View {
         body_
+            .padding(0)
             .gesture(gestureActivateStage())
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
@@ -169,6 +170,20 @@ extension StageActionCommonView {
         .padding(.trailing, 4.0)
         #endif
     }
+    
+    func stageBackgroundColour(stage: Stage) -> Color {
+        if stage.isCommentOnly {
+            return appStorageColourStageComment.rgbaColor!
+        }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            return appStorageColourStageRunning.rgbaColor!
+        }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            return appStorageColourStageActive.rgbaColor!
+        }
+        return appStorageColourStageInactive.rgbaColor!
+    }
+
     
     func stageTextColour() -> Color {
         if stage.isCommentOnly {

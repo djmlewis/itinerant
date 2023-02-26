@@ -22,10 +22,14 @@ extension  ItineraryActionCommonView {
                     ForEach($itinerary.stages) { $stage in
                         StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
                             .id(stage.idStr)
-                            .listRowInsets(.init(top: 6, leading: 12, bottom: 6, trailing: 2))
+                            .listRowInsets(.init(top: stage.idStr == itinerary.firstStageUUIDstr ? 0.0 : 4.0,
+                                                 leading: 0,
+                                                 bottom: stage.idStr == itinerary.lastStageUUIDstr ? 0.0 : 4.0,
+                                                 trailing: 0))
+                            .listRowBackground(Color.clear)
                             .listRowBackground(stageBackgroundColour(stage: stage))
-                            .cornerRadius(6)
-                            .padding(.bottom, stage.idStr == itinerary.lastStageUUIDstr ? 0.0 : 4.0)
+                            .listRowSeparator(.hidden)
+                            .cornerRadius(12)
                     } /* ForEach */
                 } /* List */
                 .onChange(of: scrollToStageID) { stageid in

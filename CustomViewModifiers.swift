@@ -11,10 +11,10 @@ struct AdditionalAlarmsFontBackgroundColour: ViewModifier {
   func body(content: Content) -> some View {
     content
           .foregroundColor(Color("ColourAdditionalAlarmsText"))
-          .padding([.leading,.trailing], 6)
-          .padding([.top,.bottom], 6)
+//          .padding([.leading,.trailing], 6)
+//          .padding([.top,.bottom], 6)
           .background(Color("ColourAdditionalAlarmsBackground"))
-          .cornerRadius(6)
+//          .cornerRadius(6)
 
   }
 }

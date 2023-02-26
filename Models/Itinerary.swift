@@ -130,7 +130,8 @@ extension Itinerary {
     func stageForUUID(_ stageUUID: UUID) -> Stage? { stages.first(where: { $0.id == stageUUID }) }
     
     var lastStageUUIDstr: String? { stages.last?.idStr }
-    
+    var firstStageUUIDstr: String? { stages.first?.idStr }
+
     var stagesIDstrs: [String] { stages.map { $0.idStr }}
     
     func totalDurationAtDate(atDate date: Date) -> Double { Double(stages.reduce(0) { partialResult, stage in
