@@ -48,7 +48,7 @@ struct StageDisplayView: View {
     @State var uiSlowUpdateTimerCancellor: Cancellable?
 
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .top, spacing: 0.0) {
             if isEditing == true {
                 VStack {
                     Button {
@@ -56,77 +56,86 @@ struct StageDisplayView: View {
                     } label: {
                         Image(systemName: "trash")
                     }
+                    .font(.system(.title2, design: .rounded, weight: .regular))
                     .foregroundColor(.white)
                     .buttonStyle(.borderless)
                     .controlSize(.large)
                 }
                 .frame(maxHeight: .infinity)
                 .padding()
-                .background(.red)
             }
-            VStack(alignment: .leading, spacing: 2.0) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(stage.title)
                      .font(.system(.title3, design: .rounded, weight: .bold))
                      .multilineTextAlignment(.leading)
-                     .padding(.top, 6.0)
-                 if !stage.details.isEmpty {
+                     .frame(maxWidth: .infinity, alignment: .leading)
+                     .padding(.leading, kRowPad)
+                     .padding(.top, 6)
+                if !stage.details.isEmpty {
                      Text(stage.details)
                          .font(.system(.footnote, design: .rounded, weight: .regular))
+                         .frame(maxWidth: .infinity, alignment: .leading)
+                         .padding(.leading, kRowPad)
                          .multilineTextAlignment(.leading)
                          .lineLimit(1...2)
-                         .padding(0)
-                 }
+                }
+                Spacer()
                 HStack {
                     Image(systemName: stage.durationSymbolName)
                         .frame(alignment: .leading)
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
                             Text(stage.durationString)
-                                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
                                 .lineLimit(1...2)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                        }
-                        if stage.isPostingRepeatingSnoozeAlerts {
-                            // Snooze Alarms time duration
-                            VStack(alignment: .trailing) {
-                                HStack {
-                                    Image(systemName: "bell.and.waves.left.and.right")
-                                    Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                        .lineLimit(1)
-                                        .allowsTightening(true)
-                                        .minimumScaleFactor(0.5)
-                                        .frame(alignment: .center)
-                               }
-                                .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .frame(alignment: .center)
-                                .modifier(AdditionalAlarmsFontBackgroundColour())
-                          }
-                            .frame(alignment: .trailing)
-                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding([.leading,.bottom], kRowPad)
                 .font(.system(.title3, design: .rounded, weight: .bold))
-                if !stage.additionalDurationsArray.isEmpty {
-                    VStack(alignment: .center) {
+                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
+                HStack(spacing: 0.0) {
+                    if stage.isPostingRepeatingSnoozeAlerts {
                         HStack {
-                            Image(systemName: "alarm.waves.left.and.right")
-                            Text("\(stage.additionalAlertsDurationsString)")
-                        }
+                            Image(systemName: "bell.and.waves.left.and.right")
+                                .foregroundColor(Color("ColourAdditionalAlarmsImage"))
+                            Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .minimumScaleFactor(0.5)
+                                .frame(alignment: .leading)
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                       }
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .modifier(AdditionalAlarmsFontBackgroundColour())
-                    .padding(.top, 4.0)
-               }
+                        .padding(kRowPad)
+                    } /* isPostingRepeatingSnoozeAlerts */
+                    if !stage.additionalDurationsArray.isEmpty {
+                        VStack(alignment: .center) {
+                            HStack {
+                                Image(systemName: "alarm.waves.left.and.right")
+                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
+                                Text("\(stage.additionalAlertsDurationsString)")
+                                    .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                    .multilineTextAlignment(.leading)
+                                    .frame(alignment: .leading)
+                           }
+                            .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                       }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(kRowPad)
+                    } /* additionalDurationsArray */
+                } /* HStack */
+                .frame(maxWidth: .infinity)
+                .background(Color("ColourAdditionalAlarmsBackground"))
             } /* VStack */
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.leading, 12)
+            .padding(0)
+            //.padding(.leading, 12)
             if isEditing == false {
-                VStack {
                     VStack(alignment: .trailing) {
                         Button(action: {
                             stageEditableData = stage.editableData
@@ -139,7 +148,7 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.bottom], 4)
+                        .padding([.top,.bottom], kRowPad)
                         Spacer()
                         Button(action: {
                             newStageMeta = nil
@@ -151,7 +160,7 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], 4)
+                        .padding([.top,.bottom], kRowPad)
                        Spacer()
                         Button(action: {
                             newStageEditableData = Stage()
@@ -164,23 +173,22 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.top], 4)
-                   } /* VStack */
-                    .padding(.leading, 6)
+                        .padding([.top,.bottom], kRowPad)
+                   } /* VStack buttons */
+                    .padding([.leading,.trailing], kRowPad)
                     .foregroundColor( .accentColor)
-                } /* VStack buttons*/
-                //.background(.clear)
-                //.padding([.top,.bottom],1)
+                    .background(Color("ColourControlsBackground"))
             } /* if isEditing == false */
             else {
                 VStack {
                     Image(systemName: "line.3.horizontal")
                 }
+                .font(.system(.title2, design: .rounded, weight: .regular))
                 .frame(maxHeight: .infinity)
                 .padding()
             }
         } /* HStack */
-        //.padding([.top,.bottom],1)
+        .frame(maxWidth: .infinity)
         .animation(.linear(duration: 0.1), value: isEditing)
         .onAppear() { checkUIupdateSlowTimerStatus() }
         .onDisappear() { uiSlowUpdateTimerCancellor?.cancel() }

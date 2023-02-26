@@ -76,7 +76,7 @@ extension Color {
 
 func textColourForScheme(colorScheme: ColorScheme) -> Color {
     #if os(iOS)
-    colorScheme == .dark ? Color(uiColor: UIColor.lightText) : Color(uiColor: UIColor.darkText)
+    Color(uiColor: UIColor.label) //colorScheme == .dark ? Color(uiColor: UIColor.lightText) : Color(uiColor: UIColor.darkText)
     #else
     colorScheme == .dark ? Color.white : Color.black
     #endif

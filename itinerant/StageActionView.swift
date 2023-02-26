@@ -7,7 +7,12 @@
 
 import SwiftUI
 
+#if !os(watchOS)
+    let kRowPad = 6.0
+#endif
+
 extension StageActionCommonView {
+    
 #if !os(watchOS)
     var body_: some View {
         VStack(alignment: .leading, spacing: 0.0) {
@@ -21,9 +26,10 @@ extension StageActionCommonView {
                 // Stage title
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.system(.title3, design: .rounded, weight: .bold))
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(stageTextColour())
                     .scenePadding(.minimum, edges: .horizontal)
+                    .multilineTextAlignment(.leading)
                 if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                     Button(action: {
                         disclosureDetailsExpanded = !disclosureDetailsExpanded
@@ -40,21 +46,18 @@ extension StageActionCommonView {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(0.0)
-            //.padding(.trailing, 2)
+            .padding(kRowPad)
             if !stage.details.isEmpty &&
                 (disclosureDetailsExpanded == true ||
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
                  stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
             {
                 Text(stage.details)
-                // Details
                     .frame(maxWidth: .infinity)
                     .font(.system(.body, design: .rounded, weight: .regular))
                     .foregroundColor(stageTextColour())
                     .multilineTextAlignment(.leading)
-                    .padding(0.0)
-                //.padding(.trailing, 8)
+                    .padding(kRowPad)
             }
             if stage.isCommentOnly == false {
                 HStack {
@@ -85,7 +88,7 @@ extension StageActionCommonView {
                                 .clipShape(Capsule(style: .continuous))
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding([.top], 6)
+                            //.padding([.top], 6)
                         } else {
                             Text(stage.durationString)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -98,38 +101,41 @@ extension StageActionCommonView {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(kRowPad)
                 HStack(spacing: 0.0) {
                     if stage.isPostingRepeatingSnoozeAlerts {
                         // Snooze Alarms time duration
                         HStack {
                             Image(systemName: "bell.and.waves.left.and.right")
+                                .foregroundColor(Color("ColourAdditionalAlarmsImage"))
                             Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
                                 .lineLimit(1)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
-                                .frame(alignment: .trailing)
                         }
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        .padding(EdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4))
+                        .padding(kRowPad)
                     }
                     if !stage.additionalDurationsArray.isEmpty {
                         VStack(alignment: .center) {
                             HStack {
                                 Image(systemName: "alarm.waves.left.and.right")
+                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
                                 Text("\(stage.additionalAlertsDurationsString)")
-                                    .frame(alignment: .leading)
+                                    .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                    .frame(alignment: .leading) // leading to be adjacent to image
                                     .multilineTextAlignment(.leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            .frame(maxWidth: .infinity, alignment: .center) // centered here
                             .font(.system(.subheadline, design: .rounded, weight: .regular))
                         }
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(EdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4))
+                        .padding(kRowPad)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .modifier(AdditionalAlarmsFontBackgroundColour())
-                .padding(0.0)
+                .background(Color("ColourAdditionalAlarmsBackground"))
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     HStack(spacing:0.0) {
                         HStack {
@@ -137,9 +143,8 @@ extension StageActionCommonView {
                             // elapsed time
                             Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
                         }
-                        //.padding(4.0)
-                        .padding(0)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(kRowPad)
                         .foregroundColor(.black)
                         .background(.white)
                         .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
@@ -150,16 +155,14 @@ extension StageActionCommonView {
                                 Text("\(stageRunningOvertime ? "+" : "" )" +
                                      Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
                             }
-                            .padding(0)
-                            //.padding(4.0)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(kRowPad)
                             .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
                             .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
                         }
                     } /* HStack */
                     .font(.system(.title3, design: .rounded, weight: .bold))
                     .frame(maxWidth: .infinity)
-                    .padding(0.0)
                 } /* if running */
             } /*  if stage.isCommentOnly == false */
         } /* VStack */

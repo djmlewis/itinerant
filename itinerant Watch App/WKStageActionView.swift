@@ -73,28 +73,33 @@ extension StageActionCommonView {
                             // Snooze Alarms time duration
                             HStack {
                                 Image(systemName: "bell.and.waves.left.and.right")
-                                Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
+                               Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
                                     .lineLimit(1)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.5)
                             }
+                            .foregroundColor(Color("ColourAdditionalAlarmsText"))
                             .font(.system(.subheadline, design: .rounded, weight: .regular))
                             .frame(maxWidth: .infinity, alignment: .center)
                             .modifier(WKStageAlertslBackground())
                         }
                         if !stage.additionalDurationsArray.isEmpty {
-                            //HStack {
-                            Text("\(Image(systemName: "alarm.waves.left.and.right")) \(stage.additionalAlertsDurationsString)")
+                            (Text("\(Image(systemName: "alarm.waves.left.and.right"))")
+                                .foregroundColor(Color("ColourAdditionalAlarmsImage")) +
+                            Text(" \(stage.additionalAlertsDurationsString)")
+                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                             )
+                                .frame(maxWidth: .infinity, alignment: .center)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
-                            //}
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity, alignment: .center)
                                 .modifier(WKStageAlertslBackground())
                         } /* if !stage.additionalDurationsArray.isEmpty */
                     } /* VStack */
                     .frame(maxWidth: .infinity)
+                    .padding(.bottom,6)
                     .foregroundColor(stageTextColour())
                     .gridCellColumns(2)
                 } /* GridRow */

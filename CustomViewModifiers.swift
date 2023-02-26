@@ -7,17 +7,6 @@
 
 import SwiftUI
 
-struct AdditionalAlarmsFontBackgroundColour: ViewModifier {
-  func body(content: Content) -> some View {
-    content
-          .foregroundColor(Color("ColourAdditionalAlarmsText"))
-//          .padding([.leading,.trailing], 6)
-//          .padding([.top,.bottom], 6)
-          .background(Color("ColourAdditionalAlarmsBackground"))
-//          .cornerRadius(6)
-
-  }
-}
 
 struct StageInvalidDurationSymbolBackground: ViewModifier {
     var stageDurationDateInvalid: Bool
@@ -42,10 +31,8 @@ struct WKStageAlertslBackground: ViewModifier {
     
   func body(content: Content) -> some View {
     content
-          .foregroundColor(.white)
           .padding(6)
-          .background(.black)
-          .opacity(0.6)
+          .background(Color("ColourAdditionalAlarmsBackground"))
           .cornerRadius(6)
 
   }

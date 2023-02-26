@@ -68,19 +68,16 @@ struct ItineraryEditView: View {
             }
             ScrollViewReader { svrproxy in
                 ScrollView {
-                    VStack {
+                    VStack(spacing: 12) {
                         ForEach($itineraryEditableData.stages) { $stage in
                             StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete, itineraryTitleFocused: $titleFocuseState)
-                                .padding()
                                 .background(Color("ColourStageDisplayBackground"))
-                                .cornerRadius(8)
-                            //Divider()
+                                .cornerRadius(12)
                                 .id(stage.idStr)
                         }
                         .onMove(perform: isEditing ? { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) } : nil)
                     }
                     .padding([.leading,.trailing], 24)
-                    .padding([.top], 12)
                     .onChange(of: titleFocuseState, perform: { newValue in
                         // respond to a toggle with false
                         titleFocused = false

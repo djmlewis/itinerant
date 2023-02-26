@@ -209,28 +209,27 @@ struct StageEditView: View {
             //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
         }
-        .onChange(of: untimedComment, perform: {
-            stageEditableData.isCommentOnly = $0
+        .onChange(of: untimedComment, perform: { newValue in
+            stageEditableData.isCommentOnly = newValue
         })
-        .onChange(of: timerDirection, perform: {
-            stageEditableData.durationCountType = $0.stageNotificationIntervalType
-            //debugPrint("onChange(of: timerDirection", $0, $0.stageNotificationIntervalType, stageEditableData.durationCountType, stageEditableData.flags)
-            updateDuration(andDirection: false)
+        .onChange(of: timerDirection, perform: { newValue in
+            stageEditableData.durationCountType = newValue.stageNotificationIntervalType
+            updateDuration()
         })
-        .onChange(of: snoozeAlertsOn, perform: {
-            stageEditableData.isPostingRepeatingSnoozeAlerts = $0
+        .onChange(of: snoozeAlertsOn, perform: { newValue in
+            stageEditableData.isPostingRepeatingSnoozeAlerts = newValue
         })
         .onChange(of: hours, perform: {hrs in
-            updateDuration(andDirection: true)
+            updateDuration()
         })
         .onChange(of: mins, perform: {hrs in
-            updateDuration(andDirection: true)
+            updateDuration()
         })
         .onChange(of: secs, perform: {hrs in
-            updateDuration(andDirection: true)
+            updateDuration()
         })
         .onChange(of: durationDate, perform: {date in
-            updateDuration(andDirection: true)
+            updateDuration()
         })
         .onChange(of: snoozehours, perform: {hrs in
             updateSnoozeDuration()
@@ -294,8 +293,10 @@ struct StageEditView: View {
                                 }
                             }
                         }
+                        .pickerStyle(.wheel)
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     }
+                    Spacer()
                 } /* VStack */
                 .navigationTitle("Additional Alert Time")
                 .toolbar {
@@ -336,7 +337,7 @@ extension StageEditView {
         Int(addedhours) * SEC_HOUR + Int(addedmins) * SEC_MIN + Int(addedsecs)
     }
 
-    func updateDuration(andDirection changeDirection: Bool) -> Void {
+    func updateDuration() {
         switch stageEditableData.durationCountType {
         case .countDownEnd:
             stageEditableData.durationSecsInt = durationFromHMS()
@@ -345,7 +346,6 @@ extension StageEditView {
         default:
             stageEditableData.durationSecsInt = 0
         }
-        //if changeDirection == true { timerDirection = stageEditableData.isCountUp ? .countUp : .countDownEnd }
     }
     
     func updateSnoozeDuration() {
