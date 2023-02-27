@@ -37,21 +37,32 @@ struct StageEditView: View {
     
     var body: some View {
         Form {
-            Section("Title") {
+            Section {
                 TextField("Stage title", text: $stageEditableData.title)
+            } header: {
+                Text("Title")
+                    .font(.system(.title3, design: .rounded, weight: .regular))
             }
-            Section("Details") {
+            Section {
                 TextField("Details", text: $stageEditableData.details,  axis: .vertical)
+            } header: {
+                Text("Details")
+                    .font(.system(.title3, design: .rounded, weight: .regular))
             }
-            Toggle(isOn: $untimedComment) {
-                Label("Comment only", systemImage:"bubble.left")
-                    .foregroundColor(textColourForScheme(colorScheme: colorScheme))
+            Section {
+                Toggle(isOn: $untimedComment) {
+                    Text("Display Only As Comment")
+                        .foregroundColor(textColourForScheme(colorScheme: colorScheme))
+                }
+            } header: {
+                Text("\(Image(systemName: "bubble.left")) Comment")
+                    .font(.system(.title3, design: .rounded, weight: .regular))
             }
             if untimedComment != true {
-                Section("Duration") {
+                Section {
                         /* Duration Pickers */
                         HStack {
-                            Image(systemName: timerDirection.symbolName)
+//                            Image(systemName: timerDirection.symbolName)
                             Picker("", selection: $timerDirection) {
                                 ForEach(TimerDirection.allCases) { direction in
                                     Text(direction.rawValue)
@@ -112,9 +123,14 @@ struct StageEditView: View {
                             .frame(maxWidth: .infinity,alignment: .center)
                         }
                         /* Duration Pickers */
-                } /* Section */
+                } header: {
+                    Text("\(Image(systemName: timerDirection.symbolName)) Duration")
+                        .font(.system(.title3, design: .rounded, weight: .regular))
+                }
+                
+                /* Section */
 
-                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Snooze Notifications Interval") {
+                Section {
                     VStack(spacing:0) {
                         HStack {
                             Group {
@@ -153,8 +169,11 @@ struct StageEditView: View {
                         .padding(0)
                     } /* VStack */
                     .padding(0)
+                } header: {
+                    Text("\(Image(systemName: "zzz")) Snooze Interval")
+                        .font(.system(.title3, design: .rounded, weight: .regular))
                 } /* Section */
-                Section("\(Image(systemName: "bell.and.waves.left.and.right")) Repeating Notifications") {
+                Section {
                     Toggle(isOn: $snoozeAlertsOn) {
                         HStack {
                             VStack {
@@ -167,6 +186,9 @@ struct StageEditView: View {
                         }
                             .foregroundColor(textColourForScheme(colorScheme: colorScheme))
                     }
+                } header: {
+                    Text("\(Image(systemName: "bell.and.waves.left.and.right")) Repeating Notifications")
+                        .font(.system(.title3, design: .rounded, weight: .regular))
                 }
                 Section {
                     if !additionaldurationsarray.isEmpty {
@@ -193,6 +215,7 @@ struct StageEditView: View {
                     HStack {
                         Text("\(Image(systemName: "alarm.waves.left.and.right")) Timed Notifications")
                             .padding(0)
+                            .font(.system(.title3, design: .rounded, weight: .regular))
                         Spacer()
                         Button {
                             addedhours = 0
@@ -206,8 +229,7 @@ struct StageEditView: View {
                         .buttonStyle(.bordered)
                         .controlSize(.small)
                     }
-                }
-                /* Section */
+                } /* Section */
             //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
         }

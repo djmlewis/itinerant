@@ -174,6 +174,7 @@ extension  ItineraryActionCommonView {
                             Button("Save") {
                                 itinerary.updateItineraryEditableData(from: itineraryData)
                                 isPresentingItineraryEditView = false
+                                resetItineraryStages()
                             }
                         }
                     }
