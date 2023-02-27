@@ -397,8 +397,15 @@ extension StageActionCommonView {
     struct StageActionDatePickerCommonView: View {
         @Binding var durationDate: Date
         @Binding var presentDatePicker: Bool
-        var initialDurationDate: Date
+        @State var selectedDurationDate: Date = validFutureDate()
+        @State var selectedDateInvalid = false
+        @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+        @State var uiSlowUpdateTimerCancellor: Cancellable?
         
+        @Environment(\.scenePhase) var scenePhase
+        
+        let monthNames = Calendar.autoupdatingCurrent.shortMonthSymbols
+        var initialDurationDate: Date
         
 #if os(watchOS)
         @State var year: Int = 2023
@@ -409,23 +416,11 @@ extension StageActionCommonView {
         @State var daysInMonth: Int = 31
         @State var hour: Int = 0
         @State var minute: Int = 0
-#else
-        @State var selectedDurationDate: Date = validFutureDate()
 #endif
-        
-        @State var selectedDateInvalid = false
-        @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-        @State var uiSlowUpdateTimerCancellor: Cancellable?
-        
-        @Environment(\.scenePhase) var scenePhase
-        
-        let monthNames = Calendar.autoupdatingCurrent.shortMonthSymbols
         
         var body: some View {
             VStack{
-                Text("\(Image(systemName: "exclamationmark.triangle.fill")) Invalid Date")
-                    .foregroundColor(Color("ColourInvalidDate"))
-                    .opacity(selectedDateInvalid ? 1.0 : 0.0)
+                TextInvalidDate(date: selectedDurationDate)
 #if os(watchOS)
                 Group {
                     HStack {
@@ -451,17 +446,16 @@ extension StageActionCommonView {
                 .pickerStyle(.wheel)
                 .onChange(of: month) {
                     correctDaysInMonth(month: $0, year: year)
-                    selectedDateInvalid = isInvalidDate()
+                    updateSelectedDurationDate()
                 }
                 .onChange(of: year) {
                     correctDaysInMonth(month: month, year: $0)
-                    if year == yearStarting + yearsAhead { yearsAhead += yearsAheadBlock
-                        selectedDateInvalid = isInvalidDate()
-                    }
+                    updateSelectedDurationDate()
+                    if year == yearStarting + yearsAhead { yearsAhead += yearsAheadBlock }
                 }
-                .onChange(of: day) { _ in selectedDateInvalid = isInvalidDate() }
-                .onChange(of: hour) {  _ in selectedDateInvalid = isInvalidDate() }
-                .onChange(of: minute) {  _ in selectedDateInvalid = isInvalidDate() }
+                .onChange(of: day) { _ in updateSelectedDurationDate() }
+                .onChange(of: hour) { _ in updateSelectedDurationDate() }
+                .onChange(of: minute) { _ in updateSelectedDurationDate() }
 #else
                 VStack(alignment: .center){
                     DatePicker(
@@ -494,45 +488,31 @@ extension StageActionCommonView {
                 }
             }
             .onAppear {
-                let startdate = max(initialDurationDate,validFutureDate())
-#if os(watchOS)
-                let components = Calendar.autoupdatingCurrent.dateComponents(kPickersDateComponents, from: startdate)
-                DispatchQueue.main.async {
-                    yearStarting = components.year!
-                    year = components.year!
-                    month = components.month!
-                    day = components.day!
-                    hour = components.hour!
-                    minute = components.minute! + 1 // tweak or date starts invalid even when validFutureDate()
-                }
-#else
-                selectedDurationDate = startdate
-#endif
                 uiSlowUpdateTimerCancellor?.cancel()
                 uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
                 uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+                setupStartingDate()
             }
             .onDisappear {
                 uiSlowUpdateTimerCancellor?.cancel()
             }
             .onReceive(uiSlowUpdateTimer) { _ in
-                selectedDateInvalid = isInvalidDate()
+                selectedDateInvalid = selectedDurationDate < validFutureDate()
             }
             /* VStack */
         } /* body */
         
         func handleSave() {
-#if os(watchOS)
-            if let validnewdate = dateFromComponents() {
-                durationDate = validnewdate
-            }
-#else
             durationDate = selectedDurationDate
-#endif
             presentDatePicker = false
         }
         
 #if os(watchOS)
+        func updateSelectedDurationDate() {
+            if let validdate = dateFromComponents() {
+                selectedDurationDate = validdate
+            }
+        }
         func correctDaysInMonth(month: Int, year: Int) {
             let currentDay = day
             if let daysinmonth = getDaysInIndexedMonth(indexedMonth: month, zeroIndexed: false, year: year) {
@@ -552,22 +532,28 @@ extension StageActionCommonView {
             return Calendar.autoupdatingCurrent.date(from: dateComponents)
         }
         
-        func isInvalidDate() -> Bool {
-            if let validdate = dateFromComponents() {
-                if validdate >= validFutureDate() { return false }
+        func setupStartingDate() {
+            let startdate = max(initialDurationDate,validFutureDate())
+            selectedDurationDate = startdate
+            let components = Calendar.autoupdatingCurrent.dateComponents(kPickersDateComponents, from: startdate)
+            DispatchQueue.main.async {
+                yearStarting = components.year!
+                year = components.year!
+                month = components.month!
+                day = components.day!
+                hour = components.hour!
+                minute = components.minute! + 1 // tweak or date starts invalid even when validFutureDate()
             }
-            return true
         }
 #else
-        func isInvalidDate() -> Bool {
-            if selectedDurationDate >= validFutureDate() { return false }
-            return true
+        func setupStartingDate() {
+            selectedDurationDate = max(initialDurationDate,validFutureDate())
         }
 #endif
         
     } /* struct */
-    
-}
+        
+} /* extension */
 
 // MARK: - Preview
 struct StageActionCommonView_Previews: PreviewProvider {

@@ -107,7 +107,9 @@ struct StageEditView: View {
                             } /* VStack */
                         } /* if timerDirection == .countDown {VStack}*/
                         if timerDirection == .countDownToDate {
-                            VStack(alignment: .center){
+                            HStack(alignment: .center){
+                                TextInvalidDate(date: durationDate)
+                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 DatePicker(
                                     "End On:",
                                     selection: $durationDate,
@@ -115,10 +117,6 @@ struct StageEditView: View {
                                     displayedComponents: [.date, .hourAndMinute]
                                 )
                                 .labelsHidden()
-                                Text("The end time must be at least 1 minute in the future when the stage starts")
-                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                    .multilineTextAlignment(.center)
-                                    .opacity(0.5)
                             }
                             .frame(maxWidth: .infinity,alignment: .center)
                         }
@@ -126,10 +124,7 @@ struct StageEditView: View {
                 } header: {
                     Text("\(Image(systemName: timerDirection.symbolName)) Duration")
                         .font(.system(.title3, design: .rounded, weight: .regular))
-                }
-                
-                /* Section */
-
+                } /* Section */
                 Section {
                     VStack(spacing:0) {
                         HStack {

@@ -38,3 +38,14 @@ struct WKStageAlertslBackground: ViewModifier {
   }
 }
 
+struct TextInvalidDate: View {
+    var date: Date
+    
+    var body: some View {
+        Text("\(Image(systemName: "exclamationmark.triangle.fill")) Invalid Date")
+            .foregroundColor(Color("ColourInvalidDate"))
+            .opacity(date < validFutureDate() ? 1.0 : 0)
+}
+}
+
+
