@@ -95,13 +95,15 @@ struct SettingsView: View {
             }
             ToolbarItem() {
                 Menu {
-                    Button(action: {
-                        sendSettingsToWatch()
-                    }) {
-                        Label("Send To Watch…", systemImage: "applewatch")
-                   }
-                    //.disabled(watchConnectionUnusable())
-                    Divider()
+                    if !deviceIsIpadOrMac() {
+                        Button(action: {
+                            sendSettingsToWatch()
+                        }) {
+                            Label("Send To Watch…", systemImage: "applewatch")
+                        }
+                        .disabled(watchConnectionUnusable())
+                        Divider()
+                    }
                     Button(action: {
                         settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))
                         fileSaverShown = true
@@ -124,7 +126,7 @@ struct SettingsView: View {
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { saveChangedSettings() }
+                Button("Apply") { saveChangedSettings() }
             }
         }
         .onAppear {

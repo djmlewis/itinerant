@@ -8,6 +8,9 @@
 import Foundation
 import UniformTypeIdentifiers
 
+
+
+
 // MARK: - ItineraryFile document
 enum ItineraryFileType: String {
     case dataFile = "uk.djml.itinerant.itinerary"

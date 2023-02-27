@@ -118,13 +118,8 @@ extension Itinerary {
         return nil
     }
     var firstIndexActivableStage: Int? {
-        guard stages.count > 0 else { return nil }
-        var nextIndex = 0
-        while nextIndex < stages.count {// one pass
-            if stages[nextIndex].isActionable { return nextIndex }
-            nextIndex += 1
-        }
-        return nil
+        guard !stages.isEmpty else { return nil }
+        return stages.firstIndex { $0.isActionable }
     }
     
     func stageForUUID(_ stageUUID: UUID) -> Stage? { stages.first(where: { $0.id == stageUUID }) }

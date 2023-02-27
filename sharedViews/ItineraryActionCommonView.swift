@@ -127,8 +127,8 @@ extension ItineraryActionCommonView {
         // need a delay or we try to change ui too soon
         // toggle scrollToStageID to nil so we scroll up to an already active id
         scrollToStageID = nil
-        if let firstActStageIndx = itinerary.firstIndexActivableStage {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if let firstActStageIndx = itinerary.firstIndexActivableStage {
                 uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].idStr)
             }
         }

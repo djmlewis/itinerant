@@ -105,13 +105,15 @@ extension  ItineraryActionCommonView {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu( content: {
-                    Button(action: {
-                        sendItineraryToWatch()
-                    }) {
-                        Label("Send to Watch…", systemImage: "applewatch")
+                    if !deviceIsIpadOrMac() {
+                        Button(action: {
+                            sendItineraryToWatch()
+                        }) {
+                            Label("Send to Watch…", systemImage: "applewatch")
+                        }
+                        .disabled(watchConnectionUnusable())
+                        Divider()
                     }
-                    .disabled(watchConnectionUnusable())
-                    Divider()
                     Button(action: {
                         // ItineraryDocument always inits with now mod date
                         fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)

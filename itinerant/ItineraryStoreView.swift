@@ -79,8 +79,7 @@ struct ItineraryStoreView: View {
     }
 
    @ViewBuilder  var body_: some View {
-        let uidevice = UIDevice.current.userInterfaceIdiom
-        if ProcessInfo().isiOSAppOnMac || uidevice == .pad || uidevice == .mac {
+        if deviceIsIpadOrMac() {
             body_split
         } else {
             body_stack

@@ -30,7 +30,7 @@ extension ItineraryStoreView {
             content
                 .navigationTitle("Itineraries")
                 .toolbar {
-                    if ProcessInfo().isiOSAppOnMac || uidevice == .mac {
+                    if deviceIsMac() {
                         ToolbarItem(placement: .navigationBarLeading) {
                             EditButton()
                         }

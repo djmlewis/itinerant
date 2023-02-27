@@ -5,13 +5,12 @@
 //  Created by David JM Lewis on 02/01/2023.
 //
 
-
-
-
-import Foundation
 import SwiftUI
 import Combine
 import WatchConnectivity
+#if os(iOS)
+import UIKit.UIDevice
+#endif
 
 // MARK: Time formatting & second-min
 let SEC_MIN = 60
@@ -192,4 +191,21 @@ func getDaysInIndexedMonth(indexedMonth: Int, zeroIndexed: Bool, year: Int) -> I
 
         return diff.day
     }
+
+// MARK - iOS only
+#if os(iOS)
+
+func deviceIsIpadOrMac() -> Bool {
+    let uidevice = UIDevice.current.userInterfaceIdiom
+    if ProcessInfo().isiOSAppOnMac || uidevice == .pad || uidevice == .mac { return true }
+    return false
+}
+
+func deviceIsMac() -> Bool {
+    let uidevice = UIDevice.current.userInterfaceIdiom
+    if ProcessInfo().isiOSAppOnMac || uidevice == .mac { return true }
+    return false
+}
+
+#endif
 
