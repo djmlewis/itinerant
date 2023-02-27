@@ -17,7 +17,7 @@ extension ItineraryActionCommonView {
                         .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
-                itinerary.totalDurationText(atDate: dateAtUpdate)
+                ItineraryDurationUpdatingView(itinerary: itinerary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
                     .listItemTint(.clear)

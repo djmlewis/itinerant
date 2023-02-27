@@ -138,12 +138,7 @@ extension Itinerary {
         // remove any negative flag values with max(...,0)
         partialResult + max(stage.durationSecsIntCorrected(atDate: date),0)
     }) }
-        
-    func totalDurationText(atDate dateAtUpdate: Date) -> Text {
-        var text = Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(totalDurationAtDate(atDate: dateAtUpdate)))")
-        if someStagesAreCountUp { text = text + Text(" +\(Image(systemName: "stopwatch"))") }
-        return text
-    }
+    
 }
 
 

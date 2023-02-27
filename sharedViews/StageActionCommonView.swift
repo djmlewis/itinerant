@@ -41,8 +41,8 @@ struct StageActionCommonView: View {
     
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
-    @State var uiUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-    @State var uiUpdateTimerCancellor: Cancellable?
+    @State var uiFastUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+    @State var uiFastUpdateTimerCancellor: Cancellable?
     @State var presentUnableToNotifyAlert: Bool = false
     @State var presentUnableToPostDateNotification: Bool = false
     @State var stageDurationDateInvalid: Bool = false
@@ -71,7 +71,7 @@ struct StageActionCommonView: View {
             .gesture(gestureActivateStage())
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
-            .onReceive(uiUpdateTimer) { handleReceive_uiUpdateTimer(newDate: $0) }
+            .onReceive(uiFastUpdateTimer) { handleReceive_uiFastUpdateTimer(newDate: $0) }
             .onReceive(uiSlowUpdateTimer) { handleReceive_uiSlowUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
@@ -257,13 +257,13 @@ extension StageActionCommonView {
         }
         postAllAdditionalAlertNotifications(stage: stage, itinerary: itinerary)
         // need to reset the timer to reattach the cancellor
-        uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-        uiUpdateTimerCancellor = uiUpdateTimer.connect()
+        uiFastUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+        uiFastUpdateTimerCancellor = uiFastUpdateTimer.connect()
     }
     
     func handleHaltRunning(andSkip: Bool) {
         setTimeEndedRunning(Date().timeIntervalSinceReferenceDate)
-        uiUpdateTimerCancellor?.cancel()
+        uiFastUpdateTimerCancellor?.cancel()
         removeAllPendingAndDeliveredStageNotifications(forUUIDstr:stage.idStr)
         // remove ourselves from active and running
         uuidStrStagesRunningStr = uuidStrStagesRunningStr.replacingOccurrences(of: stage.idStr, with: "")
@@ -319,8 +319,8 @@ extension StageActionCommonView {
         checkUIupdateSlowTimerStatus()
         if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // need to reset the timer to reattach the cancellor
-            uiUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
-            uiUpdateTimerCancellor = uiUpdateTimer.connect()
+            uiFastUpdateTimer = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
+            uiFastUpdateTimerCancellor = uiFastUpdateTimer.connect()
         }
     }
     
@@ -329,17 +329,17 @@ extension StageActionCommonView {
     }
     
     func handleTimesOnDisappearInactive() {
-        uiUpdateTimerCancellor?.cancel()
+        uiFastUpdateTimerCancellor?.cancel()
         uiSlowUpdateTimerCancellor?.cancel()
     }
     
-    func handleReceive_uiUpdateTimer(newDate: Date) {
+    func handleReceive_uiFastUpdateTimer(newDate: Date) {
         // we initialise at head and never set to nil, so never nil and can use !
         if(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             updateUpdateTimes(forUpdateDate: newDate)
         } else {
             // we may have been skipped so cancel at the next opportunity
-            uiUpdateTimerCancellor?.cancel()
+            uiFastUpdateTimerCancellor?.cancel()
         }
     }
     func handleReceive_uiSlowUpdateTimer(newDate: Date) {

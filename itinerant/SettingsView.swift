@@ -100,7 +100,7 @@ struct SettingsView: View {
                     }) {
                         Label("Send To Watch…", systemImage: "applewatch")
                    }
-                    .disabled(watchConnectionUnusable())
+                    //.disabled(watchConnectionUnusable())
                     Divider()
                     Button(action: {
                         settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))

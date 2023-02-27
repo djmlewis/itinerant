@@ -46,10 +46,10 @@ extension  ItineraryActionCommonView {
             } /* ScrollViewReader */
             VStack(alignment: .center, spacing: 0.0) {
                 HStack(alignment: .center) {
-                    itinerary.totalDurationText(atDate: dateAtUpdate)
-                    .padding(.trailing,0)
-                    .padding(.leading,0)
-                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                    ItineraryDurationUpdatingView(itinerary: itinerary)
+                        .padding(.trailing,0)
+                        .padding(.leading,0)
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
                 }
                 HStack(alignment: .center) {
                     Spacer()
@@ -104,7 +104,7 @@ extension  ItineraryActionCommonView {
         }) /* File Saver */
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
+                Menu( content: {
                     Button(action: {
                         sendItineraryToWatch()
                     }) {
@@ -131,9 +131,9 @@ extension  ItineraryActionCommonView {
                         Label("Export…", systemImage: "doc.plaintext")
                     }
                     
-                } label: {
+                }, label: {
                     Label("", systemImage: "ellipsis.circle")
-                }
+                })
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -181,6 +181,8 @@ extension  ItineraryActionCommonView {
         }) /* sheet */
 
     } /* View */
+    
+
 #endif
 }
 

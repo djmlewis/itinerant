@@ -24,10 +24,6 @@ struct ItineraryActionCommonView: View {
     @State var scrollToStageID: String?
     @State var stageToStartRunningID: String?
     
-    @State var dateAtUpdate: Date = Date.now
-    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-    @State var uiSlowUpdateTimerCancellor: Cancellable?
-
     @EnvironmentObject var appDelegate: AppDelegate
 
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
@@ -57,26 +53,56 @@ struct ItineraryActionCommonView: View {
    
     var body: some View {
         body_
-            .onReceive(uiSlowUpdateTimer) { dateAtUpdate = $0 }
-            .onAppear { checkUIupdateSlowTimerStatus() }
-            .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
-            .onDisappear { uiSlowUpdateTimerCancellor?.cancel() }
 
     } /* View */
     
 }
 
-
+extension ItineraryActionCommonView {
+    
+    struct ItineraryTotalDurationText: View {
+        var itinerary: Itinerary
+        var dateAtUpdate: Date
+        
+        var body: some View {
+            if itinerary.someStagesAreCountUp {
+                Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: dateAtUpdate)))") +
+                Text(" +\(Image(systemName: "stopwatch"))")
+            } else {
+                Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: dateAtUpdate)))")
+            }
+        }
+        
+    }
+        
+    struct ItineraryDurationUpdatingView: View {
+        var itinerary: Itinerary
+        
+        @State private var dateAtUpdate: Date = Date.now
+        @State private var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+        @State private var uiSlowUpdateTimerCancellor: Cancellable?
+        
+        var body: some View {
+            ItineraryTotalDurationText(itinerary: itinerary, dateAtUpdate: dateAtUpdate)
+                .onReceive(uiSlowUpdateTimer) {
+                    dateAtUpdate = $0            }
+                .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
+                .onDisappear { uiSlowUpdateTimerCancellor?.cancel() }
+                .onAppear { checkUIupdateSlowTimerStatus() }
+        }
+        
+        func checkUIupdateSlowTimerStatus() {
+            uiSlowUpdateTimerCancellor?.cancel()
+            if itinerary.someStagesAreCountDownToDate {
+                uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+                uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+            }
+        }
+    }
+}
 
 extension ItineraryActionCommonView {
     
-    func checkUIupdateSlowTimerStatus() {
-        uiSlowUpdateTimerCancellor?.cancel()
-        if itinerary.someStagesAreCountDownToDate {
-            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
-        }
-    }
     
     func stageBackgroundColour(stage: Stage) -> Color {
         if stage.isCommentOnly {
