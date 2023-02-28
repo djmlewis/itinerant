@@ -10,13 +10,20 @@ import UniformTypeIdentifiers
 
 
 struct ItineraryFile: FileDocument {
-    static var readableContentTypes = [UTType.itineraryDataFile, UTType.itineraryTextFile, UTType.itinerarySettingsFile]
+    static var readableContentTypes = [/*UTType.itineraryDataFile,*/ UTType.itineraryTextFile, UTType.itinerarySettingsFile, UTType.itineraryDataPackage]
 
-    var exportText: String?// = ""
-    var itineraryPersistentData: Itinerary.PersistentData? // = Itinerary.PersistentData(title: "", stages: [], id: UUID(), modificationDate: nowReferenceDateTimeInterval())
+    var exportText: String?
+    var itineraryPersistentData: Itinerary.PersistentData?
     var settingsDict: [ String : String ]?
+    var packageItinerary: Itinerary?
     
     // a simple initializer that creates new, empty documents
+    
+    init(packageItinerary: Itinerary) {
+        // ATM we are preserving ID!!!
+        self.packageItinerary = packageItinerary
+    }
+    
     init(exportText: String) {
         self.exportText = exportText
     }
@@ -44,6 +51,9 @@ struct ItineraryFile: FileDocument {
                 self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
             case .itinerarySettingsFile:
                 self.settingsDict = try JSONDecoder().decode([String:String].self, from: data)
+            case .itineraryDataPackage:
+                #warning("need to implement itineraryDataPackage")
+                break
             default:
                 break
             }
@@ -55,7 +65,7 @@ struct ItineraryFile: FileDocument {
 
     // this will be called when the system wants to write our data to disk
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let data: Data
+        var data: Data = Data()
             switch configuration.contentType {
             case .itineraryTextFile where exportText != nil:
                 data = Data(exportText!.utf8)
@@ -63,8 +73,14 @@ struct ItineraryFile: FileDocument {
                 data = try JSONEncoder().encode(itineraryPersistentData)
             case .itinerarySettingsFile where settingsDict != nil:
                 data = try JSONEncoder().encode(settingsDict)
+            case .itineraryDataPackage where packageItinerary != nil:
+                if let encodedItinerary = try? JSONEncoder().encode(packageItinerary!.itineraryPersistentData) {
+                    let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
+                    var directoryDict: [String : FileWrapper] = [String : FileWrapper]()
+                    directoryDict[kItineraryDocumentFileNameItineraryPersistentDataFile] = itineraryPDFileWrap
+                    return FileWrapper(directoryWithFileWrappers: directoryDict)
+                }
             default:
-                data = Data()
                 break
             }
         return FileWrapper(regularFileWithContents: data)

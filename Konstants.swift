@@ -13,12 +13,14 @@ import UniformTypeIdentifiers
 
 // MARK: - ItineraryFile document
 enum ItineraryFileType: String {
+    case dataPackage = "uk.djml.itinerant.itinerarypackage"
     case dataFile = "uk.djml.itinerant.itinerary"
     case settingsFile = "uk.djml.itinerant.settings"
     case textFile = "uk.djml.itinerant.text"
 }
 
 extension UTType {
+    static let itineraryDataPackage = UTType(exportedAs: ItineraryFileType.dataPackage.rawValue)
     static let itineraryDataFile = UTType(exportedAs: ItineraryFileType.dataFile.rawValue)
     static let itinerarySettingsFile = UTType(exportedAs: ItineraryFileType.settingsFile.rawValue)
     static let itineraryTextFile = UTType(exportedAs: ItineraryFileType.textFile.rawValue)
@@ -26,14 +28,21 @@ extension UTType {
 }
 
 enum ItineraryFileExtension: String, CaseIterable {
+    case dataPackage = "itinerarypkg"
     case dataFile = "itinerary"
     case settingsFile = "settings"
     case textFile = "export"
+    
+    var dotExtension: String { return "." + self.rawValue }
     
     static func validExtension(_ extensionStr: String) -> Bool {
         return ItineraryFileExtension.allCases.firstIndex { $0.rawValue == extensionStr } != nil
     }
 }
+
+let kItineraryDocumentFileNameItineraryPersistentDataFile = "itineraryPersistentData" + ItineraryFileExtension.dataFile.dotExtension
+
+
 
 // MARK: - ItineraryStore
 let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"

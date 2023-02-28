@@ -60,67 +60,67 @@ struct StageEditView: View {
             }
             if untimedComment != true {
                 Section {
-                        /* Duration Pickers */
-                        HStack {
-//                            Image(systemName: timerDirection.symbolName)
-                            Picker("", selection: $timerDirection) {
-                                ForEach(TimerDirection.allCases) { direction in
-                                    Text(direction.rawValue)
-                                }
+                    /* Duration Pickers */
+                    HStack {
+                        //                            Image(systemName: timerDirection.symbolName)
+                        Picker("", selection: $timerDirection) {
+                            ForEach(TimerDirection.allCases) { direction in
+                                Text(direction.rawValue)
                             }
-                            .pickerStyle(.segmented)
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                    }
+                    if timerDirection == .countDownEnd {
+                        VStack(spacing: 2) {
+                            HStack {
+                                Group {
+                                    Text("Hours")
+                                    Text("Minutes")
+                                    Text("Seconds")
+                                }
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                            }
+                            HStack {
+                                Group {
+                                    Picker("", selection: $hours) {
+                                        ForEach(0..<24) {index in
+                                            Text("\(index)").tag(index)
+                                        }
+                                    }
+                                    .labelsHidden()
+                                    Picker("", selection: $mins) {
+                                        ForEach(0..<60) {index in
+                                            Text("\(index)").tag(index)
+                                        }
+                                    }
+                                    .labelsHidden()
+                                    Picker("", selection: $secs) {
+                                        ForEach(0..<60) {index in
+                                            Text("\(index)").tag(index)
+                                        }
+                                    }
+                                }
+                                .pickerStyle(.wheel)
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                            }
+                        } /* VStack */
+                    } /* if timerDirection == .countDown {VStack}*/
+                    if timerDirection == .countDownToDate {
+                        HStack(alignment: .center){
+                            TextInvalidDate(date: durationDate)
+                                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            DatePicker(
+                                "End On:",
+                                selection: $durationDate,
+                                in: validFutureDate()...,
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
                             .labelsHidden()
                         }
-                        if timerDirection == .countDownEnd {
-                            VStack(spacing: 2) {
-                                HStack {
-                                    Group {
-                                        Text("Hours")
-                                        Text("Minutes")
-                                        Text("Seconds")
-                                    }
-                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                                }
-                                HStack {
-                                    Group {
-                                        Picker("", selection: $hours) {
-                                            ForEach(0..<24) {index in
-                                                Text("\(index)").tag(index)
-                                            }
-                                        }
-                                        .labelsHidden()
-                                        Picker("", selection: $mins) {
-                                            ForEach(0..<60) {index in
-                                                Text("\(index)").tag(index)
-                                            }
-                                        }
-                                        .labelsHidden()
-                                        Picker("", selection: $secs) {
-                                            ForEach(0..<60) {index in
-                                                Text("\(index)").tag(index)
-                                            }
-                                        }
-                                    }
-                                    .pickerStyle(.wheel)
-                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                                }
-                            } /* VStack */
-                        } /* if timerDirection == .countDown {VStack}*/
-                        if timerDirection == .countDownToDate {
-                            HStack(alignment: .center){
-                                TextInvalidDate(date: durationDate)
-                                    .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                DatePicker(
-                                    "End On:",
-                                    selection: $durationDate,
-                                    in: validFutureDate()...,
-                                    displayedComponents: [.date, .hourAndMinute]
-                                )
-                                .labelsHidden()
-                            }
-                            .frame(maxWidth: .infinity,alignment: .center)
-                        }
-                        /* Duration Pickers */
+                        .frame(maxWidth: .infinity,alignment: .center)
+                    }
+                    /* Duration Pickers */
                 } header: {
                     Text("\(Image(systemName: timerDirection.symbolName)) Duration")
                         .font(.system(.title3, design: .rounded, weight: .regular))
@@ -136,12 +136,12 @@ struct StageEditView: View {
                             .padding(0)
                         }
                         .padding(0)
-                       HStack {
+                        HStack {
                             Group {
                                 Picker("", selection: $snoozehours) {
                                     ForEach(0..<24) {index in
                                         Text("\(index)").tag(index)
-                                            //.foregroundColor(.black)
+                                        //.foregroundColor(.black)
                                             .fontWeight(.heavy)
                                     }
                                 }
@@ -150,13 +150,13 @@ struct StageEditView: View {
                                 Picker("", selection: $snoozemins) {
                                     ForEach(0..<60) {index in
                                         Text("\(index)").tag(index)
-                                            //.foregroundColor(.black)
+                                        //.foregroundColor(.black)
                                             .fontWeight(.heavy)
                                     }
                                 }
                                 .labelsHidden()
                                 .padding(0)
-                           }
+                            }
                             .pickerStyle(.wheel)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             .padding(0)
@@ -179,7 +179,7 @@ struct StageEditView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                            .foregroundColor(textColourForScheme(colorScheme: colorScheme))
+                        .foregroundColor(textColourForScheme(colorScheme: colorScheme))
                     }
                 } header: {
                     Text("\(Image(systemName: "bell.and.waves.left.and.right")) Repeating Notifications")
@@ -225,9 +225,10 @@ struct StageEditView: View {
                         .controlSize(.small)
                     }
                 } /* Section */
-            //} /* if !stageEditableData.durationsArray.isEmpty */
+                //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
         }
+        .padding([.leading, .trailing], 24)
         .onChange(of: untimedComment, perform: { newValue in
             stageEditableData.isCommentOnly = newValue
         })

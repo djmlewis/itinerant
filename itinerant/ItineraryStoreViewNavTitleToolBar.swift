@@ -44,7 +44,7 @@ extension ItineraryStoreView {
                             }
                             Divider()
                             Button(action: {
-                                fileImportFileType = [.itineraryDataFile]
+                                fileImportFileType = [.itineraryDataPackage]
                                 fileImporterShown = true
                             }) {
                                 Label("Open…", systemImage: "doc")
@@ -82,8 +82,11 @@ extension ItineraryStoreView {
                     Button("Open") {
                         if let validurl = openRequestURL {
                             switch validurl.pathExtension {
-                            case ItineraryFileExtension.dataFile.rawValue:
-                                _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
+//                            case ItineraryFileExtension.dataFile.rawValue:
+//                                _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
+//                                openRequestURL = nil
+                            case ItineraryFileExtension.dataPackage.rawValue:
+                                _ = appDelegate.itineraryStore.loadItineraryPackage(atPath: validurl.path(percentEncoded: false))
                                 openRequestURL = nil
                             case ItineraryFileExtension.textFile.rawValue:
                                 appDelegate.itineraryStore.importItinerary(atPath: validurl.path(percentEncoded: false))

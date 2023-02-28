@@ -24,7 +24,7 @@ struct ItineraryStoreView: View {
     @State  var isPresentingNewItineraryView = false
     @State  var newItineraryEditableData = Itinerary.EditableData()
     @State  var fileImporterShown: Bool = false
-    @State  var fileImportFileType: [UTType] = [.itineraryDataFile]
+    @State  var fileImportFileType: [UTType] = [.itineraryDataPackage]
     
     @State  var presentedItineraryID: [String] = []
     @State  var showSettingsView: Bool = false
@@ -106,7 +106,7 @@ struct ItineraryStoreView: View {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
                                     var newItinerary = Itinerary(editableData: newItineraryEditableData, modificationDate: Date.now.timeIntervalSinceReferenceDate)
-                                    newItinerary.filename = Itinerary.uniqueifiedDataFileNameWithoutExtensionFrom(nameOnly: newItineraryEditableData.title)
+                                    newItinerary.filename = ItineraryStore.uniqueifiedDataPackageNameWithoutExtensionFrom(nameOnly: newItineraryEditableData.title)
                                     itineraryStore.addItinerary(itinerary: newItinerary)
                                     itineraryStore.sortItineraries()
                                     isPresentingItineraryEditView = false
@@ -139,8 +139,8 @@ struct ItineraryStoreView: View {
                 case .success(let selectedFileURL):
                     if selectedFileURL.startAccessingSecurityScopedResource() {
                         switch selectedFileURL.pathExtension {
-                        case ItineraryFileExtension.dataFile.rawValue:
-                            let pathDelete = itineraryStore.loadItinerary(atPath: selectedFileURL.path, externalLocation: true)
+                        case ItineraryFileExtension.dataPackage.rawValue:
+                            let pathDelete = itineraryStore.loadItineraryPackage(atPath: selectedFileURL.path)
                             if pathDelete != nil {
                                 appDelegate.fileDeletePathArray = [pathDelete!]
                                 appDelegate.fileDeleteDialogShow = true

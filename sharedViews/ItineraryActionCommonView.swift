@@ -42,7 +42,7 @@ struct ItineraryActionCommonView: View {
 
     @State var fileSaverShown: Bool = false
     @State var fileSaveDocument: ItineraryFile?
-    @State var fileSaveType: UTType = .itineraryDataFile
+    @State var fileSaveType: UTType = .itineraryDataPackage
     @State var fileSaveName: String?
 
     @EnvironmentObject var itineraryStore: ItineraryStore

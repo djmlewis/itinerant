@@ -104,8 +104,9 @@ extension String {
         }
     }
 
-    var fileNameWithoutExtensionFromPath: String? {
-        self.components(separatedBy: "/").last?.components(separatedBy: ".").first
+    var fileNameWithoutExtensionFromPath: String {
+        ((self as NSString).lastPathComponent as NSString).deletingPathExtension
+        //return self.components(separatedBy: "/").last?.components(separatedBy: ".").first
     }
     
     var uniqueifiedDataFileNameWithoutExtension: String {

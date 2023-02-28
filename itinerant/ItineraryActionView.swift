@@ -96,10 +96,10 @@ extension  ItineraryActionCommonView {
                       onCompletion: { result in
             switch result {
             case .success:
-                if fileSaveType == .itineraryDataFile { _ = itineraryStore.reloadItineraries() }
-            case .failure/*(let error)*/:
-                break
-                //debugPrint(error.localizedDescription)
+                if fileSaveType == .itineraryDataPackage { _ = itineraryStore.reloadItineraries() }
+            case .failure (let error):
+                debugPrint(error.localizedDescription)
+                //break
             }
         }) /* File Saver */
         .toolbar {
@@ -116,13 +116,22 @@ extension  ItineraryActionCommonView {
                     }
                     Button(action: {
                         // ItineraryDocument always inits with now mod date
-                        fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)
-                        fileSaveType = .itineraryDataFile
+                        fileSaveDocument = ItineraryFile(packageItinerary: itinerary)
+                        fileSaveType = .itineraryDataPackage
                         fileSaveName = itinerary.title
                         fileSaverShown = true
                    }) {
-                        Label("Save…", systemImage: "doc")
+                        Label("Duplicate…", systemImage: "doc.on.doc")
                     }
+//                    Button(action: {
+//                        // ItineraryDocument always inits with now mod date
+//                        fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)
+//                        fileSaveType = .itineraryDataFile
+//                        fileSaveName = itinerary.title
+//                        fileSaverShown = true
+//                   }) {
+//                        Label("Save…", systemImage: "doc")
+//                    }
                     Button(action: {
                         // Export text file
                         fileSaveDocument = ItineraryFile(exportText: itinerary.exportString)
