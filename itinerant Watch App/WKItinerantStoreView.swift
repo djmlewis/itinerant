@@ -85,18 +85,22 @@ struct WKItinerantStoreView: View {
         .onChange(of: appDelegate.newItinerary) { itineraryToAdd in
             // for messages with Itinerary to load
             if let validItinerary = itineraryToAdd {
-                if itineraryStore.hasItineraryWithUUID(validItinerary.id) {
+                if itineraryStore.hasItineraryWithUUID(validItinerary.id) || itineraryStore.hasItineraryWithTitle(validItinerary.title) {
                     showConfirmationAddDuplicateItinerary = true
                 } else {
-                    itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary, duplicateOption: .noDuplicate)
+                    itineraryStore.addItineraryFromWatchMessage(itinerary: validItinerary, duplicateOption: .noDuplicate)
                 }
             }
         }
-        .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ already exists",
+        .confirmationDialog("‘\(appDelegate.newItinerary?.title ?? "Unknown")’ appears to be a duplicate",
                             isPresented: $showConfirmationAddDuplicateItinerary) {
             if let validItinerary = appDelegate.newItinerary {
-                Button("Replace Existing", role: .destructive, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary,duplicateOption: .replaceExisting) })
-                Button("Keep Both", role: nil, action: { itineraryStore.addItineraryFromWatchMessageData(itinerary: validItinerary ,duplicateOption: .keepBoth) })
+                Button("Replace Existing", role: .destructive, action: {
+                    itineraryStore.addItineraryFromWatchMessage(itinerary: validItinerary,duplicateOption: .replaceExisting)
+                })
+                Button("Keep Both", role: nil, action: {
+                    itineraryStore.addItineraryFromWatchMessage(itinerary: validItinerary ,duplicateOption: .keepBoth)
+                })
                 Button("Skip", role: nil, action: { })
             }
         }

@@ -40,6 +40,8 @@ struct ItineraryStoreView: View {
     @State var itineraryIDselected: String?
     @State var columnVisibility = NavigationSplitViewVisibility.all
 
+    @State var showInvalidFileAlert: Bool = false
+    @State var invalidFileName: String = ""
 
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
@@ -105,10 +107,13 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
-                                    var newItinerary = Itinerary(editableData: newItineraryEditableData, modificationDate: Date.now.timeIntervalSinceReferenceDate)
-                                    newItinerary.filename = ItineraryStore.uniqueifiedDataPackageNameWithoutExtensionFrom(nameOnly: newItineraryEditableData.title)
-                                    itineraryStore.addItinerary(itinerary: newItinerary)
+                                    let newItinerary = Itinerary(editableData: newItineraryEditableData,
+                                                                 modificationDate: nowReferenceDateTimeInterval(),
+                                                                 packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title)
+                                    )
+                                    itineraryStore.itineraries.append(newItinerary)
                                     itineraryStore.sortItineraries()
+                                    _ = newItinerary.savePersistentData()
                                     isPresentingItineraryEditView = false
                                 }
                             }
@@ -141,12 +146,16 @@ struct ItineraryStoreView: View {
                         switch selectedFileURL.pathExtension {
                         case ItineraryFileExtension.dataPackage.rawValue:
                             let pathDelete = itineraryStore.loadItineraryPackage(atPath: selectedFileURL.path)
+                            itineraryStore.sortItineraries()
                             if pathDelete != nil {
                                 appDelegate.fileDeletePathArray = [pathDelete!]
                                 appDelegate.fileDeleteDialogShow = true
                             }
                         case ItineraryFileExtension.textFile.rawValue:
-                            itineraryStore.importItinerary(atPath: selectedFileURL.path)
+                            if let _ = itineraryStore.importItineraryAtPath(selectedFileURL.path) {
+                                invalidFileName = selectedFileURL.path(percentEncoded: false).fileNameWithoutExtensionFromPath
+                                showInvalidFileAlert = true
+                            }
                         default:
                             break
                         }
@@ -156,6 +165,9 @@ struct ItineraryStoreView: View {
                     debugPrint(error)
                 }
             }) /* fileImporter */
+            .alert("Invalid File", isPresented: $showInvalidFileAlert, actions: { }, message: {
+                Text(" “\(invalidFileName)” is invalid and cannot be opened")
+            })
             .onOpenURL {
                 guard ItineraryFileExtension.validExtension($0.pathExtension) else {
                     openRequestURL = nil

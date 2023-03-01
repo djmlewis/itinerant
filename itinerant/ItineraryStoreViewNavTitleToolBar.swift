@@ -22,6 +22,9 @@ extension ItineraryStoreView {
         @Binding var openRequestURL: URL?
         @Binding var isPresentingConfirmOpenURL: Bool
 
+        @State var showInvalidFileAlert: Bool = false
+        @State var invalidFileName: String = ""
+
         @EnvironmentObject var appDelegate: AppDelegate
         
         let uidevice = UIDevice.current.userInterfaceIdiom
@@ -82,14 +85,17 @@ extension ItineraryStoreView {
                     Button("Open") {
                         if let validurl = openRequestURL {
                             switch validurl.pathExtension {
-//                            case ItineraryFileExtension.dataFile.rawValue:
-//                                _ = appDelegate.itineraryStore.loadItinerary(atPath: validurl.path(percentEncoded: false), externalLocation: false)
-//                                openRequestURL = nil
                             case ItineraryFileExtension.dataPackage.rawValue:
-                                _ = appDelegate.itineraryStore.loadItineraryPackage(atPath: validurl.path(percentEncoded: false))
+                                if let _ = appDelegate.itineraryStore.loadItineraryPackage(atPath: validurl.path(percentEncoded: false)) {
+                                    invalidFileName = validurl.path(percentEncoded: false).fileNameWithoutExtensionFromPath
+                                    showInvalidFileAlert = true
+                                }
                                 openRequestURL = nil
                             case ItineraryFileExtension.textFile.rawValue:
-                                appDelegate.itineraryStore.importItinerary(atPath: validurl.path(percentEncoded: false))
+                                if let _ = appDelegate.itineraryStore.importItineraryAtPath(validurl.path(percentEncoded: false)) {
+                                    invalidFileName = validurl.path(percentEncoded: false).fileNameWithoutExtensionFromPath
+                                    showInvalidFileAlert = true
+                                }
                                 openRequestURL = nil
                             case ItineraryFileExtension.settingsFile.rawValue:
                                 openRequestURL = validurl
@@ -106,10 +112,15 @@ extension ItineraryStoreView {
                         openRequestURL = nil
                     }
                 } message: {
-                    let filename = openRequestURL?.lastPathComponent ?? "this file"
-                    Text("Do you want to open \(filename) ?")
-                        .font(.body)
+                    if let filename = openRequestURL?.lastPathComponent {
+                        Text("Do you want to open the file “\((filename as NSString).deletingPathExtension)” ?")
+                    } else {
+                        Text("Do you want to open this file ?")
+                    }
                 }
+                .alert("Invalid File", isPresented: $showInvalidFileAlert, actions: { }, message: {
+                    Text(" “\(invalidFileName)” is invalid and cannot be opened")
+                })
                 .confirmationDialog(
                     "Invalid File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "")",
                     isPresented: $appDelegate.fileDeleteDialogShow,
@@ -125,7 +136,7 @@ extension ItineraryStoreView {
                             })
                         }
                     } message: {
-                        if let filesString = appDelegate.fileDeletePathArray?.compactMap({ path in (path as NSString).lastPathComponent }).joined(separator: ", ") {
+                        if let filesString = appDelegate.fileDeletePathArray?.compactMap({ path in path.fileNameWithoutExtensionFromPath }).joined(separator: ", ") {
                             Text("File\(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "s" : "") “\(filesString)” \(appDelegate.fileDeletePathArray != nil && appDelegate.fileDeletePathArray!.count > 1 ? "are" : "is") invalid.\nDeletion cannot be undone.")
                         } else {
                             Text("Deleting *Unknown files* cannot be undone.")

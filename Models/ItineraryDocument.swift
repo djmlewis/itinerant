@@ -77,7 +77,7 @@ struct ItineraryFile: FileDocument {
                 if let encodedItinerary = try? JSONEncoder().encode(packageItinerary!.itineraryPersistentData) {
                     let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
                     var directoryDict: [String : FileWrapper] = [String : FileWrapper]()
-                    directoryDict[kItineraryDocumentFileNameItineraryPersistentDataFile] = itineraryPDFileWrap
+                    directoryDict[kPackageNamePersistentDataFile] = itineraryPDFileWrap
                     return FileWrapper(directoryWithFileWrappers: directoryDict)
                 }
             default:

@@ -40,23 +40,13 @@ enum ItineraryFileExtension: String, CaseIterable {
     }
 }
 
-let kItineraryDocumentFileNameItineraryPersistentDataFile = "itineraryPersistentData" + ItineraryFileExtension.dataFile.dotExtension
+let kPackageNamePersistentDataFile = "itineraryPersistentData" + ItineraryFileExtension.dataFile.dotExtension
 
 
 
 // MARK: - ItineraryStore
 let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"
-let kItineraryUUIDsFileName = "itineraryUUIDs" + ".data"
-
-let kItineraryPerststentDataFileSuffix = ItineraryFileExtension.dataFile.rawValue
-let kItinerarySettingsFileSuffix = ItineraryFileExtension.settingsFile.rawValue
-let kItinerarySettingsFileDotSuffix = "." + ItineraryFileExtension.settingsFile.rawValue
-let kItineraryTextFileDotSuffix = "." + ItineraryFileExtension.textFile.rawValue
-let kItineraryPerststentDataFileDotSuffix = "." + kItineraryPerststentDataFileSuffix
-let kItineraryPerststentDataFileDirectoryName = "itineraries"
-let kItineraryPerststentDataFileDirectorySlashNameSlash = "/" + kItineraryPerststentDataFileDirectoryName + "/"
-let kItineraryPerststentDataFileDirectorySlashName =  "/" + kItineraryPerststentDataFileDirectoryName
-
+let kItineraryDataPackagesDirectoryName = "itineraries"
 let kUnknownObjectErrorStr = "error: Unkown"
 
 // MARK: - Itinerary

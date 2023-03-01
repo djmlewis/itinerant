@@ -88,7 +88,7 @@ extension  ItineraryActionCommonView {
         })
         .onChange(of: itinerary, perform: {
             // after edit iiOS only
-            itinerary.filename = itineraryStore.updateItinerary(itinerary: $0) })
+            _ = itineraryStore.updateItinerary(itinerary: $0) })
         .fileExporter(isPresented: $fileSaverShown,
                       document: fileSaveDocument,
                       contentType: fileSaveType,

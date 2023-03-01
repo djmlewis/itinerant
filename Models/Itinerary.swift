@@ -20,42 +20,41 @@ struct Itinerary: Identifiable, Codable, Hashable {
     var title: String
     var stages: StageArray
    // runtime
-    var filename: String?
+    var filename: String? { packageFilePath?.fileNameWithoutExtensionFromPath }
     var packageFilePath: String?
 
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = [], filename: String? = nil, modificationDate: TimeInterval, packageFilePath: String? = nil) {
+    init(id: UUID = UUID(), title: String, stages: StageArray = [], /*filename: String? = nil,*/ modificationDate: TimeInterval, packageFilePath: String? = nil) {
         self.id = id
         self.title = title
         self.stages = stages
-        self.filename = filename
+        //self.filename = filename
         self.modificationDate = modificationDate
         self.packageFilePath = packageFilePath
     }
-    init(persistentData: PersistentData, filename: String? = nil, packageFilePath: String? = nil) {
+    init(persistentData: PersistentData, /*filename: String? = nil,*/ packageFilePath: String? = nil) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
-        self.filename = filename
+        //self.filename = filename
         self.modificationDate = persistentData.modificationDate
         self.packageFilePath = packageFilePath
     }
     
-    init(editableData: EditableData, modificationDate: TimeInterval) {
+    init(editableData: EditableData, modificationDate: TimeInterval, packageFilePath: String) {
         self.id = UUID()
         self.title = editableData.title
         self.stages = editableData.stages
-        self.filename = nil
         self.modificationDate = modificationDate
-        self.packageFilePath = nil
+        self.packageFilePath = packageFilePath
     }
     
     init(id: UUID, modificationDate: TimeInterval) {
         self.id = id
         self.title = ""
         self.stages = []
-        self.filename = nil
+        //self.filename = nil
         self.modificationDate = modificationDate
         self.packageFilePath = nil
     }
@@ -83,8 +82,17 @@ extension Itinerary {
     
     static func errorItinerary() -> Itinerary { Itinerary(title: kUnknownObjectErrorStr, modificationDate: nowReferenceDateTimeInterval()) }
     
-    static func duplicateItineraryWithAllNewIDsAndModDate(from itinerary:Itinerary) -> Itinerary {
-        return Itinerary(title: itinerary.title, stages: Stage.stageArrayWithNewIDs(from: itinerary.stages), filename: itinerary.filename, modificationDate: nowReferenceDateTimeInterval())
+    static func duplicateItineraryNewIDModDateUniquefiedPath(from itinerary:Itinerary) -> Itinerary {
+        // fix a nil packageFilePath
+        let validPackageFilePath = itinerary.packageFilePath == nil ?
+        dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(itinerary.title) :
+        itinerary.packageFilePath!
+        return Itinerary(title: itinerary.title,
+                         stages: Stage.stageArrayWithNewIDs(from: itinerary.stages),
+                         //filename: itinerary.filename,
+                         modificationDate: nowReferenceDateTimeInterval(),
+                         packageFilePath: dataPackagesDirectoryPathUniquifiedFromPath(validPackageFilePath)!
+        )
     }
 
     
@@ -181,7 +189,7 @@ extension Itinerary {
             self.id = watchData.id // !!! will MATCH the sending Itinerary on phone !!!
             self.title = watchData.title
             self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
-            self.filename = watchData.filename // start with this
+            //self.filename = watchData.filename // start with this
             self.modificationDate = watchData.modificationDate
         } else { return nil }
     }
@@ -234,7 +242,7 @@ extension Itinerary {
         title = itineraryEditableData.title
         stages = itineraryEditableData.stages
         updateModificationDateToNow()
-        _ = self.savePersistentData()
+        _ = savePersistentData()
     }
     
 
@@ -258,36 +266,36 @@ extension Itinerary {
 
     
     func savePersistentData() -> String? {
-        /* ***  Always call updateModificationDateToNow() before calling this function *** */
+        /* ***  Always call updateModificationDateToNow() - if needed - before calling this function *** */
         if let encodedPersistentData: Data = try? JSONEncoder().encode(self.itineraryPersistentData) {
-            if let validPackageFilePath = packageFilePath {
-                var isDir: ObjCBool = true
-                if FileManager.default.fileExists(atPath: validPackageFilePath, isDirectory: &isDir) {
-                    // write directly into the package
-                    let fileURL = URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kItineraryDocumentFileNameItineraryPersistentDataFile) )
-                    do {
-                        try encodedPersistentData.write(to: fileURL)
-                    } catch let error {
-                        debugPrint("unable write PD into package at ", validPackageFilePath,error.localizedDescription)
-                    }
-                } else {
-                    // create a new package and write the encoded PDdata into it in one go
-                    // make the regularFileWithContents dict with PDdata in it
-                    let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedPersistentData)
-                    let packageFileWrapper = FileWrapper(directoryWithFileWrappers: [kItineraryDocumentFileNameItineraryPersistentDataFile : itineraryPDFileWrap])
-                    do {
-                        try packageFileWrapper.write(to: URL(filePath: validPackageFilePath), originalContentsURL: nil)
-                    } catch let error {
-                        debugPrint("unable to create new package at ", validPackageFilePath,error.localizedDescription)
-                    }
+            // fix a nil packageFilePath
+            let validPackageFilePath = packageFilePath == nil ?
+            dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(title) :
+            packageFilePath!
+            
+            var isDir: ObjCBool = true
+            if FileManager.default.fileExists(atPath: validPackageFilePath, isDirectory: &isDir) {
+                // write directly into the package
+                let fileURL = URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kPackageNamePersistentDataFile) )
+                do {
+                    try encodedPersistentData.write(to: fileURL)
+                } catch let error {
+                    debugPrint("unable write PD into package at ", validPackageFilePath,error.localizedDescription)
                 }
-                
             } else {
-                debugPrint("invalid packageFilePath: ", packageFilePath as Any)
-                
+                // create a new package and write the encoded PDdata into it in one go
+                // make the regularFileWithContents dict with PDdata in it
+                let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedPersistentData)
+                let packageFileWrapper = FileWrapper(directoryWithFileWrappers: [kPackageNamePersistentDataFile : itineraryPDFileWrap])
+                do {
+                    try packageFileWrapper.write(to: URL(filePath: validPackageFilePath), originalContentsURL: nil)
+                } catch let error {
+                    debugPrint("unable to create new package at ", validPackageFilePath,error.localizedDescription)
+                }
             }
+            
         } else {
-            debugPrint("Encode failure for: \(title)")
+            debugPrint("decode failure for:", packageFilePath as Any)
         }
         return nil
     }
@@ -297,29 +305,7 @@ extension Itinerary {
 
 
 extension Itinerary {
-    
-    static func importItinerary(fromString string: String) -> Itinerary? {
-        var lines = string.split(separator: kSeparatorImportFile, omittingEmptySubsequences: false)
-        guard (lines.count - kImportHeadingLines) % kImportLinesPerStage == 0 else {
-            return nil
-        }
-        let title = String(lines.removeFirst())
-        var stages: [Stage] = []
-        var firstIndex: Int = 0
-        while firstIndex + kImportLinesPerStage <= lines.count {
-            let slice = lines[firstIndex..<(firstIndex + kImportLinesPerStage)]
-            let stage = Stage(fromImportLines: slice)
-            stages.append(stage)
-            firstIndex += kImportLinesPerStage
-        }
-        // we must set the filename, modificationDate and packageFilePath
-        let uniqueFilename = ItineraryStore.uniqueifiedDataPackageNameWithoutExtensionFrom(nameOnly: title)
-        return Itinerary(title: title, stages: stages,
-                         filename: uniqueFilename,
-                         modificationDate: nowReferenceDateTimeInterval(),
-        packageFilePath: ItineraryStore.appDataPackagePathWithSuffixForFileNameWithoutSuffix(uniqueFilename))
-    }
-    
+        
     var exportString: String {
         var lines: [String] = [title]
         stages.forEach { lines += $0.exportArray }

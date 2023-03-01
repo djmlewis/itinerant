@@ -106,11 +106,10 @@ extension String {
 
     var fileNameWithoutExtensionFromPath: String {
         ((self as NSString).lastPathComponent as NSString).deletingPathExtension
-        //return self.components(separatedBy: "/").last?.components(separatedBy: ".").first
     }
     
-    var uniqueifiedDataFileNameWithoutExtension: String {
-        if let files = try? FileManager.default.contentsOfDirectory(atPath: ItineraryStore.appDataFilesFolderPath()).filter({ $0.hasSuffix(kItineraryPerststentDataFileDotSuffix)}),
+    var uniqueifiedDataPackageNameWithoutExtension: String {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: appDataPackagesDirectoryPath()).filter({ $0.hasSuffix(ItineraryFileExtension.dataPackage.dotExtension)}),
            files.count > 0 {
             let filenames = files.map { $0.components(separatedBy: ".").first }
             return self.uniqueifiedStringForArray(filenames)
