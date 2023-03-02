@@ -16,7 +16,30 @@ extension  ItineraryActionCommonView {
 
     var body_: some View {
 
-        VStack {
+        VStack(spacing: 0.0) {
+            HStack {
+                Text(itinerary.title)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.system(.title, design: .rounded, weight: .bold))
+                    .padding(0)
+                if let imagedata = itinerary.imageDataThumbnailActual,
+                   let uiImage = UIImage(data: imagedata) {
+                    Button(action: {
+                        
+                    }, label: {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(idealWidth: kImageColumnWidth)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .padding(0)
+                    })
+                    .buttonStyle(.borderless)
+               }
+            }
+            .padding([.leading,.trailing], 24)
+            .padding([.top], 0)
+            .padding([.bottom], 4)
             ScrollViewReader { scrollViewReader in
                 List {
                     ForEach($itinerary.stages) { $stage in
@@ -64,7 +87,8 @@ extension  ItineraryActionCommonView {
             .font(.caption)
             .lineSpacing(1.0)
         } /* VStack */
-        .navigationTitle(itinerary.title)
+//        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             // set the first active stage unless we are already active or running
             guard let firstActindx = itinerary.firstIndexActivableStage else { return }
@@ -123,15 +147,6 @@ extension  ItineraryActionCommonView {
                    }) {
                         Label("Duplicate…", systemImage: "doc.on.doc")
                     }
-//                    Button(action: {
-//                        // ItineraryDocument always inits with now mod date
-//                        fileSaveDocument = ItineraryFile(editableData: itinerary.itineraryEditableData)
-//                        fileSaveType = .itineraryDataFile
-//                        fileSaveName = itinerary.title
-//                        fileSaverShown = true
-//                   }) {
-//                        Label("Save…", systemImage: "doc")
-//                    }
                     Button(action: {
                         // Export text file
                         fileSaveDocument = ItineraryFile(exportText: itinerary.exportString)

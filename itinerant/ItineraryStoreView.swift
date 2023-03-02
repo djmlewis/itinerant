@@ -107,13 +107,10 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
-                                    let newItinerary = Itinerary(editableData: newItineraryEditableData,
-                                                                 modificationDate: nowReferenceDateTimeInterval(),
-                                                                 packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title)
-                                    )
+                                    var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
+                                    newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
                                     itineraryStore.itineraries.append(newItinerary)
                                     itineraryStore.sortItineraries()
-                                    _ = newItinerary.savePersistentData()
                                     isPresentingItineraryEditView = false
                                 }
                             }

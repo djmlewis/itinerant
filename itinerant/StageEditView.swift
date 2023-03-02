@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 
 struct StageEditView: View {
@@ -31,14 +32,11 @@ struct StageEditView: View {
     @State private var addedhours: Int = 0
     @State private var addedmins: Int = 0
     @State private var addedsecs: Int = 0
-
-    //@FocusState private var focusedFieldTag: FieldFocusTag?
-    
     
     var body: some View {
         Form {
             Section {
-                TextField("Stage title", text: $stageEditableData.title)
+                TextField("Stage title", text: $stageEditableData.title,  axis: .vertical)
             } header: {
                 Text("Title")
                     .font(.system(.title3, design: .rounded, weight: .regular))
@@ -228,7 +226,6 @@ struct StageEditView: View {
                 //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
         }
-        .padding([.leading, .trailing], 24)
         .onChange(of: untimedComment, perform: { newValue in
             stageEditableData.isCommentOnly = newValue
         })

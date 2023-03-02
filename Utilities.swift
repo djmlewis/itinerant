@@ -154,6 +154,9 @@ func watchConnectionUnusable() ->  Bool {
 }
 
 // MARK: - Dates
+
+func nowReferenceDateTimeInterval() -> TimeInterval { Date.now.timeIntervalSinceReferenceDate }
+
 func dateYMDHM(fromDate date: Date) -> Date {
     let calendar = Calendar.autoupdatingCurrent
     let components = calendar.dateComponents(

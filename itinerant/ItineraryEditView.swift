@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import PhotosUI
 
+let kImageColumnWidth = 150.00
 
 struct ItineraryEditView: View {
     @Binding var itineraryEditableData: Itinerary.EditableData
@@ -24,24 +26,88 @@ struct ItineraryEditView: View {
     @FocusState private var titleFocused: Bool
     @State var titleFocuseState: Bool = false
     
+    @State private var selectedItem: PhotosPickerItem? = nil
+    @State private var selectedImageData: Data? = nil
+
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
     /* *** var itinerary is passed-in binding for the StageActionView */
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Title")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
-                    .opacity(0.5)
-                    .padding(.leading,24)
-                TextField("", text: $itineraryEditableData.title)
-                    .labelsHidden()
-                    .textFieldStyle(.roundedBorder)
-                    .padding([.leading,.trailing],24)
-                    .multilineTextAlignment(.leading)
-                    .focused($titleFocused)
-            }
+                HStack {
+                    Text("Title")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                        .opacity(0.5)
+                        .padding(.leading,24)
+                    HStack {
+                        Button {
+                            DispatchQueue.main.async {
+                                selectedImageData = nil
+                                selectedItem = nil
+                                itineraryEditableData.imageDataFullActual = nil
+                                itineraryEditableData.imageDataThumbnailActual = nil
+                            }
+                        } label: {
+                            Image(systemName:"trash")
+                                .font(.title)
+                        }
+                        .disabled(selectedImageData == nil)
+                        Text("Image")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                            .opacity(0.5)
+                        PhotosPicker(
+                            selection: $selectedItem,
+                            matching: .images,
+                            photoLibrary: .shared()) {
+                                Image(systemName:"photo.on.rectangle.angled")
+                                    .font(.title)
+                                
+                            }
+                            .onChange(of: selectedItem) { newItem in
+                                Task {
+                                    // Retrieve selected asset in the form of Data
+                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                        // make a thumbnail
+                                        if let uiImage = UIImage(data: data) {
+                                            uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
+                                                let thumbnaildata = thumbnailImage?.pngData()
+                                                DispatchQueue.main.async {
+                                                    selectedImageData = thumbnaildata
+                                                    itineraryEditableData.imageDataFullActual = data
+                                                    itineraryEditableData.imageDataThumbnailActual = thumbnaildata
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                  }
+                    .frame(idealWidth: kImageColumnWidth)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+                HStack(alignment: .top) {
+                    TextField("", text: $itineraryEditableData.title, axis: .vertical)
+                        .labelsHidden()
+                        .textFieldStyle(.roundedBorder)
+                        .padding([.leading,.trailing],24)
+                        .multilineTextAlignment(.leading)
+                        .focused($titleFocused)
+                    HStack {
+                        if let selectedImageData,
+                           let uiImage = UIImage(data: selectedImageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                        }
+                    }
+                    .frame(idealWidth: kImageColumnWidth)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
+            } /* VStack */
             .padding(.bottom, 12)
+            .padding(.trailing,24)
             HStack {
                 Text("Stages")
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -91,6 +157,9 @@ struct ItineraryEditView: View {
                     })
                 } /* ScrollView */
             } /* SVR */
+            .onAppear {
+                selectedImageData = itineraryEditableData.imageDataThumbnailActual
+            }
             .onChange(of: stageIDtoDelete, perform: {
                 guard let idtodelete = $0, let indx = itineraryEditableData.stageIndex(forUUIDstr: idtodelete) else { return }
                 DispatchQueue.main.async {

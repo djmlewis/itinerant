@@ -99,24 +99,33 @@ class ItineraryStore: ObservableObject {
 //          V
     func loadItineraryPackage(atPath packagePath:String) -> String? {
         var pathdelete: String? = packagePath // we nil it if all success
-        #warning("dont return pathdelete")
             if let persistentDataData = FileManager.default.contents(atPath: (packagePath as NSString).appendingPathComponent(kPackageNamePersistentDataFile)) {
                 if let decodedPersistentData: Itinerary.PersistentData = try? JSONDecoder().decode(Itinerary.PersistentData.self, from: persistentDataData) {
                     // we know we can open this itinerary.
                     // if internal keep its filename, otherwise make a unique one as needed
                     let isExternalLocation = !(filePathEqualsAppDataPackagesDirectoryPath(packagePath))
                     let duplicateUUIDFileName = hasItineraryWithUUID(decodedPersistentData.id) || hasItineraryWithFilename(packagePath.fileNameWithoutExtensionFromPath)
-                    let packagepath = isExternalLocation  ? // duplicateItineraryWithAllNewIDsAndModDate also uniquefies
+                    let packagepathcorrect = isExternalLocation  ?
+                    // duplicateItineraryWithAllNewIDsAndModDate also uniquefies
                     // packagePath is NOT nil, try to preserve original filename
                     dataPackagesDirectoryPathUniquifiedFromPath(packagePath)! :
                     packagePath
                     // now copy the original if UUID is unique, otherwise make new UUIDs for everything
                     var loadedItinerary: Itinerary
                     if duplicateUUIDFileName {
-                        loadedItinerary = Itinerary.duplicateItineraryNewIDModDateUniquefiedPath(from: Itinerary(persistentData: decodedPersistentData, packageFilePath: packagepath))
+                        loadedItinerary = Itinerary.duplicateItineraryNewIDModDateUniquefiedPath(from: Itinerary(persistentData: decodedPersistentData, packageFilePath: packagepathcorrect))
                     } else {
-                        loadedItinerary = Itinerary(persistentData: decodedPersistentData, packageFilePath: packagePath)
+                        loadedItinerary = Itinerary(persistentData: decodedPersistentData, packageFilePath: packagepathcorrect)
                     }
+                    
+                    // now add images - here to avoid duplicating lots of image files
+                    if let itineraryImageData = FileManager.default.contents(atPath: (packagePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryThumbnail)) {
+                        loadedItinerary.imageDataThumbnailActual = itineraryImageData
+                    }
+                    if let itineraryImageData = FileManager.default.contents(atPath: (packagePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryFullsize)) {
+                        loadedItinerary.imageDataFullActual = itineraryImageData
+                    }
+
                     // copy the package to itineraries folder if external or duplicated
                     if isExternalLocation || duplicateUUIDFileName {
                         _ = loadedItinerary.savePersistentData()
@@ -200,6 +209,8 @@ class ItineraryStore: ObservableObject {
         var itinerymutable = itinerary
         itinerymutable.updateModificationDateToNow()
         _ = itinerymutable.savePersistentData()
+        itinerymutable.writeImageDataToPackage(itinerymutable.imageDataThumbnailActual, imageSizeType: .thumbnail)
+        itinerymutable.writeImageDataToPackage(itinerymutable.imageDataFullActual, imageSizeType: .fullsize)
         itineraries[index] = itinerymutable
         return itinerymutable.filename
     }
@@ -314,7 +325,6 @@ func dataPackagesDirectoryPathUniquifiedFromPath(_ path: String?)  -> String? {
     // we must set the filename, modificationDate and packageFilePath
     let uniqueFilename = uniqueifiedDataPackagesDirectoryFileNameForFileNameWithoutExtension(title)
     return Itinerary(title: title, stages: stages,
-                     //filename: uniqueFilename,
                      modificationDate: nowReferenceDateTimeInterval(),
     packageFilePath: dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(uniqueFilename))
 }

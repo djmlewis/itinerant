@@ -43,7 +43,19 @@ struct ItineraryFile: FileDocument {
 
     // this initializer loads data that has been saved previously
     init(configuration: ReadConfiguration) throws {
-        if let data = configuration.file.regularFileContents {
+        if configuration.contentType == .itineraryDataPackage {
+            if let wrappers = configuration.file.fileWrappers {
+                if let itineraryPDFileWrap = wrappers[kPackageNamePersistentDataFile] {
+                    if let data = itineraryPDFileWrap.regularFileContents {
+                        self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
+                    }
+                }
+                /* should load images here */
+            } else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+
+        } else if let data = configuration.file.regularFileContents {
             switch configuration.contentType {
             case .itineraryTextFile:
                 exportText = String(decoding: data, as: UTF8.self)
@@ -51,9 +63,6 @@ struct ItineraryFile: FileDocument {
                 self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
             case .itinerarySettingsFile:
                 self.settingsDict = try JSONDecoder().decode([String:String].self, from: data)
-            case .itineraryDataPackage:
-                #warning("need to implement itineraryDataPackage")
-                break
             default:
                 break
             }
@@ -75,9 +84,15 @@ struct ItineraryFile: FileDocument {
                 data = try JSONEncoder().encode(settingsDict)
             case .itineraryDataPackage where packageItinerary != nil:
                 if let encodedItinerary = try? JSONEncoder().encode(packageItinerary!.itineraryPersistentData) {
-                    let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
                     var directoryDict: [String : FileWrapper] = [String : FileWrapper]()
+                    // add persistentData
+                    let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
                     directoryDict[kPackageNamePersistentDataFile] = itineraryPDFileWrap
+                    // add imageThumbnail if nonnil
+                    if packageItinerary?.imageDataThumbnailActual != nil {
+                        let fileWrap = FileWrapper(regularFileWithContents: packageItinerary!.imageDataThumbnailActual!)
+                        directoryDict[kPackageNameImageFileItineraryThumbnail] = fileWrap
+                    }
                     return FileWrapper(directoryWithFileWrappers: directoryDict)
                 }
             default:

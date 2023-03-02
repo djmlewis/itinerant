@@ -32,6 +32,7 @@ enum ItineraryFileExtension: String, CaseIterable {
     case dataFile = "itinerary"
     case settingsFile = "settings"
     case textFile = "export"
+    case imageData = "dat"
     
     var dotExtension: String { return "." + self.rawValue }
     
@@ -41,8 +42,14 @@ enum ItineraryFileExtension: String, CaseIterable {
 }
 
 let kPackageNamePersistentDataFile = "itineraryPersistentData" + ItineraryFileExtension.dataFile.dotExtension
+let kPackageNameImageFileItinerary = "itineraryImageData"
+let kPackageNameImageFileItineraryThumbnail = kPackageNameImageFileItinerary + ImageSizeType.thumbnail.rawValue + ItineraryFileExtension.imageData.dotExtension
+let kPackageNameImageFileItineraryFullsize = kPackageNameImageFileItinerary + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
 
-
+enum ImageSizeType: String {
+    case thumbnail = "ⓣ"
+    case fullsize = "ⓕ"
+}
 
 // MARK: - ItineraryStore
 let kItineraryStoreFileName = "itinerant/itineraryStore_10" + ".data"

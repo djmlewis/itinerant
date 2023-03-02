@@ -10,7 +10,9 @@ import UserNotifications
 import Combine
 import SwiftUI
 
-func nowReferenceDateTimeInterval() -> TimeInterval { Date.now.timeIntervalSinceReferenceDate }
+
+
+
 
 struct Itinerary: Identifiable, Codable, Hashable {
     // Persistent Data ==>
@@ -22,39 +24,34 @@ struct Itinerary: Identifiable, Codable, Hashable {
    // runtime
     var filename: String? { packageFilePath?.fileNameWithoutExtensionFromPath }
     var packageFilePath: String?
+    var imageDataThumbnailActual: Data?
+    var imageDataFullActual: Data?
 
     
+    
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String, stages: StageArray = [], /*filename: String? = nil,*/ modificationDate: TimeInterval, packageFilePath: String? = nil) {
+    init(id: UUID = UUID(), title: String = "", stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
         self.id = id
         self.title = title
         self.stages = stages
-        //self.filename = filename
         self.modificationDate = modificationDate
         self.packageFilePath = packageFilePath
+        self.imageDataThumbnailActual = imageDataThumbnailActual
+        self.imageDataFullActual = imageDataFullActual
     }
-    init(persistentData: PersistentData, /*filename: String? = nil,*/ packageFilePath: String? = nil) {
+
+    init(persistentData: PersistentData, packageFilePath: String? = nil) {
         self.id = persistentData.id
         self.title = persistentData.title
         self.stages = persistentData.stages
-        //self.filename = filename
         self.modificationDate = persistentData.modificationDate
         self.packageFilePath = packageFilePath
     }
-    
-    init(editableData: EditableData, modificationDate: TimeInterval, packageFilePath: String) {
-        self.id = UUID()
-        self.title = editableData.title
-        self.stages = editableData.stages
-        self.modificationDate = modificationDate
-        self.packageFilePath = packageFilePath
-    }
-    
+        
     init(id: UUID, modificationDate: TimeInterval) {
         self.id = id
         self.title = ""
         self.stages = []
-        //self.filename = nil
         self.modificationDate = modificationDate
         self.packageFilePath = nil
     }
@@ -89,9 +86,10 @@ extension Itinerary {
         itinerary.packageFilePath!
         return Itinerary(title: itinerary.title,
                          stages: Stage.stageArrayWithNewIDs(from: itinerary.stages),
-                         //filename: itinerary.filename,
                          modificationDate: nowReferenceDateTimeInterval(),
-                         packageFilePath: dataPackagesDirectoryPathUniquifiedFromPath(validPackageFilePath)!
+                         packageFilePath: dataPackagesDirectoryPathUniquifiedFromPath(validPackageFilePath)!,
+                         imageDataThumbnailActual: itinerary.imageDataThumbnailActual, // use getter
+                         imageDataFullActual: itinerary.imageDataFullActual //  use the getter
         )
     }
 
@@ -147,6 +145,13 @@ extension Itinerary {
         partialResult + max(stage.durationSecsIntCorrected(atDate: date),0)
     }) }
     
+    func packagePathAddingFileComponent(_ component: String) -> String? {
+        if let nonnilpath = packageFilePath {
+            return (nonnilpath as NSString).appendingPathComponent(component)
+        }
+        return nil
+    }
+    
 }
 
 
@@ -189,7 +194,6 @@ extension Itinerary {
             self.id = watchData.id // !!! will MATCH the sending Itinerary on phone !!!
             self.title = watchData.title
             self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
-            //self.filename = watchData.filename // start with this
             self.modificationDate = watchData.modificationDate
         } else { return nil }
     }
@@ -226,7 +230,9 @@ extension Itinerary {
     struct EditableData {
         var title: String = ""
         var stages: StageArray = []
-        
+        var imageDataThumbnailActual: Data?
+        var imageDataFullActual: Data?
+
         
         func stageIndex(forUUIDstr uuidstr: String) -> Int? {
             return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
@@ -235,14 +241,18 @@ extension Itinerary {
     }
     
     var itineraryEditableData: EditableData {
-        EditableData(title: title, stages: stages)
+        EditableData(title: title, stages: stages, imageDataThumbnailActual: imageDataThumbnailActual, imageDataFullActual: imageDataFullActual)
     }
     
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
         title = itineraryEditableData.title
         stages = itineraryEditableData.stages
+        imageDataThumbnailActual = itineraryEditableData.imageDataThumbnailActual
+        imageDataFullActual = itineraryEditableData.imageDataFullActual
         updateModificationDateToNow()
         _ = savePersistentData()
+        writeImageDataToPackage(itineraryEditableData.imageDataThumbnailActual, imageSizeType: .thumbnail)
+        writeImageDataToPackage(itineraryEditableData.imageDataFullActual, imageSizeType: .fullsize)
     }
     
 
@@ -276,17 +286,38 @@ extension Itinerary {
             var isDir: ObjCBool = true
             if FileManager.default.fileExists(atPath: validPackageFilePath, isDirectory: &isDir) {
                 // write directly into the package
-                let fileURL = URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kPackageNamePersistentDataFile) )
+                // write persistentData
+                let fileURL = URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kPackageNamePersistentDataFile))
                 do {
                     try encodedPersistentData.write(to: fileURL)
                 } catch let error {
                     debugPrint("unable write PD into package at ", validPackageFilePath,error.localizedDescription)
                 }
+                // write itinerary image if non-nil
+                /*
+                if let validimagedata = self.imageDataThumbnailActual {
+                    let imageURL =  URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryThumbnail))
+                    do {
+                        try validimagedata.write(to:imageURL)
+                    } catch let error {
+                        debugPrint("unable write kPackageNameImageFileItineraryThumbnail into package at ", validPackageFilePath,error.localizedDescription)
+                    }
+                }
+                 */
             } else {
                 // create a new package and write the encoded PDdata into it in one go
-                // make the regularFileWithContents dict with PDdata in it
-                let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedPersistentData)
-                let packageFileWrapper = FileWrapper(directoryWithFileWrappers: [kPackageNamePersistentDataFile : itineraryPDFileWrap])
+                var wrappersDict: [String : FileWrapper] = [String : FileWrapper]()
+                // add PDdata 
+                wrappersDict[kPackageNamePersistentDataFile] = FileWrapper(regularFileWithContents: encodedPersistentData)
+                
+                /*
+                // add image
+                if self.imageDataThumbnailActual != nil { // image data if nonnil
+                    wrappersDict[kPackageNameImageFileItineraryThumbnail] = FileWrapper(regularFileWithContents: self.imageDataThumbnailActual!)
+                }
+                 */
+                
+                let packageFileWrapper = FileWrapper(directoryWithFileWrappers: wrappersDict)
                 do {
                     try packageFileWrapper.write(to: URL(filePath: validPackageFilePath), originalContentsURL: nil)
                 } catch let error {
@@ -304,6 +335,7 @@ extension Itinerary {
 }
 
 
+// MARK: - Export
 extension Itinerary {
         
     var exportString: String {
@@ -317,5 +349,36 @@ extension Itinerary {
 }
 
 
+// MARK: - Image Files
+
+extension Itinerary {
+    func writeImageDataToPackage(_ data: Data?, imageSizeType: ImageSizeType) {
+        let filename = imageSizeType == .thumbnail ? kPackageNameImageFileItineraryThumbnail : kPackageNameImageFileItineraryFullsize
+        if let path = packagePathAddingFileComponent(filename) {
+            do {
+                if let nonnildata = data {
+                    try nonnildata.write(to: URL(filePath: path))
+                } else {
+                    // delete file at path
+                    try FileManager.default.removeItem(atPath: path)
+                }
+            } catch let error {
+                debugPrint("write/delete fail itinerary imagefile", error.localizedDescription)
+            }
+        } else {
+            debugPrint("write/delete fail itinerary imagefile NIL path")
+        }
+    }
+    
+    func loadImageDataFromPackage(imageSizeType: ImageSizeType) -> Data? {
+        let filename = imageSizeType == .thumbnail ? kPackageNameImageFileItineraryThumbnail : kPackageNameImageFileItineraryFullsize
+        if let path = packagePathAddingFileComponent(filename) {
+            return FileManager.default.contents(atPath: path)
+        } else {
+            debugPrint("write/delete fail itinerary imagefile NIL path")
+        }
+        return nil
+    }
+}
 
 
