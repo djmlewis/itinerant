@@ -88,10 +88,15 @@ struct ItineraryFile: FileDocument {
                     // add persistentData
                     let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
                     directoryDict[kPackageNamePersistentDataFile] = itineraryPDFileWrap
-                    // add imageThumbnail if nonnil
+                    // add itinerary imageThumbnail if nonnil
                     if packageItinerary?.imageDataThumbnailActual != nil {
                         let fileWrap = FileWrapper(regularFileWithContents: packageItinerary!.imageDataThumbnailActual!)
                         directoryDict[kPackageNameImageFileItineraryThumbnail] = fileWrap
+                    }
+                    // add itinerary imagefullsize if nonnil
+                    if packageItinerary?.imageDataFullActual != nil {
+                        let fileWrap = FileWrapper(regularFileWithContents: packageItinerary!.imageDataFullActual!)
+                        directoryDict[kPackageNameImageFileItineraryFullsize] = fileWrap
                     }
                     return FileWrapper(directoryWithFileWrappers: directoryDict)
                 }

@@ -27,8 +27,8 @@ extension  ItineraryActionCommonView {
                     Button(action: {
                         if let imagedata = itinerary.imageDataFullActual,
                            let uiImage = UIImage(data: imagedata) {
-                            fullSizeImageData = uiImage
-                            showFullSizeImageData = true
+                            fullSizeUIImage = uiImage
+                            showFullSizeUIImage = true
                         }
                     }, label: {
                         Image(uiImage: uiImage)
@@ -210,17 +210,17 @@ extension  ItineraryActionCommonView {
                     }
             }
         }) /* sheet */
-        .fullScreenCover(isPresented: $showFullSizeImageData, content: {
+        .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
             NavigationStack {
-                Image(uiImage: fullSizeImageData!)
+                Image(uiImage: fullSizeUIImage!)
                     .resizable()
                     .scaledToFit()
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                fullSizeImageData = nil
-                                showFullSizeImageData = false
+                                fullSizeUIImage = nil
+                                showFullSizeUIImage = false
                             }, label: {
                                 Text("Close")
                             })
