@@ -44,6 +44,8 @@ struct ItineraryActionCommonView: View {
     @State var fileSaveDocument: ItineraryFile?
     @State var fileSaveType: UTType = .itineraryDataPackage
     @State var fileSaveName: String?
+    @State var fullSizeImageData: UIImage?
+    @State var showFullSizeImageData: Bool = false
 
     @EnvironmentObject var itineraryStore: ItineraryStore
 
