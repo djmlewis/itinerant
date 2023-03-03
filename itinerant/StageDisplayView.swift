@@ -65,20 +65,32 @@ struct StageDisplayView: View {
                 .padding()
             }
             VStack(alignment: .leading, spacing: 0) {
-                Text(stage.title)
-                     .font(.system(.title3, design: .rounded, weight: .bold))
-                     .multilineTextAlignment(.leading)
-                     .frame(maxWidth: .infinity, alignment: .leading)
-                     .padding(.leading, kRowPad)
-                     .padding(.top, 6)
-                if !stage.details.isEmpty {
-                     Text(stage.details)
-                         .font(.system(.footnote, design: .rounded, weight: .regular))
-                         .frame(maxWidth: .infinity, alignment: .leading)
-                         .padding(.leading, kRowPad)
-                         .multilineTextAlignment(.leading)
-                         .lineLimit(1...2)
-                }
+                HStack(alignment: .top, spacing: 0.0) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(stage.title)
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, kRowPad)
+                            .padding(.top, 6)
+                        if !stage.details.isEmpty {
+                            Text(stage.details)
+                                .font(.system(.footnote, design: .rounded, weight: .regular))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.leading, kRowPad)
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(1...2)
+                        }
+                    } /* VStack */
+                    if let selectedImageData = stage.imageDataThumbnailActual,
+                       let uiImage = UIImage(data: selectedImageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                } /* HStack */
                 Spacer()
                 HStack {
                     Image(systemName: stage.durationSymbolName)

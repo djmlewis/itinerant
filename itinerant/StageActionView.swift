@@ -8,7 +8,7 @@
 import SwiftUI
 
 #if !os(watchOS)
-    let kRowPad = 6.0
+let kRowPad = 6.0
 #endif
 
 extension StageActionCommonView {
@@ -52,17 +52,31 @@ extension StageActionCommonView {
             .frame(maxWidth: .infinity)
             .padding(0)
             .background(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourStageActiveHeading") : Color.clear)
-            if !stage.details.isEmpty &&
+            if //!stage.details.isEmpty &&
                 (disclosureDetailsExpanded == true ||
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
                  stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
             {
-                Text(stage.details)
-                    .frame(maxWidth: .infinity)
-                    .font(.system(.body, design: .rounded, weight: .regular))
-                    .foregroundColor(stageTextColour())
-                    .multilineTextAlignment(.leading)
-                    .padding(kRowPad)
+                HStack(alignment: .top, spacing: 0.0) {
+                    if !stage.details.isEmpty {
+                        Text(stage.details)
+                            .frame(maxWidth: .infinity)
+                            .font(.system(.body, design: .rounded, weight: .regular))
+                            .foregroundColor(stageTextColour())
+                            .multilineTextAlignment(.leading)
+                    }
+                        if let selectedImageData = stage.imageDataThumbnailActual,
+                           let uiImage = UIImage(data: selectedImageData) {
+                            Spacer()
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+               } /* HStack */
+                .frame(maxWidth: .infinity)
+                .padding(kRowPad)
             }
             if stage.isCommentOnly == false {
                 HStack {
@@ -143,30 +157,30 @@ extension StageActionCommonView {
                 .background(Color("ColourAdditionalAlarmsBackground"))
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     HStack(spacing: 0) {
+                        HStack {
+                            Image(systemName: "hourglass")
+                            // elapsed time
+                            Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(kRowPad)
+                        .background(Color("ColourTimeAccumulatedBackground"))
+                        .foregroundColor(Color("ColourTimeAccumulatedText"))
+                        .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
+                        if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                             HStack {
-                                Image(systemName: "hourglass")
-                                // elapsed time
-                                Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
+                                Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
+                                // time remaining or overtime
+                                Text("\(stageRunningOvertime ? "+" : "" )" +
+                                     Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
                             .padding(kRowPad)
-                            .background(Color("ColourTimeAccumulatedBackground"))
-                            .foregroundColor(Color("ColourTimeAccumulatedText"))
-                            .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
-                          if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
-                                HStack {
-                                    Image(systemName: stageRunningOvertime ? "bell.and.waves.left.and.right" : "timer")
-                                    // time remaining or overtime
-                                    Text("\(stageRunningOvertime ? "+" : "" )" +
-                                         Stage.stageFormattedDurationStringFromDouble(fabs(timeDifferenceAtUpdate)))
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
-                                .padding(kRowPad)
-                                .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
-                           }
-                        } /* HStack */
-                        .fixedSize(horizontal: false, vertical: true)
+                            .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
+                        }
+                    } /* HStack */
+                    .fixedSize(horizontal: false, vertical: true)
                     .font(.system(.title3, design: .rounded, weight: .bold))
                     .frame(maxWidth: .infinity)
                 } /* if running */

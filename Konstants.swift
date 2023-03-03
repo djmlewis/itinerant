@@ -197,6 +197,11 @@ enum DuplicateFileOptions {
     case noDuplicate, replaceExisting, keepBoth
 }
 
+// MARK: - Images
+let kImageColumnWidth = 150.00
+let kImageColumnWidthHalf = kImageColumnWidth / 2.0
+
+
 // MARK: - ItineraryActionView
 let kItineraryUUIDStr = "kItineraryUUIDStr"
 let kStageUUIDStr = "kStageUUIDStr"

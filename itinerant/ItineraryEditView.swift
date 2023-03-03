@@ -8,7 +8,6 @@
 import SwiftUI
 import PhotosUI
 
-let kImageColumnWidth = 150.00
 
 struct ItineraryEditView: View {
     @Binding var itineraryEditableData: Itinerary.EditableData
@@ -51,7 +50,7 @@ struct ItineraryEditView: View {
                             }
                         } label: {
                             Image(systemName:"trash")
-                                .font(.title)
+                                .font(.title3)
                         }
                         .disabled(selectedImageData == nil)
                         Text("Image")
@@ -63,7 +62,7 @@ struct ItineraryEditView: View {
                             matching: .images,
                             photoLibrary: .shared()) {
                                 Image(systemName:"photo.on.rectangle.angled")
-                                    .font(.title)
+                                    .font(.title3)
                                 
                             }
                             .onChange(of: selectedItem) { newItem in
