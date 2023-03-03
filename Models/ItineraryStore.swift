@@ -106,8 +106,7 @@ class ItineraryStore: ObservableObject {
                     let isExternalLocation = !(filePathEqualsAppDataPackagesDirectoryPath(packagePath))
                     let duplicateUUIDFileName = hasItineraryWithUUID(decodedPersistentData.id) || hasItineraryWithFilename(packagePath.fileNameWithoutExtensionFromPath)
                     let packagepathcorrect = isExternalLocation  ?
-                    // duplicateItineraryWithAllNewIDsAndModDate also uniquefies
-                    // packagePath is NOT nil, try to preserve original filename
+                    // duplicateItineraryWithAllNewIDsAndModDate also uniquefies. packagePath is NOT nil, try to preserve original filename
                     dataPackagesDirectoryPathUniquifiedFromPath(packagePath)! :
                     packagePath
                     // now copy the original if UUID is unique, otherwise make new UUIDs for everything
@@ -118,18 +117,18 @@ class ItineraryStore: ObservableObject {
                         loadedItinerary = Itinerary(persistentData: decodedPersistentData, packageFilePath: packagepathcorrect)
                     }
                     
-                    // now add images - here to avoid duplicating lots of image files
-                    if let itineraryImageData = FileManager.default.contents(atPath: (packagePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryThumbnail)) {
-                        loadedItinerary.imageDataThumbnailActual = itineraryImageData
-                    }
-                    if let itineraryImageData = FileManager.default.contents(atPath: (packagePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryFullsize)) {
-                        loadedItinerary.imageDataFullActual = itineraryImageData
-                    }
-
-                    // copy the package to itineraries folder if external or duplicated
                     if isExternalLocation || duplicateUUIDFileName {
+                        // copy the package to itineraries folder if external or duplicated. savePersistentData() creates a package as needed
                         _ = loadedItinerary.savePersistentData()
-                    }
+                        // now transfer the supporting files from the duplicated/transferred package, while renaming them
+                        copyAllSupportFiles(fromPath: packagePath, toPath: loadedItinerary.packageFilePath,
+                                            fromIDs: decodedPersistentData.stages.map({ $0.idStr }),
+                                            toIDs: loadedItinerary.stages.map({ $0.idStr }))
+                   }
+                    
+                    // now load images - here to avoid duplicating lots of image files during a savePersistentData()
+                    loadedItinerary.loadAllImageFilesFromPackage()
+                    
                     // add to our itineraries
                     itineraries.append(loadedItinerary)
                     // nil the return
@@ -158,6 +157,35 @@ class ItineraryStore: ObservableObject {
     }
     
         
+// MARK: - Support Files In Package
+    func copyAllSupportFiles(fromPath: String?, toPath: String?, fromIDs: [String], toIDs:[String]) {
+        if let oldPath = fromPath, let newPath = toPath, oldPath != newPath {
+            let oldPathNSS = oldPath as NSString
+            let newPathNSS = newPath as NSString
+            let fileManager = FileManager.default
+            do {
+                /* **** itinerary image files **** */
+                try fileManager.copyItem(atPath: oldPathNSS.appendingPathComponent(kPackageNameImageFileItineraryThumbnail), toPath: newPathNSS.appendingPathComponent(kPackageNameImageFileItineraryThumbnail))
+                try fileManager.copyItem(atPath: oldPathNSS.appendingPathComponent(kPackageNameImageFileItineraryFullsize), toPath: newPathNSS.appendingPathComponent(kPackageNameImageFileItineraryFullsize))
+                /* **** stage image files. One-pass renaming **** */
+                if fromIDs.count == toIDs.count {
+                    for i in 0..<fromIDs.count {
+                        try ImageSizeType.allCases.forEach { type in
+                            let suffix = type.rawValue + ItineraryFileExtension.imageData.dotExtension
+                            let fromName = fromIDs[i] + suffix
+                            let toName = toIDs[i] + suffix
+                            try fileManager.copyItem(atPath: oldPathNSS.appendingPathComponent(fromName), toPath: newPathNSS.appendingPathComponent(toName))
+                        }
+                    }
+                }
+            } catch let error {
+                debugPrint(error.localizedDescription)
+            }
+        } else {
+            debugPrint("nil path or oldpath == newPath!!", fromPath as Any, toPath as Any)
+        }
+    }
+
 // MARK: - Removing Itineraries
     
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {

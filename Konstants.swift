@@ -28,6 +28,7 @@ extension UTType {
 }
 
 enum ItineraryFileExtension: String, CaseIterable {
+    // dont add redundant cases as it is iterated
     case dataPackage = "itinerarypkg"
     case dataFile = "itinerary"
     case settingsFile = "settings"
@@ -46,7 +47,8 @@ let kPackageNameImageFileItinerary = "itineraryImageData"
 let kPackageNameImageFileItineraryThumbnail = kPackageNameImageFileItinerary + ImageSizeType.thumbnail.rawValue + ItineraryFileExtension.imageData.dotExtension
 let kPackageNameImageFileItineraryFullsize = kPackageNameImageFileItinerary + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
 
-enum ImageSizeType: String {
+enum ImageSizeType: String, CaseIterable {
+    // dont add redundant cases as it is iterated
     case thumbnail = "ⓣ"
     case fullsize = "ⓕ"
 }

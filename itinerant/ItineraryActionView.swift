@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UniformTypeIdentifiers
 
 
 extension  ItineraryActionCommonView {
@@ -142,16 +142,22 @@ extension  ItineraryActionCommonView {
                         .disabled(watchConnectionUnusable())
                         Divider()
                     }
+//                    Button(action: {
+//                        // ItineraryDocument always inits with now mod date
+//                        fileSaveDocument = ItineraryFile(packageItinerary: itinerary)
+//                        fileSaveType = .itineraryDataPackage
+//                        fileSaveName = itinerary.title
+//                        fileSaverShown = true
+//                   }) {
+//                        Label("Duplicate…", systemImage: "doc.on.doc")
+//                    }
                     Button(action: {
-                        // ItineraryDocument always inits with now mod date
-                        fileSaveDocument = ItineraryFile(packageItinerary: itinerary)
-                        fileSaveType = .itineraryDataPackage
-                        fileSaveName = itinerary.title
-                        fileSaverShown = true
+                        showFilePicker = true
                    }) {
                         Label("Duplicate…", systemImage: "doc.on.doc")
                     }
-                    Button(action: {
+                   .disabled(itinerary.packageFilePath == nil)
+                   Button(action: {
                         // Export text file
                         fileSaveDocument = ItineraryFile(exportText: itinerary.exportString)
                         fileSaveType = .itineraryTextFile
@@ -189,6 +195,9 @@ extension  ItineraryActionCommonView {
                     Image(systemName: toggleDisclosureDetails == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                 }
             }
+        }
+        .sheet(isPresented: $showFilePicker) {
+            FilePickerUIRepresentable(path: itinerary.packageFilePath!)
         }
         .sheet(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {

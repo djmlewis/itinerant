@@ -10,15 +10,22 @@ import SwiftUI
 
 typealias StageArray = [Stage]
 typealias StageWatchMessageDataArray = [Stage.WatchData]
-
+typealias StagePersistentDataArray = [Stage.PersistentData]
 
 struct Stage: Identifiable, Codable, Hashable, Equatable {
+    
     let id: UUID
     var title: String
     var details: String
     var snoozeDurationSecs: Int
     var flags: String
     var durationsArray: [Int] = [kStageInitialDurationSecs] // always available with a first value of kStageInitialDurationSecs
+    // runtime
+    var imageDataThumbnailActual: Data?
+    var imageDataFullActual: Data?
+
+    
+    
     var durationSecsInt: Int {
         get { durationsArray.first! }
         set(newDuration) { durationsArray[0] = newDuration }
@@ -39,43 +46,82 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
         }
     }
     
-        var editableData: Stage { Stage(title: self.title,
-                                        durationsArray: self.durationsArray,
-                                        details: self.details,
-                                        snoozeDurationSecs: self.snoozeDurationSecs,
-                                        flags: self.flags) }
-
-
-
+    var persistentData: Stage.PersistentData {
+        PersistentData(id: self.id, title: self.title, details: self.details, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags, durationsArray: self.durationsArray)
+    }
+    
+    var editableData: Stage { Stage(title: self.title,
+                                    durationsArray: self.durationsArray,
+                                    details: self.details,
+                                    snoozeDurationSecs: self.snoozeDurationSecs,
+                                    flags: self.flags,
+                                    imageDataThumbnailActual: self.imageDataThumbnailActual,
+                                    imageDataFullActual: self.imageDataFullActual)
+    }
+    
+    
     // simple init with a durationSecsInt
-    init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = StageNotificationInterval.countUp.string) {
+    init(id: UUID = UUID(), title: String = "", durationsArray: [Int] = [kStageInitialDurationSecs], details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = StageNotificationInterval.countUp.string, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil) {
         self.id = id
         self.title = title
         self.durationsArray = durationsArray
         self.details = details
         self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeMinimumDurationSecs)
         self.flags = flags
+        self.imageDataThumbnailActual = imageDataThumbnailActual
+        self.imageDataFullActual = imageDataFullActual
+   }
+    
+    
+    // init from PersistentData
+    init(persistentData: Stage.PersistentData) {
+        self.id = persistentData.id
+        self.title = persistentData.title
+        self.durationsArray = persistentData.durationsArray
+        self.details = persistentData.details
+        self.snoozeDurationSecs = persistentData.snoozeDurationSecs
+        self.flags = persistentData.flags
     }
     
-        // Init Stage from EditableData
-        init(editableData: Stage) {
-            // force new ID
-            self.id = UUID()
-            self.title = editableData.title
-            self.durationsArray = editableData.durationsArray
-            self.details = editableData.details
-            self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-            self.flags = editableData.flags
-        }
-
-        mutating func updateEditableData(from editableData: Stage) {
-            self.title = editableData.title
-            self.durationsArray = editableData.durationsArray
-            self.details = editableData.details
-            self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-            self.flags = editableData.flags
-        }
     
+    // Init Stage from EditableData
+//    init(editableData: Stage) {
+//        // force new ID
+//        self.id = UUID()
+//        self.title = editableData.title
+//        self.durationsArray = editableData.durationsArray
+//        self.details = editableData.details
+//        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
+//        self.flags = editableData.flags
+//        self.imageDataThumbnailActual = editableData.imageDataThumbnailActual
+//        self.imageDataFullActual = editableData.imageDataFullActual
+//    }
+    
+    mutating func updateEditableData(from editableData: Stage) {
+        self.title = editableData.title
+        self.durationsArray = editableData.durationsArray
+        self.details = editableData.details
+        self.snoozeDurationSecs = max(editableData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
+        self.flags = editableData.flags
+        self.imageDataThumbnailActual = editableData.imageDataThumbnailActual
+        self.imageDataFullActual = editableData.imageDataFullActual
+    }
+    
+}
+
+// MARK: - PersistentData
+extension Stage {
+    struct PersistentData: Codable {
+        let id: UUID
+        var title: String
+        var details: String
+        var snoozeDurationSecs: Int
+        var flags: String
+        var durationsArray: [Int]
+        
+        var idStr: String { id.uuidString }
+
+    }
 }
 
 // MARK: - WatchData
@@ -134,7 +180,9 @@ extension Stage {
     static func stageArrayWithNewIDs(from stages: StageArray) -> StageArray {
         var newstages = StageArray()
         stages.forEach { stage in
-            newstages.append(Stage(editableData: stage.editableData))
+            var newstage = Stage()
+            newstage.updateEditableData(from: stage.editableData)
+            newstages.append(newstage)
         }
         return newstages
     }

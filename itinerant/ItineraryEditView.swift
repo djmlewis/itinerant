@@ -12,7 +12,7 @@ let kImageColumnWidth = 150.00
 
 struct ItineraryEditView: View {
     @Binding var itineraryEditableData: Itinerary.EditableData
-    
+
     @State private var newStageMeta: NewStageMeta?
     @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
@@ -28,6 +28,7 @@ struct ItineraryEditView: View {
     
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImageData: Data? = nil
+
 
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
     /* *** var itinerary is passed-in binding for the StageActionView */
@@ -196,7 +197,8 @@ struct ItineraryEditView: View {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Add") {
                                     // amend the var itineraryEditableData only
-                                    let newStage = Stage(editableData: newStageEditableData)
+                                    var newStage = Stage()
+                                    newStage.updateEditableData(from: newStageEditableData)
                                     let lastStageID = itineraryEditableData.stages.last?.idStr ?? ""
                                     newStageMeta = NewStageMeta(stageInitiatingIDstr: lastStageID, duplicate: false, newStage: newStage)
                                     isPresentingNewStageEditView = false

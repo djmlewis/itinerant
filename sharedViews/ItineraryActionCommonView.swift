@@ -46,6 +46,7 @@ struct ItineraryActionCommonView: View {
     @State var fileSaveName: String?
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
+    @State var showFilePicker: Bool = false
 
     @EnvironmentObject var itineraryStore: ItineraryStore
 

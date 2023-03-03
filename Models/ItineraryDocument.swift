@@ -31,7 +31,7 @@ struct ItineraryFile: FileDocument {
     init(editableData: Itinerary.EditableData) {
         // force a new UUID for saving in itinerary AND stages!
         self.itineraryPersistentData = Itinerary.PersistentData(title: editableData.title,
-                                                                stages: Stage.stageArrayWithNewIDs(from: editableData.stages),
+                                                                stages: Itinerary.stagesPersistentData(Stage.stageArrayWithNewIDs(from: editableData.stages)),
                                                                 id: UUID(),
                                                                 modificationDate: nowReferenceDateTimeInterval() )
     }

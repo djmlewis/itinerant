@@ -12,7 +12,7 @@ import PhotosUI
 struct StageEditView: View {
 
     @Binding var stageEditableData: Stage
-    
+
     @State private var untimedComment: Bool =  false
     @State private var snoozeAlertsOn: Bool =  false
     
@@ -33,14 +33,74 @@ struct StageEditView: View {
     @State private var addedmins: Int = 0
     @State private var addedsecs: Int = 0
     
+    @State private var selectedItem: PhotosPickerItem? = nil
+    @State private var selectedImageData: Data? = nil
+
     var body: some View {
         Form {
+            Section(content: {
+                VStack(alignment: .center) {
+                    if let selectedImageData,
+                       let uiImage = UIImage(data: selectedImageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(idealWidth: kImageColumnWidth, alignment: .center)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }, header: {
+                HStack {
+                    Text("Image")
+                        .font(.system(.title3, design: .rounded, weight: .regular))
+                    Spacer()
+                    Button {
+                        DispatchQueue.main.async {
+                            selectedImageData = nil
+                            selectedItem = nil
+                            stageEditableData.imageDataFullActual = nil
+                            stageEditableData.imageDataThumbnailActual = nil
+                        }
+                    } label: {
+                        Image(systemName:"trash")
+                            .font(.title3)
+                    }
+                    .disabled(selectedImageData == nil)
+                    PhotosPicker(
+                        selection: $selectedItem,
+                        matching: .images,
+                        photoLibrary: .shared()) {
+                            Image(systemName:"photo.on.rectangle.angled")
+                                .font(.title3)
+                            
+                        }
+                        .onChange(of: selectedItem) { newItem in
+                            Task {
+                                // Retrieve selected asset in the form of Data
+                                if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                    // make a thumbnail
+                                    if let uiImage = UIImage(data: data) {
+                                        uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
+                                            let thumbnaildata = thumbnailImage?.pngData()
+                                            DispatchQueue.main.async {
+                                                selectedImageData = thumbnaildata
+                                                stageEditableData.imageDataFullActual = data
+                                                stageEditableData.imageDataThumbnailActual = thumbnaildata
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                }
+           })
             Section {
                 TextField("Stage title", text: $stageEditableData.title,  axis: .vertical)
             } header: {
                 Text("Title")
                     .font(.system(.title3, design: .rounded, weight: .regular))
-            }
+            } /* Section */
             Section {
                 TextField("Details", text: $stageEditableData.details,  axis: .vertical)
             } header: {
@@ -273,7 +333,7 @@ struct StageEditView: View {
             }
             snoozehours = stageEditableData.snoozeDurationSecs / SEC_HOUR
             snoozemins = (stageEditableData.snoozeDurationSecs % SEC_HOUR) / SEC_MIN
-            
+            selectedImageData = stageEditableData.imageDataThumbnailActual
         }
         .onDisappear() {
             // !! Called AFTER the StageDisplayView Save button action
@@ -330,7 +390,7 @@ struct StageEditView: View {
                                     additionaldurationsarray.append(duration)
                                     additionaldurationsarray.sort()
                                     stageEditableData.additionalDurationsArray = additionaldurationsarray
-                               }
+                                }
                             }
                             showingAddAlertSheet = false
                         }
@@ -338,7 +398,7 @@ struct StageEditView: View {
                 }
             }
         } /* sheet */
-
+        
     }
     
     

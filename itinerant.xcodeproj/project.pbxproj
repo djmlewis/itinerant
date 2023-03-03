@@ -49,6 +49,7 @@
 		72E7F090295F3F6500367612 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72E7F08F295F3F6500367612 /* Preview Assets.xcassets */; };
 		72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09B295F405300367612 /* ItineraryStore.swift */; };
 		72E7F09E295F42BE00367612 /* Itinerary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E7F09D295F42BE00367612 /* Itinerary.swift */; };
+		72ED00AE29B1F7EA00D80D3A /* FilePickerUIRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72ED00AD29B1F7EA00D80D3A /* FilePickerUIRepresentable.swift */; };
 		72F3A1EE29A21F0B0070273B /* ItineraryStoreSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F3A1ED29A21F0B0070273B /* ItineraryStoreSplitView.swift */; };
 /* End PBXBuildFile section */
 
@@ -111,6 +112,7 @@
 		72E7F09B295F405300367612 /* ItineraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStore.swift; sourceTree = "<group>"; };
 		72E7F09D295F42BE00367612 /* Itinerary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Itinerary.swift; sourceTree = "<group>"; };
 		72E7F09F295F4ADA00367612 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		72ED00AD29B1F7EA00D80D3A /* FilePickerUIRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilePickerUIRepresentable.swift; sourceTree = "<group>"; };
 		72F3A1ED29A21F0B0070273B /* ItineraryStoreSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryStoreSplitView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -170,6 +172,7 @@
 		72E7F075295F3F6400367612 /* itinerant */ = {
 			isa = PBXGroup;
 			children = (
+				72ED00AD29B1F7EA00D80D3A /* FilePickerUIRepresentable.swift */,
 				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
@@ -346,6 +349,7 @@
 				725FA977298FCB5A00AC7B94 /* StageActionView.swift in Sources */,
 				7212D0DA29804ADD002A6848 /* ItineraryDocument.swift in Sources */,
 				72F3A1EE29A21F0B0070273B /* ItineraryStoreSplitView.swift in Sources */,
+				72ED00AE29B1F7EA00D80D3A /* FilePickerUIRepresentable.swift in Sources */,
 				72E7F09C295F405300367612 /* ItineraryStore.swift in Sources */,
 				72430EA22987F2830046A2DF /* SettingsView.swift in Sources */,
 				72038452298EF03E005DC2C6 /* StageActionCommonView.swift in Sources */,

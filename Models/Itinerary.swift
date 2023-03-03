@@ -26,7 +26,6 @@ struct Itinerary: Identifiable, Codable, Hashable {
     var packageFilePath: String?
     var imageDataThumbnailActual: Data?
     var imageDataFullActual: Data?
-
     
     
     // these are full inits including UUID which must be done here to be decoded
@@ -43,7 +42,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
     init(persistentData: PersistentData, packageFilePath: String? = nil) {
         self.id = persistentData.id
         self.title = persistentData.title
-        self.stages = persistentData.stages
+        self.stages = Itinerary.stagesFromStagesPersistentData(persistentData.stages)
         self.modificationDate = persistentData.modificationDate
         self.packageFilePath = packageFilePath
     }
@@ -70,6 +69,15 @@ struct Itinerary: Identifiable, Codable, Hashable {
         }
     }
 
+//    mutating func getFullSizeImageData() -> Data? {
+//        debugPrint("getFullSizeImageData")
+//        if imageDataFullActual == nil {
+//            let data = loadImageDataFromPackage(imageSizeType: .fullsize)
+//            imageDataFullActual = data
+//        }
+//        return imageDataFullActual
+//    }
+    
 }
 
 extension Itinerary {
@@ -253,6 +261,10 @@ extension Itinerary {
         _ = savePersistentData()
         writeImageDataToPackage(itineraryEditableData.imageDataThumbnailActual, imageSizeType: .thumbnail)
         writeImageDataToPackage(itineraryEditableData.imageDataFullActual, imageSizeType: .fullsize)
+        itineraryEditableData.stages.forEach { stage in
+            writeStageImageDataToPackage(stage.imageDataFullActual, imageSizeType: .fullsize, stageIDstr: stage.idStr)
+            writeStageImageDataToPackage(stage.imageDataThumbnailActual, imageSizeType: .thumbnail, stageIDstr: stage.idStr)
+        }
     }
     
 
@@ -264,16 +276,23 @@ extension Itinerary {
     struct PersistentData: Codable {
         // editable
         let title: String
-        let stages: StageArray
+        let stages: StagePersistentDataArray
         // persistent (+ editable)
         let id: UUID
         var modificationDate: TimeInterval
     }
     
     var itineraryPersistentData: PersistentData {
-        PersistentData(title: title, stages: stages, id: id, modificationDate: modificationDate)
+        PersistentData(title: title, stages: Itinerary.stagesPersistentData(stages), id: id, modificationDate: modificationDate)
     }
 
+    static func stagesPersistentData(_ stages: StageArray) -> [Stage.PersistentData] {
+        stages.map { $0.persistentData }
+    }
+    
+    static func stagesFromStagesPersistentData(_ stagesPersistentData: StagePersistentDataArray) -> StageArray {
+        stagesPersistentData.map( { Stage(persistentData: $0) } )
+    }
     
     func savePersistentData() -> String? {
         /* ***  Always call updateModificationDateToNow() - if needed - before calling this function *** */
@@ -379,6 +398,45 @@ extension Itinerary {
         }
         return nil
     }
+    
+    
+    func writeStageImageDataToPackage(_ data: Data?, imageSizeType: ImageSizeType, stageIDstr: String) {
+        let filename = stageIDstr + imageSizeType.rawValue + ItineraryFileExtension.imageData.dotExtension
+        if let path = packagePathAddingFileComponent(filename) {
+            do {
+                if let nonnildata = data {
+                    try nonnildata.write(to: URL(filePath: path))
+                } else {
+                    // delete file at path
+                    try FileManager.default.removeItem(atPath: path)
+                }
+            } catch let error {
+                debugPrint("write/delete fail itinerary imagefile", error.localizedDescription)
+            }
+        } else {
+            debugPrint("write/delete fail itinerary imagefile NIL path")
+        }
+    }
+
+    func loadStageImageDataFromPackage(imageSizeType: ImageSizeType, stageIDstr: String) -> Data? {
+        let filename = stageIDstr + imageSizeType.rawValue + ItineraryFileExtension.imageData.dotExtension
+        if let path = packagePathAddingFileComponent(filename) {
+            return FileManager.default.contents(atPath: path)
+        } else {
+            debugPrint("write/delete fail itinerary stage imagefile NIL path", filename)
+        }
+        return nil
+    }
+
+    mutating func loadAllImageFilesFromPackage() {
+        imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
+        imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
+        for i in 0..<stages.count {
+            stages[i].imageDataThumbnailActual = loadStageImageDataFromPackage(imageSizeType: .thumbnail, stageIDstr: stages[i].idStr)
+            stages[i].imageDataFullActual = loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stages[i].idStr)
+        }
+    }
+    
 }
 
 

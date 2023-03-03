@@ -225,8 +225,8 @@ struct StageDisplayView: View {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Add") {
                                 // amend the var itineraryEditableData only
-                                let newStage = Stage(editableData: newStageEditableData)
-                                //itineraryEditableData.stages.append(newStage)
+                                var newStage = Stage()
+                                newStage.updateEditableData(from: newStageEditableData)
                                 newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: false, newStage: newStage)
                                 isPresentingNewStageEditView = false
                             }

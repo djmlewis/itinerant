@@ -31,7 +31,6 @@ struct ItineraryStoreView: View {
     @State  var openRequestURL: URL?
     @State  var isPresentingConfirmOpenURL: Bool = false
     
-
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
