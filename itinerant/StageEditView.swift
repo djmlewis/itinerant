@@ -26,12 +26,14 @@ struct StageEditView: View {
 
     @Environment(\.colorScheme) var colorScheme
 
-    @State private var additionaldurationsarray = [Int]()
+    //@State private var additionaldurationsDict = [Int : String]()
+    @State private var additionaldurationsDictKeys = [Int]()
     @State private var showingAddAlertSheet = false
     @State private var addedhours: Int = 0
     @State private var addedmins: Int = 0
     @State private var addedsecs: Int = 0
-    
+    @State private var addedMessage: String = ""
+
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImageData: Data? = nil
     @State var fullSizeUIImage: UIImage?
@@ -273,14 +275,22 @@ struct StageEditView: View {
                         .font(.system(.title3, design: .rounded, weight: .regular))
                 }
                 Section {
-                    if !additionaldurationsarray.isEmpty {
+                    if !additionaldurationsDictKeys.isEmpty {
                         List {
-                            ForEach(additionaldurationsarray, id: \.self) { secsInt in
-                                Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
+                            ForEach(additionaldurationsDictKeys, id: \.self) { secsInt in
+                                HStack {
+                                    Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
+                                    Spacer()
+                                    Text(stageEditableData.additionalDurationsDict[secsInt]!)
+                                }
                             }
-                            .onDelete {
-                                additionaldurationsarray.remove(atOffsets: $0)
-                                stageEditableData.additionalDurationsArray = additionaldurationsarray
+                            .onDelete { offsets in
+                                DispatchQueue.main.async {
+                                    offsets.forEach { indx in
+                                        stageEditableData.additionalDurationsDict[additionaldurationsDictKeys[indx]] = nil
+                                    }
+                                    additionaldurationsDictKeys.remove(atOffsets: offsets)
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -303,6 +313,7 @@ struct StageEditView: View {
                             addedhours = 0
                             addedmins = 0
                             addedsecs = 0
+                            addedMessage = ""
                             showingAddAlertSheet = true
                         } label: {
                             Image(systemName: "plus")
@@ -344,7 +355,8 @@ struct StageEditView: View {
             updateSnoozeDuration()
         })
         .onAppear() {
-            additionaldurationsarray = stageEditableData.additionalDurationsArray
+            //additionaldurationsDict = stageEditableData.additionalDurationsDict
+            additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
             untimedComment = stageEditableData.isCommentOnly
             if untimedComment == true {
                 // leave the defaults
@@ -373,41 +385,45 @@ struct StageEditView: View {
         }) /* fullScreenCover */
         .sheet(isPresented: $showingAddAlertSheet) {
             NavigationStack {
-                VStack {
-                    HStack {
-                        Group {
-                            Text("Hours")
-                            Text("Minutes")
-                            Text("Seconds")
+                Form {
+                    Section("Time Of Notification") {
+                        HStack {
+                            Group {
+                                Text("Hours")
+                                Text("Minutes")
+                                Text("Seconds")
+                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                    }
-                    HStack {
-                        Group {
-                            Picker("", selection: $addedhours) {
-                                ForEach(0..<24) {index in
-                                    Text("\(index)").tag(index)
+                        HStack {
+                            Group {
+                                Picker("", selection: $addedhours) {
+                                    ForEach(0..<24) {index in
+                                        Text("\(index)").tag(index)
+                                    }
+                                }
+                                .labelsHidden()
+                                Picker("", selection: $addedmins) {
+                                    ForEach(0..<60) {index in
+                                        Text("\(index)").tag(index)
+                                    }
+                                }
+                                .labelsHidden()
+                                Picker("", selection: $addedsecs) {
+                                    ForEach(0..<60) {index in
+                                        Text("\(index)").tag(index)
+                                    }
                                 }
                             }
-                            .labelsHidden()
-                            Picker("", selection: $addedmins) {
-                                ForEach(0..<60) {index in
-                                    Text("\(index)").tag(index)
-                                }
-                            }
-                            .labelsHidden()
-                            Picker("", selection: $addedsecs) {
-                                ForEach(0..<60) {index in
-                                    Text("\(index)").tag(index)
-                                }
-                            }
+                            .pickerStyle(.wheel)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                         }
-                        .pickerStyle(.wheel)
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     }
-                    Spacer()
+                    Section("Notification Message") {
+                        TextField("Enter Message", text: $addedMessage)
+                    }
                 } /* VStack */
-                .navigationTitle("Additional Alert Time")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") {
@@ -417,11 +433,15 @@ struct StageEditView: View {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Add") {
                             let duration = durationFromAdditionalHMS()
-                            if !additionaldurationsarray.contains(duration) && duration >= kStageAlertMinimumDurationSecs {
+                            if duration >= kStageAlertMinimumDurationSecs {
+                                // amend the dict oustide the additionaldurationsDictKeys.append or crash
+                                stageEditableData.additionalDurationsDict[duration] = addedMessage
                                 DispatchQueue.main.async {
-                                    additionaldurationsarray.append(duration)
-                                    additionaldurationsarray.sort()
-                                    stageEditableData.additionalDurationsArray = additionaldurationsarray
+                                    // duplicate key amended the Dict but not added to array.
+                                    if !additionaldurationsDictKeys.contains(duration) {
+                                        additionaldurationsDictKeys.append(duration)
+                                        additionaldurationsDictKeys.sort()
+                                    }
                                 }
                             }
                             showingAddAlertSheet = false

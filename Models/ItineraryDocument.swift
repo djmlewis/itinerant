@@ -15,15 +15,9 @@ struct ItineraryFile: FileDocument {
     var exportText: String?
     var itineraryPersistentData: Itinerary.PersistentData?
     var settingsDict: [ String : String ]?
-    var packageItinerary: Itinerary?
     
     // a simple initializer that creates new, empty documents
-    
-    init(packageItinerary: Itinerary) {
-        // ATM we are preserving ID!!!
-        self.packageItinerary = packageItinerary
-    }
-    
+        
     init(exportText: String) {
         self.exportText = exportText
     }
@@ -43,19 +37,7 @@ struct ItineraryFile: FileDocument {
 
     // this initializer loads data that has been saved previously
     init(configuration: ReadConfiguration) throws {
-        if configuration.contentType == .itineraryDataPackage {
-            if let wrappers = configuration.file.fileWrappers {
-                if let itineraryPDFileWrap = wrappers[kPackageNamePersistentDataFile] {
-                    if let data = itineraryPDFileWrap.regularFileContents {
-                        self.itineraryPersistentData = try JSONDecoder().decode(Itinerary.PersistentData.self, from: data)
-                    }
-                }
-                /* should load images here */
-            } else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-
-        } else if let data = configuration.file.regularFileContents {
+        if let data = configuration.file.regularFileContents {
             switch configuration.contentType {
             case .itineraryTextFile:
                 exportText = String(decoding: data, as: UTF8.self)
@@ -75,34 +57,16 @@ struct ItineraryFile: FileDocument {
     // this will be called when the system wants to write our data to disk
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         var data: Data = Data()
-            switch configuration.contentType {
-            case .itineraryTextFile where exportText != nil:
-                data = Data(exportText!.utf8)
-            case .itineraryDataFile where itineraryPersistentData != nil:
-                data = try JSONEncoder().encode(itineraryPersistentData)
-            case .itinerarySettingsFile where settingsDict != nil:
-                data = try JSONEncoder().encode(settingsDict)
-            case .itineraryDataPackage where packageItinerary != nil:
-                if let encodedItinerary = try? JSONEncoder().encode(packageItinerary!.itineraryPersistentData) {
-                    var directoryDict: [String : FileWrapper] = [String : FileWrapper]()
-                    // add persistentData
-                    let itineraryPDFileWrap = FileWrapper(regularFileWithContents: encodedItinerary)
-                    directoryDict[kPackageNamePersistentDataFile] = itineraryPDFileWrap
-                    // add itinerary imageThumbnail if nonnil
-                    if packageItinerary?.imageDataThumbnailActual != nil {
-                        let fileWrap = FileWrapper(regularFileWithContents: packageItinerary!.imageDataThumbnailActual!)
-                        directoryDict[kPackageNameImageFileItineraryThumbnail] = fileWrap
-                    }
-                    // add itinerary imagefullsize if nonnil
-                    if packageItinerary?.imageDataFullActual != nil {
-                        let fileWrap = FileWrapper(regularFileWithContents: packageItinerary!.imageDataFullActual!)
-                        directoryDict[kPackageNameImageFileItineraryFullsize] = fileWrap
-                    }
-                    return FileWrapper(directoryWithFileWrappers: directoryDict)
-                }
-            default:
-                break
-            }
+        switch configuration.contentType {
+        case .itineraryTextFile where exportText != nil:
+            data = Data(exportText!.utf8)
+        case .itineraryDataFile where itineraryPersistentData != nil:
+            data = try JSONEncoder().encode(itineraryPersistentData)
+        case .itinerarySettingsFile where settingsDict != nil:
+            data = try JSONEncoder().encode(settingsDict)
+        default:
+            break
+        }
         return FileWrapper(regularFileWithContents: data)
     }
 }

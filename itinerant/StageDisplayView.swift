@@ -103,14 +103,6 @@ struct StageDisplayView: View {
                         .buttonStyle(.borderless)
                    }
 
-//                    if let selectedImageData = stage.imageDataThumbnailActual,
-//                       let uiImage = UIImage(data: selectedImageData) {
-//                        Image(uiImage: uiImage)
-//                            .resizable()
-//                            .scaledToFit()
-//                            .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
-//                            .fixedSize(horizontal: true, vertical: false)
-//                    }
                 } /* HStack */
                 Spacer()
                 HStack {
@@ -145,7 +137,7 @@ struct StageDisplayView: View {
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                         .padding(kRowPad)
                     } /* isPostingRepeatingSnoozeAlerts */
-                    if !stage.additionalDurationsArray.isEmpty {
+                    if !stage.additionalDurationsDict.isEmpty {
                         VStack(alignment: .center) {
                             HStack {
                                 Image(systemName: "alarm.waves.left.and.right")
@@ -160,7 +152,7 @@ struct StageDisplayView: View {
                        }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(kRowPad)
-                    } /* additionalDurationsArray */
+                    } /* additionalDurationsDict */
                 } /* HStack */
                 .frame(maxWidth: .infinity)
                 .background(Color("ColourAdditionalAlarmsBackground"))

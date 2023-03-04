@@ -60,7 +60,7 @@ extension StageActionCommonView {
                 HStack(alignment: .top, spacing: 0.0) {
                     if !stage.details.isEmpty {
                         Text(stage.details)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.system(.body, design: .rounded, weight: .regular))
                             .foregroundColor(stageTextColour())
                             .multilineTextAlignment(.leading)
@@ -147,7 +147,7 @@ extension StageActionCommonView {
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                         .padding(kRowPad)
                     }
-                    if !stage.additionalDurationsArray.isEmpty {
+                    if !stage.additionalDurationsDict.isEmpty {
                         VStack(alignment: .center) {
                             HStack {
                                 Image(systemName: "alarm.waves.left.and.right")

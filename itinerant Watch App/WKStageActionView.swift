@@ -84,7 +84,7 @@ extension StageActionCommonView {
                             .frame(maxWidth: .infinity, alignment: .center)
                             .modifier(WKStageAlertslBackground())
                         }
-                        if !stage.additionalDurationsArray.isEmpty {
+                        if !stage.additionalDurationsDict.isEmpty {
                             (Text("\(Image(systemName: "alarm.waves.left.and.right"))")
                                 .foregroundColor(Color("ColourAdditionalAlarmsImage")) +
                             Text(" \(stage.additionalAlertsDurationsString)")
@@ -96,7 +96,7 @@ extension StageActionCommonView {
                                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                                 .multilineTextAlignment(.center)
                                 .modifier(WKStageAlertslBackground())
-                        } /* if !stage.additionalDurationsArray.isEmpty */
+                        } /* if !stage.additionalDurationsDict.isEmpty */
                     } /* VStack */
                     .frame(maxWidth: .infinity)
                     .padding(.bottom,6)

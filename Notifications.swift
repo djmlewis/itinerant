@@ -94,10 +94,10 @@ func requestStageCompletedSingleSnoozeNotification(toResponse response: UNNotifi
     return request
 }
 
-func requestAdditionalAlertCompleted(stage: Stage, itinerary: Itinerary, intervalToAlarmSecs: Int, index: Int) -> UNNotificationRequest {
+func requestAdditionalAlertCompleted(stage: Stage, itinerary: Itinerary, intervalToAlarmSecs: Int, message: String, index: Int) -> UNNotificationRequest {
     let content = UNMutableNotificationContent()
     content.title = itinerary.title
-    content.subtitle = "\(stage.title) " +  "has run for " + Stage.stageFormattedDurationStringFromDouble(Double(intervalToAlarmSecs))
+    content.subtitle = "\(stage.title): " +  message //"has run for " + Stage.stageFormattedDurationStringFromDouble(Double(intervalToAlarmSecs))
     content.userInfo = [kItineraryUUIDStr : itinerary.idStr,
                             kStageUUIDStr : stage.idStr,
                               kStageTitle : stage.title,
@@ -115,19 +115,21 @@ func requestAdditionalAlertCompleted(stage: Stage, itinerary: Itinerary, interva
 }
 
 func postAllAdditionalAlertNotifications(stage: Stage, itinerary: Itinerary) {
-    for (indx, duration) in stage.additionalDurationsArray.enumerated() {
-        postAdditionalAlertNotification(stage: stage, itinerary: itinerary, intervalToAlarmSecs: duration, index: indx)
+    var indx = 0
+    for (duration, message) in stage.additionalDurationsDict {
+        postAdditionalAlertNotification(stage: stage, itinerary: itinerary, intervalToAlarmSecs: duration, message: message, index: indx)
+        indx += 1
     }
 }
 
-func postAdditionalAlertNotification(stage: Stage, itinerary: Itinerary, intervalToAlarmSecs: Int, index: Int ) -> Void {
+func postAdditionalAlertNotification(stage: Stage, itinerary: Itinerary, intervalToAlarmSecs: Int, message: String, index: Int ) -> Void {
     let center = UNUserNotificationCenter.current()
     center.getNotificationSettings { notificationSettings in
         guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }
         var allowedAlerts = [UNAuthorizationOptions]()
         if notificationSettings.alertSetting == .enabled { allowedAlerts.append(.alert) }
         if notificationSettings.soundSetting == .enabled { allowedAlerts.append(.sound) }
-        let request = requestAdditionalAlertCompleted(stage: stage, itinerary: itinerary, intervalToAlarmSecs: intervalToAlarmSecs, index: index)
+        let request = requestAdditionalAlertCompleted(stage: stage, itinerary: itinerary, intervalToAlarmSecs: intervalToAlarmSecs, message: message, index: index)
         center.add(request) { (error) in
             if error != nil {  debugPrint(error!.localizedDescription) }
         }

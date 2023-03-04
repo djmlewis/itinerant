@@ -307,30 +307,11 @@ extension Itinerary {
                 } catch let error {
                     debugPrint("unable write PD into package at ", validPackageFilePath,error.localizedDescription)
                 }
-                // write itinerary image if non-nil
-                /*
-                if let validimagedata = self.imageDataThumbnailActual {
-                    let imageURL =  URL(fileURLWithPath: (validPackageFilePath as NSString).appendingPathComponent(kPackageNameImageFileItineraryThumbnail))
-                    do {
-                        try validimagedata.write(to:imageURL)
-                    } catch let error {
-                        debugPrint("unable write kPackageNameImageFileItineraryThumbnail into package at ", validPackageFilePath,error.localizedDescription)
-                    }
-                }
-                 */
             } else {
                 // create a new package and write the encoded PDdata into it in one go
                 var wrappersDict: [String : FileWrapper] = [String : FileWrapper]()
                 // add PDdata 
                 wrappersDict[kPackageNamePersistentDataFile] = FileWrapper(regularFileWithContents: encodedPersistentData)
-                
-                /*
-                // add image
-                if self.imageDataThumbnailActual != nil { // image data if nonnil
-                    wrappersDict[kPackageNameImageFileItineraryThumbnail] = FileWrapper(regularFileWithContents: self.imageDataThumbnailActual!)
-                }
-                 */
-                
                 let packageFileWrapper = FileWrapper(directoryWithFileWrappers: wrappersDict)
                 do {
                     try packageFileWrapper.write(to: URL(filePath: validPackageFilePath), originalContentsURL: nil)

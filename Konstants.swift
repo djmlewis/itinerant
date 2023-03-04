@@ -60,7 +60,7 @@ let kUnknownObjectErrorStr = "error: Unkown"
 
 // MARK: - Itinerary
 let kImportHeadingLines: Int = 1
-let kImportLinesPerStage: Int = 5
+let kImportLinesPerStage: Int = 6
 let kSeparatorImportFile = "\n"
 
 // MARK: - Stage
@@ -74,6 +74,7 @@ let kSnoozeMinimumDurationSecs: Int = 60
 let kStageAlertMinimumDurationSecs: Int = 1
 let kStageInitialSnoozeDurationSecs: Int = kSnoozeMinimumDurationSecs
 let kStageDurationsArraySeparator = ","
+let kStageAdditionalDurationsInternalSeparator = "¶"
 
 enum StageNotificationInterval: CaseIterable {
     case comment  // here for completeness for string func
