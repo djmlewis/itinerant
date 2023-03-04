@@ -453,10 +453,14 @@ extension Itinerary {
 
     mutating func loadAllImageFilesFromPackage() {
         imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
+        // load fullsize as required
         //imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
-        for i in 0..<stages.count {
+        var i = stages.startIndex
+        while i != stages.endIndex {
             stages[i].imageDataThumbnailActual = loadStageImageDataFromPackage(imageSizeType: .thumbnail, stageIDstr: stages[i].idStr)
+            // load fullsize as required
             //stages[i].imageDataFullActual = loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stages[i].idStr)
+            i = stages.index(after: i)
         }
     }
     

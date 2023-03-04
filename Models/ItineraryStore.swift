@@ -171,13 +171,15 @@ class ItineraryStore: ObservableObject {
                 try fileManager.copyItem(atPath: oldPathNSS.appendingPathComponent(kPackageNameImageFileItineraryFullsize), toPath: newPathNSS.appendingPathComponent(kPackageNameImageFileItineraryFullsize))
                 /* **** stage image files. One-pass renaming **** */
                 if fromIDs.count == toIDs.count {
-                    for i in 0..<fromIDs.count {
+                    var i = fromIDs.startIndex
+                    while i != fromIDs.endIndex {
                         try ImageSizeType.allCases.forEach { type in
                             let suffix = type.rawValue + ItineraryFileExtension.imageData.dotExtension
                             let fromName = fromIDs[i] + suffix
                             let toName = toIDs[i] + suffix
                             try fileManager.copyItem(atPath: oldPathNSS.appendingPathComponent(fromName), toPath: newPathNSS.appendingPathComponent(toName))
                         }
+                        i = fromIDs.index(after: i)
                     }
                 }
             } catch let error {
