@@ -82,6 +82,7 @@ struct StageDisplayView: View {
                                 .lineLimit(1...2)
                         }
                     } /* VStack */
+
                     if let selectedImageData = stage.imageDataThumbnailActual,
                        let uiImage = UIImage(data: selectedImageData) {
                         Image(uiImage: uiImage)

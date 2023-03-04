@@ -32,6 +32,9 @@ struct StageActionCommonView: View {
 #if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
     @State var disclosureDetailsExpanded: Bool = true
+    @State var fullSizeUIImage: UIImage?
+    @State var showFullSizeUIImage: Bool = false
+
 #endif
     
     @State var durationDate: Date = validFutureDate()

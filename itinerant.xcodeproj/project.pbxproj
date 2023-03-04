@@ -23,6 +23,7 @@
 		72430EA22987F2830046A2DF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72430EA12987F2830046A2DF /* SettingsView.swift */; };
 		7243361629A15144004EE79E /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7243361529A15144004EE79E /* CustomViewModifiers.swift */; };
 		7243361729A15144004EE79E /* CustomViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7243361529A15144004EE79E /* CustomViewModifiers.swift */; };
+		7250119729B34DB9008AE9F5 /* FullScreenImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */; };
 		725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725666772965AFC200B678CB /* ItineraryEditView.swift */; };
 		7256AF952965D53300FBE53E /* StageEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7256AF942965D53300FBE53E /* StageEditView.swift */; };
 		72586236298FF46B00B8331D /* ItineraryActionCommonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72586235298FF46B00B8331D /* ItineraryActionCommonView.swift */; };
@@ -86,6 +87,7 @@
 		72382CB12979D3F900DE76E3 /* itinerantApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = itinerantApp.swift; sourceTree = "<group>"; };
 		72430EA12987F2830046A2DF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7243361529A15144004EE79E /* CustomViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewModifiers.swift; sourceTree = "<group>"; };
+		7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImageView.swift; sourceTree = "<group>"; };
 		725666772965AFC200B678CB /* ItineraryEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryEditView.swift; sourceTree = "<group>"; };
 		7256AF942965D53300FBE53E /* StageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageEditView.swift; sourceTree = "<group>"; };
 		72586235298FF46B00B8331D /* ItineraryActionCommonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItineraryActionCommonView.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				725FA976298FCB5A00AC7B94 /* StageActionView.swift */,
 				720C092D29741F74000AFFCC /* StageDisplayView.swift */,
 				7256AF942965D53300FBE53E /* StageEditView.swift */,
+				7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
@@ -357,6 +360,7 @@
 				72E7F079295F3F6400367612 /* ItineraryStoreView.swift in Sources */,
 				7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */,
 				72E7ADB529636E8400D22D37 /* Utilities.swift in Sources */,
+				7250119729B34DB9008AE9F5 /* FullScreenImageView.swift in Sources */,
 				7256AF952965D53300FBE53E /* StageEditView.swift in Sources */,
 				7271D06A29A27B54008B4C0F /* ItineraryStoreNavStackView.swift in Sources */,
 			);

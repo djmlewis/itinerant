@@ -142,15 +142,6 @@ extension  ItineraryActionCommonView {
                         .disabled(watchConnectionUnusable())
                         Divider()
                     }
-//                    Button(action: {
-//                        // ItineraryDocument always inits with now mod date
-//                        fileSaveDocument = ItineraryFile(packageItinerary: itinerary)
-//                        fileSaveType = .itineraryDataPackage
-//                        fileSaveName = itinerary.title
-//                        fileSaverShown = true
-//                   }) {
-//                        Label("Duplicate…", systemImage: "doc.on.doc")
-//                    }
                     Button(action: {
                         showFilePicker = true
                    }) {
@@ -220,23 +211,8 @@ extension  ItineraryActionCommonView {
             }
         }) /* sheet */
         .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
-            NavigationStack {
-                Image(uiImage: fullSizeUIImage!)
-                    .resizable()
-                    .scaledToFit()
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: {
-                                fullSizeUIImage = nil
-                                showFullSizeUIImage = false
-                            }, label: {
-                                Text("Close")
-                            })
-                        }
-                    }
-            }
-        }) /* sheet */
+            FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
+        }) /* fullScreenCover */
 
     } /* View */
     

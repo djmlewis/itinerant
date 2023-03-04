@@ -65,15 +65,26 @@ extension StageActionCommonView {
                             .foregroundColor(stageTextColour())
                             .multilineTextAlignment(.leading)
                     }
-                        if let selectedImageData = stage.imageDataThumbnailActual,
-                           let uiImage = UIImage(data: selectedImageData) {
-                            Spacer()
+                    if let imagedata = stage.imageDataThumbnailActual,
+                       let uiImage = UIImage(data: imagedata) {
+                        Spacer()
+                        Button(action: {
+                            if let imagedata = stage.imageDataFullActual,
+                               let uiImage = UIImage(data: imagedata) {
+                                fullSizeUIImage = uiImage
+                                showFullSizeUIImage = true
+                            }
+                        }, label: {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
                                 .fixedSize(horizontal: true, vertical: false)
-                        }
+                                .padding(0)
+                        })
+                        .buttonStyle(.borderless)
+                   }
+
                } /* HStack */
                 .frame(maxWidth: .infinity)
                 .padding(kRowPad)
@@ -196,7 +207,10 @@ extension StageActionCommonView {
                 StageActionDatePickerCommonView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
             }
         })
-        
+        .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
+            FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
+        }) /* fullScreenCover */
+
         //        /* VStack mods */
     } /* body ios*/
 #endif
