@@ -10,8 +10,7 @@ import UniformTypeIdentifiers
 import Combine
 
 struct ItineraryActionCommonView: View {
-    
-    @State var itinerary: Itinerary // not a Binding because we dont change anything just read
+    @State var itinerary: Itinerary // no need for a Binding on watch
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
@@ -19,13 +18,13 @@ struct ItineraryActionCommonView: View {
     
     @State var stageToHandleHaltActionID: String?
     @State var stageToHandleSkipActionID: String?
-
+    
     @State var resetStageElapsedTime: Bool?
     @State var scrollToStageID: String?
     @State var stageToStartRunningID: String?
     
     @EnvironmentObject var appDelegate: AppDelegate
-
+    
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
@@ -39,7 +38,7 @@ struct ItineraryActionCommonView: View {
     @State var itineraryData = Itinerary.EditableData()
     @State var isPresentingItineraryEditView: Bool = false
     @State var toggleDisclosureDetails: Bool = true
-
+    
     @State var fileSaverShown: Bool = false
     @State var fileSaveDocument: ItineraryFile?
     @State var fileSaveType: UTType = .itineraryDataPackage
@@ -47,16 +46,16 @@ struct ItineraryActionCommonView: View {
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
     @State var showFilePicker: Bool = false
-
+    
     @EnvironmentObject var itineraryStore: ItineraryStore
-
+    
 #endif
-
-
-   
+    
+    
+    
     var body: some View {
         body_
-
+        
     } /* View */
     
 }

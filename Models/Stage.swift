@@ -25,6 +25,15 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     var imageDataFullActual: Data?
 
     
+    mutating func updateImageDataThumbnailActualFromPackagePath(_ packagePath: String?) {
+        if let packagePath {
+            if imageDataFullActual == nil {
+                let filename = idStr + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
+                let path = (packagePath as NSString).appendingPathComponent(filename)
+                imageDataFullActual = FileManager.default.contents(atPath: path)
+            }
+        }
+    }
     
     var durationSecsInt: Int {
         get { durationsArray.first! }

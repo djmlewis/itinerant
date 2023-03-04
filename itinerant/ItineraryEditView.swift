@@ -27,6 +27,8 @@ struct ItineraryEditView: View {
     
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImageData: Data? = nil
+    @State var fullSizeUIImage: UIImage?
+    @State var showFullSizeUIImage: Bool = false
 
 
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
@@ -94,16 +96,24 @@ struct ItineraryEditView: View {
                         .padding([.leading,.trailing],24)
                         .multilineTextAlignment(.leading)
                         .focused($titleFocused)
-                    HStack {
-                        if let selectedImageData,
-                           let uiImage = UIImage(data: selectedImageData) {
+                    if let selectedImageData,
+                       let uiImage = UIImage(data: selectedImageData) {
+                        Button(action: {
+                            if let imagedata = itineraryEditableData.imageDataFullActual,
+                               let uiImage = UIImage(data: imagedata) {
+                                fullSizeUIImage = uiImage
+                                showFullSizeUIImage = true
+                            }
+                        }, label: {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                        }
+                                .frame(idealWidth: kImageColumnWidth, alignment: .trailing)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .padding(0)
+                        })
+                        .buttonStyle(.borderless)
                     }
-                    .frame(idealWidth: kImageColumnWidth)
-                    .fixedSize(horizontal: true, vertical: false)
                 }
             } /* VStack */
             .padding(.bottom, 12)
@@ -205,8 +215,11 @@ struct ItineraryEditView: View {
                             }
                         }
                 }
-            }
-            
+            } /* newstageedit sheet*/
+            .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
+                FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
+            }) /* fullScreenCover */
+
         } /* NavView */
     } /* body */
 } /* struct */

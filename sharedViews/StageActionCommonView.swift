@@ -17,7 +17,6 @@ let kHaltButtonWidth = 48.0
 
 
 struct StageActionCommonView: View {
-    
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
@@ -66,6 +65,15 @@ struct StageActionCommonView: View {
     
     @EnvironmentObject var appDelegate: AppDelegate
     
+    func getSetStageFullSizeImageData() -> Data? {
+        if stage.imageDataFullActual == nil {
+            let data = itinerary.loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stage.idStr)
+            stage.imageDataFullActual = data
+            debugPrint("stage getSetFullSizeImageData disc")
+        }
+        return stage.imageDataFullActual
+    }
+
     
     // MARK: - body
     var body: some View {

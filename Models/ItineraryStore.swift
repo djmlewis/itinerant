@@ -21,6 +21,7 @@ class ItineraryStore: ObservableObject {
     func itineraryForUUID(_ uuid:UUID) -> Itinerary? { return itineraries.first{ $0.id == uuid } }
     func itineraryIndexForUUID(_ uuid: UUID) -> Int? { return itineraries.firstIndex(where: { $0.id == uuid }) }
     func hasItineraryWithUUID(_ uuid: UUID) -> Bool { return itineraries.firstIndex(where: { $0.id == uuid }) != nil }
+    func itineraryForStageIDstr(_ idstr: String) -> Itinerary? { itineraries.first { $0.hasStageWithID(idstr) } }
     
     func itineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String) -> Bool {
         itineraryForID(id: id)?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false }
@@ -30,6 +31,7 @@ class ItineraryStore: ObservableObject {
     func itineraryTitleForID(id:String) -> String { itineraryForID(id: id)?.title ?? kUnknownObjectErrorStr }
     var itineraryTitles: [String] { itineraries.map { $0.title } }
     var itineraryUUIDStrs: [String] { itineraries.map { $0.idStr } }
+    
     
     func itineraryFileNameForID(id:String) -> String { itineraryForID(id: id)?.filename ?? "---" }
     func hasItineraryWithFilename(_ filename: String) -> Bool { return itineraries.firstIndex(where: { $0.filename == filename }) != nil }

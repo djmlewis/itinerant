@@ -69,15 +69,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
         }
     }
 
-//    mutating func getFullSizeImageData() -> Data? {
-//        debugPrint("getFullSizeImageData")
-//        if imageDataFullActual == nil {
-//            let data = loadImageDataFromPackage(imageSizeType: .fullsize)
-//            imageDataFullActual = data
-//        }
-//        return imageDataFullActual
-//    }
-    
+
 }
 
 extension Itinerary {
@@ -96,8 +88,8 @@ extension Itinerary {
                          stages: Stage.stageArrayWithNewIDs(from: itinerary.stages),
                          modificationDate: nowReferenceDateTimeInterval(),
                          packageFilePath: dataPackagesDirectoryPathUniquifiedFromPath(validPackageFilePath)!,
-                         imageDataThumbnailActual: itinerary.imageDataThumbnailActual, // use getter
-                         imageDataFullActual: itinerary.imageDataFullActual //  use the getter
+                         imageDataThumbnailActual: itinerary.imageDataThumbnailActual,
+                         imageDataFullActual: itinerary.getFullSizeImageData() //  use the getter only
         )
     }
 
@@ -124,6 +116,9 @@ extension Itinerary {
 
     func stageIndex(forUUIDstr uuidstr: String) -> Int? {
         return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
+    }
+    func hasStageWithID(_ stageIDstr: String) -> Bool {
+        return stageIndex(forUUIDstr: stageIDstr) != nil
     }
     
     func indexOfNextActivableStage(fromUUIDstr uuidstr: String ) -> Int? {
@@ -249,7 +244,7 @@ extension Itinerary {
     }
     
     var itineraryEditableData: EditableData {
-        EditableData(title: title, stages: stages, imageDataThumbnailActual: imageDataThumbnailActual, imageDataFullActual: imageDataFullActual)
+        EditableData(title: title, stages: stagesUpdatedImageFullsize, imageDataThumbnailActual: imageDataThumbnailActual, imageDataFullActual: getFullSizeImageData())
     }
     
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
@@ -371,6 +366,34 @@ extension Itinerary {
 // MARK: - Image Files
 
 extension Itinerary {
+    
+    var stagesUpdatedImageFullsize: StageArray { stages.map {
+        if $0.imageDataFullActual == nil {
+            var mutableStage = $0
+            mutableStage.updateImageDataThumbnailActualFromPackagePath(packageFilePath)
+            return mutableStage
+        } else {
+            return $0
+        }
+    }}
+
+    mutating func getSetFullSizeImageData() -> Data? {
+        if imageDataFullActual == nil {
+            let data = loadImageDataFromPackage(imageSizeType: .fullsize)
+            imageDataFullActual = data
+            debugPrint("getSetFullSizeImageData disc")
+        }
+        return imageDataFullActual
+    }
+    func getFullSizeImageData() -> Data? {
+        if imageDataFullActual == nil {
+            debugPrint("getFullSizeImageData")
+            let data = loadImageDataFromPackage(imageSizeType: .fullsize)
+            return data
+        }
+        return imageDataFullActual
+    }
+
     func writeImageDataToPackage(_ data: Data?, imageSizeType: ImageSizeType) {
         let filename = imageSizeType == .thumbnail ? kPackageNameImageFileItineraryThumbnail : kPackageNameImageFileItineraryFullsize
         if let path = packagePathAddingFileComponent(filename) {
@@ -382,10 +405,10 @@ extension Itinerary {
                     try FileManager.default.removeItem(atPath: path)
                 }
             } catch let error {
-                debugPrint("write/delete fail itinerary imagefile", error.localizedDescription)
+                debugPrint("writeImageDataToPackage", error.localizedDescription)
             }
         } else {
-            debugPrint("write/delete fail itinerary imagefile NIL path")
+            debugPrint("writeImageDataToPackage write/delete fail itinerary imagefile NIL path")
         }
     }
     
@@ -394,7 +417,7 @@ extension Itinerary {
         if let path = packagePathAddingFileComponent(filename) {
             return FileManager.default.contents(atPath: path)
         } else {
-            debugPrint("write/delete fail itinerary imagefile NIL path")
+            debugPrint("loadImageDataFromPackage  NIL path")
         }
         return nil
     }
@@ -411,10 +434,10 @@ extension Itinerary {
                     try FileManager.default.removeItem(atPath: path)
                 }
             } catch let error {
-                debugPrint("write/delete fail itinerary imagefile", error.localizedDescription)
+                debugPrint("writeStageImageDataToPackage", error.localizedDescription)
             }
         } else {
-            debugPrint("write/delete fail itinerary imagefile NIL path")
+            debugPrint("writeStageImageDataToPackage NIL path")
         }
     }
 
@@ -423,17 +446,17 @@ extension Itinerary {
         if let path = packagePathAddingFileComponent(filename) {
             return FileManager.default.contents(atPath: path)
         } else {
-            debugPrint("write/delete fail itinerary stage imagefile NIL path", filename)
+            debugPrint("loadStageImageDataFromPackage", filename)
         }
         return nil
     }
 
     mutating func loadAllImageFilesFromPackage() {
         imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
-        imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
+        //imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
         for i in 0..<stages.count {
             stages[i].imageDataThumbnailActual = loadStageImageDataFromPackage(imageSizeType: .thumbnail, stageIDstr: stages[i].idStr)
-            stages[i].imageDataFullActual = loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stages[i].idStr)
+            //stages[i].imageDataFullActual = loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stages[i].idStr)
         }
     }
     

@@ -69,7 +69,7 @@ extension StageActionCommonView {
                        let uiImage = UIImage(data: imagedata) {
                         Spacer()
                         Button(action: {
-                            if let imagedata = stage.imageDataFullActual,
+                            if let imagedata = getSetStageFullSizeImageData(),
                                let uiImage = UIImage(data: imagedata) {
                                 fullSizeUIImage = uiImage
                                 showFullSizeUIImage = true

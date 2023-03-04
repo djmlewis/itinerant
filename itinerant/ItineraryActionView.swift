@@ -25,7 +25,7 @@ extension  ItineraryActionCommonView {
                 if let imagedata = itinerary.imageDataThumbnailActual,
                    let uiImage = UIImage(data: imagedata) {
                     Button(action: {
-                        if let imagedata = itinerary.imageDataFullActual,
+                        if let imagedata = itinerary.getSetFullSizeImageData(),
                            let uiImage = UIImage(data: imagedata) {
                             fullSizeUIImage = uiImage
                             showFullSizeUIImage = true

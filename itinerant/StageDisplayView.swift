@@ -30,7 +30,6 @@ struct StageDisplayView: View {
     @Binding var isEditing: Bool
     @Binding var stageIDtoDelete: String?
     @Binding var itineraryTitleFocused: Bool
-
     
     
     @Environment(\.scenePhase) var scenePhase
@@ -46,6 +45,9 @@ struct StageDisplayView: View {
     @State var stageDurationDateInvalid: Bool = false
     @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
     @State var uiSlowUpdateTimerCancellor: Cancellable?
+
+    @State var fullSizeUIImage: UIImage?
+    @State var showFullSizeUIImage: Bool = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 0.0) {
@@ -82,15 +84,33 @@ struct StageDisplayView: View {
                                 .lineLimit(1...2)
                         }
                     } /* VStack */
-
                     if let selectedImageData = stage.imageDataThumbnailActual,
                        let uiImage = UIImage(data: selectedImageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
-                            .fixedSize(horizontal: true, vertical: false)
-                    }
+                        Button(action: {
+                            if let imagedata = stage.imageDataFullActual,
+                               let uiImage = UIImage(data: imagedata) {
+                                fullSizeUIImage = uiImage
+                                showFullSizeUIImage = true
+                            }
+                        }, label: {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .padding(0)
+                        })
+                        .buttonStyle(.borderless)
+                   }
+
+//                    if let selectedImageData = stage.imageDataThumbnailActual,
+//                       let uiImage = UIImage(data: selectedImageData) {
+//                        Image(uiImage: uiImage)
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
+//                            .fixedSize(horizontal: true, vertical: false)
+//                    }
                 } /* HStack */
                 Spacer()
                 HStack {
@@ -110,7 +130,6 @@ struct StageDisplayView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.leading,.bottom], kRowPad)
                 .font(.system(.title3, design: .rounded, weight: .bold))
-//                .modifier(StageInvalidDurationSymbolBackground(stageDurationDateInvalid: stageDurationDateInvalid, stageTextColour: textColourForScheme(colorScheme: colorScheme)))
                 HStack(spacing: 0.0) {
                     if stage.isPostingRepeatingSnoozeAlerts {
                         HStack {
@@ -247,6 +266,9 @@ struct StageDisplayView: View {
                     }
             }
         }
+        .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
+            FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
+        }) /* fullScreenCover */
 
     } /* body */
     

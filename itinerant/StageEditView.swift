@@ -10,9 +10,8 @@ import PhotosUI
 
 
 struct StageEditView: View {
-
     @Binding var stageEditableData: Stage
-
+    
     @State private var untimedComment: Bool =  false
     @State private var snoozeAlertsOn: Bool =  false
     
@@ -38,11 +37,15 @@ struct StageEditView: View {
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
 
+    
     var body: some View {
         Form {
-            Section(content: {
+            Section(content: {}, header: {
                 VStack(alignment: .center) {
                     HStack {
+                        Text("Image")
+                            .font(.system(.title3, design: .rounded, weight: .regular))
+                        Spacer()
                         Button {
                             DispatchQueue.main.async {
                                 selectedImageData = nil
@@ -103,13 +106,10 @@ struct StageEditView: View {
                                 .padding(0)
                         })
                         .buttonStyle(.borderless)
-                   }
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-            }, header: {
-                Text("Image")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
-           })
+                //.frame(maxWidth: .infinity, alignment: .center)
+            })
             Section {
                 TextField("Stage title", text: $stageEditableData.title,  axis: .vertical)
             } header: {
