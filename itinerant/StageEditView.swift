@@ -41,11 +41,8 @@ struct StageEditView: View {
     var body: some View {
         Form {
             Section(content: {}, header: {
-                VStack(alignment: .center) {
+                VStack(alignment: .leading) {
                     HStack {
-                        Text("Image")
-                            .font(.system(.title3, design: .rounded, weight: .regular))
-                        Spacer()
                         Button {
                             DispatchQueue.main.async {
                                 selectedImageData = nil
@@ -55,18 +52,21 @@ struct StageEditView: View {
                             }
                         } label: {
                             Image(systemName:"trash")
-                                .font(.title3)
+                                .font(.system(.title3, design: .rounded, weight: .regular))
                         }
                         .disabled(selectedImageData == nil)
                         .buttonStyle(.borderless)
+                        Spacer()
+                        Text("Image")
+                            .font(.system(.title3, design: .rounded, weight: .regular))
                         Spacer()
                         PhotosPicker(
                             selection: $selectedItem,
                             matching: .images,
                             photoLibrary: .shared()) {
                                 Image(systemName:"photo.on.rectangle.angled")
-                                    .font(.title3)
-                                
+                                    .font(.system(.title3, design: .rounded, weight: .regular))
+
                             }
                             .buttonStyle(.borderless)
                             .onChange(of: selectedItem) { newItem in
@@ -88,7 +88,7 @@ struct StageEditView: View {
                                 }
                             }
                     }
-                    .frame(maxWidth: kImageColumnWidth, alignment: .center)
+                    .frame(maxWidth: kImageColumnWidth, alignment: .leading)
                     if let selectedImageData,
                        let uiImage = UIImage(data: selectedImageData) {
                         Button(action: {
@@ -101,14 +101,13 @@ struct StageEditView: View {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(idealWidth: kImageColumnWidth, alignment: .trailing)
+                                .frame(idealWidth: kImageColumnWidth, alignment: .leading)
                                 .fixedSize(horizontal: true, vertical: false)
                                 .padding(0)
                         })
                         .buttonStyle(.borderless)
                     }
                 }
-                //.frame(maxWidth: .infinity, alignment: .center)
             })
             Section {
                 TextField("Stage title", text: $stageEditableData.title,  axis: .vertical)
