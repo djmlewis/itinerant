@@ -36,12 +36,13 @@ struct StageEditView: View {
     @State private var selectedImageData: Data? = nil
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
+    @State var showFullSizeUIImageAlert: Bool = false
 
     
     var body: some View {
         Form {
             Section(content: {}, header: {
-                VStack(alignment: .leading) {
+                VStack(alignment: .center) {
                     HStack {
                         Button {
                             DispatchQueue.main.async {
@@ -71,24 +72,38 @@ struct StageEditView: View {
                             .buttonStyle(.borderless)
                             .onChange(of: selectedItem) { newItem in
                                 Task {
-                                    // Retrieve selected asset in the form of Data
-                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                        // make a thumbnail
-                                        if let uiImage = UIImage(data: data) {
-                                            uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
-                                                let thumbnaildata = thumbnailImage?.pngData()
-                                                DispatchQueue.main.async {
-                                                    selectedImageData = thumbnaildata
-                                                    stageEditableData.imageDataFullActual = data
-                                                    stageEditableData.imageDataThumbnailActual = thumbnaildata
+                                    do {
+                                        if let data = try await newItem?.loadTransferable(type: Data.self) {
+                                            // make a thumbnail
+                                            if let uiImage = UIImage(data: data) {
+                                                uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
+                                                    let thumbnaildata = thumbnailImage?.pngData()
+                                                    DispatchQueue.main.async {
+                                                        selectedImageData = thumbnaildata
+                                                        stageEditableData.imageDataFullActual = data
+                                                        stageEditableData.imageDataThumbnailActual = thumbnaildata
+                                                    }
                                                 }
+                                            } else {
+                                                debugPrint("photo picker loadTransferable error")
+                                                showFullSizeUIImageAlert = true
                                             }
+                                        } else {
+                                            debugPrint("photo picker  prepareThumbnail error")
+                                            showFullSizeUIImageAlert = true
                                         }
+                                    } catch let error {
+                                        debugPrint("photo picker", error.localizedDescription)
+                                        showFullSizeUIImageAlert = true
                                     }
                                 }
                             }
                     }
-                    .frame(maxWidth: kImageColumnWidth, alignment: .leading)
+                    .frame( alignment: .center)
+                    .alert("Unable To Load Image", isPresented: $showFullSizeUIImageAlert) {
+                    } message: {
+                        Text("That image could not be loaded from the library. Possibly it is not downloaded from iCloud")
+                    }
                     if let selectedImageData,
                        let uiImage = UIImage(data: selectedImageData) {
                         Button(action: {
@@ -101,7 +116,7 @@ struct StageEditView: View {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(idealWidth: kImageColumnWidth, alignment: .leading)
+                                .frame(idealWidth: kImageColumnWidth, alignment: .center)
                                 .fixedSize(horizontal: true, vertical: false)
                                 .padding(0)
                         })

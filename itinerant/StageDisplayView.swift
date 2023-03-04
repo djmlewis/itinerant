@@ -238,8 +238,10 @@ struct StageDisplayView: View {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                stage.updateEditableData(from: stageEditableData)
-                                isPresentingStageEditView = false
+                                DispatchQueue.main.async {
+                                    stage.updateEditableData(from: stageEditableData)
+                                    isPresentingStageEditView = false
+                                }
                             }
                         }
                     }

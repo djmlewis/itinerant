@@ -106,11 +106,13 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
-                                    var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
-                                    newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
-                                    itineraryStore.itineraries.append(newItinerary)
-                                    itineraryStore.sortItineraries()
-                                    isPresentingItineraryEditView = false
+                                    DispatchQueue.main.async {
+                                        var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
+                                        newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
+                                        itineraryStore.itineraries.append(newItinerary)
+                                        itineraryStore.sortItineraries()
+                                        isPresentingItineraryEditView = false
+                                    }
                                 }
                             }
                         }

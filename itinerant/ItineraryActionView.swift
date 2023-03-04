@@ -202,9 +202,11 @@ extension  ItineraryActionCommonView {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                itinerary.updateItineraryEditableData(from: itineraryData)
-                                isPresentingItineraryEditView = false
-                                resetItineraryStages()
+                                DispatchQueue.main.async {
+                                    itinerary.updateItineraryEditableData(from: itineraryData)
+                                    isPresentingItineraryEditView = false
+                                    resetItineraryStages()
+                                }
                             }
                         }
                     }
