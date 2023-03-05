@@ -55,14 +55,6 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
 
 }
 
-// MARK: CancellingTimer
-class CancellingTimer {
-    var cancellor: AnyCancellable?
-    
-    func cancelTimer() {
-        cancellor?.cancel()
-    }
-}
 
 // MARK: - Color extension
 extension Color {

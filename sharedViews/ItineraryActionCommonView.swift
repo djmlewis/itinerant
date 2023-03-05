@@ -63,43 +63,27 @@ struct ItineraryActionCommonView: View {
 
 extension ItineraryActionCommonView {
     
-    struct ItineraryTotalDurationText: View {
-        var itinerary: Itinerary
-        var dateAtUpdate: Date
-        
-        var body: some View {
-            if itinerary.someStagesAreCountUp {
-                Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: dateAtUpdate)))") +
-                Text(" +\(Image(systemName: "stopwatch"))")
-            } else {
-                Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: dateAtUpdate)))")
-            }
-        }
-        
-    }
         
     struct ItineraryDurationUpdatingView: View {
         var itinerary: Itinerary
-        
-        @State private var dateAtUpdate: Date = Date.now
-        @State private var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-        @State private var uiSlowUpdateTimerCancellor: Cancellable?
+                
+        @State private var updateFrequency: TimeInterval = kUISlowUpdateTimerFrequency
         
         var body: some View {
-            ItineraryTotalDurationText(itinerary: itinerary, dateAtUpdate: dateAtUpdate)
-                .onReceive(uiSlowUpdateTimer) {
-                    dateAtUpdate = $0            }
-                .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
-                .onDisappear { uiSlowUpdateTimerCancellor?.cancel() }
-                .onAppear { checkUIupdateSlowTimerStatus() }
+            TimelineView(.periodic(from: Date(), by: updateFrequency), content: { context in
+                if itinerary.someStagesAreCountUp {
+                    Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: context.date)))") +
+                    Text(" +\(Image(systemName: "stopwatch"))")
+                } else {
+                    Text("\(Image(systemName: "timer")) \(Stage.stageFormattedDurationStringFromDouble(itinerary.totalDurationAtDate(atDate: context.date)))")
+                }
+            })
+            .onChange(of: itinerary.stages, perform: { _ in checkUIupdateSlowTimerStatus() })
+            .onAppear { checkUIupdateSlowTimerStatus() }
         }
         
         func checkUIupdateSlowTimerStatus() {
-            uiSlowUpdateTimerCancellor?.cancel()
-            if itinerary.someStagesAreCountDownToDate {
-                uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-                uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
-            }
+            updateFrequency = itinerary.someStagesAreCountDownToDate ? kUISlowUpdateTimerFrequency : kUISlowUpdateTimerFrequencyInfinite
         }
     }
 }

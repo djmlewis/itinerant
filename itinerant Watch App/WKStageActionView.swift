@@ -39,25 +39,27 @@ extension StageActionCommonView {
                                 .padding(.leading, 2.0)
                             if stage.isCountDownType {
                                 if stage.isCountDownToDate {
-                                    Button(action: {
-                                        presentDatePicker = true
-                                    }, label: {
-                                        Text(stage.durationString)
-                                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                                            .lineLimit(2)
-                                            .allowsTightening(true)
-                                            .minimumScaleFactor(0.5)
-                                    })
-                                    .disabled(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .buttonStyle(.borderless)
-                                    .controlSize(.regular)
-                                    .foregroundColor(stageDurationDateInvalid && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColour())
-                                    .padding()
-                                    .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
-                                    .clipShape(Capsule(style: .continuous))
-                                    .padding([.top], 6)
-                               } else {
+                                    TimelineView(.periodic(from: Date(), by: kUISlowUpdateTimerFrequency)) { context in
+                                        Button(action: {
+                                            presentDatePicker = true
+                                        }, label: {
+                                            Text(stage.durationString)
+                                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                                .lineLimit(2)
+                                                .allowsTightening(true)
+                                                .minimumScaleFactor(0.5)
+                                        })
+                                        .disabled(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .buttonStyle(.borderless)
+                                        .controlSize(.regular)
+                                        .foregroundColor(stage.invalidDurationForCountDownTypeAtDate(context.date)  && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColour())
+                                        .padding()
+                                        .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
+                                        .clipShape(Capsule(style: .continuous))
+                                        .padding([.top], 6)
+                                    }
+                                } else {
                                     Text(stage.durationString)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .font(.system(.title3, design: .rounded, weight: .semibold))

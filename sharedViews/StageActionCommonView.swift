@@ -47,10 +47,8 @@ struct StageActionCommonView: View {
     @State var uiFastUpdateTimerCancellor: Cancellable?
     @State var presentUnableToNotifyAlert: Bool = false
     @State var presentUnableToPostDateNotification: Bool = false
-    @State var stageDurationDateInvalid: Bool = false
-    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-    @State var uiSlowUpdateTimerCancellor: Cancellable?
-    
+    @State private var updateFrequency: TimeInterval = kUISlowUpdateTimerFrequency
+
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
@@ -83,7 +81,7 @@ struct StageActionCommonView: View {
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
             .onReceive(uiFastUpdateTimer) { handleReceive_uiFastUpdateTimer(newDate: $0) }
-            .onReceive(uiSlowUpdateTimer) { handleReceive_uiSlowUpdateTimer(newDate: $0) }
+//            .onReceive(uiSlowUpdateTimer) { handleReceive_uiSlowUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
@@ -133,7 +131,7 @@ extension StageActionCommonView {
             }
         }
     }
-    
+        
     var stageRunningOvertime: Bool { timeDifferenceAtUpdate <= 0 }
     
     func timeStartedRunning() -> TimeInterval {
@@ -310,15 +308,15 @@ extension StageActionCommonView {
 
 extension StageActionCommonView {
     func checkUIupdateSlowTimerStatus() {
-        uiSlowUpdateTimerCancellor?.cancel()
+        //uiSlowUpdateTimerCancellor?.cancel()
         if stage.isCountDownToDate {
-            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
+            updateFrequency = itinerary.someStagesAreCountDownToDate ? kUISlowUpdateTimerFrequency : kUISlowUpdateTimerFrequencyInfinite
+            //uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
+            //uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
         }
     }
     
     func handleOnAppear() {
-        stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(Date.now)
         handleTimersOnAppearActive()
         if(!stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // use dictStageEndDates[stage.idStr] != nil to detect we have run and to update the updateTimes
@@ -341,7 +339,7 @@ extension StageActionCommonView {
     
     func handleTimesOnDisappearInactive() {
         uiFastUpdateTimerCancellor?.cancel()
-        uiSlowUpdateTimerCancellor?.cancel()
+        //uiSlowUpdateTimerCancellor?.cancel()
     }
     
     func handleReceive_uiFastUpdateTimer(newDate: Date) {
@@ -352,10 +350,6 @@ extension StageActionCommonView {
             // we may have been skipped so cancel at the next opportunity
             uiFastUpdateTimerCancellor?.cancel()
         }
-    }
-    func handleReceive_uiSlowUpdateTimer(newDate: Date) {
-        //debugPrint(newDate)
-        stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate(newDate)
     }
     func handleReceive_stageToHandleSkipActionID(idstrtotest: String?) {
         // handle notifications to skip to next stage

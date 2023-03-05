@@ -258,7 +258,10 @@ extension Stage {
             break
         }
         return true
-
+    }
+    
+    func invalidDurationForCountDownTypeAtDate(_ date: Date) -> Bool {
+        !validDurationForCountDownTypeAtDate(date)
     }
     
     func durationValidForNotificationInterval(_ intervalType: StageNotificationInterval) ->  Bool {
@@ -286,7 +289,7 @@ extension Stage {
         durationString.replacingOccurrences(of: " ", with: "\u{202F}")
     }
     static func stageFormattedDurationStringFromDouble(_ time: Double) -> String {
-        Stage.stageDurationFormatter.string(from: time) ?? ""
+        return Stage.stageDurationFormatter.string(from: time) ?? ""
     }
     static func stageDurationStringHardPaddedFromDouble(_ time: Double) -> String {
         stageFormattedDurationStringFromDouble(time).replacingOccurrences(of: " ", with: "\u{202F}")

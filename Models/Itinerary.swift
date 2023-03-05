@@ -145,7 +145,7 @@ extension Itinerary {
     
     func totalDurationAtDate(atDate date: Date) -> Double { Double(stages.reduce(0) { partialResult, stage in
         // remove any negative flag values with max(...,0)
-        partialResult + max(stage.durationSecsIntCorrected(atDate: date),0)
+        return partialResult + max(stage.durationSecsIntCorrected(atDate: date),0)
     }) }
     
     func packagePathAddingFileComponent(_ component: String) -> String? {

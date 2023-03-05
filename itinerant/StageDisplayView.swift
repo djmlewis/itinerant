@@ -41,10 +41,6 @@ struct StageDisplayView: View {
     @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
 
-    @State var stageDurationDateInvalid: Bool = false
-    @State var uiSlowUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-    @State var uiSlowUpdateTimerCancellor: Cancellable?
-
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
 
@@ -110,12 +106,14 @@ struct StageDisplayView: View {
                         .frame(alignment: .leading)
                     if stage.isCommentOnly == false {
                         if stage.isCountDownType {
-                            Text(stage.durationString)
-                                .foregroundColor(stageDurationDateInvalid ?  Color("ColourInvalidDate") : textColourForScheme(colorScheme: colorScheme))
-                                .lineLimit(1...2)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            TimelineView(.periodic(from: Date(), by: kUISlowUpdateTimerFrequency)) { context in
+                                Text(stage.durationString)
+                                    .foregroundColor(stage.invalidDurationForCountDownTypeAtDate(context.date) ?  Color("ColourInvalidDate") : textColourForScheme(colorScheme: colorScheme))
+                                    .lineLimit(1...2)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.5)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                        }
                     }
                 }
@@ -181,10 +179,6 @@ struct StageDisplayView: View {
         } /* HStack */
         .frame(maxWidth: .infinity)
         .animation(.linear(duration: 0.1), value: isEditing)
-        .onAppear() { checkUIupdateSlowTimerStatus() }
-        .onDisappear() { uiSlowUpdateTimerCancellor?.cancel() }
-        .onReceive(uiSlowUpdateTimer) { stageDurationDateInvalid = !stage.validDurationForCountDownTypeAtDate($0) }
-        .onChange(of: stage.flags) { _ in checkUIupdateSlowTimerStatus() }
         .sheet(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)
@@ -232,18 +226,6 @@ struct StageDisplayView: View {
 
     } /* body */
     
-}
-
-extension StageDisplayView {
-    
-    func checkUIupdateSlowTimerStatus() {
-        uiSlowUpdateTimerCancellor?.cancel()
-        if stage.isCountDownToDate {
-            uiSlowUpdateTimer = Timer.publish(every: kUISlowUpdateTimerFrequency, on: .main, in: .common)
-            uiSlowUpdateTimerCancellor = uiSlowUpdateTimer.connect()
-        }
-    }
-
 }
 
 struct StageDisplayView_Previews: PreviewProvider {

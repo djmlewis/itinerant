@@ -222,6 +222,7 @@ let kUISlowUpdateTimerFrequency = 1.0
 #else
 let kUISlowUpdateTimerFrequency = 1.0
 #endif
+let kUISlowUpdateTimerFrequencyInfinite = Double.greatestFiniteMagnitude
 
 let kiOSStageViewsRowPad = 6.0
 
