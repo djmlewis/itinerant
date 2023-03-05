@@ -280,8 +280,11 @@ struct StageEditView: View {
                             ForEach(additionaldurationsDictKeys, id: \.self) { secsInt in
                                 HStack {
                                     Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
+                                        .foregroundColor(Color("ColourAdditionalAlarmsText"))
                                     Spacer()
                                     Text(stageEditableData.additionalDurationsDict[secsInt]!)
+                                        .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
+                                        .multilineTextAlignment(.trailing)
                                 }
                             }
                             .onDelete { offsets in
@@ -297,7 +300,8 @@ struct StageEditView: View {
                         .padding(0)
                     } else {
                         Text("Tap + to add")
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .multilineTextAlignment(.trailing)
                             .padding(0)
                             .opacity(0.5)
                             .italic()

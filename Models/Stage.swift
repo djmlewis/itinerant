@@ -348,6 +348,66 @@ extension Stage {
 // MARK: - import export
 extension Stage {
     
+    @ViewBuilder  var additionalDurationsDisplayString: some View {
+        
+        VStack(spacing:0.0) {
+            ForEach(additionalDurationsDict.keys.sorted(), id: \.self) { keyint in
+                HStack(alignment: .top, spacing: 0.0) {
+                    Text(Stage.stageDurationStringHardPaddedFromDouble(Double(keyint)))
+                        .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                   Spacer()
+                    Text(additionalDurationsDict[keyint] ?? "---")
+                        .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+        }
+        .padding(0.0)
+    }
+    
+    @ViewBuilder  static func additionalAndSnoozeAlertsHStackForStage(_ stage: Stage) -> some View {
+        HStack(spacing: 0.0) {
+            if stage.isPostingRepeatingSnoozeAlerts {
+                HStack(spacing: 4.0) {
+                    Image(systemName: "bell.and.waves.left.and.right")
+                        .foregroundColor(Color("ColourAdditionalAlarmsImage"))
+                    Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.5)
+                        .frame(alignment: .leading)
+                        .foregroundColor(Color("ColourAdditionalAlarmsText"))
+               }
+                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                .frame(maxHeight: .infinity, alignment: .center)
+                .padding([.bottom,.top], kiOSStageViewsRowPad)
+                .padding([.leading,.trailing], 8)
+                .background(Color("ColourSnoozeAlarmsBackground"))
+            } /* isPostingRepeatingSnoozeAlerts */
+            if !stage.additionalDurationsDict.isEmpty {
+                VStack(alignment: .center) {
+                    HStack(spacing: 0.0) {
+                        Image(systemName: "alarm.waves.left.and.right")
+                            .foregroundColor(Color("ColourAdditionalAlarmsImage"))
+                            .padding(0.0)
+                        Spacer()
+                        stage.additionalDurationsDisplayString
+                   }
+                    .font(.system(.subheadline, design: .rounded, weight: .regular))
+                    .frame(maxWidth: .infinity, alignment: .center)
+               }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding([.bottom,.top], kiOSStageViewsRowPad)
+                .padding(.leading, 4)
+                .padding(.trailing, 8)
+            } /* additionalDurationsDict */
+        } /* HStack */
+        .frame(maxWidth: .infinity)
+        .background(Color("ColourAdditionalAlarmsBackground"))
+    }
+    
+    
     var additionalDurationsDictString: String {
         guard !additionalDurationsDict.isEmpty else { return String(format: "%i", kStageInitialDurationSecs) }
 

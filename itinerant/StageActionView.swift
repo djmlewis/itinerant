@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-#if !os(watchOS)
-let kRowPad = 6.0
-#endif
 
 extension StageActionCommonView {
     
@@ -47,7 +44,7 @@ extension StageActionCommonView {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(kRowPad)
+                .padding(kiOSStageViewsRowPad)
             }
             .frame(maxWidth: .infinity)
             .padding(0)
@@ -87,7 +84,7 @@ extension StageActionCommonView {
 
                } /* HStack */
                 .frame(maxWidth: .infinity)
-                .padding(kRowPad)
+                .padding(kiOSStageViewsRowPad)
             }
             if stage.isCommentOnly == false {
                 HStack {
@@ -131,41 +128,8 @@ extension StageActionCommonView {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(kRowPad)
-                HStack(spacing: 0.0) {
-                    if stage.isPostingRepeatingSnoozeAlerts {
-                        // Snooze Alarms time duration
-                        HStack {
-                            Image(systemName: "bell.and.waves.left.and.right")
-                                .foregroundColor(Color("ColourAdditionalAlarmsImage"))
-                            Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                .lineLimit(1)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                        }
-                        .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        .padding(kRowPad)
-                    }
-                    if !stage.additionalDurationsDict.isEmpty {
-                        VStack(alignment: .center) {
-                            HStack {
-                                Image(systemName: "alarm.waves.left.and.right")
-                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
-                                Text("\(stage.additionalAlertsDurationsString)")
-                                    .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                    .frame(alignment: .leading) // leading to be adjacent to image
-                                    .multilineTextAlignment(.leading)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .center) // centered here
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(kRowPad)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .background(Color("ColourAdditionalAlarmsBackground"))
+                .padding(kiOSStageViewsRowPad)
+                Stage.additionalAndSnoozeAlertsHStackForStage(stage)
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     HStack(spacing: 0) {
                         HStack {
@@ -174,7 +138,7 @@ extension StageActionCommonView {
                             Text(Stage.stageFormattedDurationStringFromDouble(fabs(timeAccumulatedAtUpdate)))
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(kRowPad)
+                        .padding(kiOSStageViewsRowPad)
                         .background(Color("ColourTimeAccumulatedBackground"))
                         .foregroundColor(Color("ColourTimeAccumulatedText"))
                         .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
@@ -187,7 +151,7 @@ extension StageActionCommonView {
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .foregroundColor(stageRunningOvertime ? Color("ColourOvertimeFont") : Color("ColourRemainingFont"))
-                            .padding(kRowPad)
+                            .padding(kiOSStageViewsRowPad)
                             .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
                         }
                     } /* HStack */

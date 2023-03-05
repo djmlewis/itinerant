@@ -223,6 +223,8 @@ let kUISlowUpdateTimerFrequency = 1.0
 let kUISlowUpdateTimerFrequency = 1.0
 #endif
 
+let kiOSStageViewsRowPad = 6.0
+
 let kAppStorageShowUnableToNotifyWarning = "kAppStorageShowUnableToNotifyWarning"
 
 // MARK: - WatchConnectivity

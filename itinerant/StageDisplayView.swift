@@ -73,13 +73,13 @@ struct StageDisplayView: View {
                             .font(.system(.title3, design: .rounded, weight: .bold))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, kRowPad)
+                            .padding(.leading, kiOSStageViewsRowPad)
                             .padding(.top, 6)
                         if !stage.details.isEmpty {
                             Text(stage.details)
                                 .font(.system(.footnote, design: .rounded, weight: .regular))
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading, kRowPad)
+                                .padding(.leading, kiOSStageViewsRowPad)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(1...2)
                         }
@@ -120,42 +120,9 @@ struct StageDisplayView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding([.leading,.bottom], kRowPad)
+                .padding([.leading,.bottom], kiOSStageViewsRowPad)
                 .font(.system(.title3, design: .rounded, weight: .bold))
-                HStack(spacing: 0.0) {
-                    if stage.isPostingRepeatingSnoozeAlerts {
-                        HStack {
-                            Image(systemName: "bell.and.waves.left.and.right")
-                                .foregroundColor(Color("ColourAdditionalAlarmsImage"))
-                            Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                .lineLimit(1)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                                .frame(alignment: .leading)
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                       }
-                        .font(.system(.subheadline, design: .rounded, weight: .regular))
-                        .padding(kRowPad)
-                    } /* isPostingRepeatingSnoozeAlerts */
-                    if !stage.additionalDurationsDict.isEmpty {
-                        VStack(alignment: .center) {
-                            HStack {
-                                Image(systemName: "alarm.waves.left.and.right")
-                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
-                                Text("\(stage.additionalAlertsDurationsString)")
-                                    .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                    .multilineTextAlignment(.leading)
-                                    .frame(alignment: .leading)
-                           }
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                            .frame(maxWidth: .infinity, alignment: .center)
-                       }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(kRowPad)
-                    } /* additionalDurationsDict */
-                } /* HStack */
-                .frame(maxWidth: .infinity)
-                .background(Color("ColourAdditionalAlarmsBackground"))
+                Stage.additionalAndSnoozeAlertsHStackForStage(stage)
             } /* VStack */
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(0)
@@ -173,7 +140,7 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kRowPad)
+                        .padding([.top,.bottom], kiOSStageViewsRowPad)
                         Spacer()
                         Button(action: {
                             newStageMeta = nil
@@ -185,7 +152,7 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kRowPad)
+                        .padding([.top,.bottom], kiOSStageViewsRowPad)
                        Spacer()
                         Button(action: {
                             newStageEditableData = Stage()
@@ -198,9 +165,9 @@ struct StageDisplayView: View {
                         }
                         .buttonStyle(BorderlessButtonStyle())
                         .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kRowPad)
+                        .padding([.top,.bottom], kiOSStageViewsRowPad)
                    } /* VStack buttons */
-                    .padding([.leading,.trailing], kRowPad)
+                    .padding([.leading,.trailing], kiOSStageViewsRowPad)
                     .foregroundColor( .accentColor)
                     .background(Color("ColourControlsBackground"))
             } /* if isEditing == false */
