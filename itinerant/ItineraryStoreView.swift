@@ -42,6 +42,10 @@ struct ItineraryStoreView: View {
     @State var showInvalidFileAlert: Bool = false
     @State var invalidFileName: String = ""
 
+    
+    @State var stageIDsToDelete: [String] = [String]()
+
+    
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
     }
@@ -97,7 +101,7 @@ struct ItineraryStoreView: View {
             })
             .sheet(isPresented: $isPresentingItineraryEditView) {
                 NavigationStack {
-                    ItineraryEditView(itineraryEditableData: $newItineraryEditableData)
+                    ItineraryEditView(itineraryEditableData: $newItineraryEditableData, stageIDsToDelete: $stageIDsToDelete)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {
@@ -106,6 +110,7 @@ struct ItineraryStoreView: View {
                             }
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
+                                    //$stageIDsToDelete can be ignored as no support files were written until now
                                     DispatchQueue.main.async {
                                         var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
                                         newItinerary.updateItineraryEditableData(from: newItineraryEditableData)

@@ -240,7 +240,10 @@ extension Itinerary {
         func stageIndex(forUUIDstr uuidstr: String) -> Int? {
             return stages.firstIndex(where: { $0.hasIDstr(uuidstr) })
         }
-        
+        func stage(forUUIDstr uuidstr: String) -> Stage? {
+            return stages.first(where: { $0.hasIDstr(uuidstr) })
+        }
+
     }
     
     var itineraryEditableData: EditableData {
@@ -344,9 +347,28 @@ extension Itinerary {
 }
 
 
-// MARK: - Image Files
+// MARK: - Image & Support Files
 
 extension Itinerary {
+    
+    func removeAllSupportFilesForStageIDs(_ stageids: [String]) {
+        if let packagepath = packageFilePath {
+            do {
+                let filemanager = FileManager.default
+                for stageid in stageids {
+                    let stageFilenames = try filemanager.contentsOfDirectory(atPath: packagepath).filter({ $0.hasPrefix(stageid) })
+                    for filesname in stageFilenames {
+                        debugPrint("removing files for", filesname)
+                        try filemanager.removeItem(atPath: (packagepath as NSString).appendingPathComponent(filesname))
+                    }
+                }
+            } catch let error {
+                debugPrint("removeAllSupportFilesForStageID", error.localizedDescription)
+            }
+        } else {
+            debugPrint("nil packageFilePath removeAllSupportFilesForStageID")
+        }
+    }
     
     var stagesUpdatedImageFullsize: StageArray { stages.map {
         if $0.imageDataFullActual == nil {

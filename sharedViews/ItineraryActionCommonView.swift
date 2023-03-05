@@ -46,7 +46,8 @@ struct ItineraryActionCommonView: View {
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
     @State var showFilePicker: Bool = false
-    
+    @State var stageIDsToDelete: [String] = [String]()
+
     @EnvironmentObject var itineraryStore: ItineraryStore
     
 #endif

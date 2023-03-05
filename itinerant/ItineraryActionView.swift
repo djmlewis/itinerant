@@ -193,7 +193,7 @@ extension  ItineraryActionCommonView {
         .sheet(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
-                ItineraryEditView(itineraryEditableData: $itineraryData)
+                ItineraryEditView(itineraryEditableData: $itineraryData, stageIDsToDelete: $stageIDsToDelete)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
@@ -202,6 +202,7 @@ extension  ItineraryActionCommonView {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
+                                itinerary.removeAllSupportFilesForStageIDs(stageIDsToDelete)
                                 DispatchQueue.main.async {
                                     itinerary.updateItineraryEditableData(from: itineraryData)
                                     isPresentingItineraryEditView = false

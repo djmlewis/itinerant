@@ -29,7 +29,6 @@ struct StageDisplayView: View {
     @Binding var newStageMeta: NewStageMeta?
     @Binding var isEditing: Bool
     @Binding var stageIDtoDelete: String?
-    @Binding var itineraryTitleFocused: Bool
     
     
     @Environment(\.scenePhase) var scenePhase
@@ -65,6 +64,7 @@ struct StageDisplayView: View {
                 }
                 .frame(maxHeight: .infinity)
                 .padding()
+                .background(.red)
             }
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top, spacing: 0.0) {
@@ -131,7 +131,6 @@ struct StageDisplayView: View {
                     VStack(alignment: .trailing) {
                         Button(action: {
                             stageEditableData = stage.editableData
-                            itineraryTitleFocused.toggle()
                             isPresentingStageEditView = true
                         }) {
                             Image(systemName: "square.and.pencil")
