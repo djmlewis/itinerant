@@ -197,7 +197,9 @@ class ItineraryStore: ObservableObject {
         for filename in filenamesToDelete {
             let filePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(filename)
             do {
-                try FileManager.default.removeItem(atPath: filePath)
+                if FileManager.default.fileExists(atPath: filePath) {
+                    try FileManager.default.removeItem(atPath: filePath)
+                }
             } catch {
                 debugPrint(error.localizedDescription)
             }
@@ -208,7 +210,9 @@ class ItineraryStore: ObservableObject {
         guard let itineraryToDelete = itineraryForUUID(uuid), let filename =  itineraryToDelete.filename else { return }
         let filePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(filename)
         do {
-            try FileManager.default.removeItem(atPath: filePath)
+            if FileManager.default.fileExists(atPath: filePath) {
+                try FileManager.default.removeItem(atPath: filePath)
+            }
         } catch {
             debugPrint(error.localizedDescription)
         }

@@ -383,7 +383,9 @@ extension Itinerary {
                     try nonnildata.write(to: URL(filePath: path))
                 } else {
                     // delete file at path
-                    try FileManager.default.removeItem(atPath: path)
+                    if FileManager.default.fileExists(atPath: path) {
+                        try FileManager.default.removeItem(atPath: path)
+                    }
                 }
             } catch let error {
                 debugPrint("writeImageDataToPackage", error.localizedDescription)
@@ -412,7 +414,9 @@ extension Itinerary {
                     try nonnildata.write(to: URL(filePath: path))
                 } else {
                     // delete file at path
-                    try FileManager.default.removeItem(atPath: path)
+                    if FileManager.default.fileExists(atPath: path) {
+                        try FileManager.default.removeItem(atPath: path)
+                    }
                 }
             } catch let error {
                 debugPrint("writeStageImageDataToPackage", error.localizedDescription)
