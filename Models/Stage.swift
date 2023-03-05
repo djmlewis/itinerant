@@ -367,7 +367,7 @@ extension Stage {
     }
     
     @ViewBuilder  static func additionalAndSnoozeAlertsHStackForStage(_ stage: Stage) -> some View {
-        HStack(spacing: 0.0) {
+        VStack(spacing: 0.0) {
             if stage.isPostingRepeatingSnoozeAlerts {
                 HStack(spacing: 4.0) {
                     Image(systemName: "bell.and.waves.left.and.right")
@@ -380,7 +380,7 @@ extension Stage {
                         .foregroundColor(Color("ColourAdditionalAlarmsText"))
                }
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .frame(maxHeight: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding([.bottom,.top], kiOSStageViewsRowPad)
                 .padding([.leading,.trailing], 8)
                 .background(Color("ColourSnoozeAlarmsBackground"))
@@ -401,10 +401,10 @@ extension Stage {
                 .padding([.bottom,.top], kiOSStageViewsRowPad)
                 .padding(.leading, 4)
                 .padding(.trailing, 8)
-            } /* additionalDurationsDict */
-        } /* HStack */
+                .background(Color("ColourAdditionalAlarmsBackground"))
+           } /* additionalDurationsDict */
+        } /* VStack */
         .frame(maxWidth: .infinity)
-        .background(Color("ColourAdditionalAlarmsBackground"))
     }
     
     
