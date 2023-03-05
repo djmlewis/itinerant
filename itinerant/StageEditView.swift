@@ -101,6 +101,7 @@ struct StageEditView: View {
                                 }
                             }
                     }
+                    .padding(.bottom,4)
                     .frame( alignment: .center)
                     .alert("Unable To Load Image", isPresented: $showFullSizeUIImageAlert) {
                     } message: {
@@ -123,6 +124,13 @@ struct StageEditView: View {
                                 .padding(0)
                         })
                         .buttonStyle(.borderless)
+                    }  else {
+                        Text("Tap \(Image(systemName:"photo.on.rectangle.angled")) to add image")
+                            .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            .frame(alignment: .center)
+                            .padding(0)
+                            .opacity(0.5)
+                            .italic()
                     }
                 }
             })
@@ -300,8 +308,8 @@ struct StageEditView: View {
                         .padding(0)
                     } else {
                         Text("Tap + to add")
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .multilineTextAlignment(.center)
                             .padding(0)
                             .opacity(0.5)
                             .italic()

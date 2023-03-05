@@ -81,6 +81,7 @@ struct ItineraryEditView: View {
             }
             .frame(idealWidth: kImageColumnWidth)
             .fixedSize(horizontal: true, vertical: false)
+            .padding(.bottom,4)
             HStack(alignment: .top) {
                 if let selectedImageData,
                    let uiImage = UIImage(data: selectedImageData) {
@@ -99,6 +100,13 @@ struct ItineraryEditView: View {
                             .padding(0)
                     })
                     .buttonStyle(.borderless)
+                } else {
+                    Text("Tap \(Image(systemName:"photo.on.rectangle.angled")) to add image")
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
+                        .frame(alignment: .center)
+                        .padding(0)
+                        .opacity(0.5)
+                        .italic()
                 }
             }
             .padding(.bottom, kiOSStageViewsRowPad)
