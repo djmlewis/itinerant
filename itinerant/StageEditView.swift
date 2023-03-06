@@ -43,7 +43,7 @@ struct StageEditView: View {
     
     var body: some View {
         Form {
-            Section(content: {}, header: {
+            Section { } header: {
                 VStack(alignment: .center) {
                     HStack {
                         Button {
@@ -61,7 +61,7 @@ struct StageEditView: View {
                         .buttonStyle(.borderless)
                         Spacer()
                         Text("Image")
-                            .font(.system(.title3, design: .rounded, weight: .regular))
+                            .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                         Spacer()
                         PhotosPicker(
                             selection: $selectedItem,
@@ -79,7 +79,7 @@ struct StageEditView: View {
                                             // make a thumbnail
                                             if let uiImage = UIImage(data: data) {
                                                 uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
-                                                    let thumbnaildata = thumbnailImage?.pngData()
+                                                    let thumbnaildata = thumbnailImage?.jpegData(compressionQuality: 0.5)
                                                     DispatchQueue.main.async {
                                                         selectedImageData = thumbnaildata
                                                         stageEditableData.imageDataFullActual = data
@@ -126,26 +126,29 @@ struct StageEditView: View {
                         .buttonStyle(.borderless)
                     }  else {
                         Text("Tap \(Image(systemName:"photo.on.rectangle.angled")) to add image")
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
+                            .font(.system(.footnote, design: .rounded, weight: .regular))
                             .frame(alignment: .center)
                             .padding(0)
                             .opacity(0.5)
                             .italic()
                     }
                 }
-            })
+            }
+            .textCase(nil)
             Section {
                 TextField("Stage title", text: $stageEditableData.title,  axis: .vertical)
             } header: {
                 Text("Title")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
             } /* Section */
+            .textCase(nil)
             Section {
                 TextField("Details", text: $stageEditableData.details,  axis: .vertical)
             } header: {
                 Text("Details")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
             }
+            .textCase(nil)
             Section {
                 Toggle(isOn: $untimedComment) {
                     Text("Display Only As Comment")
@@ -153,8 +156,9 @@ struct StageEditView: View {
                 }
             } header: {
                 Text("\(Image(systemName: "bubble.left")) Comment")
-                    .font(.system(.title3, design: .rounded, weight: .regular))
+                    .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
             }
+            .textCase(nil)
             if untimedComment != true {
                 Section {
                     /* Duration Pickers */
@@ -220,8 +224,9 @@ struct StageEditView: View {
                     /* Duration Pickers */
                 } header: {
                     Text("\(Image(systemName: timerDirection.symbolName)) Duration")
-                        .font(.system(.title3, design: .rounded, weight: .regular))
+                        .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                 } /* Section */
+                .textCase(nil)
                 Section {
                     VStack(spacing:0) {
                         HStack {
@@ -263,8 +268,9 @@ struct StageEditView: View {
                     .padding(0)
                 } header: {
                     Text("\(Image(systemName: "zzz")) Snooze Interval")
-                        .font(.system(.title3, design: .rounded, weight: .regular))
+                        .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                 } /* Section */
+                .textCase(nil)
                 Section {
                     Toggle(isOn: $snoozeAlertsOn) {
                         HStack {
@@ -280,8 +286,9 @@ struct StageEditView: View {
                     }
                 } header: {
                     Text("\(Image(systemName: "bell.and.waves.left.and.right")) Repeating Notifications")
-                        .font(.system(.title3, design: .rounded, weight: .regular))
+                        .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                 }
+                .textCase(nil)
                 Section {
                     if !additionaldurationsDictKeys.isEmpty {
                         List {
@@ -319,7 +326,7 @@ struct StageEditView: View {
                     HStack {
                         Text("\(Image(systemName: "alarm.waves.left.and.right")) Timed Notifications")
                             .padding(0)
-                            .font(.system(.title3, design: .rounded, weight: .regular))
+                            .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                         Spacer()
                         Button {
                             addedhours = 0
@@ -335,6 +342,7 @@ struct StageEditView: View {
                         .controlSize(.small)
                     }
                 } /* Section */
+                .textCase(nil)
                 //} /* if !stageEditableData.durationsArray.isEmpty */
             } /* untimedComment != true {Section} */
         } /* Form */

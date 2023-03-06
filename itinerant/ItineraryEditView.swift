@@ -67,7 +67,7 @@ struct ItineraryEditView: View {
                                 // make a thumbnail
                                 if let uiImage = UIImage(data: data) {
                                     uiImage.prepareThumbnail(of: CGSize(width: kImageColumnWidth, height:uiImage.size.height * (kImageColumnWidth/uiImage.size.width))) { thumbnailImage in
-                                        let thumbnaildata = thumbnailImage?.pngData()
+                                        let thumbnaildata = thumbnailImage?.jpegData(compressionQuality: 0.5)
                                         DispatchQueue.main.async {
                                             selectedImageData = thumbnaildata
                                             itineraryEditableData.imageDataFullActual = data
