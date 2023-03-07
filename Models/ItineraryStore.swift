@@ -32,7 +32,8 @@ class ItineraryStore: ObservableObject {
     var itineraryTitles: [String] { itineraries.map { $0.title } }
     var itineraryUUIDStrs: [String] { itineraries.map { $0.idStr } }
     
-    
+    func itineraryThumbnailForID(id:String) -> Data? { itineraryForID(id: id)?.imageDataThumbnailActual }
+
     func itineraryFileNameForID(id:String) -> String { itineraryForID(id: id)?.filename ?? "---" }
     func hasItineraryWithFilename(_ filename: String) -> Bool { return itineraries.firstIndex(where: { $0.filename == filename }) != nil }
 

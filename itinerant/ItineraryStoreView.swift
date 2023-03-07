@@ -44,7 +44,7 @@ struct ItineraryStoreView: View {
 
     
     @State var stageIDsToDelete: [String] = [String]()
-
+    @State var textVStackSize: CGSize = CGSize(width: kImageColumnWidthThird, height: 0.0)
     
     func textColourForID(_ itineraryID: String) -> Color? {
         return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))

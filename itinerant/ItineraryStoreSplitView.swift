@@ -13,35 +13,35 @@ extension ItineraryStoreView {
         NavigationSplitView() {
             List(selection: $itineraryIDselected) {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
+                    let itineraryActual = itineraryStore.itineraryForID(id: itineraryID)
+                    let isRunning = (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false)
+                    let hasThumbnail = itineraryActual?.imageDataThumbnailActual != nil
                     HStack(spacing: 0) {
-                        if (itineraryStore.itineraryForID(id: itineraryID)?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) {
-                            buttonStartHalt(forItineraryID: itineraryID)
-                        }
-                        VStack(alignment: .leading, spacing: 5.0) {
-                            Text(itineraryStore.itineraryTitleForID(id: itineraryID))
-                                .font(.system(.title, design: .rounded, weight: .semibold))
-                                .multilineTextAlignment(.leading)
-                            HStack(alignment: .center) {
-                                Image(systemName: "doc")
-                                Text(itineraryStore.itineraryFileNameForID(id: itineraryID))
-                                if let date = itineraryStore.itineraryModificationDateForID(id: itineraryID) {
-                                    Image(systemName:"square.and.pencil")
-                                    Text(date.formatted(date: .numeric, time: .shortened))
+                        if isRunning || hasThumbnail {
+                            ZStack(alignment: .center) {
+                                if let imagedata = itineraryStore.itineraryThumbnailForID(id: itineraryID), let uiImage = UIImage(data: imagedata) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .frame(maxWidth: kImageColumnWidthThird, maxHeight: textVStackSize.height)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .padding(0)
                                 }
-                                Spacer()
+                                if isRunning {
+                                    buttonStartHalt(forItineraryID: itineraryID)
+                                }
                             }
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.5)
-                            .opacity(0.6)
                         }
-                        .padding(0)
+                        Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                            .padding(.leading, 8)
+                            .font(.system(.title, design: .rounded, weight: .semibold))
+                            .multilineTextAlignment(.leading)
+                            .modifier(SizeMeasuringModifier())
+                            .onPreferenceChange(SizeMeasuringPreferenceKey.self) { textVStackSize = $0 }
                     } /* HStack */
                     .id(itineraryID)
                     .padding(0)
                     .listRowInsets(.init(top: 10,
-                                         leading: (itineraryStore.itineraryForID(id: itineraryID)?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
+                                         leading: (itineraryActual?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
                                          bottom: 10, trailing: 10))
                 } /* ForEach */
                 .onDelete(perform: { offsets in
