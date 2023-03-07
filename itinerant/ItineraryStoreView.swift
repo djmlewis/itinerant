@@ -26,19 +26,16 @@ struct ItineraryStoreView: View {
     @State  var fileImporterShown: Bool = false
     @State  var fileImportFileType: [UTType] = [.itineraryDataPackage]
     
-    @State  var presentedItineraryID: [String] = []
     @State  var showSettingsView: Bool = false
     @State  var openRequestURL: URL?
     @State  var isPresentingConfirmOpenURL: Bool = false
     @State  var showInvalidFileAlert: Bool = false
     @State  var invalidFileName: String = ""
     @State  var stageIDsToDelete: [String] = [String]()
-    @State  var lineHeights: [String:CGFloat] = [String:CGFloat]()
-
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
-    @Environment(\.colorScheme) var colorScheme
     
+    // NavStack
+    @State  var presentedItineraryIDsStackArray: [String] = []
+
     // split nav
     @State var itineraryIDselected: String?
     @State var columnVisibility = NavigationSplitViewVisibility.all
@@ -95,10 +92,10 @@ struct ItineraryStoreView: View {
                 guard newValue != nil && itineraryStore.hasItineraryWithID(newValue!) else { return }
                 // pop back
                 DispatchQueue.main.async {
-                    presentedItineraryID = []
+                    presentedItineraryIDsStackArray = []
                     itineraryIDselected = nil
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
-                        presentedItineraryID = [newValue!] // stack
+                        presentedItineraryIDsStackArray = [newValue!] // stack
                         itineraryIDselected = newValue // split
                    }
                 }
@@ -145,62 +142,61 @@ struct ItineraryStoreView: View {
     } /* body */
 } /* View */
 
-
 extension ItineraryStoreView {
-    func textColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
-    }
-    func backgroundColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
-    }
+    var body_stack: some View {
+        NavigationStack(path: $presentedItineraryIDsStackArray) {
+            List {
+                ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
+                    ItineraryStoreItineraryRowView(itineraryID: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
+                        .id(itineraryID)
+                } /* ForEach */
+                .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
+            } /* List */
+            .navigationDestination(for: String.self) { id in
+                ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+            }
+            .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
+        } /* NavStack */
+    } /* body */
 
-    func buttonStartHalt(forItineraryID itineraryID: String) -> some View {
-        Button(action: {
-            // Only Stop
-            if let itinerary = itineraryStore.itineraryForID(id: itineraryID),
-                let stageRunning = itinerary.stageRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-                appDelegate.unnItineraryToOpenID = nil
-                appDelegate.unnStageToHaltID = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    appDelegate.unnItineraryToOpenID = itinerary.idStr
-                    appDelegate.unnStageToHaltID = stageRunning.idStr
+    var body_split: some View {
+        NavigationSplitView() {
+            List(selection: $itineraryIDselected) {
+                ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
+                    ItineraryStoreItineraryRowView(itineraryID: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
+                        .id(itineraryID)
+                } /* ForEach */
+                .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
+            } /* List */
+            .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
+            
+        } detail: {
+            if let itineraryidselected = itineraryIDselected {
+                if let itin = itineraryStore.itineraryForID(id: itineraryidselected) {
+                    ItineraryActionCommonView(itinerary: itin, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                        .id(itin.idStr)
                 }
             }
-        })
-        {
-            Image(systemName: "stop.circle")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(Color.red)
-                .background(.white)
-                .padding(3)
-                .border(.white, width: 3)
-                .clipShape(Circle())
-                .padding(0)
+        } /* detail */
+        /* NavSplitView*/
+    } /* body */
 
+}
+
+extension ItineraryStoreView {
+    
+    
+    func deleteItinerariesAtOffsets(_ offsets: IndexSet) {
+        // remove all references to any stage ids for these itineraries first. offsets is the indexset
+        offsets.forEach { index in
+            (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates,dictStageEndDates) = itineraryStore.itineraries[index].removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
         }
-        .buttonStyle(BorderlessButtonStyle())
-        .frame(width: 46, alignment: .leading)
-        .padding(4)
+        // now its safe to delete those Itineraries
+        itineraryStore.removeItinerariesAtOffsets(offsets: offsets)
+        itineraryIDselected = nil
+        presentedItineraryIDsStackArray = []
     }
     
-    struct TitleMeasuringPreferenceKey: PreferenceKey {
-        static var defaultValue: CGSize = .zero
-        static func reduce(value: inout CGSize, nextValue: () -> CGSize) { value = nextValue() }
-    }
-    struct TitleMeasuringModifier: ViewModifier {
-        private var sizeView: some View { GeometryReader { Color.clear.preference(key: TitleMeasuringPreferenceKey.self, value: $0.size) } }
-        func body(content: Content) -> some View {  content.background(sizeView) }
-    }
-
-
 }
-
-struct ItineraryStoreView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("yo")
-    }
-}
-
 
 

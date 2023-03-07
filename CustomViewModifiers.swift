@@ -36,9 +36,11 @@ struct TextInvalidDate: View {
 
 /*
 struct SizeMeasuringPreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
+ // use typealias and  "Value" throughoout; or, use CGSize explicitly throughout and omit typealias; or, use both typealias and explicitly CGSize! .. as here:
+    typealias Value = CGSize
+    static var defaultValue: Value = .zero
 
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+    static func reduce(value: inout Value, nextValue: () -> Value) {
         // this reduce function just supplies the nextValue as-is to replace the existing value which passes back inout
         // reduce could append a value instead, but should return a single value result
         value = nextValue()
@@ -65,6 +67,17 @@ struct SizeMeasuringModifier: ViewModifier {
         content.background(sizeView)
     }
 }
+ 
+ struct TitleMeasuringPreferenceKey: PreferenceKey {
+     typealias Value = CGSize
+     static var defaultValue: Value = .zero
+     static func reduce(value: inout Value, nextValue: () -> Value) { value = nextValue() }
+ }
+ struct TitleMeasuringModifier: ViewModifier {
+     private var sizeView: some View { GeometryReader { Color.clear.preference(key: TitleMeasuringPreferenceKey.self, value: $0.size) } }
+     func body(content: Content) -> some View {  content.background(sizeView) }
+ }
+
 */
 
 struct FileNameModDateTextView: View {
