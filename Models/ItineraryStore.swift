@@ -17,6 +17,7 @@ class ItineraryStore: ObservableObject {
     // MARK: - Itinerary Characteristics
     
     func itineraryForID(id:String) -> Itinerary? { return itineraries.first{ $0.idStr.contains(id) } }
+    func itineraryForIDorErrorItinerary(id:String) -> Itinerary { return itineraries.first{ $0.idStr.contains(id) } ?? Itinerary.errorItinerary() }
     func hasItineraryWithID(_ id: String) -> Bool { return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil }
     func itineraryForUUID(_ uuid:UUID) -> Itinerary? { return itineraries.first{ $0.id == uuid } }
     func itineraryIndexForUUID(_ uuid: UUID) -> Int? { return itineraries.firstIndex(where: { $0.id == uuid }) }
@@ -290,7 +291,8 @@ class ItineraryStore: ObservableObject {
     }
     // using URLs to construct paths then export as Strs leads to issues with spaces in the filename. stick with strings
     func dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(_ filename:String) -> String {
-        appendPathComponentToAppDataPackagesDirectoryPath(filename + ItineraryFileExtension.dataPackage.dotExtension)
+        let correctFileName = filename.isEmpty ? kUntitledString : filename
+        return appendPathComponentToAppDataPackagesDirectoryPath(correctFileName + ItineraryFileExtension.dataPackage.dotExtension)
     }
     func appDocumentsOrPackagesDirectoryPathDependingOnFileNameSuffix(_ filenamewithextn: String) -> String {
         if filenamewithextn.hasSuffix(ItineraryFileExtension.dataFile.rawValue) {
@@ -315,7 +317,7 @@ class ItineraryStore: ObservableObject {
            files.count > 0 {
             let filenames = files.map { $0.components(separatedBy: ".").first }
             var index = 1
-            var modifiedFilename = initialFileName
+            var modifiedFilename = initialFileName.isEmpty ? kUntitledString : initialFileName
             while filenames.first(where: { $0 == modifiedFilename }) != nil {
                 modifiedFilename = initialFileName + " \(index)"
                 index += 1
@@ -326,7 +328,8 @@ class ItineraryStore: ObservableObject {
     }
 
     func dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(_ filename:String) -> String {
-        let uniquename = uniqueifiedDataPackagesDirectoryFileNameForFileNameWithoutExtension(filename)
+        let correctFileName = filename.isEmpty ? kUntitledString : filename
+        let uniquename = uniqueifiedDataPackagesDirectoryFileNameForFileNameWithoutExtension(correctFileName)
         return appendPathComponentToAppDataPackagesDirectoryPath(uniquename + ItineraryFileExtension.dataPackage.dotExtension)
     }
 

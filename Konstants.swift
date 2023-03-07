@@ -62,6 +62,7 @@ let kUnknownObjectErrorStr = "error: Unkown"
 let kImportHeadingLines: Int = 1
 let kImportLinesPerStage: Int = 6
 let kSeparatorImportFile = "\n"
+let kUntitledString = "Untitled"
 
 // MARK: - Stage
 

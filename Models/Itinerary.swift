@@ -29,7 +29,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
     
     
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String = "", stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
+    init(id: UUID = UUID(), title: String = kUntitledString, stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
         self.id = id
         self.title = title
         self.stages = stages
@@ -49,7 +49,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
         
     init(id: UUID, modificationDate: TimeInterval) {
         self.id = id
-        self.title = ""
+        self.title = kUntitledString
         self.stages = []
         self.modificationDate = modificationDate
         self.packageFilePath = nil
@@ -73,7 +73,7 @@ struct Itinerary: Identifiable, Codable, Hashable {
 }
 
 extension Itinerary {
-    static func templateItinerary() -> Itinerary { Itinerary(title: "Itinerary", stages: Stage.templateStageArray(),modificationDate: nowReferenceDateTimeInterval()) }
+    static func templateItinerary() -> Itinerary { Itinerary(title: kUntitledString, stages: Stage.templateStageArray(),modificationDate: nowReferenceDateTimeInterval()) }
     static func sampleItineraryArray() -> [Itinerary] { [Itinerary.templateItinerary(), Itinerary.templateItinerary(), Itinerary.templateItinerary()] }
     static func emptyItineraryArray() -> [Itinerary] { [] }
     
@@ -222,7 +222,7 @@ extension Itinerary {
         modificationDate: modificationDate,
         title: title,
         messageStages: watchStages(),
-        filename: filename ?? "") ) }
+        filename: filename ?? kUntitledString) ) }
     
     func watchStages() -> StageWatchMessageDataArray { stages.map { $0.watchDataNewUUID } }
 
@@ -231,7 +231,7 @@ extension Itinerary {
 // MARK: - ItineraryEditableData
 extension Itinerary {
     struct EditableData {
-        var title: String = ""
+        var title: String = kUntitledString
         var stages: StageArray = []
         var imageDataThumbnailActual: Data?
         var imageDataFullActual: Data?
@@ -251,7 +251,7 @@ extension Itinerary {
     }
     
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
-        title = itineraryEditableData.title
+        title = itineraryEditableData.title.isEmpty ? kUntitledString : itineraryEditableData.title
         stages = itineraryEditableData.stages
         imageDataThumbnailActual = itineraryEditableData.imageDataThumbnailActual
         imageDataFullActual = itineraryEditableData.imageDataFullActual
@@ -265,7 +265,6 @@ extension Itinerary {
         }
     }
     
-
 }
 
 

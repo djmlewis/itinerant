@@ -26,36 +26,6 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     var imageDataFullActual: Data?
 
     
-    mutating func updateImageDataThumbnailActualFromPackagePath(_ packagePath: String?) {
-        if let packagePath {
-            if imageDataFullActual == nil {
-                let filename = idStr + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
-                let path = (packagePath as NSString).appendingPathComponent(filename)
-                imageDataFullActual = FileManager.default.contents(atPath: path)
-            }
-        }
-    }
-    
-//    var durationSecsInt: Int {
-//        get { durationsArray.first! }
-//        set(newDuration) { durationsArray[0] = newDuration }
-//    }
-//    var additionalDurationsDict: [Int] {
-//        get {
-//            var array = durationsArray
-//            _ = array.remove(at: 0)
-//            return array
-//        }
-//        set(array) {
-//            var newdurationsarray = [Int]()
-//            newdurationsarray.append(durationsArray[0])
-//            if !array.isEmpty {
-//                newdurationsarray += array
-//            }
-//            durationsArray = newdurationsarray
-//        }
-//    }
-    
     var persistentData: Stage.PersistentData {
         PersistentData(id: self.id, title: self.title,
                        durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict,
@@ -74,7 +44,7 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     
     
     // simple init with a durationSecsInt
-    init(id: UUID = UUID(), title: String = "", durationSecsInt: Int = kStageInitialDurationSecs, additionalDurationsDict: [Int : String] = [Int : String](), details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = StageNotificationInterval.countUp.string, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil) {
+    init(id: UUID = UUID(), title: String = kUntitledString, durationSecsInt: Int = kStageInitialDurationSecs, additionalDurationsDict: [Int : String] = [Int : String](), details: String = "", snoozeDurationSecs: Int = kStageInitialSnoozeDurationSecs, flags: String = StageNotificationInterval.countUp.string, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil) {
         self.id = id
         self.title = title
         self.durationSecsInt = durationSecsInt
@@ -111,7 +81,7 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     }
     
     mutating func updateEditableData(from editableData: Stage) {
-        self.title = editableData.title
+        self.title = editableData.title.isEmpty ? kUntitledString : editableData.title
         self.durationSecsInt = editableData.durationSecsInt
         self.additionalDurationsDict = editableData.additionalDurationsDict
         self.details = editableData.details
@@ -442,7 +412,7 @@ extension Stage {
     init(fromImportLines lines: ArraySlice<Substring>) {
         self.id = UUID()
         let firstIndex = lines.startIndex
-        self.title =  String(lines[firstIndex])
+        self.title =  String(lines[firstIndex]).isEmpty ? kUntitledString : String(lines[firstIndex])
         self.details = String(lines[firstIndex+1])
         self.durationSecsInt = Int(lines[firstIndex+2]) ?? kStageInitialDurationSecs
         self.additionalDurationsDict = Stage.additionalDurationsDictFromString(String(lines[firstIndex+3]))
@@ -451,5 +421,18 @@ extension Stage {
         // default to countdown
         if self.flags.isEmpty { self.flags = StageNotificationInterval.countUp.string }
     }
+    
+// MARK: - Images
+    mutating func updateImageDataThumbnailActualFromPackagePath(_ packagePath: String?) {
+        if let packagePath {
+            if imageDataFullActual == nil {
+                let filename = idStr + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
+                let path = (packagePath as NSString).appendingPathComponent(filename)
+                imageDataFullActual = FileManager.default.contents(atPath: path)
+            }
+        }
+    }
+    
+
 }
 

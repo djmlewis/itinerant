@@ -235,10 +235,10 @@ extension StageActionCommonView {
     }
     
     func alertIfUnableToPostNotifications() {
+        // user may have silenced these warnings
         guard showUnableToNotifyWarning == true else { return }
         UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
             if (notificationSettings.authorizationStatus != .authorized)  {
-                debugPrint("unable to alert in any way"); return
                 presentUnableToNotifyAlert = true
             }
         }

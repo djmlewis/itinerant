@@ -34,27 +34,8 @@ struct TextInvalidDate: View {
 }
 
 
-
+/*
 struct SizeMeasuringPreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        // this reduce function just supplies the nextValue as-is to replace the existing value which passes back inout
-        // reduce could append a value instead, but should return a single value result
-        value = nextValue()
-    }
-}
-struct SizeMeasuringPreferenceTwoKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        // this reduce function just supplies the nextValue as-is to replace the existing value which passes back inout
-        // reduce could append a value instead, but should return a single value result
-        value = nextValue()
-    }
-}
-
-struct SizeMeasuringPreferenceThreeKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
@@ -84,28 +65,19 @@ struct SizeMeasuringModifier: ViewModifier {
         content.background(sizeView)
     }
 }
+*/
 
-struct SizeMeasuringModifierTwo: ViewModifier {
-    private var sizeView: some View {
-        GeometryReader { geometry in
-            Color.clear.preference(key: SizeMeasuringPreferenceTwoKey.self, value: geometry.size)
-        }
+struct FileNameModDateTextView: View {
+    var itineraryOptional: Itinerary?
+    
+    var itineraryActual: Itinerary { itineraryOptional ?? Itinerary.errorItinerary()}
+    var filename: String { itineraryActual.filename ?? "---"}
+    var modDateStr: String {
+        Date(timeIntervalSinceReferenceDate: itineraryActual.modificationDate).formatted(date: .numeric, time: .shortened)
     }
-
-    func body(content: Content) -> some View {
-        content.background(sizeView)
-    }
-}
-
-struct SizeMeasuringModifierThree: ViewModifier {
-    private var sizeView: some View {
-        GeometryReader { geometry in
-            Color.clear.preference(key: SizeMeasuringPreferenceThreeKey.self, value: geometry.size)
-        }
-    }
-
-    func body(content: Content) -> some View {
-        content.background(sizeView)
+    var body: some View {
+        Text("\(Image(systemName: "doc")) \(filename)") +
+        Text(" \(Image(systemName: "square.and.pencil")) \(modDateStr)")
     }
 }
 

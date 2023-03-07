@@ -78,15 +78,9 @@ extension  ItineraryActionCommonView {
                         .padding(.leading,0)
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                 }
-                HStack(alignment: .center) {
-                    Spacer()
-                    Image(systemName: "doc")
-                    Text(itinerary.filename ?? "---")
-                    Image(systemName:"square.and.pencil")
-                    Text(Date(timeIntervalSinceReferenceDate: itinerary.modificationDate).formatted(date: .numeric, time: .shortened))
-                    Spacer()
-                }
+                FileNameModDateTextView(itineraryOptional: itinerary)
                 .font(.system(.caption, design: .rounded, weight: .regular))
+                .opacity(0.5)
             }
             .font(.caption)
             .lineSpacing(1.0)
