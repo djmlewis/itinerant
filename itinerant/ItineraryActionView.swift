@@ -184,7 +184,7 @@ extension  ItineraryActionCommonView {
         .sheet(isPresented: $showFilePicker) {
             FilePickerUIRepresentable(path: itinerary.packageFilePath!)
         }
-        .sheet(isPresented: $isPresentingItineraryEditView, content: {
+        .fullScreenCover(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
                 ItineraryEditView(itineraryEditableData: $itineraryData, stageIDsToDelete: $stageIDsToDelete)

@@ -194,7 +194,7 @@ struct ItineraryEditView: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPresentingNewStageEditView) {
+            .fullScreenCover(isPresented: $isPresentingNewStageEditView) {
                 NavigationStack {
                     StageEditView(stageEditableData: $newStageEditableData)
                         .toolbar {

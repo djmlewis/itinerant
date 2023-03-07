@@ -179,7 +179,7 @@ struct StageDisplayView: View {
         } /* HStack */
         .frame(maxWidth: .infinity)
         .animation(.linear(duration: 0.1), value: isEditing)
-        .sheet(isPresented: $isPresentingStageEditView) {
+        .fullScreenCover(isPresented: $isPresentingStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $stageEditableData)
                     .toolbar {
@@ -199,7 +199,7 @@ struct StageDisplayView: View {
                     }
             }
         }
-        .sheet(isPresented: $isPresentingNewStageEditView) {
+        .fullScreenCover(isPresented: $isPresentingNewStageEditView) {
             NavigationStack {
                 StageEditView(stageEditableData: $newStageEditableData)
                     .toolbar {

@@ -58,7 +58,7 @@ struct ItineraryStoreView: View {
                     SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL)
                 }
             })
-            .sheet(isPresented: $isPresentingItineraryEditView) {
+            .fullScreenCover(isPresented: $isPresentingItineraryEditView) {
                 NavigationStack {
                     ItineraryEditView(itineraryEditableData: $newItineraryEditableData, stageIDsToDelete: $stageIDsToDelete)
                         .toolbar {
