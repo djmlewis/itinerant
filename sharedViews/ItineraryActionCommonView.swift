@@ -24,15 +24,16 @@ struct ItineraryActionCommonView: View {
     @State var stageToStartRunningID: String?
     
     @EnvironmentObject var appDelegate: AppDelegate
-    
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
-    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
-    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
-    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
+    @EnvironmentObject var appSettingsObject: SettingsColoursObject
+
+//    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
+//    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+//    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+//    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
+//    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+//    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+//    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+//    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
     
 #if !os(watchOS)
     @State var itineraryData = Itinerary.EditableData()
@@ -47,6 +48,8 @@ struct ItineraryActionCommonView: View {
     @State var showFullSizeUIImage: Bool = false
     @State var showFilePicker: Bool = false
     @State var stageIDsToDelete: [String] = [String]()
+    @State  var showSettingsView: Bool = false
+    @State  var openRequestURL: URL?
 
     @EnvironmentObject var itineraryStore: ItineraryStore
     
@@ -93,15 +96,15 @@ extension ItineraryActionCommonView {
     
     func stageBackgroundColour(stage: Stage) -> Color {
         if stage.isCommentOnly {
-            return appStorageColourStageComment.rgbaColor!
+            return appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
         }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageColourStageRunning.rgbaColor!
+            return appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
         }
         if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageColourStageActive.rgbaColor!
+            return appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
         }
-        return appStorageColourStageInactive.rgbaColor!
+        return appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
     }
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {

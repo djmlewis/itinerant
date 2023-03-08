@@ -18,6 +18,7 @@ struct ItinerantApp: App {
             ItineraryStoreView()
             // environmentObject are accessed by Type so only 1 of ANY type can go in environment
                 .environmentObject(appDelegate.itineraryStore)
+                .environmentObject(appDelegate.settingsColoursObject)
             /* .environmentObject(appDelegate) NOT NEEDED auto put in environment by Adaptor above */
             /* .onAppear() { /* !!! This gets called every time a sheet or dialog gets called in WKItineraryStoreView !!! */ } */
         } /* WindowGroup */

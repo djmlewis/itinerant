@@ -55,7 +55,7 @@ struct ItineraryStoreView: View {
         body_
             .sheet(isPresented: $showSettingsView, content: {
                 NavigationStack {
-                    SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL)
+                    SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL, itinerary: nil)
                 }
             })
             .fullScreenCover(isPresented: $isPresentingItineraryEditView) {

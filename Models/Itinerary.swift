@@ -457,7 +457,7 @@ extension Itinerary {
         return nil
     }
 
-    mutating func loadAllImageFilesFromPackage() {
+    mutating func loadAllSupportFilesFromPackage() {
         imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
         // load fullsize as required
         //imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
@@ -465,7 +465,6 @@ extension Itinerary {
         while i != stages.endIndex {
             stages[i].imageDataThumbnailActual = loadStageImageDataFromPackage(imageSizeType: .thumbnail, stageIDstr: stages[i].idStr)
             // load fullsize as required
-            //stages[i].imageDataFullActual = loadStageImageDataFromPackage(imageSizeType: .fullsize, stageIDstr: stages[i].idStr)
             i = stages.index(after: i)
         }
     }

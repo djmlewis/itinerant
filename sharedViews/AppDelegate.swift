@@ -11,7 +11,16 @@ import UserNotifications
 
 // MARK: - AppDelegate.swift
 class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate, WCSessionDelegate     {
-    
+    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
+    @AppStorage(kAppStorageColourStageActive)   var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
+    @AppStorage(kAppStorageColourStageRunning)  var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
+    @AppStorage(kAppStorageColourStageComment)  var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
+    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
+    @AppStorage(kAppStorageColourFontActive)   var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
+    @AppStorage(kAppStorageColourFontRunning)  var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
+    @AppStorage(kAppStorageColourFontComment)  var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
+
+
     @Published var unnItineraryToOpenID: String?
     @Published var unnStageToStopAndStartNextID: String?
     @Published var unnStageToHaltID: String?
@@ -21,20 +30,11 @@ class AppDelegate: NSObject,  ObservableObject, UNUserNotificationCenterDelegate
     @Published var fileDeletePathArray: [String]?
     @Published var watchConnectionProblem: String?
     @Published var syncItineraries: Bool = false
+    @Published var settingsColoursObject: SettingsColoursObject = SettingsColoursObject()
 
     @Published var newItinerary: Itinerary? /* watchOS only */
     
   
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    
-    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
-    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
-    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
-    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-
 }
 
 
@@ -70,6 +70,8 @@ extension AppDelegate {
         requestNotificationPermission()
         initiateWatchConnectivity()
         DispatchQueue.main.async {
+            // settingsColoursObject is init with static colours, load our appstorage colours
+            self.settingsColoursObject.resetToAppStorageValues()
             let filesToDeleteArray = self.itineraryStore.tryToLoadItineraries()
             if !filesToDeleteArray.isEmpty {
                 self.fileDeletePathArray = filesToDeleteArray
@@ -303,6 +305,15 @@ extension AppDelegate {
             }
         }
     }
+    
+    
+// MARK: - Settings
+    
+    func updateSettingsFromSettingsStructColours(_ settingsStruct: SettingsColoursStruct) {
+        self.settingsColoursObject.updateFromSettingsColoursStruct(settingsStruct, andUpdateAppStorage: true)
+        
+    }
+    
     
     func handleSettingsDictFromPhone(_ settingsDict: [String : String ]) {
         DispatchQueue.main.async {

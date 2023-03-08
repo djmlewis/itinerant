@@ -38,6 +38,11 @@ struct SettingsViewStageColours: View {
 struct SettingsView: View {
     @Binding var showSettingsView: Bool
     @Binding var urlToOpen: URL?
+    var itinerary: Itinerary? // signals its a local not global
+    
+    var settingGlobals: Bool { itinerary == nil }
+    
+    
 
     @State private var prefColourInactive: Color = kAppStorageDefaultColourStageInactive.rgbaColor!
     @State private var prefColourActive: Color = kAppStorageDefaultColourStageActive.rgbaColor!
@@ -49,17 +54,8 @@ struct SettingsView: View {
     @State private var prefColourFontRunning: Color = kAppStorageDefaultColourFontRunning.rgbaColor!
     @State private var prefColourFontComment: Color = kAppStorageDefaultColourFontComment.rgbaColor!
 
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    
-    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
-    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
-    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
-    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-
     @EnvironmentObject var appDelegate: AppDelegate
+    @EnvironmentObject var appSettingsObject: SettingsColoursObject
 
     @State var fileSaverShown: Bool = false
     @State var settingsSaveDocument: ItineraryFile?
@@ -77,7 +73,7 @@ struct SettingsView: View {
                     Text("Background & Text Colours")
                     Spacer()
                     Button("Reset", role: .destructive) {
-                        resetColoursToDefaults()
+                        resetColoursToStaticDefaults()
                     }
                     .controlSize(.mini)
                     .buttonStyle(.bordered)
@@ -117,9 +113,14 @@ struct SettingsView: View {
                     }
                     Divider()
                     Button(role: .destructive, action: {
-                        resetColoursToDefaults()
+                        resetColoursToAppCurrentValues()
                     }) {
-                        Label("Reset All To Defaults", systemImage: "trash")
+                        Label("Revert changes", systemImage: "arrow.counterclockwise.circle")
+                    }
+                    Button(role: .destructive, action: {
+                        resetColoursToStaticDefaults()
+                    }) {
+                        Label("Reset To Defaults", systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -130,12 +131,7 @@ struct SettingsView: View {
             }
         }
         .onAppear {
-            if urlToOpen == nil {
-                setupPrefsFromAppStore()
-            } else {
-                loadSettings(atPath: urlToOpen!.path(percentEncoded: false))
-                urlToOpen = nil
-            }
+            handleOnAppear()
         }
         .fileExporter(isPresented: $fileSaverShown,
                       document: settingsSaveDocument,
@@ -155,7 +151,7 @@ struct SettingsView: View {
           switch result {
           case .success(let selectedFileURL):
               if selectedFileURL.startAccessingSecurityScopedResource() {
-                  loadSettings(atPath: selectedFileURL.path)
+                  readSettingsFromFileAtPath(selectedFileURL.path)
               }
               selectedFileURL.stopAccessingSecurityScopedResource()
           case .failure://(let error):
@@ -169,81 +165,71 @@ struct SettingsView: View {
 
 extension SettingsView {
     
+    func handleOnAppear() {
+        if urlToOpen == nil {
+            if settingGlobals { setupPrefsFromAppSettingsObject() }
+        } else {
+            readSettingsFromFileAtPath(urlToOpen!.path(percentEncoded: false))
+            urlToOpen = nil
+        }
+    }
+    
     func saveChangedSettings() {
-        if let rgbaInactive = prefColourInactive.rgbaString { appStorageColourStageInactive = rgbaInactive }
-        if let rgbaActive = prefColourActive.rgbaString { appStorageColourStageActive = rgbaActive }
-        if let rgbaRun = prefColourRunning.rgbaString  { appStorageColourStageRunning = rgbaRun }
-        if let rgbaComm = prefColourComment.rgbaString  { appStorageColourStageComment = rgbaComm }
-        
-        if let frgbaInactive = prefColourFontInactive.rgbaString { appStorageColourFontInactive = frgbaInactive }
-        if let frgbaActive = prefColourFontActive.rgbaString { appStorageColourFontActive = frgbaActive }
-        if let frgbaRun = prefColourFontRunning.rgbaString  { appStorageColourFontRunning = frgbaRun }
-        if let frgbaComm = prefColourFontComment.rgbaString  { appStorageColourFontComment = frgbaComm }
-        
+        let settingsStruct = SettingsColoursStruct(colourStageInactive: prefColourInactive, colourStageActive: prefColourActive, colourStageRunning: prefColourRunning, colourStageComment: prefColourComment, colourFontInactive: prefColourFontInactive, colourFontActive: prefColourFontActive, colourFontRunning: prefColourFontRunning, colourFontComment: prefColourFontComment)
+        DispatchQueue.main.async {
+            if settingGlobals { appDelegate.updateSettingsFromSettingsStructColours(settingsStruct) }
+        }
         showSettingsView.toggle()
     }
     
-    func loadSettings(atPath filePath:String) {
-        if let fileData = FileManager.default.contents(atPath: filePath) {
-            if let dict: [String:String] = try? JSONDecoder().decode([String:String].self, from: fileData) {
-                applySettingsFromDict(dict)
-            } else {
-                debugPrint("Decode failure for: \(filePath)")
-            }
-        } else {
-            debugPrint("No fileData for: \(filePath)")
-        }
-
-    }
-
-    func applySettingsFromDict(_ settingsDict: [String:String]) {
+    func setupPrefsFromAppSettingsObject() {
         DispatchQueue.main.async {
-            if let rgbaInactive = settingsDict[kAppStorageColourStageInactive]?.rgbaColor { prefColourInactive = rgbaInactive }
-            if let rgbaActive = settingsDict[kAppStorageColourStageActive]?.rgbaColor { prefColourActive = rgbaActive }
-            if let rgbaRun = settingsDict[kAppStorageColourStageRunning]?.rgbaColor  { prefColourRunning = rgbaRun }
-            if let rgbaComm = settingsDict[kAppStorageColourStageComment]?.rgbaColor  { prefColourComment = rgbaComm }
+            prefColourInactive = appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
+            prefColourActive = appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
+            prefColourRunning = appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
+            prefColourComment = appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
             
-            if let frgbaInactive = settingsDict[kAppStorageColourFontInactive]?.rgbaColor { prefColourFontInactive = frgbaInactive }
-            if let frgbaActive = settingsDict[kAppStorageColourFontActive]?.rgbaColor { prefColourFontActive = frgbaActive }
-            if let frgbaRun = settingsDict[kAppStorageColourFontRunning]?.rgbaColor  { prefColourFontRunning = frgbaRun }
-            if let frgbaComm = settingsDict[kAppStorageColourFontComment]?.rgbaColor  { prefColourFontComment = frgbaComm }
-        }
-    }
-    
-    func setupPrefsFromAppStore() {
-        DispatchQueue.main.async {
-            prefColourInactive = appStorageColourStageInactive.rgbaColor!
-            prefColourActive = appStorageColourStageActive.rgbaColor!
-            prefColourRunning = appStorageColourStageRunning.rgbaColor!
-            prefColourComment = appStorageColourStageComment.rgbaColor!
-            
-            prefColourFontInactive = appStorageColourFontInactive.rgbaColor!
-            prefColourFontActive = appStorageColourFontActive.rgbaColor!
-            prefColourFontRunning = appStorageColourFontRunning.rgbaColor!
-            prefColourFontComment = appStorageColourFontComment.rgbaColor!
+            prefColourFontInactive = appSettingsObject.colourFontInactive//appStorageColourFontInactive.rgbaColor!
+            prefColourFontActive = appSettingsObject.colourFontActive//appStorageColourFontActive.rgbaColor!
+            prefColourFontRunning = appSettingsObject.colourFontRunning//appStorageColourFontRunning.rgbaColor!
+            prefColourFontComment = appSettingsObject.colourFontComment//appStorageColourFontComment.rgbaColor!
         }
 
     }
     
-    func resetAllSettingsTodefaults() {
-        resetColoursToDefaults()
+    func resetAllSettingsToStaticDefaults() {
+        resetColoursToStaticDefaults()
     }
     
-    func resetColoursToDefaults() {
+    func resetColoursToStaticDefaults() {
         DispatchQueue.main.async {
             prefColourInactive = kAppStorageDefaultColourStageInactive.rgbaColor!
             prefColourActive = kAppStorageDefaultColourStageActive.rgbaColor!
             prefColourRunning = kAppStorageDefaultColourStageRunning.rgbaColor!
             prefColourComment = kAppStorageDefaultColourStageComment.rgbaColor!
-            
+
             prefColourFontInactive = kAppStorageDefaultColourFontInactive.rgbaColor!
             prefColourFontActive = kAppStorageDefaultColourFontActive.rgbaColor!
             prefColourFontRunning = kAppStorageDefaultColourFontRunning.rgbaColor!
             prefColourFontComment = kAppStorageDefaultColourFontComment.rgbaColor!
         }
-
     }
     
+    func resetColoursToAppCurrentValues() {
+        DispatchQueue.main.async {
+            prefColourInactive = appSettingsObject.colourStageInactive
+            prefColourActive = appSettingsObject.colourStageActive
+            prefColourRunning = appSettingsObject.colourStageRunning
+            prefColourComment = appSettingsObject.colourStageComment
+
+            prefColourFontInactive = appSettingsObject.colourFontInactive
+            prefColourFontActive = appSettingsObject.colourFontActive
+            prefColourFontRunning = appSettingsObject.colourFontRunning
+            prefColourFontComment = appSettingsObject.colourFontComment
+        }
+    }
+    
+// MARK: Settings Dict Export Import
     func settingsDictWithTypeKey(_ typekey: String?) -> [String:String] {
         var settingsDict = [String:String]()
         if let rgbaInactive = prefColourInactive.rgbaString { settingsDict[kAppStorageColourStageInactive] = rgbaInactive }
@@ -261,17 +247,40 @@ extension SettingsView {
         return settingsDict
     }
     
+    func readSettingsFromFileAtPath(_ filePath:String) {
+        if let fileData = FileManager.default.contents(atPath: filePath) {
+            if let dict: [String:String] = try? JSONDecoder().decode([String:String].self, from: fileData) {
+                loadSettingsFromDict(dict)
+            } else {
+                debugPrint("Decode failure for: \(filePath)")
+            }
+        } else {
+            debugPrint("No fileData for: \(filePath)")
+        }
+
+    }
+
+
+    func loadSettingsFromDict(_ settingsDict: [String:String]) {
+        // applies to this view only
+        DispatchQueue.main.async {
+            if let rgbaInactive = settingsDict[kAppStorageColourStageInactive]?.rgbaColor { prefColourInactive = rgbaInactive }
+            if let rgbaActive = settingsDict[kAppStorageColourStageActive]?.rgbaColor { prefColourActive = rgbaActive }
+            if let rgbaRun = settingsDict[kAppStorageColourStageRunning]?.rgbaColor  { prefColourRunning = rgbaRun }
+            if let rgbaComm = settingsDict[kAppStorageColourStageComment]?.rgbaColor  { prefColourComment = rgbaComm }
+            
+            if let frgbaInactive = settingsDict[kAppStorageColourFontInactive]?.rgbaColor { prefColourFontInactive = frgbaInactive }
+            if let frgbaActive = settingsDict[kAppStorageColourFontActive]?.rgbaColor { prefColourFontActive = frgbaActive }
+            if let frgbaRun = settingsDict[kAppStorageColourFontRunning]?.rgbaColor  { prefColourFontRunning = frgbaRun }
+            if let frgbaComm = settingsDict[kAppStorageColourFontComment]?.rgbaColor  { prefColourFontComment = frgbaComm }
+        }
+    }
+    
     func sendSettingsToWatch()  {
         appDelegate.sendMessageOrData(dict: self.settingsDictWithTypeKey(kMessageFromPhoneWithSettingsData), data: nil)
     }
 
 
-}
-
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("")
-    }
 }
 
 struct SettingsColours: ViewModifier {

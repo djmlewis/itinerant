@@ -151,10 +151,16 @@ extension  ItineraryActionCommonView {
                    }) {
                         Label("Export…", systemImage: "doc.plaintext")
                     }
-                    
+                    Divider()
+                    Button(action: {
+                        showSettingsView = true
+                    }) {
+                        Label("Settings…", systemImage: "gear")
+                    }
+
                 }, label: {
                     Label("", systemImage: "ellipsis.circle")
-                })
+                }) /* Menu */
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -210,6 +216,11 @@ extension  ItineraryActionCommonView {
         .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
             FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
         }) /* fullScreenCover */
+        .sheet(isPresented: $showSettingsView, content: {
+            NavigationStack {
+                SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL, itinerary: itinerary)
+            }
+        })
 
     } /* View */
     

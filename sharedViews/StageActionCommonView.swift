@@ -16,7 +16,7 @@ let kHaltButtonWidth = 48.0
 #endif
 
 
-struct StageActionCommonView: View {
+struct StageActionCommonView: View {   
     @Binding var stage: Stage
     @Binding var itinerary: Itinerary
     @Binding var uuidStrStagesActiveStr: String
@@ -40,7 +40,8 @@ struct StageActionCommonView: View {
     @State var presentDatePicker: Bool = false
     
     @EnvironmentObject var itineraryStore: ItineraryStore
-    
+    @EnvironmentObject var appSettingsObject: SettingsColoursObject
+
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiFastUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -49,16 +50,6 @@ struct StageActionCommonView: View {
     @State var presentUnableToPostDateNotification: Bool = false
     @State private var updateFrequency: TimeInterval = kUISlowUpdateTimerFrequency
 
-    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
-    @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
-    @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
-    @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-    
-    @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
-    @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
-    @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
-    @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-    
     @AppStorage(kAppStorageShowUnableToNotifyWarning) var showUnableToNotifyWarning: Bool = true
     
     @EnvironmentObject var appDelegate: AppDelegate
@@ -182,29 +173,29 @@ extension StageActionCommonView {
     
     func stageBackgroundColour(stage: Stage) -> Color {
         if stage.isCommentOnly {
-            return appStorageColourStageComment.rgbaColor!
+            return appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
         }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageColourStageRunning.rgbaColor!
+            return appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
         }
         if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageColourStageActive.rgbaColor!
+            return appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
         }
-        return appStorageColourStageInactive.rgbaColor!
+        return appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
     }
     
     
     func stageTextColour() -> Color {
         if stage.isCommentOnly {
-            return appStorageColourFontComment.rgbaColor!
+            return appSettingsObject.colourFontComment//appStorageColourFontComment.rgbaColor!
         }
         if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appStorageColourFontRunning.rgbaColor!
+            return appSettingsObject.colourFontRunning//appStorageColourFontRunning.rgbaColor!
         }
         if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appStorageColourFontActive.rgbaColor!
+            return appSettingsObject.colourFontActive//appStorageColourFontActive.rgbaColor!
         }
-        return appStorageColourFontInactive.rgbaColor!
+        return appSettingsObject.colourFontInactive//appStorageColourFontInactive.rgbaColor!
     }
     
     

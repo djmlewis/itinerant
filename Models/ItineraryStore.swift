@@ -131,7 +131,7 @@ class ItineraryStore: ObservableObject {
                    }
                     
                     // now load images - here to avoid duplicating lots of image files during a savePersistentData()
-                    loadedItinerary.loadAllImageFilesFromPackage()
+                    loadedItinerary.loadAllSupportFilesFromPackage()
                     
                     // add to our itineraries
                     itineraries.append(loadedItinerary)
