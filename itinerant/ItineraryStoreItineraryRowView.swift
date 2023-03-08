@@ -69,11 +69,11 @@ struct ItineraryStoreItineraryRowView: View {
     
 extension ItineraryStoreItineraryRowView {
     
-    func textColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourFontRunning.rgbaColor : (textColourForScheme(colorScheme: colorScheme))
+    func textColourForID(_ itineraryID: String) -> Color {
+        return itineraryStore.textColourIfItineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? (textColourForScheme(colorScheme: colorScheme))
     }
-    func backgroundColourForID(_ itineraryID: String) -> Color? {
-        return itineraryStore.itineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? appStorageColourStageRunning.rgbaColor : Color.clear
+    func backgroundColourForID(_ itineraryID: String) -> Color {
+        return itineraryStore.backgroundColourIfItineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? Color.clear
     }
 
     

@@ -43,7 +43,7 @@ extension ItineraryStoreView {
                             Button(action: {
                                 showSettingsView = true
                             }) {
-                                Label("Settings…", systemImage: "gear")
+                                Label("Global Settings…", systemImage: "gear")
                             }
                             Divider()
                             Button(action: {

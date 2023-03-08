@@ -46,6 +46,7 @@ let kPackageNamePersistentDataFile = "itineraryPersistentData" + ItineraryFileEx
 let kPackageNameImageFileItinerary = "itineraryImageData"
 let kPackageNameImageFileItineraryThumbnail = kPackageNameImageFileItinerary + ImageSizeType.thumbnail.rawValue + ItineraryFileExtension.imageData.dotExtension
 let kPackageNameImageFileItineraryFullsize = kPackageNameImageFileItinerary + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
+let kPackageNameItineraryColourSettingsFile = "itineraryColourSettings" + ItineraryFileExtension.settingsFile.dotExtension
 
 enum ImageSizeType: String, CaseIterable {
     // dont add redundant cases as it is iterated

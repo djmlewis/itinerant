@@ -42,7 +42,8 @@ struct SettingsView: View {
     
     var settingGlobals: Bool { itinerary == nil }
     
-    
+    @EnvironmentObject var itineraryStore: ItineraryStore
+
 
     @State private var prefColourInactive: Color = kAppStorageDefaultColourStageInactive.rgbaColor!
     @State private var prefColourActive: Color = kAppStorageDefaultColourStageActive.rgbaColor!
@@ -60,7 +61,7 @@ struct SettingsView: View {
     @State var fileSaverShown: Bool = false
     @State var settingsSaveDocument: ItineraryFile?
     @State var fileImporterShown: Bool = false
-    
+
     var body: some View {
         List {
             Section {
@@ -71,20 +72,18 @@ struct SettingsView: View {
             } header: {
                 HStack {
                     Text("Background & Text Colours")
-                    Spacer()
-                    Button("Reset", role: .destructive) {
-                        resetColoursToStaticDefaults()
-                    }
-                    .controlSize(.mini)
-                    .buttonStyle(.bordered)
+//                    Spacer()
+//                    Button("Reset", role: .destructive) {
+//                        resetColoursToStaticDefaults()
+//                    }
+//                    .controlSize(.mini)
+//                    .buttonStyle(.bordered)
                 }
             }
             /* Section */
         } /* List */
         .padding()
-        .buttonStyle(.borderedProminent)
-        //.background(.green)
-        .navigationTitle("Settings")
+        .navigationTitle(settingGlobals ? "Global Settings" : "Itinerary Settings")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") { showSettingsView.toggle() }
@@ -112,16 +111,25 @@ struct SettingsView: View {
                         Label("Import…", systemImage: "square.and.arrow.down")
                     }
                     Divider()
-                    Button(role: .destructive, action: {
-                        resetColoursToAppCurrentValues()
-                    }) {
-                        Label("Revert changes", systemImage: "arrow.counterclockwise.circle")
+                    if !settingGlobals {
+                        Button(role: .destructive, action: {
+                            resetColoursToAppCurrentValues()
+                        }) {
+                            Label("Use Global Settings", systemImage: "gear")
+                        }
+                    } else {
+                        Button(role: .destructive, action: {
+                            resetColoursToStaticDefaults()
+                        }) {
+                            Label("Reset To Defaults", systemImage: "trash")
+                        }
                     }
-                    Button(role: .destructive, action: {
-                        resetColoursToStaticDefaults()
-                    }) {
-                        Label("Reset To Defaults", systemImage: "trash")
-                    }
+                        Button(role: .destructive, action: {
+                            if settingGlobals { resetColoursToAppCurrentValues() }
+                            else { resetColoursToItineraryCurrentValues() }
+                        }) {
+                            Label("Undo changes", systemImage: "arrow.uturn.backward")
+                        }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
@@ -167,34 +175,37 @@ extension SettingsView {
     
     func handleOnAppear() {
         if urlToOpen == nil {
-            if settingGlobals { setupPrefsFromAppSettingsObject() }
+            if settingGlobals || itinerary?.settingsColoursStruct == nil { setupPrefsFromSettingsColoursStruct(appSettingsObject.settingsColoursStruct) }
+            else { // itinerary is non-nil if not settingGlobals, so itinerary!.settingsColoursStruct must be non-nil too
+                setupPrefsFromSettingsColoursStruct(itinerary!.settingsColoursStruct!)
+            }
         } else {
             readSettingsFromFileAtPath(urlToOpen!.path(percentEncoded: false))
             urlToOpen = nil
-        }
+       }
     }
     
     func saveChangedSettings() {
         let settingsStruct = SettingsColoursStruct(colourStageInactive: prefColourInactive, colourStageActive: prefColourActive, colourStageRunning: prefColourRunning, colourStageComment: prefColourComment, colourFontInactive: prefColourFontInactive, colourFontActive: prefColourFontActive, colourFontRunning: prefColourFontRunning, colourFontComment: prefColourFontComment)
         DispatchQueue.main.async {
             if settingGlobals { appDelegate.updateSettingsFromSettingsStructColours(settingsStruct) }
+            else if let idstr = itinerary?.idStr { itineraryStore.updateItineraryWithID(idstr, withSettingsColoursStruct: settingsStruct) }
         }
         showSettingsView.toggle()
     }
     
-    func setupPrefsFromAppSettingsObject() {
+    func setupPrefsFromSettingsColoursStruct(_ csstruct: SettingsColoursStruct) {
         DispatchQueue.main.async {
-            prefColourInactive = appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
-            prefColourActive = appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
-            prefColourRunning = appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
-            prefColourComment = appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
+            prefColourInactive = csstruct.colourStageInactive
+            prefColourActive = csstruct.colourStageActive
+            prefColourRunning = csstruct.colourStageRunning
+            prefColourComment = csstruct.colourStageComment
             
-            prefColourFontInactive = appSettingsObject.colourFontInactive//appStorageColourFontInactive.rgbaColor!
-            prefColourFontActive = appSettingsObject.colourFontActive//appStorageColourFontActive.rgbaColor!
-            prefColourFontRunning = appSettingsObject.colourFontRunning//appStorageColourFontRunning.rgbaColor!
-            prefColourFontComment = appSettingsObject.colourFontComment//appStorageColourFontComment.rgbaColor!
+            prefColourFontInactive = csstruct.colourFontInactive
+            prefColourFontActive = csstruct.colourFontActive
+            prefColourFontRunning = csstruct.colourFontRunning
+            prefColourFontComment = csstruct.colourFontComment
         }
-
     }
     
     func resetAllSettingsToStaticDefaults() {
@@ -202,7 +213,7 @@ extension SettingsView {
     }
     
     func resetColoursToStaticDefaults() {
-        DispatchQueue.main.async {
+       DispatchQueue.main.async {
             prefColourInactive = kAppStorageDefaultColourStageInactive.rgbaColor!
             prefColourActive = kAppStorageDefaultColourStageActive.rgbaColor!
             prefColourRunning = kAppStorageDefaultColourStageRunning.rgbaColor!
@@ -229,8 +240,39 @@ extension SettingsView {
         }
     }
     
+    func resetColoursToItineraryCurrentValues() {
+        if let itinerarySettings = itinerary?.settingsColoursStruct {
+            DispatchQueue.main.async {
+                prefColourInactive = itinerarySettings.colourStageInactive
+                prefColourActive = itinerarySettings.colourStageActive
+                prefColourRunning = itinerarySettings.colourStageRunning
+                prefColourComment = itinerarySettings.colourStageComment
+                
+                prefColourFontInactive = itinerarySettings.colourFontInactive
+                prefColourFontActive = itinerarySettings.colourFontActive
+                prefColourFontRunning = itinerarySettings.colourFontRunning
+                prefColourFontComment = itinerarySettings.colourFontComment
+            }
+        }
+    }
+    
 // MARK: Settings Dict Export Import
+    
+    func readSettingsFromFileAtPath(_ filePath:String) {
+        if let fileData = FileManager.default.contents(atPath: filePath) {
+            if let dict: [String:String] = try? JSONDecoder().decode([String:String].self, from: fileData) {
+                loadSettingsFromDict(dict)
+            } else {
+                debugPrint("Decode failure for: \(filePath)")
+            }
+        } else {
+            debugPrint("No fileData for: \(filePath)")
+        }
+
+    }
+
     func settingsDictWithTypeKey(_ typekey: String?) -> [String:String] {
+        debugPrint("settingsDictWithTypeKey")
         var settingsDict = [String:String]()
         if let rgbaInactive = prefColourInactive.rgbaString { settingsDict[kAppStorageColourStageInactive] = rgbaInactive }
         if let rgbaActive = prefColourActive.rgbaString { settingsDict[kAppStorageColourStageActive] = rgbaActive }
@@ -246,20 +288,6 @@ extension SettingsView {
         settingsDict[kUserInfoMessageTypeKey] = typekey!
         return settingsDict
     }
-    
-    func readSettingsFromFileAtPath(_ filePath:String) {
-        if let fileData = FileManager.default.contents(atPath: filePath) {
-            if let dict: [String:String] = try? JSONDecoder().decode([String:String].self, from: fileData) {
-                loadSettingsFromDict(dict)
-            } else {
-                debugPrint("Decode failure for: \(filePath)")
-            }
-        } else {
-            debugPrint("No fileData for: \(filePath)")
-        }
-
-    }
-
 
     func loadSettingsFromDict(_ settingsDict: [String:String]) {
         // applies to this view only

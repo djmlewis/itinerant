@@ -127,6 +127,12 @@ extension  ItineraryActionCommonView {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu( content: {
+                    Button(action: {
+                        showSettingsView = true
+                    }) {
+                        Label("Itinerary Settings…", systemImage: "doc.badge.gearshape")
+                    }
+                    Divider()
                     if !deviceIsIpadOrMac() {
                         Button(action: {
                             sendItineraryToWatch()
@@ -134,7 +140,6 @@ extension  ItineraryActionCommonView {
                             Label("Send to Watch…", systemImage: "applewatch")
                         }
                         .disabled(watchConnectionUnusable())
-                        Divider()
                     }
                     Button(action: {
                         showFilePicker = true
@@ -151,13 +156,6 @@ extension  ItineraryActionCommonView {
                    }) {
                         Label("Export…", systemImage: "doc.plaintext")
                     }
-                    Divider()
-                    Button(action: {
-                        showSettingsView = true
-                    }) {
-                        Label("Settings…", systemImage: "gear")
-                    }
-
                 }, label: {
                     Label("", systemImage: "ellipsis.circle")
                 }) /* Menu */

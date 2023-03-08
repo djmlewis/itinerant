@@ -172,30 +172,12 @@ extension StageActionCommonView {
     }
     
     func stageBackgroundColour(stage: Stage) -> Color {
-        if stage.isCommentOnly {
-            return appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
-        }
-        return appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
+        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
     
     
     func stageTextColour() -> Color {
-        if stage.isCommentOnly {
-            return appSettingsObject.colourFontComment//appStorageColourFontComment.rgbaColor!
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appSettingsObject.colourFontRunning//appStorageColourFontRunning.rgbaColor!
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appSettingsObject.colourFontActive//appStorageColourFontActive.rgbaColor!
-        }
-        return appSettingsObject.colourFontInactive//appStorageColourFontInactive.rgbaColor!
+        return itineraryStore.stageTextColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
     
     

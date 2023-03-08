@@ -24,6 +24,7 @@ struct ItineraryActionCommonView: View {
     @State var stageToStartRunningID: String?
     
     @EnvironmentObject var appDelegate: AppDelegate
+    @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appSettingsObject: SettingsColoursObject
 
 //    @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
@@ -50,8 +51,6 @@ struct ItineraryActionCommonView: View {
     @State var stageIDsToDelete: [String] = [String]()
     @State  var showSettingsView: Bool = false
     @State  var openRequestURL: URL?
-
-    @EnvironmentObject var itineraryStore: ItineraryStore
     
 #endif
     
@@ -95,16 +94,7 @@ extension ItineraryActionCommonView {
     
     
     func stageBackgroundColour(stage: Stage) -> Color {
-        if stage.isCommentOnly {
-            return appSettingsObject.colourStageComment//appStorageColourStageComment.rgbaColor!
-        }
-        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
-            return appSettingsObject.colourStageRunning//appStorageColourStageRunning.rgbaColor!
-        }
-        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
-            return appSettingsObject.colourStageActive//appStorageColourStageActive.rgbaColor!
-        }
-        return appSettingsObject.colourStageInactive//appStorageColourStageInactive.rgbaColor!
+        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {

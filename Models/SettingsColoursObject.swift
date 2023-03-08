@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+typealias RGBAString = String
 
 struct SettingsColoursStruct {
     var colourStageInactive: Color
@@ -18,19 +19,65 @@ struct SettingsColoursStruct {
     var colourFontRunning:   Color
     var colourFontComment:   Color
     
+    internal init(colourStageInactive: Color, colourStageActive: Color, colourStageRunning: Color, colourStageComment: Color, colourFontInactive: Color, colourFontActive: Color, colourFontRunning: Color, colourFontComment: Color) {
+        self.colourStageInactive = colourStageInactive
+        self.colourStageActive = colourStageActive
+        self.colourStageRunning = colourStageRunning
+        self.colourStageComment = colourStageComment
+        self.colourFontInactive = colourFontInactive
+        self.colourFontActive = colourFontActive
+        self.colourFontRunning = colourFontRunning
+        self.colourFontComment = colourFontComment
+    }
+    
+    init(settingsColourStringsStruct coloursStruct: SettingsColourStringsStruct) {
+        self.colourStageInactive = coloursStruct.colourStageInactive.rgbaColor!
+        self.colourStageActive = coloursStruct.colourStageActive.rgbaColor!
+        self.colourStageRunning = coloursStruct.colourStageRunning.rgbaColor!
+        self.colourStageComment = coloursStruct.colourStageComment.rgbaColor!
+        self.colourFontInactive = coloursStruct.colourFontInactive.rgbaColor!
+        self.colourFontActive = coloursStruct.colourFontActive.rgbaColor!
+        self.colourFontRunning = coloursStruct.colourFontRunning.rgbaColor!
+        self.colourFontComment = coloursStruct.colourFontComment.rgbaColor!
+    }
+
 }
 
-class SettingsColoursObject: ObservableObject {
+struct SettingsColourStringsStruct: Codable {
+    var colourStageInactive: RGBAString
+    var colourStageActive:   RGBAString
+    var colourStageRunning:  RGBAString
+    var colourStageComment:  RGBAString
+    var colourFontInactive:  RGBAString
+    var colourFontActive:    RGBAString
+    var colourFontRunning:   RGBAString
+    var colourFontComment:   RGBAString
+
+    init(settingsColoursStruct coloursStruct: SettingsColoursStruct) {
+        self.colourStageInactive = coloursStruct.colourStageInactive.rgbaString!
+        self.colourStageActive = coloursStruct.colourStageActive.rgbaString!
+        self.colourStageRunning = coloursStruct.colourStageRunning.rgbaString!
+        self.colourStageComment = coloursStruct.colourStageComment.rgbaString!
+        self.colourFontInactive = coloursStruct.colourFontInactive.rgbaString!
+        self.colourFontActive = coloursStruct.colourFontActive.rgbaString!
+        self.colourFontRunning = coloursStruct.colourFontRunning.rgbaString!
+        self.colourFontComment = coloursStruct.colourFontComment.rgbaString!
+    }
+    
+}
+
+class SettingsColoursObject: ObservableObject, Hashable, Equatable {
+    let id: UUID
     @AppStorage(kAppStorageColourStageInactive) var appStorageColourStageInactive: String = kAppStorageDefaultColourStageInactive
     @AppStorage(kAppStorageColourStageActive) var appStorageColourStageActive: String = kAppStorageDefaultColourStageActive
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourStageComment) var appStorageColourStageComment: String = kAppStorageDefaultColourStageComment
-
+    
     @AppStorage(kAppStorageColourFontInactive) var appStorageColourFontInactive: String = kAppStorageDefaultColourFontInactive
     @AppStorage(kAppStorageColourFontActive) var appStorageColourFontActive: String = kAppStorageDefaultColourFontActive
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @AppStorage(kAppStorageColourFontComment) var appStorageColourFontComment: String = kAppStorageDefaultColourFontComment
-
+    
     @Published var colourStageInactive: Color = kAppStorageDefaultColourStageInactive.rgbaColor!
     @Published var colourStageActive:   Color = kAppStorageDefaultColourStageActive.rgbaColor!
     @Published var colourStageRunning:  Color = kAppStorageDefaultColourStageRunning.rgbaColor!
@@ -40,7 +87,32 @@ class SettingsColoursObject: ObservableObject {
     @Published var colourFontRunning:   Color = kAppStorageDefaultColourFontRunning.rgbaColor!
     @Published var colourFontComment:   Color = kAppStorageDefaultColourFontComment.rgbaColor!
     
+    
+    init(uuid: UUID = UUID()) {
+        self.id = uuid
+    }
+    
+    var settingsColoursStruct: SettingsColoursStruct {
+        SettingsColoursStruct(
+            colourStageInactive: colourStageInactive,
+            colourStageActive: colourStageActive,
+            colourStageRunning: colourStageRunning,
+            colourStageComment: colourStageComment,
+            colourFontInactive: colourFontInactive,
+            colourFontActive: colourFontActive,
+            colourFontRunning: colourFontRunning,
+            colourFontComment: colourFontComment
+        )
+    }
+    var settingsColourStringsStruct: SettingsColourStringsStruct {
+        SettingsColourStringsStruct(settingsColoursStruct: settingsColoursStruct)
+    }
 
+    // conform to Hashable. fudge as the hash value does not really cover everything
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    // conform to Equatable. fudge as the comparison does not really cover everything
+    static func ==(lhs: SettingsColoursObject, rhs: SettingsColoursObject) -> Bool { return lhs.id == rhs.id }
+    
     func resetToStaticDefaultValues() {
         colourStageInactive = kAppStorageDefaultColourStageInactive.rgbaColor!
         colourStageActive = kAppStorageDefaultColourStageActive.rgbaColor!
@@ -52,7 +124,7 @@ class SettingsColoursObject: ObservableObject {
         colourFontRunning = kAppStorageDefaultColourFontRunning.rgbaColor!
         colourFontComment = kAppStorageDefaultColourFontComment.rgbaColor!
     }
-
+    
     func resetToAppStorageValues() {
         colourStageInactive = appStorageColourStageInactive.rgbaColor!
         colourStageActive = appStorageColourStageActive.rgbaColor!
@@ -64,8 +136,8 @@ class SettingsColoursObject: ObservableObject {
         colourFontRunning = appStorageColourFontRunning.rgbaColor!
         colourFontComment = appStorageColourFontComment.rgbaColor!
     }
-
-
+    
+    
     func updateFromSettingsColoursStruct(_ settingsStruct: SettingsColoursStruct, andUpdateAppStorage: Bool) {
         self.colourStageInactive = settingsStruct.colourStageInactive
         self.colourStageActive = settingsStruct.colourStageActive
@@ -77,7 +149,7 @@ class SettingsColoursObject: ObservableObject {
         self.colourFontComment = settingsStruct.colourFontComment
         if andUpdateAppStorage { updateAppStorage() }
     }
-
+    
     func updateAppStorage() {
         // place the new colours in AppStorage
         self.appStorageColourStageInactive = self.colourStageInactive.rgbaString!
@@ -92,22 +164,22 @@ class SettingsColoursObject: ObservableObject {
     
     
     func writeSettingsToPath(_ path:String?) {
-//        if let overidePath = path {
-//
-//        } else if let storedPath = filePath {
-//
-//        }
+        //        if let overidePath = path {
+        //
+        //        } else if let storedPath = filePath {
+        //
+        //        }
         
     }
     
     func readSettingsFromPath(_ path:String?) {
-//        if let overidePath = path {
-//
-//        } else if let storedPath = filePath {
-//
-//        }
+        //        if let overidePath = path {
+        //
+        //        } else if let storedPath = filePath {
+        //
+        //        }
     }
     
-
+    
     
 }

@@ -19,6 +19,7 @@ class ItineraryStore: ObservableObject {
     func itineraryForID(id:String) -> Itinerary? { return itineraries.first{ $0.idStr.contains(id) } }
     func itineraryForIDorErrorItinerary(id:String) -> Itinerary { return itineraries.first{ $0.idStr.contains(id) } ?? Itinerary.errorItinerary() }
     func hasItineraryWithID(_ id: String) -> Bool { return itineraries.firstIndex(where: { $0.idStr.contains(id) }) != nil }
+    func indexOfItineraryWithID(_ id: String) -> Int? { return itineraries.firstIndex(where: { $0.idStr.contains(id) }) }
     func itineraryForUUID(_ uuid:UUID) -> Itinerary? { return itineraries.first{ $0.id == uuid } }
     func itineraryIndexForUUID(_ uuid: UUID) -> Int? { return itineraries.firstIndex(where: { $0.id == uuid }) }
     func hasItineraryWithUUID(_ uuid: UUID) -> Bool { return itineraries.firstIndex(where: { $0.id == uuid }) != nil }
@@ -43,7 +44,48 @@ class ItineraryStore: ObservableObject {
         return Date(timeIntervalSinceReferenceDate: timeinterval)
     }
     
-        
+    
+    func backgroundColourIfItineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
+        if let itinerary = itineraryForID(id: id), itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
+            return settingsColourStruct.colourStageRunning
+        }
+        return nil
+    }
+    func textColourIfItineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
+        if let itinerary = itineraryForID(id: id), itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
+            return settingsColourStruct.colourFontRunning
+        }
+        return nil
+    }
+
+    
+    func stageBackgroundColour(stageUUID: UUID, itineraryID: String, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject ) -> Color {
+        if let itinerary = itineraryForID(id: itineraryID), let stage = itinerary.stageForUUID(stageUUID) {
+            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
+            if stage.isCommentOnly { return settingsColourStruct.colourStageComment }
+            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourStageRunning }
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourStageActive }
+            return settingsColourStruct.colourStageInactive
+        }
+        debugPrint("error stageBackgroundColour")
+        return Color.clear
+    }
+    
+    
+    func stageTextColour(stageUUID: UUID, itineraryID: String, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject) -> Color {
+        if let itinerary = itineraryForID(id: itineraryID), let stage = itinerary.stageForUUID(stageUUID) {
+            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
+            if stage.isCommentOnly { return settingsColourStruct.colourFontComment }
+            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourFontRunning }
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourFontActive }
+            return settingsColourStruct.colourFontInactive
+        }
+        debugPrint("error stageBackgroundColour")
+        return Color.clear
+    }
+
     
     // MARK: - Importing
 
@@ -261,7 +303,17 @@ class ItineraryStore: ObservableObject {
     }
 }
 
+extension ItineraryStore {
+    // MARK: - Settings
 
+    func updateItineraryWithID(_ id: String, withSettingsColoursStruct colourStruct: SettingsColoursStruct?) {
+        if var itineraryActual = itineraryForID(id: id), let indx = indexOfItineraryWithID(id) {
+            itineraryActual.updateSettingsColourStruct(newStruct: colourStruct)
+            itineraries.replaceSubrange(indx...indx, with: [itineraryActual])
+        }
+    }
+    
+}
 
 // MARK: - STATIC Directory & file paths and file names
     

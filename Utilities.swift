@@ -58,7 +58,7 @@ extension Dictionary: RawRepresentable where Key == String, Value == String {
 
 // MARK: - Color extension
 extension Color {
-    var rgbaString: String? {
+    var rgbaString: RGBAString? {
         guard let components = self.cgColor?.components, self.cgColor?.colorSpace?.model == .rgb else { return nil }
         return components.map({ String(format: "%f",$0) }).joined(separator:kColorStringSeparator)
     }

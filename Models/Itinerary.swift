@@ -14,7 +14,7 @@ import SwiftUI
 
 
 
-struct Itinerary: Identifiable, Codable, Hashable {
+struct Itinerary: Identifiable, Equatable {// Codable is not needed so long as only PersistentData is encoded and saved
     // Persistent Data ==>
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var modificationDate: TimeInterval
@@ -26,8 +26,11 @@ struct Itinerary: Identifiable, Codable, Hashable {
     var packageFilePath: String?
     var imageDataThumbnailActual: Data?
     var imageDataFullActual: Data?
+    var settingsColoursStruct: SettingsColoursStruct?
     
-    
+    // conform to Equatable. fudge as the comparison does not really cover everything
+    static func ==(lhs: Itinerary, rhs: Itinerary) -> Bool { return lhs.id == rhs.id }
+
     // these are full inits including UUID which must be done here to be decoded
     init(id: UUID = UUID(), title: String = kUntitledString, stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
         self.id = id
@@ -270,7 +273,7 @@ extension Itinerary {
 
 // MARK: - PersistentData
 extension Itinerary {
-    struct PersistentData: Codable {
+    struct PersistentData: Codable {// all these properties are Equatable and Hashable
         // editable
         let title: String
         let stages: StagePersistentDataArray
@@ -458,6 +461,7 @@ extension Itinerary {
     }
 
     mutating func loadAllSupportFilesFromPackage() {
+        loadColourSettings()
         imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
         // load fullsize as required
         //imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
@@ -469,6 +473,40 @@ extension Itinerary {
         }
     }
     
+    
+// MARK: - Colour Settings
+    
+    mutating func updateSettingsColourStruct(newStruct: SettingsColoursStruct?) {
+        self.settingsColoursStruct = newStruct
+        if newStruct != nil { writeColourSettings() }
+        else { }
+    }
+    
+    func deleteColourSettingsFile() {
+        
+    }
+    
+    mutating func loadColourSettings() {
+        if let path = packagePathAddingFileComponent(kPackageNameItineraryColourSettingsFile),
+            let data = FileManager.default.contents(atPath: path),
+           let settingsColourStringsStruct = try? JSONDecoder().decode(SettingsColourStringsStruct.self, from: data) {
+            settingsColoursStruct = SettingsColoursStruct(settingsColourStringsStruct: settingsColourStringsStruct)
+        } else { settingsColoursStruct = nil }
+    }
+    mutating func writeColourSettings() {
+        if let path = packagePathAddingFileComponent(kPackageNameItineraryColourSettingsFile),
+           let settingsColoursStruct,
+           let data = try? JSONEncoder().encode(SettingsColourStringsStruct(settingsColoursStruct: settingsColoursStruct)) {
+            do {
+                try data.write(to: URL(filePath: path))
+            } catch let error {
+                debugPrint("writeColourSettings", error.localizedDescription)
+            }
+        } else {
+            debugPrint("failed writeColourSettings")
+        }
+    }
+
 }
 
 
