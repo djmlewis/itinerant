@@ -132,6 +132,13 @@ extension  ItineraryActionCommonView {
                     }) {
                         Label("Itinerary Settings…", systemImage: "doc.badge.gearshape")
                     }
+                    if itinerary.settingsColoursStruct != nil {
+                        Button(role: .destructive, action: {
+                            itineraryStore.deleteSettingsForItineraryWithID(itinerary.idStr)
+                        }) {
+                            Label("Delete Itinerary Settings", systemImage: "trash")
+                        }
+                    }
                     Divider()
                     if !deviceIsIpadOrMac() {
                         Button(action: {

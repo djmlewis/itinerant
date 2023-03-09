@@ -312,7 +312,14 @@ extension ItineraryStore {
             itineraries.replaceSubrange(indx...indx, with: [itineraryActual])
         }
     }
-    
+    func deleteSettingsForItineraryWithID(_ id: String) {
+        if var itineraryActual = itineraryForID(id: id), let indx = indexOfItineraryWithID(id) {
+            itineraryActual.settingsColoursStruct = nil
+            itineraryActual.deleteColourSettingsFile()
+            itineraries.replaceSubrange(indx...indx, with: [itineraryActual])
+        }
+    }
+
 }
 
 // MARK: - STATIC Directory & file paths and file names

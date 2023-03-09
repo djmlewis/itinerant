@@ -211,6 +211,7 @@
 				72430EA12987F2830046A2DF /* SettingsView.swift */,
 				72382CB12979D3F900DE76E3 /* itinerantApp.swift */,
 				72E7F078295F3F6400367612 /* ItineraryStoreView.swift */,
+				7295495029B7CE2C007407D3 /* ItineraryStoreItineraryRowView.swift */,
 				72C5846B29A2D24600AE7424 /* ItineraryStoreViewNavTitleToolBar.swift */,
 				7258974C2964827900EA782E /* ItineraryActionView.swift */,
 				725666772965AFC200B678CB /* ItineraryEditView.swift */,
@@ -221,7 +222,6 @@
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
-				7295495029B7CE2C007407D3 /* ItineraryStoreItineraryRowView.swift */,
 			);
 			path = itinerant;
 			sourceTree = "<group>";

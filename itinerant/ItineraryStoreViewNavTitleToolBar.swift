@@ -58,7 +58,6 @@ extension ItineraryStoreView {
                             }) {
                                 Label("Import…", systemImage: "doc.plaintext")
                             }
-                            Divider()
                             Button(action: {
                                 let filesToDeleteArray = itineraryStore.reloadItineraries()
                                 if !filesToDeleteArray.isEmpty {
@@ -66,7 +65,7 @@ extension ItineraryStoreView {
                                     appDelegate.fileDeleteDialogShow = true
                                 }
                             }) {
-                                Label("Refresh…", systemImage: "arrow.counterclockwise.circle.fill")
+                                Label("Reload", systemImage: "arrow.counterclockwise.circle.fill")
                             }
                         } label: {
                             Label("", systemImage: "ellipsis.circle")

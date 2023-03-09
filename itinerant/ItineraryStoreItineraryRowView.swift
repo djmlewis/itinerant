@@ -94,10 +94,10 @@ extension ItineraryStoreItineraryRowView {
             Image(systemName: "stop.circle")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .background(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.7))
                 .foregroundColor(Color.red)
-                .background(.white)
                 .padding(3)
-                .border(.white, width: 3)
+                .border(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.7), width: 3)
                 .clipShape(Circle())
                 .padding(0)
 

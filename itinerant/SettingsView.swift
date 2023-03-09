@@ -72,12 +72,6 @@ struct SettingsView: View {
             } header: {
                 HStack {
                     Text("Background & Text Colours")
-//                    Spacer()
-//                    Button("Reset", role: .destructive) {
-//                        resetColoursToStaticDefaults()
-//                    }
-//                    .controlSize(.mini)
-//                    .buttonStyle(.bordered)
                 }
             }
             /* Section */
@@ -86,7 +80,7 @@ struct SettingsView: View {
         .navigationTitle(settingGlobals ? "Global Settings" : "Itinerary Settings")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { showSettingsView.toggle() }
+                Button("Cancel") { showSettingsView = false }
             }
             ToolbarItem() {
                 Menu {
@@ -97,7 +91,6 @@ struct SettingsView: View {
                             Label("Send To Watch…", systemImage: "applewatch")
                         }
                         .disabled(watchConnectionUnusable())
-                        Divider()
                     }
                     Button(action: {
                         settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))
@@ -115,21 +108,15 @@ struct SettingsView: View {
                         Button(role: .destructive, action: {
                             resetColoursToAppCurrentValues()
                         }) {
-                            Label("Use Global Settings", systemImage: "gear")
+                            Label("Apply Global Settings", systemImage: "gear")
                         }
                     } else {
                         Button(role: .destructive, action: {
                             resetColoursToStaticDefaults()
                         }) {
-                            Label("Reset To Defaults", systemImage: "trash")
+                            Label("Reset To Defaults", systemImage: "xmark.circle")
                         }
                     }
-                        Button(role: .destructive, action: {
-                            if settingGlobals { resetColoursToAppCurrentValues() }
-                            else { resetColoursToItineraryCurrentValues() }
-                        }) {
-                            Label("Undo changes", systemImage: "arrow.uturn.backward")
-                        }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
@@ -191,7 +178,7 @@ extension SettingsView {
             if settingGlobals { appDelegate.updateSettingsFromSettingsStructColours(settingsStruct) }
             else if let idstr = itinerary?.idStr { itineraryStore.updateItineraryWithID(idstr, withSettingsColoursStruct: settingsStruct) }
         }
-        showSettingsView.toggle()
+        showSettingsView = false
     }
     
     func setupPrefsFromSettingsColoursStruct(_ csstruct: SettingsColoursStruct) {

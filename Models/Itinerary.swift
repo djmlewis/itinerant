@@ -488,7 +488,15 @@ extension Itinerary {
     }
     
     func deleteColourSettingsFile() {
-        
+        if let path = packagePathAddingFileComponent(kPackageNameItineraryColourSettingsFile) {
+            do {
+                if FileManager.default.fileExists(atPath: path) {
+                    try FileManager.default.removeItem(atPath: path)
+                }
+            } catch {
+                debugPrint("unable deleteColourSettingsFile", path)
+            }
+        }
     }
     
     mutating func loadColourSettings() {
