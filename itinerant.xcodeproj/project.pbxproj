@@ -42,6 +42,7 @@
 		7258974D2964827900EA782E /* ItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7258974C2964827900EA782E /* ItineraryActionView.swift */; };
 		725C734A29B8ACCE00EE325D /* SettingsColoursObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725C734929B8ACCE00EE325D /* SettingsColoursObject.swift */; };
 		725C734B29B8ACCE00EE325D /* SettingsColoursObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725C734929B8ACCE00EE325D /* SettingsColoursObject.swift */; };
+		725C770629BA105F00A6B9D4 /* testy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725C770529BA105F00A6B9D4 /* testy.swift */; };
 		725FA975298FC30A00AC7B94 /* WKStageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725FA974298FC30A00AC7B94 /* WKStageActionView.swift */; };
 		725FA977298FCB5A00AC7B94 /* StageActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725FA976298FCB5A00AC7B94 /* StageActionView.swift */; };
 		72717ECE29844D2200CA84FD /* WKItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */; };
@@ -116,6 +117,7 @@
 		7258974629643C7D00EA782E /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
 		7258974C2964827900EA782E /* ItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItineraryActionView.swift; sourceTree = "<group>"; };
 		725C734929B8ACCE00EE325D /* SettingsColoursObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsColoursObject.swift; sourceTree = "<group>"; };
+		725C770529BA105F00A6B9D4 /* testy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testy.swift; sourceTree = "<group>"; };
 		725FA974298FC30A00AC7B94 /* WKStageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKStageActionView.swift; sourceTree = "<group>"; };
 		725FA976298FCB5A00AC7B94 /* StageActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageActionView.swift; sourceTree = "<group>"; };
 		72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKItineraryActionView.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				7209C0BA29B6209C00B47B9B /* package_64x64.png */,
 				7282F4002985A473009B87E7 /* Assets.xcassets */,
 				722A58D1297FF1D10061620C /* Konstants.swift */,
+				725C770529BA105F00A6B9D4 /* testy.swift */,
 				72E7ADB429636E8400D22D37 /* Utilities.swift */,
 				7272F08F29855AD700F58305 /* Notifications.swift */,
 				7243361529A15144004EE79E /* CustomViewModifiers.swift */,
@@ -390,6 +393,7 @@
 			files = (
 				7272F09029855AD700F58305 /* Notifications.swift in Sources */,
 				72382CB22979D3F900DE76E3 /* itinerantApp.swift in Sources */,
+				725C770629BA105F00A6B9D4 /* testy.swift in Sources */,
 				725666782965AFC200B678CB /* ItineraryEditView.swift in Sources */,
 				720C092E29741F74000AFFCC /* StageDisplayView.swift in Sources */,
 				722A58D2297FF1D10061620C /* Konstants.swift in Sources */,

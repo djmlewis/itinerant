@@ -223,7 +223,7 @@ extension  ItineraryActionCommonView {
         }) /* fullScreenCover */
         .sheet(isPresented: $showSettingsView, content: {
             NavigationStack {
-                SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL, itinerary: itinerary)
+                SettingsView(/*showSettingsView: $showSettingsView,*/ urlToOpen: $openRequestURL, itinerary: itinerary)
             }
         })
 

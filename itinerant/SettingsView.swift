@@ -36,7 +36,7 @@ struct SettingsViewStageColours: View {
 
 
 struct SettingsView: View {
-    @Binding var showSettingsView: Bool
+    //@Binding var showSettingsView: Bool
     @Binding var urlToOpen: URL?
     var itinerary: Itinerary? // signals its a local not global
     
@@ -57,12 +57,18 @@ struct SettingsView: View {
 
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var appSettingsObject: SettingsColoursObject
+    @Environment(\.dismiss) var dismiss
 
     @State var fileSaverShown: Bool = false
     @State var settingsSaveDocument: ItineraryFile?
     @State var fileImporterShown: Bool = false
 
     var body: some View {
+        Button("Cancel") {
+            //showSettingsView = false
+            dismiss()
+        }
+
         List {
             Section {
                 SettingsViewStageColours(title: "Comments", imageName: "bubble.left", colourBackground: $prefColourComment, colourForeground: $prefColourFontComment)
@@ -80,7 +86,10 @@ struct SettingsView: View {
         .navigationTitle(settingGlobals ? "Global Settings" : "Itinerary Settings")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { showSettingsView = false }
+                Button("Cancel") {
+                    //showSettingsView = false
+                    dismiss()
+                }
             }
             ToolbarItem() {
                 Menu {
@@ -122,7 +131,10 @@ struct SettingsView: View {
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Apply") { saveChangedSettings() }
+                Button("Apply") {
+                    saveChangedSettings()
+                    dismiss()
+                }
             }
         }
         .onAppear {
@@ -178,7 +190,7 @@ extension SettingsView {
             if settingGlobals { appDelegate.updateSettingsFromSettingsStructColours(settingsStruct) }
             else if let idstr = itinerary?.idStr { itineraryStore.updateItineraryWithID(idstr, withSettingsColoursStruct: settingsStruct) }
         }
-        showSettingsView = false
+        //showSettingsView = false
     }
     
     func setupPrefsFromSettingsColoursStruct(_ csstruct: SettingsColoursStruct) {

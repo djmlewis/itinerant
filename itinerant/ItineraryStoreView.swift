@@ -41,7 +41,6 @@ struct ItineraryStoreView: View {
     @State var columnVisibility = NavigationSplitViewVisibility.all
 
     
-    
    @ViewBuilder  var body_: some View {
         if deviceIsIpadOrMac() {
             body_split
@@ -55,7 +54,7 @@ struct ItineraryStoreView: View {
         body_
             .sheet(isPresented: $showSettingsView, content: {
                 NavigationStack {
-                    SettingsView(showSettingsView: $showSettingsView, urlToOpen: $openRequestURL, itinerary: nil)
+                    SettingsView(/*showSettingsView: $showSettingsView,*/ urlToOpen: $openRequestURL, itinerary: nil)
                 }
             })
             .fullScreenCover(isPresented: $isPresentingItineraryEditView) {
