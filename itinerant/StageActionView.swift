@@ -131,6 +131,7 @@ extension StageActionCommonView {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(kiOSStageViewsRowPad)
+                /* *** Additional Alerts stack *** */
                 Stage.additionalAndSnoozeAlertsHStackForStage(stage)
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     HStack(spacing: 0) {

@@ -206,6 +206,7 @@ extension Itinerary {
             self.title = watchData.title
             self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
             self.modificationDate = watchData.modificationDate
+            self.packageFilePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(watchData.filename)
         } else { return nil }
     }
 
@@ -331,7 +332,7 @@ extension Itinerary {
             }
             
         } else {
-            debugPrint("decode failure for:", packageFilePath as Any)
+            debugPrint("savePersistentData decode failure for:", packageFilePath as Any)
         }
         return nil
     }

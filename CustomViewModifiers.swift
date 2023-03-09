@@ -10,11 +10,12 @@ import UIKit
 
 
 struct WKStageAlertslBackground: ViewModifier {
+    var colour: Color
     
   func body(content: Content) -> some View {
     content
           .padding(6)
-          .background(Color("ColourAdditionalAlarmsBackground"))
+          .background(colour)
           .cornerRadius(6)
 
   }

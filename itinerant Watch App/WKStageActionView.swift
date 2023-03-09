@@ -71,37 +71,10 @@ extension StageActionCommonView {
                             }
                         } /* HStack */
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        if stage.isPostingRepeatingSnoozeAlerts {
-                            // Snooze Alarms time duration
-                            HStack {
-                                Image(systemName: "bell.and.waves.left.and.right")
-                                    .foregroundColor(Color("ColourAdditionalAlarmsImage"))
-                               Text(Stage.stageFormattedDurationStringFromDouble(Double(stage.snoozeDurationSecs)))
-                                    .lineLimit(1)
-                                    .allowsTightening(true)
-                                    .minimumScaleFactor(0.5)
-                            }
-                            .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                            .font(.system(.subheadline, design: .rounded, weight: .regular))
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .modifier(WKStageAlertslBackground())
-                        }
-                        if !stage.additionalDurationsDict.isEmpty {
-                            (Text("\(Image(systemName: "alarm.waves.left.and.right"))")
-                                .foregroundColor(Color("ColourAdditionalAlarmsImage")) +
-                            Text(" \(stage.additionalAlertsDurationsString)")
-                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                             )
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .allowsTightening(true)
-                                .minimumScaleFactor(0.5)
-                                .font(.system(.subheadline, design: .rounded, weight: .regular))
-                                .multilineTextAlignment(.center)
-                                .modifier(WKStageAlertslBackground())
-                        } /* if !stage.additionalDurationsDict.isEmpty */
+                        Stage.additionalAndSnoozeAlertsHStackForStage(stage)
                     } /* VStack */
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom,6)
+//                    .padding(.bottom,6)
                     .foregroundColor(stageTextColour())
                     .gridCellColumns(2)
                 } /* GridRow */
@@ -120,13 +93,13 @@ extension StageActionCommonView {
                     .opacity(timeAccumulatedAtUpdate == 0.0  ? 0.0 : 1.0)
                     .lineLimit(1)
                     .allowsTightening(true)
-                    .minimumScaleFactor(0.5)
-                    .border(timeAccumulatedAtUpdate > 0.0 ? .white : .clear, width: 1.0)
-                    .padding(.leading,2.0)
-                    .padding(.trailing,2.0)
+                    .minimumScaleFactor(0.7)
+                    //.border(timeAccumulatedAtUpdate > 0.0 ? .white : .clear, width: 1.0)
+//                    .padding(.leading,2.0)
+//                    .padding(.trailing,2.0)
                     .gridCellColumns(2)
                 }  /* GridRow */
-                .padding(.top,3.0)
+                //.padding(.top,3.0)
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                     GridRow {
                         HStack(spacing:0.0) {
@@ -139,18 +112,19 @@ extension StageActionCommonView {
                         .background(stageRunningOvertime ? Color("ColourOvertimeBackground") : Color("ColourRemainingBackground"))
                         .lineLimit(1)
                         .allowsTightening(true)
-                        .minimumScaleFactor(0.5)
-                        .border(timeDifferenceAtUpdate < 0.0 ? .white : .clear, width: 1.0)
-                        .padding(.leading,2.0)
-                        .padding(.trailing,2.0)
+                        .minimumScaleFactor(0.7)
+                        //.border(timeDifferenceAtUpdate < 0.0 ? .white : .clear, width: 1.0)
+//                        .padding(.leading,2.0)
+//                        .padding(.trailing,2.0)
                         .gridCellColumns(2)
                     }  /* GridRow */
-                    .padding(.top,3.0)
+                    //.padding(.top,3.0)
                 } /* if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType */
             } /* if nonComment, running OR ran*/
         } /* Grid */
         .padding(0)
-        /* Grid mods */
+        .padding(.bottom,6)
+       /* Grid mods */
         .sheet(isPresented: $presentDatePicker, content: {
             StageActionDatePickerCommonView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
         })

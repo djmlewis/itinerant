@@ -228,7 +228,7 @@ extension AppDelegate {
     
     // MARK: - Messages
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        debugPrint(message)
+        //debugPrint(message)
         if let messageData = message[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(messageData) }
         else if message[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(message as! [String:String])}
         else if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchInitiateSyncNow {

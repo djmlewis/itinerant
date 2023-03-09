@@ -333,10 +333,12 @@ extension Stage {
                     Text(Stage.stageDurationStringHardPaddedFromDouble(Double(keyint)))
                         .foregroundColor(Color("ColourAdditionalAlarmsText"))
                    Spacer()
-                    Text(additionalDurationsDict[keyint] ?? "---")
-                        .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                    if additionalDurationsDict[keyint] != nil {
+                        Text("“\(additionalDurationsDict[keyint]!)”")
+                            .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
                 }
             }
         }

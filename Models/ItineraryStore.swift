@@ -180,7 +180,7 @@ class ItineraryStore: ObservableObject {
                     // nil the return
                     pathdelete = nil
                 } else {
-                    debugPrint("Decode failure for: \(packagePath)")
+                    debugPrint("loadItineraryPackage Decode failure for: \(packagePath)")
                 }
             } else {
                 debugPrint("No itinerary data file for: \(packagePath)")
@@ -237,7 +237,10 @@ class ItineraryStore: ObservableObject {
 // MARK: - Removing Itineraries
     
     func removeItinerariesAtOffsets(offsets:IndexSet) -> Void {
-        let filenamesToDelete = offsets.map { itineraries[$0].filename! }
+        let filenamesToDelete = offsets.compactMap {//strip any ni
+            if itineraries[$0].filename == nil {debugPrint("removeItinerariesAtOffsets nil filename ", $0) }
+            return itineraries[$0].filename
+        }
         for filename in filenamesToDelete {
             let filePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(filename)
             do {

@@ -262,7 +262,7 @@ extension SettingsView {
             if let dict: [String:String] = try? JSONDecoder().decode([String:String].self, from: fileData) {
                 loadSettingsFromDict(dict)
             } else {
-                debugPrint("Decode failure for: \(filePath)")
+                debugPrint("readSettingsFromFileAtPath Decode failure for: \(filePath)")
             }
         } else {
             debugPrint("No fileData for: \(filePath)")
