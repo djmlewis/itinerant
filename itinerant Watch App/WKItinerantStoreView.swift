@@ -61,7 +61,9 @@ struct WKItinerantStoreView: View {
                 
             } /* List */
             .navigationDestination(for: String.self) { id in
-                ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                if let itineraryActual = itineraryStore.itineraryForID(id: id) {
+                    ItineraryActionCommonView(itinerary: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                }
             }
             .navigationTitle("Itineraries")
             .toolbar{

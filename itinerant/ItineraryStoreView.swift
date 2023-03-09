@@ -142,17 +142,22 @@ struct ItineraryStoreView: View {
 } /* View */
 
 extension ItineraryStoreView {
+
     var body_stack: some View {
         NavigationStack(path: $presentedItineraryIDsStackArray) {
             List {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
-                    ItineraryStoreItineraryRowView(itineraryID: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
-                        .id(itineraryID)
+                    if let itineraryActual = itineraryStore.itineraryForID(id: itineraryID) {
+                        ItineraryStoreItineraryRowView(itinerary: itineraryActual, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
+                            .id(itineraryActual.idStr)
+                    }
                 } /* ForEach */
                 .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
             } /* List */
             .navigationDestination(for: String.self) { id in
-                ItineraryActionCommonView(itinerary: itineraryStore.itineraryForID(id: id) ?? Itinerary.errorItinerary(), uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                if let itineraryActual = itineraryStore.itineraryForID(id: id) {
+                    ItineraryActionCommonView(itinerary: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                }
             }
             .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
         } /* NavStack */
@@ -162,19 +167,19 @@ extension ItineraryStoreView {
         NavigationSplitView() {
             List(selection: $itineraryIDselected) {
                 ForEach(itineraryStore.itineraryUUIDStrs, id:\.self) { itineraryID in
-                    ItineraryStoreItineraryRowView(itineraryID: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
-                        .id(itineraryID)
+                    if let itineraryActual = itineraryStore.itineraryForID(id: itineraryID) {
+                        ItineraryStoreItineraryRowView(itinerary: itineraryActual, uuidStrStagesRunningStr: uuidStrStagesRunningStr)
+                            .id(itineraryActual.idStr)
+                    }
                 } /* ForEach */
                 .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
             } /* List */
             .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
             
         } detail: {
-            if let itineraryidselected = itineraryIDselected {
-                if let itin = itineraryStore.itineraryForID(id: itineraryidselected) {
-                    ItineraryActionCommonView(itinerary: itin, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
-                        .id(itin.idStr)
-                }
+            if let itineraryidselected = itineraryIDselected, let itineraryActual = itineraryStore.itineraryForID(id: itineraryidselected) {
+                ItineraryActionCommonView(itinerary: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                    .id(itineraryActual.idStr)
             }
         } /* detail */
         /* NavSplitView*/

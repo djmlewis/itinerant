@@ -203,7 +203,7 @@ enum DuplicateFileOptions {
 // MARK: - Images
 let kImageColumnWidth = 150.00
 let kImageColumnWidthHalf = kImageColumnWidth / 2.0
-let kImageColumnWidthThird = kImageColumnWidth / 3.0
+//let kImageColumnWidthThird = kImageColumnWidth / 3.0
 
 
 // MARK: - ItineraryActionView

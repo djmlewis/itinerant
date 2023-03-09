@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ItineraryStoreItineraryRowView: View {
-    var itineraryID: String
+    var itinerary: Itinerary
+    //var itineraryID: String
     var uuidStrStagesRunningStr: String
     
     @EnvironmentObject var appDelegate: AppDelegate
@@ -21,29 +22,28 @@ struct ItineraryStoreItineraryRowView: View {
     @State var lineHeight: CGFloat = 0.0
     
     var body: some View {
-        let itineraryOptional = itineraryStore.itineraryForID(id: itineraryID)
-        let isRunning = (itineraryOptional?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false)
-        let hasThumbnail = itineraryOptional?.imageDataThumbnailActual != nil
-        NavigationLink(value: itineraryID) {
+        let isRunning = itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)
+        let hasThumbnail = itinerary.imageDataThumbnailActual != nil
+        NavigationLink(value: itinerary.idStr) {
             HStack(alignment: .center, spacing: 0) {
                 if isRunning || hasThumbnail {
                     ZStack(alignment: .center) {
-                        if let imagedata = itineraryStore.itineraryThumbnailForID(id: itineraryID), let uiImage = UIImage(data: imagedata) {
+                        if let imagedata = itineraryStore.itineraryThumbnailForID(id: itinerary.idStr), let uiImage = UIImage(data: imagedata) {
                             Image(uiImage: uiImage)
                                 .resizable()
-                                .frame(maxWidth: kImageColumnWidthThird, maxHeight: lineHeight)
+                                .frame(maxWidth: kHaltButtonWidth, maxHeight: lineHeight)
                                 .padding(0)
                         }
                         if isRunning {
-                            buttonStartHalt(forItineraryID: itineraryID)
+                            buttonStartHalt(forItineraryID: itinerary.idStr)
                         }
                     }
-                }
+              }
                 VStack(alignment: .leading) {
-                    Text(itineraryStore.itineraryTitleForID(id: itineraryID))
+                    Text(itineraryStore.itineraryTitleForID(id: itinerary.idStr))
                         .font(.system(.title, design: .rounded, weight: .semibold))
                         .multilineTextAlignment(.leading)
-                    FileNameModDateTextView(itineraryOptional: itineraryOptional)
+                    FileNameModDateTextView(itineraryOptional: itinerary)
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                         .lineLimit(1)
                         .allowsTightening(true)
@@ -52,15 +52,18 @@ struct ItineraryStoreItineraryRowView: View {
                 }
                 .padding(.leading,12)
                 .background(GeometryReader { Color.clear.preference(key: TitleMeasuringPreferenceKey.self, value: $0.size) } )
-                .onPreferenceChange(TitleMeasuringPreferenceKey.self) { lineHeight = $0.height }
+                .onPreferenceChange(TitleMeasuringPreferenceKey.self) {
+                    lineHeight = $0.height
+                    debugPrint($0.width)
+                }
             }
-            //.id(itineraryID)
+            //.id(itinerary.idStr)
             .padding(0)
         }
-        .foregroundColor(textColourForID(itineraryID))
-        .listRowBackground(backgroundColourForID(itineraryID))
+        .foregroundColor(textColourForItinerary(itinerary))
+        .listRowBackground(backgroundColourForItinerary(itinerary))
         .listRowInsets(.init(top: 10,
-                             leading: (itineraryOptional?.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?? false) ? 2 : 10,
+                             leading: itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? 2 : 10,
                              bottom: 10, trailing: 10))
     } /* body */
 } /* struct */
@@ -69,11 +72,11 @@ struct ItineraryStoreItineraryRowView: View {
     
 extension ItineraryStoreItineraryRowView {
     
-    func textColourForID(_ itineraryID: String) -> Color {
-        return itineraryStore.textColourIfItineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? (textColourForScheme(colorScheme: colorScheme))
+    func textColourForItinerary(_ itinerary: Itinerary) -> Color {
+        return itineraryStore.textColourIfItineraryisRunning(itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? (textColourForScheme(colorScheme: colorScheme))
     }
-    func backgroundColourForID(_ itineraryID: String) -> Color {
-        return itineraryStore.backgroundColourIfItineraryForIDisRunning(id: itineraryID, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? Color.clear
+    func backgroundColourForItinerary(_ itinerary: Itinerary) -> Color {
+        return itineraryStore.backgroundColourIfItineraryisRunning(itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, appSettingsObject: appDelegate.settingsColoursObject) ?? Color.clear
     }
 
     
@@ -103,7 +106,7 @@ extension ItineraryStoreItineraryRowView {
 
         }
         .buttonStyle(BorderlessButtonStyle())
-        .frame(width: 46, alignment: .leading)
+        .frame(width: kHaltButtonWidth, alignment: .leading)
         .padding(4)
     }
 

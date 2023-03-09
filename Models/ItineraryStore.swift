@@ -45,15 +45,15 @@ class ItineraryStore: ObservableObject {
     }
     
     
-    func backgroundColourIfItineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
-        if let itinerary = itineraryForID(id: id), itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+    func backgroundColourIfItineraryisRunning(itinerary:Itinerary, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
+        if itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
             let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
             return settingsColourStruct.colourStageRunning
         }
         return nil
     }
-    func textColourIfItineraryForIDisRunning(id:String, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
-        if let itinerary = itineraryForID(id: id), itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
+    func textColourIfItineraryisRunning(itinerary:Itinerary, uuidStrStagesRunningStr: String, appSettingsObject: SettingsColoursObject ) -> Color? {
+        if itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) {
             let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
             return settingsColourStruct.colourFontRunning
         }
