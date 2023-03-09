@@ -172,12 +172,12 @@ extension StageActionCommonView {
     }
     
     func stageBackgroundColour(stage: Stage) -> Color {
-        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
     
     
     func stageTextColour() -> Color {
-        return itineraryStore.stageTextColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        return itineraryStore.stageTextColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
     
     
@@ -230,6 +230,7 @@ extension StageActionCommonView {
         timeAccumulatedAtUpdate = 0.0
         uuidStrStagesRunningStr.append(stage.idStr)
         // request countdown & snooze notification if needed
+        // alertIfUnableToPostNotifications() above protects
         if stage.isCountDown { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownEnd) }
         if stage.isCountDownToDate { postNotification(stage: stage, itinerary: itinerary, intervalType: .countDownToDate) }
         if stage.isPostingRepeatingSnoozeAlerts { // give countdown a head start

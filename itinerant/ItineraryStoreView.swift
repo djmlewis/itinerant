@@ -174,6 +174,7 @@ extension ItineraryStoreView {
                 } /* ForEach */
                 .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
             } /* List */
+            .listStyle(.sidebar)
             .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
             
         } detail: {

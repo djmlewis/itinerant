@@ -61,8 +61,8 @@ class ItineraryStore: ObservableObject {
     }
 
     
-    func stageBackgroundColour(stageUUID: UUID, itineraryID: String, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject ) -> Color {
-        if let itinerary = itineraryForID(id: itineraryID), let stage = itinerary.stageForUUID(stageUUID) {
+    func stageBackgroundColour(stageUUID: UUID, itinerary: Itinerary, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject ) -> Color {
+        if let stage = itinerary.stageForUUID(stageUUID) {
             let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
             if stage.isCommentOnly { return settingsColourStruct.colourStageComment }
             if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourStageRunning }
@@ -74,8 +74,8 @@ class ItineraryStore: ObservableObject {
     }
     
     
-    func stageTextColour(stageUUID: UUID, itineraryID: String, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject) -> Color {
-        if let itinerary = itineraryForID(id: itineraryID), let stage = itinerary.stageForUUID(stageUUID) {
+    func stageTextColour(stageUUID: UUID, itinerary: Itinerary, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject) -> Color {
+        if let stage = itinerary.stageForUUID(stageUUID) {
             let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
             if stage.isCommentOnly { return settingsColourStruct.colourFontComment }
             if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourFontRunning }

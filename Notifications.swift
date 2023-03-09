@@ -189,9 +189,6 @@ func requestStageCompletedOrSnoozeIntervalRepeat(stage: Stage, itinerary: Itiner
 }
 
 func postNotification(stage: Stage, itinerary: Itinerary, intervalType: StageNotificationInterval ) -> Void {
-//    if !stage.durationValidForNotificationInterval(intervalType)  {
-//        debugPrint("invalid duration")
-//    }
     let center = UNUserNotificationCenter.current()
     center.getNotificationSettings { notificationSettings in
         guard (notificationSettings.authorizationStatus == .authorized) else { debugPrint("unable to alert in any way"); return }

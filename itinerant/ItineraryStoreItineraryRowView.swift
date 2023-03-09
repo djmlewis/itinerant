@@ -52,10 +52,7 @@ struct ItineraryStoreItineraryRowView: View {
                 }
                 .padding(.leading,12)
                 .background(GeometryReader { Color.clear.preference(key: TitleMeasuringPreferenceKey.self, value: $0.size) } )
-                .onPreferenceChange(TitleMeasuringPreferenceKey.self) {
-                    lineHeight = $0.height
-                    debugPrint($0.width)
-                }
+                .onPreferenceChange(TitleMeasuringPreferenceKey.self) { lineHeight = $0.height }
             }
             //.id(itinerary.idStr)
             .padding(0)

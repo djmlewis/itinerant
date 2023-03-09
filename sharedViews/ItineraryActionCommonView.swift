@@ -85,7 +85,7 @@ extension ItineraryActionCommonView {
     
     
     func stageBackgroundColour(stage: Stage) -> Color {
-        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itineraryID: itinerary.idStr, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
