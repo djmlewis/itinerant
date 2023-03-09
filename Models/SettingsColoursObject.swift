@@ -9,7 +9,7 @@ import SwiftUI
 
 typealias RGBAString = String
 
-struct SettingsColoursStruct {
+struct SettingsColoursStruct: Equatable, Hashable {
     var colourStageInactive: Color
     var colourStageActive:   Color
     var colourStageRunning:  Color
@@ -19,6 +19,31 @@ struct SettingsColoursStruct {
     var colourFontRunning:   Color
     var colourFontComment:   Color
     
+    // conform to Equatable.
+//    static func ==(lhs: SettingsColoursStruct, rhs: SettingsColoursStruct) -> Bool {
+//        return (
+//            lhs.colourStageInactive.rgbaString == rhs.colourStageInactive.rgbaString &&
+//            lhs.colourStageActive.rgbaString == rhs.colourStageActive.rgbaString &&
+//            lhs.colourStageRunning.rgbaString == rhs.colourStageRunning.rgbaString &&
+//            lhs.colourStageComment.rgbaString == rhs.colourStageComment.rgbaString &&
+//            lhs.colourFontInactive.rgbaString == rhs.colourFontInactive.rgbaString &&
+//            lhs.colourFontActive.rgbaString == rhs.colourFontActive.rgbaString &&
+//            lhs.colourFontRunning.rgbaString == rhs.colourFontRunning.rgbaString &&
+//            lhs.colourFontComment.rgbaString == rhs.colourFontComment.rgbaString
+//        )
+//    }
+    // conform to Hashable.
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(colourStageInactive)
+//        hasher.combine(colourStageActive)
+//        hasher.combine(colourStageRunning)
+//        hasher.combine(colourStageComment)
+//        hasher.combine(colourFontInactive)
+//        hasher.combine(colourFontActive)
+//        hasher.combine(colourFontRunning)
+//        hasher.combine(colourFontComment)
+//    }
+
     internal init(colourStageInactive: Color, colourStageActive: Color, colourStageRunning: Color, colourStageComment: Color, colourFontInactive: Color, colourFontActive: Color, colourFontRunning: Color, colourFontComment: Color) {
         self.colourStageInactive = colourStageInactive
         self.colourStageActive = colourStageActive

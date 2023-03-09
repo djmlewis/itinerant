@@ -25,7 +25,11 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     var imageDataThumbnailActual: Data?
     var imageDataFullActual: Data?
 
-    
+    // conform to Codable. Covers all persistent & editable
+    private enum CodingKeys: String, CodingKey {
+        case id, title,details,snoozeDurationSecs,flags,durationSecsInt,additionalDurationsDict
+    }
+
     var persistentData: Stage.PersistentData {
         PersistentData(id: self.id, title: self.title,
                        durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict,

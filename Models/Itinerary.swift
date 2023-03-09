@@ -14,7 +14,8 @@ import SwiftUI
 
 
 
-struct Itinerary: Identifiable, Equatable {// Codable is not needed so long as only PersistentData is encoded and saved
+struct Itinerary: Identifiable, Hashable, Equatable, Codable {
+    // Codable is not needed so long as only PersistentData is encoded and saved
     // Persistent Data ==>
     let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
     var modificationDate: TimeInterval
@@ -28,8 +29,12 @@ struct Itinerary: Identifiable, Equatable {// Codable is not needed so long as o
     var imageDataFullActual: Data?
     var settingsColoursStruct: SettingsColoursStruct?
     
-    // conform to Equatable. fudge as the comparison does not really cover everything
-    static func ==(lhs: Itinerary, rhs: Itinerary) -> Bool { return lhs.id == rhs.id }
+    // conform to Codable. Covers all persistent & editable
+    private enum CodingKeys: String, CodingKey {
+        case id, modificationDate,title,stages
+    }
+    // conform to Equatable. As SettingsColoursStruct is Equatable
+    // conform to Hashable. As SettingsColoursStruct is Hashable
 
     // these are full inits including UUID which must be done here to be decoded
     init(id: UUID = UUID(), title: String = kUntitledString, stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
