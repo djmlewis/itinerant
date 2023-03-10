@@ -12,6 +12,12 @@ extension ItineraryActionCommonView {
     var body_: some View {
         ScrollViewReader { scrollViewReader in
             List {
+                if let imagedata = itineraryLocalCopy.imageDataThumbnailActual, let uiImage = UIImage(data: imagedata) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .padding()
+                        .listItemTint(.clear)
+                }
                 ForEach($itineraryLocalCopy.stages) { $stage in
                     StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.idStr)
@@ -43,20 +49,22 @@ extension ItineraryActionCommonView {
                 .padding()
             } /* List */
             .toolbar(content: {
-                Button {
-                    resetItineraryStages()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "arrow.counterclockwise.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 32, alignment: .center)
-                        Spacer()
+                ToolbarItem {
+                    Button {
+                        resetItineraryStages()
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "arrow.counterclockwise.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 32, alignment: .center)
+                            Spacer()
+                        }
                     }
+                    .tint(.red)
+                    .padding()
                 }
-                .tint(.red)
-                .padding()
             })
             .onChange(of: scrollToStageID) { stageid in
                 if stageid != nil {

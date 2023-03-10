@@ -16,10 +16,16 @@ extension StageActionCommonView {
             GridRow {
                 HStack(spacing: 0.0) {
                     if let imagedata = stage.imageDataThumbnailActual, let uiImage = UIImage(data: imagedata) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .frame(maxWidth: kHaltButtonWidth, maxHeight: kHaltButtonWidth)
-                            .padding(0)
+                        Button(action: {
+                            fullSizeUIImage = uiImage
+                            showFullSizeUIImage = true
+                        }, label: {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .frame(maxWidth: kHaltButtonWidth, maxHeight: kHaltButtonWidth)
+                                .padding(0)
+                        })
+                        .buttonStyle(.borderless)
                     }
                     Text(stage.title)
                         .font(.system(.headline, design: .rounded, weight: .semibold))
@@ -133,6 +139,9 @@ extension StageActionCommonView {
         .padding(0)
         .padding(.bottom,6)
        /* Grid mods */
+        .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
+            FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
+        }) /* fullScreenCover */
         .sheet(isPresented: $presentDatePicker, content: {
             StageActionDatePickerCommonView(durationDate: $durationDate, presentDatePicker: $presentDatePicker, initialDurationDate: stage.durationAsDate)
         })

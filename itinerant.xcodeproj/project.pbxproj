@@ -48,6 +48,7 @@
 		72717ECE29844D2200CA84FD /* WKItineraryActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72717ECD29844D2200CA84FD /* WKItineraryActionView.swift */; };
 		7272F09029855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
 		7272F09129855AD700F58305 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7272F08F29855AD700F58305 /* Notifications.swift */; };
+		727F1E9629BB855400EE775B /* FullScreenImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */; };
 		7282F4012985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		7282F4022985A473009B87E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7282F4002985A473009B87E7 /* Assets.xcassets */; };
 		728BCF7B2982FFE2005CE71C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728BCF7A2982FFE2005CE71C /* AppDelegate.swift */; };
@@ -169,6 +170,7 @@
 				728BCF7A2982FFE2005CE71C /* AppDelegate.swift */,
 				72586235298FF46B00B8331D /* ItineraryActionCommonView.swift */,
 				72038451298EF03E005DC2C6 /* StageActionCommonView.swift */,
+				7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */,
 			);
 			path = sharedViews;
 			sourceTree = "<group>";
@@ -221,7 +223,6 @@
 				725FA976298FCB5A00AC7B94 /* StageActionView.swift */,
 				720C092D29741F74000AFFCC /* StageDisplayView.swift */,
 				7256AF942965D53300FBE53E /* StageEditView.swift */,
-				7250119629B34DB9008AE9F5 /* FullScreenImageView.swift */,
 				72E7F07A295F3F6500367612 /* Assets.xcassets */,
 				72E7F09F295F4ADA00367612 /* Info.plist */,
 				72E7F07C295F3F6500367612 /* Preview Content */,
@@ -428,6 +429,7 @@
 				72038450298EEFB1005DC2C6 /* AppDelegate.swift in Sources */,
 				722A58D0297FF1570061620C /* Stage.swift in Sources */,
 				72586237298FF46B00B8331D /* ItineraryActionCommonView.swift in Sources */,
+				727F1E9629BB855400EE775B /* FullScreenImageView.swift in Sources */,
 				725C734B29B8ACCE00EE325D /* SettingsColoursObject.swift in Sources */,
 				722A58CD297FF14D0061620C /* Utilities.swift in Sources */,
 				7272F09129855AD700F58305 /* Notifications.swift in Sources */,

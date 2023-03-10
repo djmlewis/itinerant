@@ -11,6 +11,19 @@ struct FullScreenImageView: View {
     @Binding var fullSizeUIImage: UIImage?
     @Binding var showFullSizeUIImage: Bool
 
+#if os(watchOS)
+    var body: some View {
+        NavigationStack {
+            if let validimage = fullSizeUIImage {
+                Image(uiImage: validimage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .fixedSize(horizontal: true, vertical: true)
+            }
+        }
+    }
+#else
     var body: some View {
         NavigationStack {
             if let validimage = fullSizeUIImage {
@@ -31,10 +44,5 @@ struct FullScreenImageView: View {
             }
         }
     }
+#endif
 }
-
-//struct FullScreenImageView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        FullScreenImageView()
-//    }
-//}

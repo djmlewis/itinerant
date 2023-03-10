@@ -23,6 +23,7 @@ struct ItineraryActionCommonView: View {
     @State var scrollToStageID: String?
     @State var stageToStartRunningID: String?
     
+
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appSettingsObject: SettingsColoursObject
@@ -36,13 +37,13 @@ struct ItineraryActionCommonView: View {
     @State var fileSaveDocument: ItineraryFile?
     @State var fileSaveType: UTType = .itineraryDataPackage
     @State var fileSaveName: String?
-    @State var fullSizeUIImage: UIImage?
-    @State var showFullSizeUIImage: Bool = false
     @State var showFilePicker: Bool = false
     @State var stageIDsToDelete: [String] = [String]()
     @State  var showSettingsView: Bool = false
     @State  var openRequestURL: URL?
-    
+    @State var showFullSizeUIImage: Bool = false
+    @State var fullSizeUIImage: UIImage?
+
 #endif
     
     
