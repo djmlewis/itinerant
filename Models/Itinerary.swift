@@ -417,7 +417,6 @@ extension Itinerary {
     }
     func getFullSizeImageData() -> Data? {
         if imageDataFullActual == nil {
-            debugPrint("getFullSizeImageData")
             let data = loadImageDataFromPackage(imageSizeType: .fullsize)
             return data
         }

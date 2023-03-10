@@ -31,17 +31,28 @@ struct StageActionCommonView: View {
 #if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
     @State var disclosureDetailsExpanded: Bool = true
-
+    
+    struct ImageMeasuringPreferenceKey: PreferenceKey {
+        typealias Value = CGSize
+        static var defaultValue: Value = .zero
+        static func reduce(value: inout Value, nextValue: () -> Value) { value = nextValue() }
+    }
+    @State var calculatedHeight: CGFloat = 100.0
+    @State var imageMeasuredSize: CGSize = .zero
+    
 #endif
+    
+    @State var detailsTextColour: Color = Color.clear
+    
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
-
+    
     @State var durationDate: Date = validFutureDate()
     @State var presentDatePicker: Bool = false
     
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appSettingsObject: SettingsColoursObject
-
+    
     @State var timeDifferenceAtUpdate: Double = 0.0
     @State var timeAccumulatedAtUpdate: Double = 0.0
     @State var uiFastUpdateTimer: Timer.TimerPublisher = Timer.publish(every: kUIUpdateTimerFrequency, on: .main, in: .common)
@@ -49,7 +60,7 @@ struct StageActionCommonView: View {
     @State var presentUnableToNotifyAlert: Bool = false
     @State var presentUnableToPostDateNotification: Bool = false
     @State private var updateFrequency: TimeInterval = kUISlowUpdateTimerFrequency
-
+    
     @AppStorage(kAppStorageShowUnableToNotifyWarning) var showUnableToNotifyWarning: Bool = true
     
     @EnvironmentObject var appDelegate: AppDelegate
@@ -62,7 +73,7 @@ struct StageActionCommonView: View {
         }
         return stage.imageDataFullActual
     }
-
+    
     
     // MARK: - body
     var body: some View {
@@ -72,9 +83,9 @@ struct StageActionCommonView: View {
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
             .onReceive(uiFastUpdateTimer) { handleReceive_uiFastUpdateTimer(newDate: $0) }
-//            .onReceive(uiSlowUpdateTimer) { handleReceive_uiSlowUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
+            .onChange(of: stageTextColourForStatus) { newValue in detailsTextColour = stageTextColourForStatus }
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
             .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
             .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idstrtotest: $0) }
@@ -95,7 +106,9 @@ struct StageActionCommonView: View {
                     itineraryStore.updateStageDurationFromDate(stageUUID: stage.id, itineraryUUID: itinerary.id, durationDate: $0)
                 }
             })
-        
+#if os(iOS)
+            .onChange(of: stage.imageDataThumbnailActual) { if $0 == nil { imageMeasuredSize = .zero } }
+#endif
     } /* body */
 } /* struct */
 
@@ -176,10 +189,9 @@ extension StageActionCommonView {
     }
     
     
-    func stageTextColour() -> Color {
+    var stageTextColourForStatus: Color {
         return itineraryStore.stageTextColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
-    
     
     func resetStage(newValue: Bool?) {
         DispatchQueue.main.async {
@@ -292,6 +304,7 @@ extension StageActionCommonView {
     
     func handleOnAppear() {
         handleTimersOnAppearActive()
+        detailsTextColour = stageTextColourForStatus
         if(!stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // use dictStageEndDates[stage.idStr] != nil to detect we have run and to update the updateTimes
             updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.idStr]?.dateFromDouble)

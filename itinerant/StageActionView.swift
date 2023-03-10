@@ -18,14 +18,14 @@ extension StageActionCommonView {
                     // title and expand details
                     if stage.isCommentOnly == true {
                         Image(systemName: "bubble.left")
-                            .foregroundColor(stageTextColour())
+                            .foregroundColor(stageTextColourForStatus)
                     }
                     Text(stage.title)
                     // Stage title
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.system(.title3, design: .rounded, weight: .bold))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundColor(stageTextColour())
+                        .foregroundColor(stageTextColourForStatus)
                         .scenePadding(.minimum, edges: .horizontal)
                         .multilineTextAlignment(.leading)
                     if !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
@@ -54,17 +54,11 @@ extension StageActionCommonView {
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
                  stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
             {
-                HStack(alignment: .top, spacing: 0.0) {
-                    if !stage.details.isEmpty {
-                        Text(stage.details)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .font(.system(.body, design: .rounded, weight: .regular))
-                            .foregroundColor(stageTextColour())
-                            .multilineTextAlignment(.leading)
-                    }
+                ZStack(alignment: .topLeading) {
+                    UITextViewWrapper(text: stage.details, calculatedHeight: $calculatedHeight, fontColor: $detailsTextColour, imageMeasuredSize: $imageMeasuredSize)
+                        .frame(minHeight: calculatedHeight, maxHeight: calculatedHeight)
                     if let imagedata = stage.imageDataThumbnailActual,
                        let uiImage = UIImage(data: imagedata) {
-                        Spacer()
                         Button(action: {
                             if let imagedata = getSetStageFullSizeImageData(),
                                let uiImage = UIImage(data: imagedata) {
@@ -77,21 +71,32 @@ extension StageActionCommonView {
                                 .scaledToFit()
                                 .frame(idealWidth: kImageColumnWidthHalf, alignment: .trailing)
                                 .fixedSize(horizontal: true, vertical: false)
-                                .padding(0)
+                                .padding(.top, 12)
                         })
+                        .background(GeometryReader { Color.clear.preference(key: StageActionCommonView.ImageMeasuringPreferenceKey.self, value: $0.size) } )
+                        .onPreferenceChange(StageActionCommonView.ImageMeasuringPreferenceKey.self) { imageMeasuredSize = $0 }
                         .buttonStyle(.borderless)
-                   }
-
-               } /* HStack */
+                    }
+                }
                 .frame(maxWidth: .infinity)
                 .padding(kiOSStageViewsRowPad)
+//                HStack(alignment: .top, spacing: 0.0) {
+//                    if !stage.details.isEmpty {
+//                        Text(stage.details)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                            .font(.system(.body, design: .rounded, weight: .regular))
+//                            .foregroundColor(stageTextColourForStatus)
+//                            .multilineTextAlignment(.leading)
+//                    }
+//
+//               } /* HStack */
             }
             if stage.isCommentOnly == false {
                 HStack {
                     // alarm duration and button
                     Image(systemName: stage.durationSymbolName)
                         .font(.system(.title3, design: .rounded, weight: .bold))
-                        .foregroundColor(stageTextColour())
+                        .foregroundColor(stageTextColourForStatus)
                     if stage.isCountDownType {
                         if stage.isCountDownToDate {
                             TimelineView(.periodic(from: Date(), by: kUISlowUpdateTimerFrequency)) { context in
@@ -111,7 +116,7 @@ extension StageActionCommonView {
                                     .disabled(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
                                     .buttonStyle(.borderless)
                                     .controlSize(.regular)
-                                    .foregroundColor(stage.invalidDurationForCountDownTypeAtDate(context.date) && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColour())
+                                    .foregroundColor(stage.invalidDurationForCountDownTypeAtDate(context.date) && !stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ?  Color("ColourInvalidDate") : stageTextColourForStatus)
                                     .background(stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ? Color.clear : Color("ColourButtonGrey"))
                                     .clipShape(Capsule(style: .continuous))
                                 }
@@ -122,7 +127,7 @@ extension StageActionCommonView {
                             Text(stage.durationString)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .font(.system(.title3, design: .rounded, weight: .semibold))
-                                .foregroundColor(stageTextColour())
+                                .foregroundColor(stageTextColourForStatus)
                                 .lineLimit(2)
                                 .allowsTightening(true)
                                 .minimumScaleFactor(0.5)
