@@ -289,7 +289,6 @@ extension Itinerary {
         writeImageDataToPackage(itineraryEditableData.imageDataFullActual, imageSizeType: .fullsize)
         itineraryEditableData.stages.forEach { stage in
             writeStageImageDataToPackage(stage.imageDataFullActual, imageSizeType: .fullsize, stageIDstr: stage.idStr)
-            writeStageImageDataToPackage(stage.imageDataThumbnailActual, imageSizeType: .thumbnail, stageIDstr: stage.idStr)
         }
     }
     
@@ -400,7 +399,7 @@ extension Itinerary {
     var stagesUpdatedImageFullsize: StageArray { stages.map {
         if $0.imageDataFullActual == nil {
             var mutableStage = $0
-            mutableStage.updateImageDataThumbnailActualFromPackagePath(packageFilePath)
+            mutableStage.updateImageDataFullActualFromPackagePath(packageFilePath)
             return mutableStage
         } else {
             return $0
@@ -488,14 +487,7 @@ extension Itinerary {
     mutating func loadAllSupportFilesFromPackage() {
         loadColourSettings()
         imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
-        // load fullsize as required
-        //imageDataFullActual = loadImageDataFromPackage(imageSizeType: .fullsize)
-        var i = stages.startIndex
-        while i != stages.endIndex {
-            stages[i].imageDataThumbnailActual = loadStageImageDataFromPackage(imageSizeType: .thumbnail, stageIDstr: stages[i].idStr)
-            // load fullsize as required
-            i = stages.index(after: i)
-        }
+
     }
     
     

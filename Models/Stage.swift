@@ -21,8 +21,8 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     var flags: String
     var durationSecsInt: Int
     var additionalDurationsDict: [Int : String] = [Int : String]()
-    // runtime
     var imageDataThumbnailActual: Data?
+    // runtime
     var imageDataFullActual: Data?
 
     // conform to Codable. Covers all persistent & editable
@@ -33,7 +33,7 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
     var persistentData: Stage.PersistentData {
         PersistentData(id: self.id, title: self.title,
                        durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict,
-                       details: self.details, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags)
+                       details: self.details, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags, imageDataThumbnailActual: self.imageDataThumbnailActual)
     }
     
     var editableData: Stage { Stage(title: self.title,
@@ -70,6 +70,7 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
         self.details = persistentData.details
         self.snoozeDurationSecs = persistentData.snoozeDurationSecs
         self.flags = persistentData.flags
+        self.imageDataThumbnailActual = persistentData.imageDataThumbnailActual
     }
     
     mutating func updateEditableData(from editableData: Stage) {
@@ -95,7 +96,8 @@ extension Stage {
         var details: String
         var snoozeDurationSecs: Int
         var flags: String
-        
+        var imageDataThumbnailActual: Data?
+
         var idStr: String { id.uuidString }
 
     }
@@ -432,7 +434,7 @@ extension Stage {
     }
     
 // MARK: - Images
-    mutating func updateImageDataThumbnailActualFromPackagePath(_ packagePath: String?) {
+    mutating func updateImageDataFullActualFromPackagePath(_ packagePath: String?) {
         if let packagePath {
             if imageDataFullActual == nil {
                 let filename = idStr + ImageSizeType.fullsize.rawValue + ItineraryFileExtension.imageData.dotExtension
