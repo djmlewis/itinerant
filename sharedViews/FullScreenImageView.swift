@@ -13,11 +13,10 @@ struct FullScreenImageView: View {
 
 #if os(watchOS)
     var body: some View {
-        NavigationStack {
-            if let validimage = fullSizeUIImage {
+        if let validimage = fullSizeUIImage {
+            ScrollView(.vertical) {
                 Image(uiImage: validimage)
                     .resizable()
-                    .scaledToFit()
             }
         }
     }

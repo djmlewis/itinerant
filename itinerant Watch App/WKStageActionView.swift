@@ -24,7 +24,9 @@ extension StageActionCommonView {
                                 .resizable()
                                 .frame(maxWidth: kHaltButtonWidth, maxHeight: kHaltButtonWidth)
                                 .padding(0)
-                        })
+                                .cornerRadius(6.0)
+                                .padding(.top, 4)
+                       })
                         .buttonStyle(.borderless)
                     }
                     Text(stage.title)
