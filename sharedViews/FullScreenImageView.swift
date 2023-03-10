@@ -18,8 +18,6 @@ struct FullScreenImageView: View {
                 Image(uiImage: validimage)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .fixedSize(horizontal: true, vertical: true)
             }
         }
     }
