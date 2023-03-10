@@ -19,31 +19,6 @@ struct SettingsColoursStruct: Equatable, Hashable {
     var colourFontRunning:   Color
     var colourFontComment:   Color
     
-    // conform to Equatable.
-//    static func ==(lhs: SettingsColoursStruct, rhs: SettingsColoursStruct) -> Bool {
-//        return (
-//            lhs.colourStageInactive.rgbaString == rhs.colourStageInactive.rgbaString &&
-//            lhs.colourStageActive.rgbaString == rhs.colourStageActive.rgbaString &&
-//            lhs.colourStageRunning.rgbaString == rhs.colourStageRunning.rgbaString &&
-//            lhs.colourStageComment.rgbaString == rhs.colourStageComment.rgbaString &&
-//            lhs.colourFontInactive.rgbaString == rhs.colourFontInactive.rgbaString &&
-//            lhs.colourFontActive.rgbaString == rhs.colourFontActive.rgbaString &&
-//            lhs.colourFontRunning.rgbaString == rhs.colourFontRunning.rgbaString &&
-//            lhs.colourFontComment.rgbaString == rhs.colourFontComment.rgbaString
-//        )
-//    }
-    // conform to Hashable.
-//    func hash(into hasher: inout Hasher) {
-//        hasher.combine(colourStageInactive)
-//        hasher.combine(colourStageActive)
-//        hasher.combine(colourStageRunning)
-//        hasher.combine(colourStageComment)
-//        hasher.combine(colourFontInactive)
-//        hasher.combine(colourFontActive)
-//        hasher.combine(colourFontRunning)
-//        hasher.combine(colourFontComment)
-//    }
-
     internal init(colourStageInactive: Color, colourStageActive: Color, colourStageRunning: Color, colourStageComment: Color, colourFontInactive: Color, colourFontActive: Color, colourFontRunning: Color, colourFontComment: Color) {
         self.colourStageInactive = colourStageInactive
         self.colourStageActive = colourStageActive
@@ -55,20 +30,27 @@ struct SettingsColoursStruct: Equatable, Hashable {
         self.colourFontComment = colourFontComment
     }
     
-    init(settingsColourStringsStruct coloursStruct: SettingsColourStringsStruct) {
-        self.colourStageInactive = coloursStruct.colourStageInactive.rgbaColor!
-        self.colourStageActive = coloursStruct.colourStageActive.rgbaColor!
-        self.colourStageRunning = coloursStruct.colourStageRunning.rgbaColor!
-        self.colourStageComment = coloursStruct.colourStageComment.rgbaColor!
-        self.colourFontInactive = coloursStruct.colourFontInactive.rgbaColor!
-        self.colourFontActive = coloursStruct.colourFontActive.rgbaColor!
-        self.colourFontRunning = coloursStruct.colourFontRunning.rgbaColor!
-        self.colourFontComment = coloursStruct.colourFontComment.rgbaColor!
+    init?(settingsColourStringsStruct coloursStruct: SettingsColourStringsStruct?) {
+        if let coloursStruct {
+            self.colourStageInactive = coloursStruct.colourStageInactive.rgbaColor!
+            self.colourStageActive = coloursStruct.colourStageActive.rgbaColor!
+            self.colourStageRunning = coloursStruct.colourStageRunning.rgbaColor!
+            self.colourStageComment = coloursStruct.colourStageComment.rgbaColor!
+            self.colourFontInactive = coloursStruct.colourFontInactive.rgbaColor!
+            self.colourFontActive = coloursStruct.colourFontActive.rgbaColor!
+            self.colourFontRunning = coloursStruct.colourFontRunning.rgbaColor!
+            self.colourFontComment = coloursStruct.colourFontComment.rgbaColor!
+        } else { return nil }
+    }
+
+    // makes a SettingsColourStringsStruct from self
+    var settingsColourStringsStruct: SettingsColourStringsStruct {
+        SettingsColourStringsStruct(settingsColoursStruct: self)
     }
 
 }
 
-struct SettingsColourStringsStruct: Codable {
+struct SettingsColourStringsStruct: Codable, Equatable, Hashable {
     var colourStageInactive: RGBAString
     var colourStageActive:   RGBAString
     var colourStageRunning:  RGBAString
@@ -89,6 +71,7 @@ struct SettingsColourStringsStruct: Codable {
         self.colourFontComment = coloursStruct.colourFontComment.rgbaString!
     }
     
+
 }
 
 class SettingsColoursObject: ObservableObject, Hashable, Equatable {
@@ -116,7 +99,8 @@ class SettingsColoursObject: ObservableObject, Hashable, Equatable {
     init(uuid: UUID = UUID()) {
         self.id = uuid
     }
-    
+     
+    // makes a SettingsColoursStruct from our SettingsColoursObject
     var settingsColoursStruct: SettingsColoursStruct {
         SettingsColoursStruct(
             colourStageInactive: colourStageInactive,
@@ -129,6 +113,8 @@ class SettingsColoursObject: ObservableObject, Hashable, Equatable {
             colourFontComment: colourFontComment
         )
     }
+
+    // makes a SettingsColourStringsStruct from our SettingsColoursObject via a SettingsColoursStruct
     var settingsColourStringsStruct: SettingsColourStringsStruct {
         SettingsColourStringsStruct(settingsColoursStruct: settingsColoursStruct)
     }

@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 import Combine
 
 struct ItineraryActionCommonView: View {
-    @State var itinerary: Itinerary // no need for a Binding on watch
+    @State var itineraryLocalCopy: Itinerary // !! this is passed from ItineraryStore unbound and just a local copy
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
@@ -85,11 +85,11 @@ extension ItineraryActionCommonView {
     
     
     func stageBackgroundColour(stage: Stage) -> Color {
-        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itineraryLocalCopy, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
     }
 
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
-        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates, dictStageEndDates) = itinerary.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
+        (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates, dictStageEndDates) = itineraryLocalCopy.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }
     
     func resetItineraryStages() {
@@ -99,15 +99,15 @@ extension ItineraryActionCommonView {
         // toggle scrollToStageID to nil so we scroll up to an already active id
         scrollToStageID = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if let firstActStageIndx = itinerary.firstIndexActivableStage {
-                uuidStrStagesActiveStr.append(itinerary.stages[firstActStageIndx].idStr)
+                if let firstActStageIndx = itineraryLocalCopy.firstIndexActivableStage {
+                uuidStrStagesActiveStr.append(itineraryLocalCopy.stages[firstActStageIndx].idStr)
             }
         }
         
     }
     
     func sendItineraryToWatch()  {
-        appDelegate.sendItineraryDataToWatch(itinerary.watchDataKeepingUUID)
+        appDelegate.sendItineraryDataToWatch(itineraryLocalCopy.encodedWatchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs)
     }
     
     

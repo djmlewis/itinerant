@@ -54,7 +54,7 @@ struct ItineraryStoreView: View {
         body_
             .sheet(isPresented: $showSettingsView, content: {
                 NavigationStack {
-                    SettingsView(/*showSettingsView: $showSettingsView,*/ urlToOpen: $openRequestURL, itinerary: nil)
+                    SettingsView(urlToOpen: $openRequestURL, itinerary: Binding.constant(nil))
                 }
             })
             .fullScreenCover(isPresented: $isPresentingItineraryEditView) {
@@ -83,7 +83,7 @@ struct ItineraryStoreView: View {
             }
             .onChange(of: appDelegate.syncItineraries) { doSync in
                 guard doSync == true else { return }
-                itineraryStore.itineraries.forEach { appDelegate.sendItineraryDataToWatch($0.watchDataKeepingUUID) }
+                itineraryStore.itineraries.forEach { appDelegate.sendItineraryDataToWatch($0.encodedWatchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs) }
                 appDelegate.syncItineraries = false
             }
             .onChange(of: appDelegate.unnItineraryToOpenID) { newValue in
@@ -156,7 +156,7 @@ extension ItineraryStoreView {
             } /* List */
             .navigationDestination(for: String.self) { id in
                 if let itineraryActual = itineraryStore.itineraryForID(id: id) {
-                    ItineraryActionCommonView(itinerary: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                    ItineraryActionCommonView(itineraryLocalCopy: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
                 }
             }
             .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
@@ -179,7 +179,7 @@ extension ItineraryStoreView {
             
         } detail: {
             if let itineraryidselected = itineraryIDselected, let itineraryActual = itineraryStore.itineraryForID(id: itineraryidselected) {
-                ItineraryActionCommonView(itinerary: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                ItineraryActionCommonView(itineraryLocalCopy: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
                     .id(itineraryActual.idStr)
             }
         } /* detail */

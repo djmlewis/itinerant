@@ -15,21 +15,29 @@ extension StageActionCommonView {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
             GridRow {
                 HStack(spacing: 0.0) {
+                    if let imagedata = stage.imageDataThumbnailActual, let uiImage = UIImage(data: imagedata) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .frame(maxWidth: kHaltButtonWidth, maxHeight: kHaltButtonWidth)
+                            .padding(0)
+                    }
                     Text(stage.title)
-                        .padding(0)
-                        .gridCellColumns(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity)
                         .font(.system(.headline, design: .rounded, weight: .semibold))
-                        .lineLimit(nil)
                         .multilineTextAlignment(.center)
                         .foregroundColor(stageTextColour())
-                    if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                        .frame(maxWidth: .infinity)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(nil)
+                        .padding([.top,.bottom],0)
+                        .padding([.leading,.trailing],3)
+                   if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) || stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                         buttonStartHalt()
+                            .padding(0)
                     }
                 } /* HStack */
-                .frame(maxWidth: .infinity)
                 .gridCellColumns(2)
+                .frame(maxWidth: .infinity)
+                .padding(0)
             } /* GridRow */
            if stage.isCommentOnly == false {
                 GridRow {

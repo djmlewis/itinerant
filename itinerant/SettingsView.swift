@@ -36,9 +36,8 @@ struct SettingsViewStageColours: View {
 
 
 struct SettingsView: View {
-    //@Binding var showSettingsView: Bool
     @Binding var urlToOpen: URL?
-    var itinerary: Itinerary? // signals its a local not global
+    @Binding var itinerary: Itinerary?
     
     var settingGlobals: Bool { itinerary == nil }
     
@@ -64,11 +63,6 @@ struct SettingsView: View {
     @State var fileImporterShown: Bool = false
 
     var body: some View {
-        Button("Cancel") {
-            //showSettingsView = false
-            dismiss()
-        }
-
         List {
             Section {
                 SettingsViewStageColours(title: "Comments", imageName: "bubble.left", colourBackground: $prefColourComment, colourForeground: $prefColourFontComment)
@@ -87,7 +81,6 @@ struct SettingsView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
-                    //showSettingsView = false
                     dismiss()
                 }
             }
@@ -147,9 +140,7 @@ struct SettingsView: View {
             switch result {
             case .success:
                 break
-                //debugPrint("saved settings")
-            case .failure://(let error):
-                //debugPrint(error.localizedDescription)
+            case .failure:
                 break
             }
         } /* fileExporter */
@@ -162,7 +153,6 @@ struct SettingsView: View {
               }
               selectedFileURL.stopAccessingSecurityScopedResource()
           case .failure://(let error):
-              //debugPrint(error)
               break
           }
       }) /* fileImporter */
@@ -176,7 +166,7 @@ extension SettingsView {
         if urlToOpen == nil {
             if settingGlobals || itinerary?.settingsColoursStruct == nil { setupPrefsFromSettingsColoursStruct(appSettingsObject.settingsColoursStruct) }
             else { // itinerary is non-nil if not settingGlobals, so itinerary!.settingsColoursStruct must be non-nil too
-                setupPrefsFromSettingsColoursStruct(itinerary!.settingsColoursStruct!)
+                setupPrefsFromSettingsColoursStruct((itinerary?.settingsColoursStruct)!)
             }
         } else {
             readSettingsFromFileAtPath(urlToOpen!.path(percentEncoded: false))
@@ -188,9 +178,12 @@ extension SettingsView {
         let settingsStruct = SettingsColoursStruct(colourStageInactive: prefColourInactive, colourStageActive: prefColourActive, colourStageRunning: prefColourRunning, colourStageComment: prefColourComment, colourFontInactive: prefColourFontInactive, colourFontActive: prefColourFontActive, colourFontRunning: prefColourFontRunning, colourFontComment: prefColourFontComment)
         DispatchQueue.main.async {
             if settingGlobals { appDelegate.updateSettingsFromSettingsStructColours(settingsStruct) }
-            else if let idstr = itinerary?.idStr { itineraryStore.updateItineraryWithID(idstr, withSettingsColoursStruct: settingsStruct) }
+            else {
+                // the local itinerary is not bound to the itineraryStore so we must update both entities
+                if let idstr = itinerary?.idStr { itineraryStore.updateItineraryWithID(idstr, withSettingsColoursStruct: settingsStruct) }
+                itinerary?.updateSettingsColourStruct(newStruct: settingsStruct)
+            }
         }
-        //showSettingsView = false
     }
     
     func setupPrefsFromSettingsColoursStruct(_ csstruct: SettingsColoursStruct) {

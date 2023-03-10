@@ -12,12 +12,12 @@ extension ItineraryActionCommonView {
     var body_: some View {
         ScrollViewReader { scrollViewReader in
             List {
-                ForEach($itinerary.stages) { $stage in
-                    StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
+                ForEach($itineraryLocalCopy.stages) { $stage in
+                    StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
-                ItineraryDurationUpdatingView(itinerary: itinerary)
+                ItineraryDurationUpdatingView(itinerary: itineraryLocalCopy)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
                     .listItemTint(.clear)
@@ -56,10 +56,10 @@ extension ItineraryActionCommonView {
             }
             /* List modifiers */
         } /* ScrollViewReader */
-        .navigationTitle(itinerary.title)
+        .navigationTitle(itineraryLocalCopy.title)
         .onAppear() {
-            if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itinerary.stages.isEmpty {
-                let stageuuid = itinerary.stages[0].idStr
+            if !itineraryLocalCopy.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itineraryLocalCopy.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itineraryLocalCopy.stages.isEmpty {
+                let stageuuid = itineraryLocalCopy.stages[0].idStr
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }

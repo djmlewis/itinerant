@@ -200,40 +200,59 @@ extension Itinerary {
 
 // MARK: - WatchMessageData
 extension Itinerary {
-    init?(messageItineraryData data: Data) {
-        if let watchData = try? JSONDecoder().decode(Itinerary.WatchMessageData.self, from: data) {
-            self.id = watchData.id // !!! will MATCH the sending Itinerary on phone !!!
-            self.title = watchData.title
-            self.stages = Stage.stagesFromWatchStages(watchData.messageStages)
-            self.modificationDate = watchData.modificationDate
-            self.packageFilePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(watchData.filename)
-        } else { return nil }
-    }
-
-    struct WatchMessageData: Identifiable, Codable, Hashable {
+    struct WatchMessageStruct: Identifiable, Codable, Hashable {
         let id: UUID //Immutable property will not be decoded if it is declared with an initial value which cannot be overwritten
         var modificationDate: TimeInterval
         var title: String
-        var messageStages: StageWatchMessageDataArray
+        var messageStages: StageWatchDataArray
         var filename: String
+        var settingsColoursStringStruct: SettingsColourStringsStruct?
+        var imageDataThumbnailActual: Data?
 
-        internal init(id: UUID, modificationDate: TimeInterval, title: String, messageStages: StageWatchMessageDataArray, filename: String) {
+        // WatchMessageStruct with an optional settingsColoursStringStruct
+        internal init(id: UUID, modificationDate: TimeInterval, title: String, messageStages: StageWatchDataArray, filename: String,
+                      settingsColoursStringStruct: SettingsColourStringsStruct?, imageDataThumbnailActual: Data? ) {
             self.id = id
             self.modificationDate = modificationDate
             self.title = title
             self.messageStages = messageStages
             self.filename = filename
+            self.settingsColoursStringStruct = settingsColoursStringStruct
+            self.imageDataThumbnailActual = imageDataThumbnailActual
         }
     }
-        
-    var watchDataKeepingUUID: Data? { try? JSONEncoder().encode(Itinerary.WatchMessageData(
-        id: id,
-        modificationDate: modificationDate,
-        title: title,
-        messageStages: watchStages(),
-        filename: filename ?? kUntitledString) ) }
     
-    func watchStages() -> StageWatchMessageDataArray { stages.map { $0.watchDataNewUUID } }
+    // Itinerary init from an Itinerary.WatchMessageStruct
+    init(watchMessageStruct: Itinerary.WatchMessageStruct) {
+        self.id = watchMessageStruct.id // !!! will MATCH the sending Itinerary on phone !!!
+        self.modificationDate = watchMessageStruct.modificationDate
+        self.title = watchMessageStruct.title
+        self.stages = Stage.stagesFromWatchStages(watchMessageStruct.messageStages)
+        self.packageFilePath = dataPackagesDirectoryPathAddingSuffixToFileNameWithoutExtension(watchMessageStruct.filename)
+        if let settingsColoursStringStruct = watchMessageStruct.settingsColoursStringStruct {
+            self.settingsColoursStruct = SettingsColoursStruct(settingsColourStringsStruct: settingsColoursStringStruct)
+        }
+        if let imageDataThumbnailActual = watchMessageStruct.imageDataThumbnailActual {
+            self.imageDataThumbnailActual = imageDataThumbnailActual
+        }
+    }
+    
+    var watchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs: WatchMessageStruct {
+        Itinerary.WatchMessageStruct(
+            id: id,
+            modificationDate: modificationDate,
+            title: title,
+            messageStages: stages.map { $0.stageWatchDataNewUUID },// give the stages new UUIDs
+            filename: filename ?? kUntitledString,
+            settingsColoursStringStruct: settingsColoursStruct?.settingsColourStringsStruct,
+            imageDataThumbnailActual: imageDataThumbnailActual
+        )
+    }
+    
+    var encodedWatchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs: Data? {
+        try? JSONEncoder().encode(watchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs)
+    }
+    
 
 }
 

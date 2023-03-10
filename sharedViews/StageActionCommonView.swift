@@ -166,9 +166,9 @@ extension StageActionCommonView {
         .buttonStyle(BorderlessButtonStyle())
         .frame(idealWidth: kHaltButtonWidth, idealHeight: kHaltButtonWidth, alignment: .trailing)
         .fixedSize(horizontal: true, vertical: true)
-#if os(watchOS)
-        .padding(.trailing, 4.0)
-#endif
+//#if os(watchOS)
+//        .padding(.trailing, 4.0)
+//#endif
     }
     
     func stageBackgroundColour(stage: Stage) -> Color {

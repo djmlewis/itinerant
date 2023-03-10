@@ -18,14 +18,14 @@ extension  ItineraryActionCommonView {
 
         VStack(spacing: 0.0) {
             HStack {
-                Text(itinerary.title)
+                Text(itineraryLocalCopy.title)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(.title, design: .rounded, weight: .bold))
                     .padding(0)
-                if let imagedata = itinerary.imageDataThumbnailActual,
+                if let imagedata = itineraryLocalCopy.imageDataThumbnailActual,
                    let uiImage = UIImage(data: imagedata) {
                     Button(action: {
-                        if let imagedata = itinerary.getSetFullSizeImageData(),
+                        if let imagedata = itineraryLocalCopy.getSetFullSizeImageData(),
                            let uiImage = UIImage(data: imagedata) {
                             fullSizeUIImage = uiImage
                             showFullSizeUIImage = true
@@ -46,12 +46,12 @@ extension  ItineraryActionCommonView {
             .padding([.bottom], 4)
             ScrollViewReader { scrollViewReader in
                 List {
-                    ForEach($itinerary.stages) { $stage in
-                        StageActionCommonView(stage: $stage, itinerary: $itinerary, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
+                    ForEach($itineraryLocalCopy.stages) { $stage in
+                        StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
                             .id(stage.idStr)
-                            .listRowInsets(.init(top: stage.idStr == itinerary.firstStageUUIDstr ? 0.0 : 4.0,
+                            .listRowInsets(.init(top: stage.idStr == itineraryLocalCopy.firstStageUUIDstr ? 0.0 : 4.0,
                                                  leading: 0,
-                                                 bottom: stage.idStr == itinerary.lastStageUUIDstr ? 0.0 : 4.0,
+                                                 bottom: stage.idStr == itineraryLocalCopy.lastStageUUIDstr ? 0.0 : 4.0,
                                                  trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowBackground(stageBackgroundColour(stage: stage))
@@ -73,12 +73,12 @@ extension  ItineraryActionCommonView {
             } /* ScrollViewReader */
             VStack(alignment: .center, spacing: 0.0) {
                 HStack(alignment: .center) {
-                    ItineraryDurationUpdatingView(itinerary: itinerary)
+                    ItineraryDurationUpdatingView(itinerary: itineraryLocalCopy)
                         .padding(.trailing,0)
                         .padding(.leading,0)
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                 }
-                FileNameModDateTextView(itineraryOptional: itinerary)
+                FileNameModDateTextView(itineraryOptional: itineraryLocalCopy)
                 .font(.system(.caption, design: .rounded, weight: .regular))
                 .opacity(0.5)
             }
@@ -89,10 +89,10 @@ extension  ItineraryActionCommonView {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             // set the first active stage unless we are already active or running
-            guard let firstActindx = itinerary.firstIndexActivableStage else { return }
-            if !itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itinerary.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+            guard let firstActindx = itineraryLocalCopy.firstIndexActivableStage else { return }
+            if !itineraryLocalCopy.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itineraryLocalCopy.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
                 // i think this should be resetItineraryStages
-                let stageuuid = itinerary.stages[firstActindx].idStr
+                let stageuuid = itineraryLocalCopy.stages[firstActindx].idStr
                 uuidStrStagesActiveStr.append(stageuuid)
                 scrollToStageID = stageuuid
             }
@@ -108,7 +108,7 @@ extension  ItineraryActionCommonView {
             // prime the stages for a halt action
             stageToHandleHaltActionID = $0
         })
-        .onChange(of: itinerary, perform: {
+        .onChange(of: itineraryLocalCopy, perform: {
             // after edit iiOS only
             _ = itineraryStore.updateItinerary(itinerary: $0) })
         .fileExporter(isPresented: $fileSaverShown,
@@ -132,9 +132,12 @@ extension  ItineraryActionCommonView {
                     }) {
                         Label("Itinerary Settings…", systemImage: "doc.badge.gearshape")
                     }
-                    if itinerary.settingsColoursStruct != nil {
+                    if itineraryLocalCopy.settingsColoursStruct != nil {
                         Button(role: .destructive, action: {
-                            itineraryStore.deleteSettingsForItineraryWithID(itinerary.idStr)
+                            itineraryStore.deleteSettingsForItineraryWithID(itineraryLocalCopy.idStr)
+                            // itinerary is not bound to itinerary store so we must amend the existing one too
+                            // we dont need to mess with any files as itineraryStore has done that
+                            itineraryLocalCopy.settingsColoursStruct = nil
                         }) {
                             Label("Delete Itinerary Settings", systemImage: "trash")
                         }
@@ -153,12 +156,12 @@ extension  ItineraryActionCommonView {
                    }) {
                         Label("Duplicate…", systemImage: "doc.on.doc")
                     }
-                   .disabled(itinerary.packageFilePath == nil)
+                   .disabled(itineraryLocalCopy.packageFilePath == nil)
                    Button(action: {
                         // Export text file
-                        fileSaveDocument = ItineraryFile(exportText: itinerary.exportString)
+                        fileSaveDocument = ItineraryFile(exportText: itineraryLocalCopy.exportString)
                         fileSaveType = .itineraryTextFile
-                        fileSaveName = itinerary.title
+                        fileSaveName = itineraryLocalCopy.title
                         fileSaverShown = true
                    }) {
                         Label("Export…", systemImage: "doc.plaintext")
@@ -177,12 +180,12 @@ extension  ItineraryActionCommonView {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
-                    itineraryData = itinerary.itineraryEditableData
+                    itineraryData = itineraryLocalCopy.itineraryEditableData
                     isPresentingItineraryEditView = true
                 }) {
                     Image(systemName: "square.and.pencil")
                 }
-                .disabled(itinerary.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
+                .disabled(itineraryLocalCopy.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr))
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -193,7 +196,7 @@ extension  ItineraryActionCommonView {
             }
         }
         .sheet(isPresented: $showFilePicker) {
-            FilePickerUIRepresentable(path: itinerary.packageFilePath!)
+            FilePickerUIRepresentable(path: itineraryLocalCopy.packageFilePath!)
         }
         .fullScreenCover(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
@@ -207,9 +210,9 @@ extension  ItineraryActionCommonView {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                itinerary.removeAllSupportFilesForStageIDs(stageIDsToDelete)
+                                itineraryLocalCopy.removeAllSupportFilesForStageIDs(stageIDsToDelete)
                                 DispatchQueue.main.async {
-                                    itinerary.updateItineraryEditableData(from: itineraryData)
+                                    itineraryLocalCopy.updateItineraryEditableData(from: itineraryData)
                                     isPresentingItineraryEditView = false
                                     resetItineraryStages()
                                 }
@@ -223,7 +226,7 @@ extension  ItineraryActionCommonView {
         }) /* fullScreenCover */
         .sheet(isPresented: $showSettingsView, content: {
             NavigationStack {
-                SettingsView(/*showSettingsView: $showSettingsView,*/ urlToOpen: $openRequestURL, itinerary: itinerary)
+                SettingsView(urlToOpen: $openRequestURL, itinerary: Binding($itineraryLocalCopy))
             }
         })
 

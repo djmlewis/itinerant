@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 typealias StageArray = [Stage]
-typealias StageWatchMessageDataArray = [Stage.WatchData]
+typealias StageWatchDataArray = [Stage.WatchData]
 typealias StagePersistentDataArray = [Stage.PersistentData]
 
 struct Stage: Identifiable, Codable, Hashable, Equatable {
@@ -72,18 +72,6 @@ struct Stage: Identifiable, Codable, Hashable, Equatable {
         self.flags = persistentData.flags
     }
     
-    // Init Stage from WatchData
-    init(watchData: Stage.WatchData) {
-        // keep the UUID it will be unique
-        self.id = watchData.id
-        self.title = watchData.title
-        self.durationSecsInt = watchData.durationSecsInt
-        self.additionalDurationsDict = watchData.additionalDurationsDict
-        self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-        self.details = ""
-        self.flags = watchData.flags
-    }
-    
     mutating func updateEditableData(from editableData: Stage) {
         self.title = editableData.title.isEmpty ? kUntitledString : editableData.title
         self.durationSecsInt = editableData.durationSecsInt
@@ -123,20 +111,35 @@ extension Stage {
         var additionalDurationsDict: [Int : String] = [Int : String]()
         var snoozeDurationSecs: Int
         var flags: String
+        var imageDataThumbnailActual: Data?
 
-        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, additionalDurationsDict: [Int : String], snoozeDurationSecs: Int, flags: String) {
+        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, additionalDurationsDict: [Int : String], snoozeDurationSecs: Int, flags: String, imageDataThumbnailActual: Data?) {
             self.id = id
             self.title = title
             self.durationSecsInt = durationSecsInt
             self.additionalDurationsDict = additionalDurationsDict
             self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeMinimumDurationSecs)
             self.flags = flags
+            self.imageDataThumbnailActual = imageDataThumbnailActual
         }
     }
     
-    var watchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags) }
+    // Init Stage from WatchData
+    init(watchData: Stage.WatchData) {
+        // keep the UUID it will be unique
+        self.id = watchData.id
+        self.title = watchData.title
+        self.durationSecsInt = watchData.durationSecsInt
+        self.additionalDurationsDict = watchData.additionalDurationsDict
+        self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
+        self.details = ""
+        self.flags = watchData.flags
+        self.imageDataThumbnailActual = watchData.imageDataThumbnailActual
+   }
+    
+    var stageWatchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags, imageDataThumbnailActual: imageDataThumbnailActual) }
 
-    static func stagesFromWatchStages(_ watchStages:StageWatchMessageDataArray) -> StageArray {
+    static func stagesFromWatchStages(_ watchStages:StageWatchDataArray) -> StageArray {
         return watchStages.map { Stage(watchData: $0) }
     }
     

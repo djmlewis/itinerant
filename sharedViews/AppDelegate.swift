@@ -299,7 +299,8 @@ extension AppDelegate {
 
     // watchOS handlers ===>
     func handleItineraryDataFromPhone(_ messageData: Data) {
-        if let itinerary = Itinerary(messageItineraryData: messageData) {
+        if let watchMessageStruct = try? JSONDecoder().decode(Itinerary.WatchMessageStruct.self, from: messageData) {
+            let itinerary = Itinerary(watchMessageStruct: watchMessageStruct)
             DispatchQueue.main.async {
                 self.newItinerary = itinerary
             }
