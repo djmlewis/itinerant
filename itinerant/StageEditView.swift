@@ -46,6 +46,7 @@ struct StageEditView: View {
             Section { } header: {
                 VStack(alignment: .center) {
                     HStack {
+                        Spacer()
                         Button {
                             DispatchQueue.main.async {
                                 selectedImageData = nil
@@ -59,17 +60,15 @@ struct StageEditView: View {
                         }
                         .disabled(selectedImageData == nil)
                         .buttonStyle(.borderless)
-                        Spacer()
                         Text("Image")
                             .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
-                        Spacer()
                         PhotosPicker(
                             selection: $selectedItem,
                             matching: .images,
                             photoLibrary: .shared()) {
                                 Image(systemName:"photo.on.rectangle.angled")
                                     .font(.system(.title3, design: .rounded, weight: .regular))
-
+                                
                             }
                             .buttonStyle(.borderless)
                             .onChange(of: selectedItem) { newItem in
@@ -100,6 +99,7 @@ struct StageEditView: View {
                                     }
                                 }
                             }
+                        Spacer()
                     }
                     .padding(.bottom,4)
                     .frame( alignment: .center)

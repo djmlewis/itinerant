@@ -22,10 +22,10 @@ struct Itinerary: Identifiable, Hashable, Equatable, Codable {
     // Editable Data ==>
     var title: String
     var stages: StageArray
+    var imageDataThumbnailActual: Data?
    // runtime
     var filename: String? { packageFilePath?.fileNameWithoutExtensionFromPath }
     var packageFilePath: String?
-    var imageDataThumbnailActual: Data?
     var imageDataFullActual: Data?
     var settingsColoursStruct: SettingsColoursStruct?
     
@@ -53,6 +53,7 @@ struct Itinerary: Identifiable, Hashable, Equatable, Codable {
         self.stages = Itinerary.stagesFromStagesPersistentData(persistentData.stages)
         self.modificationDate = persistentData.modificationDate
         self.packageFilePath = packageFilePath
+        self.imageDataThumbnailActual = persistentData.imageDataThumbnailActual
     }
         
     init(id: UUID, modificationDate: TimeInterval) {
@@ -285,7 +286,6 @@ extension Itinerary {
         imageDataFullActual = itineraryEditableData.imageDataFullActual
         updateModificationDateToNow()
         _ = savePersistentData()
-        writeImageDataToPackage(itineraryEditableData.imageDataThumbnailActual, imageSizeType: .thumbnail)
         writeImageDataToPackage(itineraryEditableData.imageDataFullActual, imageSizeType: .fullsize)
         itineraryEditableData.stages.forEach { stage in
             writeStageImageDataToPackage(stage.imageDataFullActual, imageSizeType: .fullsize, stageIDstr: stage.idStr)
@@ -304,10 +304,11 @@ extension Itinerary {
         // persistent (+ editable)
         let id: UUID
         var modificationDate: TimeInterval
+        var imageDataThumbnailActual: Data?
     }
     
     var itineraryPersistentData: PersistentData {
-        PersistentData(title: title, stages: Itinerary.stagesPersistentData(stages), id: id, modificationDate: modificationDate)
+        PersistentData(title: title, stages: Itinerary.stagesPersistentData(stages), id: id, modificationDate: modificationDate, imageDataThumbnailActual: imageDataThumbnailActual)
     }
 
     static func stagesPersistentData(_ stages: StageArray) -> [Stage.PersistentData] {
@@ -486,8 +487,6 @@ extension Itinerary {
 
     mutating func loadAllSupportFilesFromPackage() {
         loadColourSettings()
-        imageDataThumbnailActual = loadImageDataFromPackage(imageSizeType: .thumbnail)
-
     }
     
     

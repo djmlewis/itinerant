@@ -292,7 +292,6 @@ class ItineraryStore: ObservableObject {
         var itinerymutable = itinerary
         itinerymutable.updateModificationDateToNow()
         _ = itinerymutable.savePersistentData()
-        itinerymutable.writeImageDataToPackage(itinerymutable.imageDataThumbnailActual, imageSizeType: .thumbnail)
         itinerymutable.writeImageDataToPackage(itinerymutable.imageDataFullActual, imageSizeType: .fullsize)
         itineraries[index] = itinerymutable
         return itinerymutable.filename
