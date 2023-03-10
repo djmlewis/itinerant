@@ -15,9 +15,11 @@ extension ItineraryActionCommonView {
                 if let imagedata = itineraryLocalCopy.imageDataThumbnailActual, let uiImage = UIImage(data: imagedata) {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .padding()
+                        .scaledToFit()
                         .listItemTint(.clear)
-                }
+                        .padding(.trailing,0)
+                        .padding(.leading,0)
+               }
                 ForEach($itineraryLocalCopy.stages) { $stage in
                     StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
                         .id(stage.idStr)

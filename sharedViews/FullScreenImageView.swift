@@ -17,6 +17,7 @@ struct FullScreenImageView: View {
             ScrollView(.vertical) {
                 Image(uiImage: validimage)
                     .resizable()
+                    .scaledToFit()
             }
         }
     }
