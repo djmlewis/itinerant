@@ -7,7 +7,7 @@
 
 import Foundation
 import UniformTypeIdentifiers
-
+import UIKit
 
 
 
@@ -224,6 +224,7 @@ let yearsAheadBlock = 5
 let kUISlowUpdateTimerFrequency = 1.0
 #else
 let kUISlowUpdateTimerFrequency = 1.0
+let fontSizedPadding = UIFont.preferredFont(forTextStyle: .body).lineHeight / 2.0 
 #endif
 let kUISlowUpdateTimerFrequencyInfinite = Double.greatestFiniteMagnitude
 

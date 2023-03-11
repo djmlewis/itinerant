@@ -37,12 +37,20 @@ struct StageActionCommonView: View {
         static var defaultValue: Value = .zero
         static func reduce(value: inout Value, nextValue: () -> Value) { value = nextValue() }
     }
+    struct ZStackMeasuringPreferenceKey: PreferenceKey {
+        typealias Value = CGSize
+        static var defaultValue: Value = .zero
+        static func reduce(value: inout Value, nextValue: () -> Value) { value = nextValue() }
+    }
     @State var calculatedHeight: CGFloat = 100.0
     @State var imageMeasuredSize: CGSize = .zero
-    
-#endif
-    
+    @State var detailsMeasuredWidth: CGFloat = 0.0
+    @Environment(\.dynamicTypeSize) var accessibilityTypeSize
+    @State var textDynamicTypeSize: DynamicTypeSize?
     @State var detailsTextColour: Color = Color.clear
+
+#endif
+
     
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
@@ -85,7 +93,6 @@ struct StageActionCommonView: View {
             .onReceive(uiFastUpdateTimer) { handleReceive_uiFastUpdateTimer(newDate: $0) }
             .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
-            .onChange(of: stageTextColourForStatus) { newValue in detailsTextColour = stageTextColourForStatus }
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
             .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
             .onChange(of: stageToStartRunningID) { handleReceive_stageToStartRunningID(idstrtotest: $0) }
@@ -107,7 +114,9 @@ struct StageActionCommonView: View {
                 }
             })
 #if os(iOS)
+            .onChange(of: stageTextColourForStatus) { newValue in detailsTextColour = stageTextColourForStatus }
             .onChange(of: stage.imageDataThumbnailActual) { if $0 == nil { imageMeasuredSize = .zero } }
+            .onChange(of: accessibilityTypeSize) {  textDynamicTypeSize = $0 }
 #endif
     } /* body */
 } /* struct */
@@ -304,11 +313,13 @@ extension StageActionCommonView {
     
     func handleOnAppear() {
         handleTimersOnAppearActive()
-        detailsTextColour = stageTextColourForStatus
         if(!stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)) {
             // use dictStageEndDates[stage.idStr] != nil to detect we have run and to update the updateTimes
             updateUpdateTimes(forUpdateDate: dictStageEndDates[stage.idStr]?.dateFromDouble)
         }
+        #if os(iOS)
+        detailsTextColour = stageTextColourForStatus
+        #endif
     }
     
     func handleTimersOnAppearActive() {

@@ -11,11 +11,12 @@ import UIKit
 
 struct UITextViewWrapper: UIViewRepresentable {
     typealias UIViewType = UITextView
-
-    @State var text: String
-    @Binding var calculatedHeight: CGFloat
-    @Binding var fontColor: Color // MUST be a binding to be dynamic
-    @Binding var imageMeasuredSize: CGSize
+    // EVREYTHING MUST be a binding to be dynamic
+    @Binding var text: String
+    @Binding var calculatedHeight: CGFloat // passes OUT the text box height
+    @Binding var fontColor: Color
+    @Binding var imageMeasuredSize: CGSize // passes in the image measured size
+    @Binding var dynamicTypeSize: DynamicTypeSize? // dont need to read dynamicTypeSize to trigger an update on change
     
     func makeUIView(context: UIViewRepresentableContext<UITextViewWrapper>) -> UITextView {
         let uiView = UITextView()
@@ -32,21 +33,19 @@ struct UITextViewWrapper: UIViewRepresentable {
         uiView.textAlignment = NSTextAlignment.justified
         uiView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         uiView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-//        uiView.textColor = UIColor(fontColor)
-//        if imageMeasuredSize != .zero {
-//            uiView.textContainer.exclusionPaths = [UIBezierPath(rect: CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: imageMeasuredSize.width, height: imageMeasuredSize.height - 12 )))]
-//        }
+        uiView.adjustsFontForContentSizeCategory = true
         return uiView
     }
 
     func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<UITextViewWrapper>) {
-        if uiView.text != self.text { uiView.text = self.text }
+        /*if uiView.text != self.text { */ uiView.text = self.text //}
         uiView.textColor = UIColor(fontColor)
         if imageMeasuredSize != .zero {
-            uiView.textContainer.exclusionPaths = [UIBezierPath(rect: CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: imageMeasuredSize.width, height: imageMeasuredSize.height - 12.0 )))]
+            uiView.textContainer.exclusionPaths = [UIBezierPath(rect: CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: imageMeasuredSize.width, height: imageMeasuredSize.height)))]
         } else {
             uiView.textContainer.exclusionPaths = []
         }
+        
         UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
     }
 
