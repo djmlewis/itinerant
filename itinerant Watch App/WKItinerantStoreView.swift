@@ -21,7 +21,7 @@ struct WKItinerantStoreView: View {
     
     @State private var presentedItineraryID: [String] = []
     @State private var showConfirmationAddDuplicateItinerary: Bool = false
-    
+
     @AppStorage(kAppStorageColourStageRunning) var appStorageColourStageRunning: String = kAppStorageDefaultColourStageRunning
     @AppStorage(kAppStorageColourFontRunning) var appStorageColourFontRunning: String = kAppStorageDefaultColourFontRunning
     @Environment(\.colorScheme) var colorScheme
@@ -71,7 +71,7 @@ struct WKItinerantStoreView: View {
                     requestItinerariesSync()
                 }, label: {
                     Text("Sync \(Image(systemName: "iphone.gen3")) \(Image(systemName: "arrowshape.right")) \(Image(systemName: "applewatch"))")
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .font(.system(.title3, design: .rounded, weight: .regular))
                 })
                 .tint(.accentColor)
                 .padding()
@@ -128,7 +128,6 @@ extension WKItinerantStoreView {
             WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchRequestingItinerariesSync]) { replyDict in
                 if replyDict[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneStandingByToSync {
                     // dont bother to erase and we will check clashes
-//                    if !itineraryStore.itineraries.isEmpty { removeItinerariesAtOffsets(IndexSet(integersIn: itineraryStore.itineraries.startIndex..<itineraryStore.itineraries.endIndex)) }
                     WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromWatchInitiateSyncNow], replyHandler: nil)
                 }
 

@@ -52,6 +52,7 @@ extension StageActionCommonView {
                     .font(.system(.body, design: .rounded, weight: .thin))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
+                    .foregroundColor(stageTextColourForStatus)
            }
            if stage.isCommentOnly == false {
                 GridRow {
