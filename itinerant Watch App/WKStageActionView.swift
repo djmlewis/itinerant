@@ -47,6 +47,12 @@ extension StageActionCommonView {
                 .frame(maxWidth: .infinity)
                 .padding(0)
             } /* GridRow */
+            if watchDisclosureDetailsExpanded == true {
+                Text(stage.details)
+                    .font(.system(.body, design: .rounded, weight: .thin))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+           }
            if stage.isCommentOnly == false {
                 GridRow {
                     VStack {
@@ -110,12 +116,8 @@ extension StageActionCommonView {
                     .lineLimit(1)
                     .allowsTightening(true)
                     .minimumScaleFactor(0.7)
-                    //.border(timeAccumulatedAtUpdate > 0.0 ? .white : .clear, width: 1.0)
-//                    .padding(.leading,2.0)
-//                    .padding(.trailing,2.0)
                     .gridCellColumns(2)
                 }  /* GridRow */
-                //.padding(.top,3.0)
                 if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType {
                     GridRow {
                         HStack(spacing:0.0) {
@@ -129,12 +131,8 @@ extension StageActionCommonView {
                         .lineLimit(1)
                         .allowsTightening(true)
                         .minimumScaleFactor(0.7)
-                        //.border(timeDifferenceAtUpdate < 0.0 ? .white : .clear, width: 1.0)
-//                        .padding(.leading,2.0)
-//                        .padding(.trailing,2.0)
                         .gridCellColumns(2)
                     }  /* GridRow */
-                    //.padding(.top,3.0)
                 } /* if timeDifferenceAtUpdate != 0.0 && stage.isCountDownType */
             } /* if nonComment, running OR ran*/
         } /* Grid */

@@ -114,8 +114,9 @@ extension Stage {
         var snoozeDurationSecs: Int
         var flags: String
         var imageDataThumbnailActual: Data?
+        var details: String
 
-        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, additionalDurationsDict: [Int : String], snoozeDurationSecs: Int, flags: String, imageDataThumbnailActual: Data?) {
+        internal init(id: UUID = UUID(), title: String, durationSecsInt: Int, additionalDurationsDict: [Int : String], snoozeDurationSecs: Int, flags: String, imageDataThumbnailActual: Data?, details: String) {
             self.id = id
             self.title = title
             self.durationSecsInt = durationSecsInt
@@ -123,6 +124,7 @@ extension Stage {
             self.snoozeDurationSecs = max(snoozeDurationSecs,kSnoozeMinimumDurationSecs)
             self.flags = flags
             self.imageDataThumbnailActual = imageDataThumbnailActual
+            self.details = details
         }
     }
     
@@ -134,12 +136,12 @@ extension Stage {
         self.durationSecsInt = watchData.durationSecsInt
         self.additionalDurationsDict = watchData.additionalDurationsDict
         self.snoozeDurationSecs = max(watchData.snoozeDurationSecs,kSnoozeMinimumDurationSecs)
-        self.details = ""
+        self.details = watchData.details
         self.flags = watchData.flags
         self.imageDataThumbnailActual = watchData.imageDataThumbnailActual
    }
     
-    var stageWatchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags, imageDataThumbnailActual: imageDataThumbnailActual) }
+    var stageWatchDataNewUUID: Stage.WatchData  { WatchData(title: self.title, durationSecsInt: self.durationSecsInt, additionalDurationsDict: self.additionalDurationsDict, snoozeDurationSecs: self.snoozeDurationSecs, flags: self.flags, imageDataThumbnailActual: imageDataThumbnailActual, details: details) }
 
     static func stagesFromWatchStages(_ watchStages:StageWatchDataArray) -> StageArray {
         return watchStages.map { Stage(watchData: $0) }

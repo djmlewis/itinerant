@@ -21,7 +21,7 @@ extension ItineraryActionCommonView {
                         .padding(.leading,0)
                }
                 ForEach($itineraryLocalCopy.stages) { $stage in
-                    StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID)
+                    StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, watchDisclosureDetailsExpanded: $watchDisclosureDetailsExpanded)
                         .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
@@ -51,20 +51,20 @@ extension ItineraryActionCommonView {
                 .padding()
             } /* List */
             .toolbar(content: {
-                ToolbarItem {
+                ToolbarItem(placement: .primaryAction) {
                     Button {
-                        resetItineraryStages()
+                        watchDisclosureDetailsExpanded.toggle()
                     } label: {
                         HStack {
                             Spacer()
-                            Image(systemName: "arrow.counterclockwise.circle.fill")
+                            Image(systemName: watchDisclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 32, alignment: .center)
                             Spacer()
                         }
                     }
-                    .tint(.red)
+                    .tint(Color.accentColor)
                     .padding()
                 }
             })

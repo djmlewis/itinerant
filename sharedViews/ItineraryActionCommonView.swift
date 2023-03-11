@@ -43,6 +43,8 @@ struct ItineraryActionCommonView: View {
     @State  var openRequestURL: URL?
     @State var showFullSizeUIImage: Bool = false
     @State var fullSizeUIImage: UIImage?
+#else
+    @State var watchDisclosureDetailsExpanded: Bool = false
 
 #endif
     

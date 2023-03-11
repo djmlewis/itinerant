@@ -30,7 +30,6 @@ struct StageActionCommonView: View {
     @Binding var stageToStartRunningID: String?
 #if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
-    @State var disclosureDetailsExpanded: Bool = true
     
     struct ImageMeasuringPreferenceKey: PreferenceKey {
         typealias Value = CGSize
@@ -48,10 +47,12 @@ struct StageActionCommonView: View {
     @Environment(\.dynamicTypeSize) var accessibilityTypeSize
     @State var textDynamicTypeSize: DynamicTypeSize?
     @State var detailsTextColour: Color = Color.clear
+    @State var disclosureDetailsExpanded: Bool = true
+#else
+    @Binding var watchDisclosureDetailsExpanded: Bool
 
 #endif
 
-    
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
     
