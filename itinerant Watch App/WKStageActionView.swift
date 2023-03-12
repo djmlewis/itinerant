@@ -19,7 +19,14 @@ extension StageActionCommonView {
             scrollToStageID = nil
         }
     }
-    
+    func toggleDetails() {
+        DispatchQueue.main.async {
+            disclosureDetailsExpanded.toggle()
+            scrollToStageID = stage.idStr
+            scrollToStageID = nil
+        }
+    }
+
     var body_: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
             GridRow {
@@ -151,25 +158,11 @@ extension StageActionCommonView {
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             // close detals
-            if !stage.details.isEmpty && disclosureDetailsExpanded == true {
+            if !stage.details.isEmpty {
                 Button {
-                    showHideDetails(show: false)
+                    toggleDetails()
                 } label: {
-                    Image(systemName: "rectangle.compress.vertical")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 32, alignment: .center)
-                }
-                .tint(Color.accentColor)
-            }
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            if !stage.details.isEmpty && disclosureDetailsExpanded == false {
-                // open details
-                Button {
-                    showHideDetails(show: true)
-                } label: {
-                    Image(systemName: "rectangle.expand.vertical")
+                    Image(systemName: disclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(height: 32, alignment: .center)
