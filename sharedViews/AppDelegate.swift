@@ -227,25 +227,7 @@ extension AppDelegate {
     // <--- iOS only
     
     // MARK: - Messages
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        //debugPrint(message)
-        if let messageData = message[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(messageData) }
-        else if message[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(message as! [String:String])}
-        else if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchInitiateSyncNow {
-            DispatchQueue.main.async {
-                self.syncItineraries = true
-            }
-        }
-    }
-    
-    
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void ) {
-        debugPrint(message)
-        if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchRequestingItinerariesSync {
-            replyHandler([kUserInfoMessageTypeKey : kMessageFromPhoneStandingByToSync])
-        }
-    }
-    
+
     func sendMessageOrData(dict: [String : Any]?, data: Data? ) {
         let message = watchConnectionUnusableMessage()
         guard message == nil else {
@@ -271,6 +253,41 @@ extension AppDelegate {
             
         }
     }
+
+
+    // iOS handlers ===>
+#if !os(watchOS)
+    func sendItineraryDataToWatch(_ watchdata: Data?)  {
+        if let data = watchdata {
+            sendMessageOrData(dict: [
+                kUserInfoMessageTypeKey : kMessageFromPhoneWithItineraryData,
+                kMessageFromPhoneWithItineraryData : data
+            ], data: nil)
+        }
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        //debugPrint(message)
+        if message[kUserInfoMessageTypeKey] as! String == kMessageFromWatchInitiateSyncNow {
+            DispatchQueue.main.async {
+                self.syncItineraries = true
+            }
+        }
+    }
+    
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void ) {
+        debugPrint(message)
+        if let messageTypekey: String = message[kUserInfoMessageTypeKey] as? String {
+            switch messageTypekey {
+            case kMessageFromWatchRequestingItinerariesSync:
+                replyHandler([kUserInfoMessageTypeKey : kMessageFromPhoneStandingByToSync])
+                
+            default:
+                break
+            }
+        }
+    }
     
     func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
         /** Called on the sending side after the user info transfer has successfully completed or failed with an error.
@@ -280,34 +297,83 @@ extension AppDelegate {
     
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
         //debugPrint("didReceiveUserInfo")
-        if let itineraryData = userInfo[kMessageFromPhoneWithItineraryData] as? Data { handleItineraryDataFromPhone(itineraryData) }
-        else if userInfo[kUserInfoMessageTypeKey] as! String == kMessageFromPhoneWithSettingsData { handleSettingsDictFromPhone(userInfo as! [String:String])}
         
     }
     
+    
+    
+    #endif
+// <=== iOS handlers
 
-    // iOS handlers ===>
-    func sendItineraryDataToWatch(_ watchdata: Data?)  {
-        if let data = watchdata {
-            sendMessageOrData(dict: [
-                kUserInfoMessageTypeKey : kMessageFromPhoneWithItineraryData,
-                kMessageFromPhoneWithItineraryData : data], data: nil)
-        }
-    }
-
-    // <=== iOS handlers
-
-    // watchOS handlers ===>
-    func handleItineraryDataFromPhone(_ messageData: Data) {
-        if let watchMessageStruct = try? JSONDecoder().decode(Itinerary.WatchMessageStruct.self, from: messageData) {
+// watchOS handlers ===>
+#if os(watchOS)
+    func handleItineraryDataFromPhone(_ messageData: Data?) {
+        if let messageData, let watchMessageStruct = try? JSONDecoder().decode(Itinerary.WatchMessageStruct.self, from: messageData) {
             let itinerary = Itinerary(watchMessageStruct: watchMessageStruct)
             DispatchQueue.main.async {
                 self.newItinerary = itinerary
             }
         }
     }
+
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        //debugPrint(message)
+        if let messageTypekey: String = message[kUserInfoMessageTypeKey] as? String {
+            switch messageTypekey {
+            case kMessageFromPhoneWithItineraryData:
+                handleItineraryDataFromPhone(message[kMessageFromPhoneWithItineraryData] as? Data)
+                
+            case kMessageFromPhoneWithSettingsData:
+                handleSettingsDictFromPhone(message as? [String:String])
+                
+            default:
+                break
+            }
+        }
+
+    }
     
     
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void ) {
+        //debugPrint(message)
+        if let messageTypekey: String = message[kUserInfoMessageTypeKey] as? String {
+            switch messageTypekey {
+            case kMessageFromPhoneRequestingSettingsData:
+                replyHandler(settingsDictWithTypeKey(kMessageFromWatchWithSettingsData))
+                
+            default:
+                break
+            }
+        }
+    }
+    
+    func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
+        /** Called on the sending side after the user info transfer has successfully completed or failed with an error.
+         Will be called on next launch if the sender was not running when the user info finished. */
+        //debugPrint("didFinish userInfoTransfer", error?.localizedDescription ?? "No error")
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        //debugPrint("didReceiveUserInfo")
+        if let messageTypekey: String = userInfo[kUserInfoMessageTypeKey] as? String {
+            switch messageTypekey {
+            case kMessageFromPhoneWithItineraryData:
+                handleItineraryDataFromPhone(userInfo[kMessageFromPhoneWithItineraryData] as? Data)
+
+            case kMessageFromPhoneWithSettingsData:
+                handleSettingsDictFromPhone(userInfo as? [String:String])
+
+            default:
+                break
+            }
+        }
+    }
+    
+
+#endif
+// <=== watchOS handlers
+
 // MARK: - Settings
     
     func updateSettingsFromSettingsStructColours(_ settingsStruct: SettingsColoursStruct) {
@@ -316,25 +382,50 @@ extension AppDelegate {
     }
     
     
-    func handleSettingsDictFromPhone(_ settingsDict: [String : String]) {
-        DispatchQueue.main.async {
-            let newColourStruct = SettingsColoursStruct(
-                // use dict if available or else remain the same
-                colourStageInactive: settingsDict[kAppStorageColourStageInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageInactive,
-                colourStageActive: settingsDict[kAppStorageColourStageActive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageActive,
-                colourStageRunning: settingsDict[kAppStorageColourStageRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourStageRunning,
-                colourStageComment: settingsDict[kAppStorageColourStageComment]?.description.rgbaColor ?? self.settingsColoursObject.colourStageComment,
+    func settingsDictWithTypeKey(_ typekey: String?) -> [String:String] {
+        //debugPrint("settingsDictWithTypeKey")
+        var settingsDict = [String:String]()
+        if let rgbaInactive = settingsColoursObject.colourStageInactive.rgbaString { settingsDict[kAppStorageColourStageInactive] = rgbaInactive }
+        if let rgbaActive = settingsColoursObject.colourStageActive.rgbaString { settingsDict[kAppStorageColourStageActive] = rgbaActive }
+        if let rgbaRun = settingsColoursObject.colourStageRunning.rgbaString  { settingsDict[kAppStorageColourStageRunning] = rgbaRun }
+        if let rgbaComm = settingsColoursObject.colourStageComment.rgbaString  { settingsDict[kAppStorageColourStageComment] = rgbaComm }
 
-                colourFontInactive: settingsDict[kAppStorageColourFontInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontInactive,
-                colourFontActive: settingsDict[kAppStorageColourFontActive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontActive,
-                colourFontRunning: settingsDict[kAppStorageColourFontRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourFontRunning,
-                colourFontComment: settingsDict[kAppStorageColourFontComment]?.description.rgbaColor ?? self.settingsColoursObject.colourFontComment)
-            self.settingsColoursObject.updateFromSettingsColoursStruct(newColourStruct, andUpdateAppStorage: true)
-        }
-        //debugPrint("handled settings")
+        if let frgbaInactive = settingsColoursObject.colourFontInactive.rgbaString { settingsDict[kAppStorageColourFontInactive] = frgbaInactive }
+        if let frgbaActive = settingsColoursObject.colourFontActive.rgbaString { settingsDict[kAppStorageColourFontActive] = frgbaActive }
+        if let frgbaRun = settingsColoursObject.colourFontRunning.rgbaString  { settingsDict[kAppStorageColourFontRunning] = frgbaRun }
+        if let frgbaComm = settingsColoursObject.colourFontComment.rgbaString  { settingsDict[kAppStorageColourFontComment] = frgbaComm }
+        
+        guard typekey != nil else { return settingsDict }
+        settingsDict[kUserInfoMessageTypeKey] = typekey!
+        return settingsDict
     }
 
-    // <=== watchOS handlers
+    
+    
+// watchOS handlers ===>
+#if os(watchOS)
+    func handleSettingsDictFromPhone(_ settingsDict: [String : String]?) {
+        if let settingsDict {
+            DispatchQueue.main.async {
+                let newColourStruct = SettingsColoursStruct(
+                    // use dict if available or else remain the same
+                    colourStageInactive: settingsDict[kAppStorageColourStageInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageInactive,
+                    colourStageActive: settingsDict[kAppStorageColourStageActive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageActive,
+                    colourStageRunning: settingsDict[kAppStorageColourStageRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourStageRunning,
+                    colourStageComment: settingsDict[kAppStorageColourStageComment]?.description.rgbaColor ?? self.settingsColoursObject.colourStageComment,
+                    
+                    colourFontInactive: settingsDict[kAppStorageColourFontInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontInactive,
+                    colourFontActive: settingsDict[kAppStorageColourFontActive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontActive,
+                    colourFontRunning: settingsDict[kAppStorageColourFontRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourFontRunning,
+                    colourFontComment: settingsDict[kAppStorageColourFontComment]?.description.rgbaColor ?? self.settingsColoursObject.colourFontComment)
+                self.settingsColoursObject.updateFromSettingsColoursStruct(newColourStruct, andUpdateAppStorage: true)
+            }
+            //debugPrint("handled settings")
+       }
+    }
+    
+#endif
+// <=== watchOS handlers
 
     
     

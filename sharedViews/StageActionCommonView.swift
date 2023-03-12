@@ -35,7 +35,7 @@ struct StageActionCommonView: View {
     @Binding var toggleDisclosureDetails: Bool
 
 #if !os(watchOS)
-    
+    // iOS
     struct ImageMeasuringPreferenceKey: PreferenceKey {
         typealias Value = CGSize
         static var defaultValue: Value = .zero
@@ -53,7 +53,11 @@ struct StageActionCommonView: View {
     @State var textDynamicTypeSize: DynamicTypeSize?
     @State var detailsTextColour: Color = Color.clear
 
+#else
+    // watchOS
+    
 #endif
+    
     @State var disclosureDetailsExpanded: Bool = kDefaultShowDetails
 
     @State var fullSizeUIImage: UIImage?
@@ -189,7 +193,7 @@ extension StageActionCommonView {
                 .clipShape(Circle())
             
         }
-        .buttonStyle(BorderlessButtonStyle())
+        .buttonStyle(.borderless)
         .frame(idealWidth: kHaltButtonWidth, idealHeight: kHaltButtonWidth, alignment: .trailing)
         .fixedSize(horizontal: true, vertical: true)
 //#if os(watchOS)

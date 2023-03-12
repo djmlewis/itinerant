@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WatchConnectivity
 
 struct SettingsViewStageColours: View {
     var title: String
@@ -62,7 +63,13 @@ struct SettingsView: View {
     @State var settingsSaveDocument: ItineraryFile?
     @State var fileImporterShown: Bool = false
 
+    @State var progressViewShown: Bool = false
+
+    
     var body: some View {
+        if progressViewShown {
+            ProgressView()
+        }
         List {
             Section {
                 SettingsViewStageColours(title: "Comments", imageName: "bubble.left", colourBackground: $prefColourComment, colourForeground: $prefColourFontComment)
@@ -77,6 +84,7 @@ struct SettingsView: View {
             /* Section */
         } /* List */
         .padding()
+        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(settingGlobals ? "Global Settings" : "Itinerary Settings")
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -86,14 +94,21 @@ struct SettingsView: View {
             }
             ToolbarItem() {
                 Menu {
-                    if !deviceIsIpadOrMac() {
+                    if !deviceIsIpadOrMac() && !watchConnectionUnusable() {
                         Button(action: {
                             sendSettingsToWatch()
                         }) {
-                            Label("Send To Watch…", systemImage: "applewatch")
+                            Label("Send To Watch…", systemImage: "square.and.arrow.down.fill")
                         }
                         .disabled(watchConnectionUnusable())
-                    }
+                        Button(action: {
+                            getSendSettingsFromWatch()
+                        }) {
+                            Label("Get from Watch…", systemImage: "square.and.arrow.up.fill")
+                        }
+                        .disabled(watchConnectionUnusable())
+                        Divider()
+                   }
                     Button(action: {
                         settingsSaveDocument = ItineraryFile(settingsDict: self.settingsDictWithTypeKey(nil))
                         fileSaverShown = true
@@ -264,7 +279,7 @@ extension SettingsView {
     }
 
     func settingsDictWithTypeKey(_ typekey: String?) -> [String:String] {
-        debugPrint("settingsDictWithTypeKey")
+        //debugPrint("settingsDictWithTypeKey")
         var settingsDict = [String:String]()
         if let rgbaInactive = prefColourInactive.rgbaString { settingsDict[kAppStorageColourStageInactive] = rgbaInactive }
         if let rgbaActive = prefColourActive.rgbaString { settingsDict[kAppStorageColourStageActive] = rgbaActive }
@@ -300,6 +315,24 @@ extension SettingsView {
         appDelegate.sendMessageOrData(dict: self.settingsDictWithTypeKey(kMessageFromPhoneWithSettingsData), data: nil)
     }
 
+    func getSendSettingsFromWatch() {
+        DispatchQueue.main.async {
+            progressViewShown = true
+        }
+        WCSession.default.sendMessage([kUserInfoMessageTypeKey : kMessageFromPhoneRequestingSettingsData]) { replyDict in
+            debugPrint("inside getSendSettingsFromWatch replyHandler")
+            if replyDict[kUserInfoMessageTypeKey] as! String == kMessageFromWatchWithSettingsData {
+                DispatchQueue.main.async {
+                    self.loadSettingsFromDict(replyDict as! [String:String])
+                    progressViewShown = false
+                }
+            } else {
+                DispatchQueue.main.async {
+                    progressViewShown = false
+                }
+            }
+        }
+    }
 
 }
 

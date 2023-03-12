@@ -119,10 +119,6 @@ extension ItineraryActionCommonView {
         
     }
     
-    func sendItineraryToWatch()  {
-        appDelegate.sendItineraryDataToWatch(itineraryLocalCopy.encodedWatchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs)
-    }
-    
     
 }
 

@@ -12,6 +12,9 @@ import UniformTypeIdentifiers
 extension  ItineraryActionCommonView {
     
 #if !os(watchOS)
+    func sendItineraryToWatch()  {
+        appDelegate.sendItineraryDataToWatch(itineraryLocalCopy.encodedWatchMessageStructKeepingItineraryUUIDWithStagesNewUUIDs)
+    }
     
 
     var body_: some View {

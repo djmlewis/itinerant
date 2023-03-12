@@ -12,18 +12,11 @@ import Combine
 extension StageActionCommonView {
 #if os(watchOS)
     
-    func showHideDetails(show: Bool) {
-        DispatchQueue.main.async {
-            disclosureDetailsExpanded = show
-            scrollToStageID = stage.idStr
-            scrollToStageID = nil
-        }
-    }
     func toggleDetails() {
+        scrollToStageID = nil
         DispatchQueue.main.async {
             disclosureDetailsExpanded.toggle()
             scrollToStageID = stage.idStr
-            scrollToStageID = nil
         }
     }
 
@@ -66,8 +59,9 @@ extension StageActionCommonView {
             if !stage.details.isEmpty && disclosureDetailsExpanded == true {
                 Text(stage.details)
                     .font(.system(.body, design: .rounded, weight: .thin))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(nil)
                     .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(stageTextColourForStatus)
            }
            if stage.isCommentOnly == false {
