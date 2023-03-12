@@ -70,7 +70,8 @@ struct SettingsColourStringsStruct: Codable, Equatable, Hashable {
         self.colourFontRunning = coloursStruct.colourFontRunning.rgbaString!
         self.colourFontComment = coloursStruct.colourFontComment.rgbaString!
     }
-    
+        
+
 
 }
 

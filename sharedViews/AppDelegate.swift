@@ -316,17 +316,20 @@ extension AppDelegate {
     }
     
     
-    func handleSettingsDictFromPhone(_ settingsDict: [String : String ]) {
+    func handleSettingsDictFromPhone(_ settingsDict: [String : String]) {
         DispatchQueue.main.async {
-            if let rgbaInactive = settingsDict[kAppStorageColourStageInactive] {self.appStorageColourStageInactive  = rgbaInactive }
-            if let rgbaActive = settingsDict[kAppStorageColourStageActive] { self.appStorageColourStageActive = rgbaActive }
-            if let rgbaRun = settingsDict[kAppStorageColourStageRunning]  { self.appStorageColourStageRunning = rgbaRun }
-            if let rgbaComm = settingsDict[kAppStorageColourStageComment]  { self.appStorageColourStageComment = rgbaComm }
-            
-            if let frgbaInactive = settingsDict[kAppStorageColourFontInactive] { self.appStorageColourFontInactive = frgbaInactive }
-            if let frgbaActive = settingsDict[kAppStorageColourFontActive] { self.appStorageColourFontActive = frgbaActive }
-            if let frgbaRun = settingsDict[kAppStorageColourFontRunning]  { self.appStorageColourFontRunning = frgbaRun }
-            if let frgbaComm = settingsDict[kAppStorageColourFontComment]  { self.appStorageColourFontComment = frgbaComm }
+            let newColourStruct = SettingsColoursStruct(
+                // use dict if available or else remain the same
+                colourStageInactive: settingsDict[kAppStorageColourStageInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageInactive,
+                colourStageActive: settingsDict[kAppStorageColourStageActive]?.description.rgbaColor ?? self.settingsColoursObject.colourStageActive,
+                colourStageRunning: settingsDict[kAppStorageColourStageRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourStageRunning,
+                colourStageComment: settingsDict[kAppStorageColourStageComment]?.description.rgbaColor ?? self.settingsColoursObject.colourStageComment,
+
+                colourFontInactive: settingsDict[kAppStorageColourFontInactive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontInactive,
+                colourFontActive: settingsDict[kAppStorageColourFontActive]?.description.rgbaColor ?? self.settingsColoursObject.colourFontActive,
+                colourFontRunning: settingsDict[kAppStorageColourFontRunning]?.description.rgbaColor ?? self.settingsColoursObject.colourFontRunning,
+                colourFontComment: settingsDict[kAppStorageColourFontComment]?.description.rgbaColor ?? self.settingsColoursObject.colourFontComment)
+            self.settingsColoursObject.updateFromSettingsColoursStruct(newColourStruct, andUpdateAppStorage: true)
         }
         //debugPrint("handled settings")
     }
