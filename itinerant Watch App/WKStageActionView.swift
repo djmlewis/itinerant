@@ -11,6 +11,15 @@ import Combine
 
 extension StageActionCommonView {
 #if os(watchOS)
+    
+    func showHideDetails(show: Bool) {
+        DispatchQueue.main.async {
+            disclosureDetailsExpanded = show
+            scrollToStageID = stage.idStr
+            scrollToStageID = nil
+        }
+    }
+    
     var body_: some View {
         Grid (alignment: .center, horizontalSpacing: 0.0, verticalSpacing: 0.0) {
             GridRow {
@@ -47,7 +56,7 @@ extension StageActionCommonView {
                 .frame(maxWidth: .infinity)
                 .padding(0)
             } /* GridRow */
-            if watchDisclosureDetailsExpanded == true {
+            if !stage.details.isEmpty && disclosureDetailsExpanded == true {
                 Text(stage.details)
                     .font(.system(.body, design: .rounded, weight: .thin))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -139,6 +148,35 @@ extension StageActionCommonView {
         } /* Grid */
         .padding(0)
         .padding(.bottom,6)
+        .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            // close detals
+            if !stage.details.isEmpty && disclosureDetailsExpanded == true {
+                Button {
+                    showHideDetails(show: false)
+                } label: {
+                    Image(systemName: "rectangle.compress.vertical")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 32, alignment: .center)
+                }
+                .tint(Color.accentColor)
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            if !stage.details.isEmpty && disclosureDetailsExpanded == false {
+                // open details
+                Button {
+                    showHideDetails(show: true)
+                } label: {
+                    Image(systemName: "rectangle.expand.vertical")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 32, alignment: .center)
+                }
+                .tint(Color.accentColor)
+            }
+        }
        /* Grid mods */
         .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
             FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)

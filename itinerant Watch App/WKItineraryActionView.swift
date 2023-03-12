@@ -19,9 +19,9 @@ extension ItineraryActionCommonView {
                         .listItemTint(.clear)
                         .padding(.trailing,0)
                         .padding(.leading,0)
-               }
+                }
                 ForEach($itineraryLocalCopy.stages) { $stage in
-                    StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, watchDisclosureDetailsExpanded: $watchDisclosureDetailsExpanded)
+                    StageActionCommonView(stage: $stage, itinerary: $itineraryLocalCopy, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates, resetStageElapsedTime: $resetStageElapsedTime, scrollToStageID: $scrollToStageID, stageToHandleSkipActionID: $stageToHandleSkipActionID, stageToHandleHaltActionID: $stageToHandleHaltActionID, stageToStartRunningID: $stageToStartRunningID, toggleDisclosureDetails: $toggleDisclosureDetails)
                         .id(stage.idStr)
                         .listItemTint(stageBackgroundColour(stage: stage))
                 } /* ForEach */
@@ -36,7 +36,9 @@ extension ItineraryActionCommonView {
                     .padding(.leading,0)
                     .font(.system(.subheadline, design: .rounded, weight: .regular))
                 Button {
-                    resetItineraryStages()
+                    DispatchQueue.main.async {
+                        resetItineraryStages()
+                    }
                 } label: {
                     HStack {
                         Spacer()
@@ -52,17 +54,10 @@ extension ItineraryActionCommonView {
             } /* List */
             .toolbar(content: {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        watchDisclosureDetailsExpanded.toggle()
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Image(systemName: watchDisclosureDetailsExpanded == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 32, alignment: .center)
-                            Spacer()
-                        }
+                    Button(action: {
+                        toggleDisclosureDetails = !toggleDisclosureDetails
+                    }) {
+                        Image(systemName: toggleDisclosureDetails == true ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                     }
                     .tint(Color.accentColor)
                     .padding()
@@ -90,7 +85,7 @@ extension ItineraryActionCommonView {
             // prime the stages for a skip or halt action
             stageToHandleSkipActionID = appDelegate.unnStageToStopAndStartNextID
             stageToHandleHaltActionID = appDelegate.unnStageToHaltID
-       }
+        }
         .onChange(of: appDelegate.unnStageToStopAndStartNextID, perform: {
             // prime the stages for a skip action
             stageToHandleSkipActionID = $0

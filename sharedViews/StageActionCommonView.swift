@@ -10,9 +10,13 @@ import Combine
 import UserNotifications
 
 #if os(watchOS)
+// watchOS
 let kHaltButtonWidth = 42.0
+let kDefaultShowDetails = false
 #else
+// iOS
 let kHaltButtonWidth = 48.0
+let kDefaultShowDetails = true
 #endif
 
 
@@ -28,8 +32,9 @@ struct StageActionCommonView: View {
     @Binding var stageToHandleSkipActionID: String?
     @Binding var stageToHandleHaltActionID: String?
     @Binding var stageToStartRunningID: String?
-#if !os(watchOS)
     @Binding var toggleDisclosureDetails: Bool
+
+#if !os(watchOS)
     
     struct ImageMeasuringPreferenceKey: PreferenceKey {
         typealias Value = CGSize
@@ -47,11 +52,9 @@ struct StageActionCommonView: View {
     @Environment(\.dynamicTypeSize) var accessibilityTypeSize
     @State var textDynamicTypeSize: DynamicTypeSize?
     @State var detailsTextColour: Color = Color.clear
-    @State var disclosureDetailsExpanded: Bool = true
-#else
-    @Binding var watchDisclosureDetailsExpanded: Bool
 
 #endif
+    @State var disclosureDetailsExpanded: Bool = kDefaultShowDetails
 
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false

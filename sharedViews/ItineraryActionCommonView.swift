@@ -9,6 +9,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Combine
 
+#if os(watchOS)
+// watchOS
+let kDefaultToggleDisclosureDetails = false
+#else
+// iOS
+let kDefaultToggleDisclosureDetails = true
+#endif
+
+
 struct ItineraryActionCommonView: View {
     @State var itineraryLocalCopy: Itinerary // !! this is passed from ItineraryStore unbound and just a local copy
     @Binding var uuidStrStagesActiveStr: String
@@ -28,10 +37,11 @@ struct ItineraryActionCommonView: View {
     @EnvironmentObject var itineraryStore: ItineraryStore
     @EnvironmentObject var appSettingsObject: SettingsColoursObject
     
+    @State var toggleDisclosureDetails: Bool = kDefaultToggleDisclosureDetails
+
 #if !os(watchOS)
     @State var itineraryData = Itinerary.EditableData()
     @State var isPresentingItineraryEditView: Bool = false
-    @State var toggleDisclosureDetails: Bool = true
     
     @State var fileSaverShown: Bool = false
     @State var fileSaveDocument: ItineraryFile?
@@ -44,7 +54,7 @@ struct ItineraryActionCommonView: View {
     @State var showFullSizeUIImage: Bool = false
     @State var fullSizeUIImage: UIImage?
 #else
-    @State var watchDisclosureDetailsExpanded: Bool = false
+    //@State var watchDisclosureDetailsExpanded: Bool = false
 
 #endif
     
