@@ -7,41 +7,12 @@
 
 import SwiftUI
 import PhotosUI
+import PhotosUI
 
 
-struct StageEditView: View {
-    @Binding var stageEditableData: Stage
+extension StageEditCommonView {
     
-    @State private var untimedComment: Bool =  false
-    @State private var snoozeAlertsOn: Bool =  false
-    
-    @State private var hours: Int = 0
-    @State private var mins: Int = 0
-    @State private var secs: Int = 0
-    @State private var timerDirection: TimerDirection = .countDownEnd
-    @State private var durationDate: Date = validFutureDate()
-
-    @State private var snoozehours: Int = 0
-    @State private var snoozemins: Int = 0
-
-    @Environment(\.colorScheme) var colorScheme
-
-    //@State private var additionaldurationsDict = [Int : String]()
-    @State private var additionaldurationsDictKeys = [Int]()
-    @State private var showingAddAlertSheet = false
-    @State private var addedhours: Int = 0
-    @State private var addedmins: Int = 0
-    @State private var addedsecs: Int = 0
-    @State private var addedMessage: String = ""
-
-    @State private var selectedItem: PhotosPickerItem? = nil
-    @State private var selectedImageData: Data? = nil
-    @State var fullSizeUIImage: UIImage?
-    @State var showFullSizeUIImage: Bool = false
-    @State var showFullSizeUIImageAlert: Bool = false
-
-    
-    var body: some View {
+    var body_slow: some View {
         Form {
             Section { } header: {
                 VStack(alignment: .center) {
@@ -163,7 +134,6 @@ struct StageEditView: View {
                 Section {
                     /* Duration Pickers */
                     HStack {
-                        //                            Image(systemName: timerDirection.symbolName)
                         Picker("", selection: $timerDirection) {
                             ForEach(TimerDirection.allCases) { direction in
                                 Text(direction.rawValue)
@@ -476,42 +446,3 @@ struct StageEditView: View {
     
 }
 
-extension StageEditView {
-    
-    
-    func durationFromHMS() -> Int {
-        Int(hours) * SEC_HOUR + Int(mins) * SEC_MIN + Int(secs)
-    }
-    func durationFromAdditionalHMS() -> Int {
-        Int(addedhours) * SEC_HOUR + Int(addedmins) * SEC_MIN + Int(addedsecs)
-    }
-
-    func updateDuration() {
-        switch stageEditableData.durationCountType {
-        case .countDownEnd:
-            stageEditableData.durationSecsInt = durationFromHMS()
-        case .countDownToDate:
-            stageEditableData.setDurationFromDate(durationDate)//durationSecsInt = Int(dateYMDHM(fromDate: durationDate).timeIntervalSinceReferenceDate)
-        default:
-            stageEditableData.durationSecsInt = 0
-        }
-    }
-    
-    func updateSnoozeDuration() {
-        var newValue = Int(snoozehours) * SEC_HOUR + Int(snoozemins) * SEC_MIN
-        if newValue < kSnoozeMinimumDurationSecs {
-            newValue = kSnoozeMinimumDurationSecs
-        }
-        stageEditableData.snoozeDurationSecs = newValue
-    }
-    
-    
-}
-
-
-
-struct StageRowEditView_Previews: PreviewProvider {
-    static var previews: some View {
-        Text("")
-    }
-}

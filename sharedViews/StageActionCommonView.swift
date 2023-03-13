@@ -90,7 +90,7 @@ struct StageActionCommonView: View {
         return stage.imageDataFullActual
     }
     
-    
+
     // MARK: - body
     var body: some View {
         body_

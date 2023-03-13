@@ -29,7 +29,8 @@ struct ItineraryEditView: View {
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
 
-    
+    @State var showRightColumn: Bool = true
+
     
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
     /* *** var itinerary is passed-in binding for the StageActionView */
@@ -127,7 +128,15 @@ struct ItineraryEditView: View {
                     .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                     .opacity(0.5)
                     .padding(.leading,24)
-                Button(isEditing ? "Done" : "Edit") {
+                Button {
+                    showRightColumn.toggle()
+                } label: {
+                    Image(systemName: showRightColumn ? "decrease.quotelevel" : "quotelevel")
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.regular)
+                .padding(.trailing,24)
+               Button(isEditing ? "Done" : "Edit") {
                     isEditing.toggle()
                 }
                 .padding(.trailing,36)
@@ -144,14 +153,22 @@ struct ItineraryEditView: View {
                 .controlSize(.regular)
                 .padding(.trailing,24)
             }
+/* *********        STAGES       ************* */
             ScrollViewReader { svrproxy in
                 ScrollView {
                     VStack(spacing: 12) {
                         ForEach($itineraryEditableData.stages) { $stage in
-                            StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete)
-                                .background(Color("ColourStageDisplayBackground"))
-                                .cornerRadius(12)
-                                .id(stage.idStr)
+                            if deviceIsIpadOrMac() {
+                                StageEditCommonView(stageEditableData: $stage, showRightColumn: $showRightColumn)
+                                    .background(Color("ColourStageDisplayBackground"))
+                                    .cornerRadius(12)
+                                    .id(stage.idStr)
+                           } else {
+                                StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete)
+                                    .background(Color("ColourStageDisplayBackground"))
+                                    .cornerRadius(12)
+                                    .id(stage.idStr)
+                            }
                         }
                         .onMove(perform: isEditing ? { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) } : nil)
                     }
@@ -165,6 +182,7 @@ struct ItineraryEditView: View {
                     })
                 } /* ScrollView */
             } /* SVR */
+/* *********        STAGES       ************* */
             .onAppear {
                 selectedImageData = itineraryEditableData.imageDataThumbnailActual
             }
@@ -196,7 +214,7 @@ struct ItineraryEditView: View {
             }
             .fullScreenCover(isPresented: $isPresentingNewStageEditView) {
                 NavigationStack {
-                    StageEditView(stageEditableData: $newStageEditableData)
+                    StageEditCommonView(stageEditableData: $newStageEditableData, showRightColumn: .constant(true))
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {

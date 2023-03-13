@@ -30,10 +30,11 @@ struct UITextViewWrapper: UIViewRepresentable {
         uiView.isUserInteractionEnabled = false
         uiView.isScrollEnabled = false
         uiView.backgroundColor = UIColor.clear
-        uiView.textAlignment = NSTextAlignment.justified
+        //uiView.textAlignment = NSTextAlignment.justified
         uiView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         uiView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         uiView.adjustsFontForContentSizeCategory = true
+        uiView.textAlignment = .natural
         return uiView
     }
 
@@ -59,4 +60,5 @@ struct UITextViewWrapper: UIViewRepresentable {
     }
 
 }
+
 

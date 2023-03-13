@@ -62,26 +62,35 @@ extension StageActionCommonView {
                         .onPreferenceChange(StageActionCommonView.ZStackMeasuringPreferenceKey.self) { detailsMeasuredWidth = $0.width }
                     UITextViewWrapper(text: $stage.details, calculatedHeight: $calculatedHeight, fontColor: $detailsTextColour, imageMeasuredSize: $imageMeasuredSize, dynamicTypeSize: $textDynamicTypeSize)
                         .frame(minHeight: calculatedHeight, maxHeight: calculatedHeight)
+                        .padding([.leading, .trailing], kDetailsSidePadding)
                     if let imagedata = stage.imageDataThumbnailActual,
                        let uiImage = UIImage(data: imagedata) {
-                        Button(action: {
-                            if let imagedata = getSetStageFullSizeImageData(),
-                               let uiImage = UIImage(data: imagedata) {
-                                fullSizeUIImage = uiImage
-                                showFullSizeUIImage = true
-                            }
-                        }, label: {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(idealWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618), alignment: .trailing)
-                                .fixedSize(horizontal: true, vertical: false)
+                        HStack(spacing: 0.0) {
+                            Button(action: {
+                                if let imagedata = getSetStageFullSizeImageData(),
+                                   let uiImage = UIImage(data: imagedata) {
+                                    fullSizeUIImage = uiImage
+                                    showFullSizeUIImage = true
+                                }
+                            }, label: {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                //                                .frame(maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618), maxHeight: calculatedHeight, alignment: .trailing)
+                                    .frame(
+                                        width: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).width,
+                                        height: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).height)
+                                    .fixedSize(horizontal: true, vertical: true) // <-- fix BOTH
                                 // checl height HERE to avoid padding
-                                .background(GeometryReader { Color.clear.preference(key: StageActionCommonView.ImageMeasuringPreferenceKey.self, value: $0.size) } )
-                                .onPreferenceChange(StageActionCommonView.ImageMeasuringPreferenceKey.self) { imageMeasuredSize = $0 }
-                                .padding(.top, fontSizedPadding)
-                        })
-                        .buttonStyle(.borderless)
+                                    .background(GeometryReader { Color.red.preference(key: StageActionCommonView.ImageMeasuringPreferenceKey.self, value: $0.size) } )
+                                    .onPreferenceChange(StageActionCommonView.ImageMeasuringPreferenceKey.self) { imageMeasuredSize = $0 }
+                                    .padding(.top, kFontSizedPadding)
+                                    .padding([.leading], kDetailsSidePadding)
+                            })
+                            .buttonStyle(.borderless)
+                            Spacer() // always LEFT not leading
+                        } /* HStack */
+                        .padding(0)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -182,4 +191,27 @@ extension StageActionCommonView {
         //        /* VStack mods */
     } /* body ios*/
 #endif
+}
+
+
+func sizeForSize(imageSize: CGSize, maxHeight: CGFloat, maxWidth: CGFloat) -> CGSize {
+    
+    if imageSize.height > imageSize.width {
+        // use maxHeight and adjust width
+        let newWidth = (imageSize.width / imageSize.height) * maxHeight
+        // check width is not > maxWidth  and return if OK
+        if newWidth <= maxWidth { return CGSize(width: newWidth, height: maxHeight) }
+        // recalculate with width first as height will be less
+        let newHeight = (imageSize.height / imageSize.width) * maxWidth
+        return CGSize(width: maxWidth, height: newHeight)
+    } else {
+        // use maxWidth and adjust height
+        let newHeight = (imageSize.height / imageSize.width) * maxWidth
+        // check newHeight is not > maxHeight and return if OK
+        if newHeight <= maxHeight { return CGSize(width: maxWidth, height: newHeight) }
+        // recalculate with height first as width will be less
+        let newWidth = (imageSize.width / imageSize.height) * maxHeight
+        return CGSize(width: newWidth, height: maxHeight)
+        
+    }
 }

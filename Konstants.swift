@@ -224,7 +224,9 @@ let yearsAheadBlock = 5
 let kUISlowUpdateTimerFrequency = 1.0
 #else
 let kUISlowUpdateTimerFrequency = 1.0
-let fontSizedPadding = UIFont.preferredFont(forTextStyle: .body).lineHeight / 2.0 
+let kFontSizedPadding = UIFont.preferredFont(forTextStyle: .body).lineHeight / 2.0
+let kDetailsSidePadding = 12.0
+let kTitleBottomPadding = 3.0
 #endif
 let kUISlowUpdateTimerFrequencyInfinite = Double.greatestFiniteMagnitude
 
