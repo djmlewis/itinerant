@@ -94,3 +94,18 @@ struct FileNameModDateTextView: View {
     }
 }
 
+struct StageActionViewSnoozeAlertsFrame: ViewModifier {
+    var isiPadOrMac: Bool
+    
+    func body(content: Content) -> some View {
+        if isiPadOrMac {
+            content
+                .frame(alignment: .center)
+                .padding([.leading,.trailing], 18)
+        } else {
+            content
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding([.leading,.trailing], 8)
+       }
+    }
+}

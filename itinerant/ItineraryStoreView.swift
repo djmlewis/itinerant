@@ -31,7 +31,7 @@ struct ItineraryStoreView: View {
     @State  var isPresentingConfirmOpenURL: Bool = false
     @State  var showInvalidFileAlert: Bool = false
     @State  var invalidFileName: String = ""
-    @State  var stageIDsToDelete: [String] = [String]()
+    //@State  var stageIDsToDelete: [String] = [String]()
     
     // NavStack
     @State  var presentedItineraryIDsStackArray: [String] = []
@@ -59,7 +59,7 @@ struct ItineraryStoreView: View {
             })
             .fullScreenCover(isPresented: $isPresentingItineraryEditView) {
                 NavigationStack {
-                    ItineraryEditView(itineraryEditableData: $newItineraryEditableData, stageIDsToDelete: $stageIDsToDelete)
+                    ItineraryEditView(itineraryEditableData: $newItineraryEditableData)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {
@@ -72,12 +72,6 @@ struct ItineraryStoreView: View {
                                     DispatchQueue.main.async {
                                         var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
                                         newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
-//                                        let newItinerary = Itinerary(
-//                                            itineraryEditableData: newItineraryEditableData,
-//                                            id: UUID(),
-//                                            packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title),
-//                                            settingsColoursStruct: appDelegate.settingsColoursObject.settingsColoursStruct)
-//                                        newItinerary.completeUpdateFromEditableData()
                                         itineraryStore.itineraries.append(newItinerary)
                                         itineraryStore.sortItineraries()
                                         isPresentingItineraryEditView = false

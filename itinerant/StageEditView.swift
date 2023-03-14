@@ -277,7 +277,8 @@ extension StageEditCommonView {
                                     offsets.forEach { indx in
                                         stageEditableData.additionalDurationsDict[additionaldurationsDictKeys[indx]] = nil
                                     }
-                                    additionaldurationsDictKeys.remove(atOffsets: offsets)
+                                    rebuidAdditionalDurationsDictKeys()
+                                    //additionaldurationsDictKeys.remove(atOffsets: offsets)
                                 }
                             }
                         }
@@ -345,8 +346,8 @@ extension StageEditCommonView {
             updateSnoozeDuration()
         })
         .onAppear() {
-            //additionaldurationsDict = stageEditableData.additionalDurationsDict
-            additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
+            //additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
+            rebuidAdditionalDurationsDictKeys()
             untimedComment = stageEditableData.isCommentOnly
             if untimedComment == true {
                 // leave the defaults
@@ -426,12 +427,13 @@ extension StageEditCommonView {
                             if duration >= kStageAlertMinimumDurationSecs {
                                 // amend the dict oustide the additionaldurationsDictKeys.append or crash
                                 stageEditableData.additionalDurationsDict[duration] = addedMessage
-                                DispatchQueue.main.async {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    rebuidAdditionalDurationsDictKeys()
                                     // duplicate key amended the Dict but not added to array.
-                                    if !additionaldurationsDictKeys.contains(duration) {
-                                        additionaldurationsDictKeys.append(duration)
-                                        additionaldurationsDictKeys.sort()
-                                    }
+//                                    if !additionaldurationsDictKeys.contains(duration) {
+//                                        additionaldurationsDictKeys.append(duration)
+//                                        additionaldurationsDictKeys.sort()
+//                                    }
                                 }
                             }
                             showingAddAlertSheet = false

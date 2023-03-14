@@ -61,32 +61,6 @@ class ItineraryStore: ObservableObject {
     }
 
     
-    func stageBackgroundColour(stageUUID: UUID, itinerary: Itinerary, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject ) -> Color {
-        if let stage = itinerary.stageForUUID(stageUUID) {
-            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
-            if stage.isCommentOnly { return settingsColourStruct.colourStageComment }
-            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourStageRunning }
-            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourStageActive }
-            return settingsColourStruct.colourStageInactive
-        }
-        //debugPrint("error stageBackgroundColour")
-        return Color.clear
-    }
-    
-    
-    func stageTextColour(stageUUID: UUID, itinerary: Itinerary, uuidStrStagesRunningStr: String, uuidStrStagesActiveStr: String, appSettingsObject: SettingsColoursObject) -> Color {
-        if let stage = itinerary.stageForUUID(stageUUID) {
-            let settingsColourStruct = itinerary.settingsColoursStruct == nil ? appSettingsObject.settingsColoursStruct : itinerary.settingsColoursStruct!
-            if stage.isCommentOnly { return settingsColourStruct.colourFontComment }
-            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourFontRunning }
-            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourFontActive }
-            return settingsColourStruct.colourFontInactive
-        }
-        //debugPrint("error stageTextColour")
-        return Color.clear
-    }
-
-    
     // MARK: - Importing
 
     func importItineraryAtPath(_ filePath:String) -> String? {
@@ -287,14 +261,13 @@ class ItineraryStore: ObservableObject {
 
     // MARK: - Updating Itineraries & Stage Duration
 
-    func updateItinerary(itinerary: Itinerary) -> String? {
-        guard let index = itineraries.firstIndex(where: { $0.idStr == itinerary.idStr }) else { debugPrint("Unable to update itinerary"); return nil  }
+    func updateItinerary(itinerary: Itinerary) {
+        guard let index = itineraries.firstIndex(where: { $0.idStr == itinerary.idStr }) else { debugPrint("Unable to update itinerary"); return }
         var itinerymutable = itinerary
         itinerymutable.updateModificationDateToNow()
         _ = itinerymutable.savePersistentData()
         itinerymutable.writeImageDataToPackage(itinerymutable.imageDataFullActual, imageSizeType: .fullsize)
         itineraries[index] = itinerymutable
-        return itinerymutable.filename
     }
 
     func updateStageDurationFromDate(stageUUID: UUID, itineraryUUID: UUID, durationDate date: Date) {

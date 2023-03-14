@@ -277,6 +277,7 @@ extension Itinerary {
 
         var lastStageUUIDstr: String? { stages.last?.idStr }
         var firstStageUUIDstr: String? { stages.first?.idStr }
+        var stagesIDstrs: [String] { stages.map { $0.idStr }}
 
         
     }

@@ -312,23 +312,39 @@ extension StageEditCommonView {
                                         VStack {
                                             ScrollView(.vertical) {
                                                 ForEach(additionaldurationsDictKeys, id: \.self) { secsInt in
-                                                    HStack {
-                                                        Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
-                                                            .foregroundColor(Color("ColourAdditionalAlarmsText"))
-                                                        Spacer()
-                                                        Text(stageEditableData.additionalDurationsDict[secsInt]!)
-                                                            .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
-                                                            .multilineTextAlignment(.trailing)
-                                                    }
-                                                }
-                                                .onDelete { offsets in
-                                                    DispatchQueue.main.async {
-                                                        offsets.forEach { indx in
-                                                            stageEditableData.additionalDurationsDict[additionaldurationsDictKeys[indx]] = nil
+                                                    if let message = stageEditableData.additionalDurationsDict[secsInt] {
+                                                        HStack {
+                                                            Text(Stage.stageFormattedDurationStringFromDouble(Double(secsInt)))
+                                                                .foregroundColor(Color("ColourAdditionalAlarmsText"))
+                                                            Spacer()
+                                                            Text(message)
+                                                                .foregroundColor(Color("ColourAdditionalAlarmsMessage"))
+                                                                .multilineTextAlignment(.trailing)
+                                                            Button {
+                                                                DispatchQueue.main.async {
+                                                                    stageEditableData.additionalDurationsDict[secsInt] = nil
+                                                                    rebuidAdditionalDurationsDictKeys()
+//                                                                    if let index = additionaldurationsDictKeys.firstIndex(of: secsInt) {
+//                                                                        additionaldurationsDictKeys.remove(at: index)
+//                                                                    }
+                                                                }
+                                                            } label: {
+                                                                Image(systemName:"trash")
+                                                                    .font(.system(.title3, design: .rounded, weight: .regular))
+                                                            }
+                                                            .tint(.red)
+                                                            .padding(.leading, 12)
                                                         }
-                                                        additionaldurationsDictKeys.remove(atOffsets: offsets)
                                                     }
                                                 }
+//                                                .onDelete { offsets in
+//                                                    DispatchQueue.main.async {
+//                                                        offsets.forEach { indx in
+//                                                            stageEditableData.additionalDurationsDict[additionaldurationsDictKeys[indx]] = nil
+//                                                        }
+//                                                        additionaldurationsDictKeys.remove(atOffsets: offsets)
+//                                                    }
+//                                                }
                                             }
                                         }
                                         .padding([.leading, .trailing], 48)
@@ -384,7 +400,8 @@ extension StageEditCommonView {
                 updateSnoozeDuration()
             })
             .onAppear() {
-                additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
+                rebuidAdditionalDurationsDictKeys()
+                //additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
                 untimedComment = stageEditableData.isCommentOnly
                 if untimedComment == true {
                     // leave the defaults
@@ -468,12 +485,13 @@ extension StageEditCommonView {
                                 if duration >= kStageAlertMinimumDurationSecs {
                                     // amend the dict oustide the additionaldurationsDictKeys.append or crash
                                     stageEditableData.additionalDurationsDict[duration] = addedMessage
-                                    DispatchQueue.main.async {
-                                        // duplicate key amended the Dict but not added to array.
-                                        if !additionaldurationsDictKeys.contains(duration) {
-                                            additionaldurationsDictKeys.append(duration)
-                                            additionaldurationsDictKeys.sort()
-                                        }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                        rebuidAdditionalDurationsDictKeys()
+//                                        // duplicate key amended the Dict but not added to array.
+//                                        if !additionaldurationsDictKeys.contains(duration) {
+//                                            additionaldurationsDictKeys.append(duration)
+//                                            additionaldurationsDictKeys.sort()
+//                                        }
                                     }
                                 }
                                 showingAddAlertSheet = false

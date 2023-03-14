@@ -104,7 +104,7 @@ extension StageActionCommonView {
                             }
                         } /* HStack */
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        Stage.additionalAndSnoozeAlertsHStackForStage(stage)
+                        Stage.additionalAndSnoozeAlertsHorVStackForDeviceAndStage(stage, isIpadOrMac: false)
                     } /* VStack */
                     .frame(maxWidth: .infinity)
 //                    .padding(.bottom,6)

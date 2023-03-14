@@ -99,7 +99,13 @@ struct StageActionCommonView: View {
             .onAppear() { handleOnAppear() }
             .onDisappear() { handleOnDisappear() }
             .onReceive(uiFastUpdateTimer) { handleReceive_uiFastUpdateTimer(newDate: $0) }
-            .onChange(of: resetStageElapsedTime) { resetStage(newValue: $0) }
+            .onChange(of: resetStageElapsedTime) { newValue in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if newValue != nil {
+                        resetStage(newValue: newValue)
+                    }
+                }
+            }
             .onChange(of: uuidStrStagesActiveStr) { if stage.isActive(uuidStrStagesActiveStr: $0) { scrollToStageID = stage.idStr} }
             .onChange(of: stageToHandleSkipActionID) {  handleReceive_stageToHandleSkipActionID(idstrtotest: $0)  }
             .onChange(of: stageToHandleHaltActionID) {  handleReceive_stageToHandleHaltActionID(idstrtotest: $0)  }
@@ -196,18 +202,23 @@ extension StageActionCommonView {
         .buttonStyle(.borderless)
         .frame(idealWidth: kHaltButtonWidth, idealHeight: kHaltButtonWidth, alignment: .trailing)
         .fixedSize(horizontal: true, vertical: true)
-//#if os(watchOS)
-//        .padding(.trailing, 4.0)
-//#endif
     }
     
-    func stageBackgroundColour(stage: Stage) -> Color {
-        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+    var stageBackgroundColour: Color {
+        let settingsColourStruct: SettingsColoursStruct = itinerary.settingsColoursStruct ?? appSettingsObject.settingsColoursStruct
+        if stage.isCommentOnly { return settingsColourStruct.colourStageComment }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourStageRunning }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourStageActive }
+        return settingsColourStruct.colourStageInactive
     }
     
     
     var stageTextColourForStatus: Color {
-        return itineraryStore.stageTextColour(stageUUID: stage.id, itinerary: itinerary, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        let settingsColourStruct: SettingsColoursStruct = itinerary.settingsColoursStruct ?? appSettingsObject.settingsColoursStruct
+            if stage.isCommentOnly { return settingsColourStruct.colourFontComment }
+            if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourFontRunning }
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourFontActive }
+            return settingsColourStruct.colourFontInactive
     }
     
     func resetStage(newValue: Bool?) {

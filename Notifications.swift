@@ -57,6 +57,13 @@ UNNotificationCategory(identifier: kNotificationCategoryRepeatingSnoozeIntervalC
                        intentIdentifiers: [],
                        options: .customDismissAction)
 
+func removeAllPendingAndDeliveredStageNotificationsForArrayOfUUIDstrs(_ uuidStrArray: [String]) {
+    uuidStrArray.forEach { uuidStr in
+        removeAllPendingStageNotifications(forUUIDstr: uuidStr)
+        removeAllDeliveredStageNotifications(forUUIDstr: uuidStr)
+    }
+}
+
 func removeAllPendingAndDeliveredStageNotifications(forUUIDstr uuidStr: String) {
     removeAllPendingStageNotifications(forUUIDstr: uuidStr)
     removeAllDeliveredStageNotifications(forUUIDstr: uuidStr)

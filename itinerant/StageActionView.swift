@@ -147,7 +147,7 @@ extension StageActionCommonView {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(kiOSStageViewsRowPad)
                 /* *** Additional Alerts stack *** */
-                Stage.additionalAndSnoozeAlertsHStackForStage(stage)
+                Stage.additionalAndSnoozeAlertsHorVStackForDeviceAndStage(stage, isIpadOrMac: deviceIsIpadOrMac())
                 if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr)  || dictStageStartDates[stage.idStr] != nil {
                     HStack(spacing: 0) {
                         HStack {
@@ -179,7 +179,7 @@ extension StageActionCommonView {
                 } /* if running */
             } /*  if stage.isCommentOnly == false */
         } /* VStack */
-        .background(stageBackgroundColour(stage: stage))
+        .background(stageBackgroundColour)
         .padding(0)
         //.cornerRadius(8) /// make the background rounded
         .onChange(of: toggleDisclosureDetails) {  disclosureDetailsExpanded = $0 } // ios only

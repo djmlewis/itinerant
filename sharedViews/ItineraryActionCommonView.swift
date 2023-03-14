@@ -49,13 +49,14 @@ struct ItineraryActionCommonView: View {
     @State var fileSaveType: UTType = .itineraryDataPackage
     @State var fileSaveName: String?
     @State var showFilePicker: Bool = false
-    @State var stageIDsToDelete: [String] = [String]()
     @State  var showSettingsView: Bool = false
     @State  var openRequestURL: URL?
     @State var showFullSizeUIImage: Bool = false
     @State var fullSizeUIImage: UIImage?
     
     @State var updatedItineraryEditableData: Itinerary.EditableData?
+
+    //@State var stageIDsToDelete: [String] = [String]()
 
 #else
 
@@ -100,11 +101,14 @@ extension ItineraryActionCommonView {
 
 extension ItineraryActionCommonView {
     
-    
     func stageBackgroundColour(stage: Stage) -> Color {
-        return itineraryStore.stageBackgroundColour(stageUUID: stage.id, itinerary: itineraryLocalCopy, uuidStrStagesRunningStr: uuidStrStagesRunningStr, uuidStrStagesActiveStr: uuidStrStagesActiveStr, appSettingsObject: appDelegate.settingsColoursObject)
+        let settingsColourStruct: SettingsColoursStruct = itineraryLocalCopy.settingsColoursStruct ?? appSettingsObject.settingsColoursStruct
+        if stage.isCommentOnly { return settingsColourStruct.colourStageComment }
+        if stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) { return settingsColourStruct.colourStageRunning }
+        if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourStageActive }
+        return settingsColourStruct.colourStageInactive
     }
-
+    
     func removeAllActiveRunningItineraryStageIDsAndNotifcations() {
         (uuidStrStagesActiveStr,uuidStrStagesRunningStr,dictStageStartDates, dictStageEndDates) = itineraryLocalCopy.removeAllStageIDsAndNotifcationsFrom(str1: uuidStrStagesActiveStr, str2: uuidStrStagesRunningStr, dict1: dictStageStartDates, dict2: dictStageEndDates)
     }

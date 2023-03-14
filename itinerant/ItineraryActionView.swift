@@ -114,19 +114,27 @@ extension  ItineraryActionCommonView {
             stageToHandleHaltActionID = $0
         })
         .onChange(of: itineraryLocalCopy, perform: { updateLocalCopy in
-            debugPrint("onChange(of: itineraryLocalCopy")
             // after edit iiOS only
-            _ = itineraryStore.updateItinerary(itinerary: updateLocalCopy)
+            DispatchQueue.main.async {
+                itineraryStore.updateItinerary(itinerary: updateLocalCopy)
+            }
         })
         .onChange(of: updatedItineraryEditableData, perform: { updatedData in
-            debugPrint("onChange(of: updatedItineraryEditableData")
             if let updatedData {
                 DispatchQueue.main.async {
+                    // identify stageIDsTodelete before updating
+                    let stageIDsInUpdatedData = updatedData.stagesIDstrs
+                    let stageIDsToDelete = itineraryLocalCopy.stagesIDstrs.compactMap({ stageIDstr in
+                        stageIDsInUpdatedData.contains(stageIDstr) ? nil : stageIDstr
+                    })
+                    if !stageIDsToDelete.isEmpty {
+                        itineraryLocalCopy.removeAllSupportFilesForStageIDs(stageIDsToDelete)
+                    }
                     itineraryLocalCopy.updateItineraryEditableData(from: updatedData)
                     // onChange(of: itineraryLocalCopy will be triggered and itineraryStore notified
-                    itineraryLocalCopy.removeAllSupportFilesForStageIDs(stageIDsToDelete)
-                    stageIDsToDelete = []
-                    resetItineraryStages()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        resetItineraryStages()
+                    }
                 }
             }
         })
@@ -220,7 +228,7 @@ extension  ItineraryActionCommonView {
         .fullScreenCover(isPresented: $isPresentingItineraryEditView, content: {
             NavigationStack {
                 // pass a BOUND COPY of itineraryData to amend and use to update if necessary
-                ItineraryEditView(itineraryEditableData: $itineraryData, stageIDsToDelete: $stageIDsToDelete)
+                ItineraryEditView(itineraryEditableData: $itineraryData)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {

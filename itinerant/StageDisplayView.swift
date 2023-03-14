@@ -28,40 +28,24 @@ struct StageDisplayView: View {
     @Binding var stage: Stage
     @Binding var newStageMeta: NewStageMeta?
     @Binding var isEditing: Bool
-    @Binding var stageIDtoDelete: String?
+    //@Binding var stageIDtoDelete: String?
     
     
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var appDelegate: AppDelegate
-
+    
     @State private var isPresentingStageEditView = false
     @State private var stageEditableData = Stage()
-
+    
     @State private var newStageEditableData: Stage = Stage()
     @State private var isPresentingNewStageEditView = false
-
+    
     @State var fullSizeUIImage: UIImage?
     @State var showFullSizeUIImage: Bool = false
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 0.0) {
-            if isEditing == true {
-                VStack {
-                    Button {
-                        stageIDtoDelete = stage.idStr
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .font(.system(.title2, design: .rounded, weight: .regular))
-                    .foregroundColor(.white)
-                    .buttonStyle(.borderless)
-                    .controlSize(.large)
-                }
-                .frame(maxHeight: .infinity)
-                .padding()
-                .background(.red)
-            }
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top, spacing: 0.0) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -99,8 +83,8 @@ struct StageDisplayView: View {
                                 .padding(0)
                         })
                         .buttonStyle(.borderless)
-                   }
-
+                    }
+                    
                 } /* HStack */
                 Spacer()
                 HStack {
@@ -116,68 +100,57 @@ struct StageDisplayView: View {
                                     .minimumScaleFactor(0.5)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                       }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding([.leading,.bottom], kiOSStageViewsRowPad)
                 .font(.system(.title3, design: .rounded, weight: .bold))
-                Stage.additionalAndSnoozeAlertsHStackForStage(stage)
+                Stage.additionalAndSnoozeAlertsHorVStackForDeviceAndStage(stage, isIpadOrMac: deviceIsIpadOrMac())
             } /* VStack */
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(0)
-            //.padding(.leading, 12)
-            if isEditing == false {
-                    VStack(alignment: .trailing) {
-                        Button(action: {
-                            stageEditableData = stage.editableData
-                            isPresentingStageEditView = true
-                        }) {
-                            Image(systemName: "square.and.pencil")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kiOSStageViewsRowPad)
-                        Spacer()
-                        Button(action: {
-                            newStageMeta = nil
-                            newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: true, newStage: stage.duplicateWithNewID)
-                        }) {
-                            Image(systemName: "doc.on.doc")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kiOSStageViewsRowPad)
-                       Spacer()
-                        Button(action: {
-                            newStageEditableData = Stage()
-                            newStageMeta = nil
-                            isPresentingNewStageEditView = true
-                        }) {
-                            Image(systemName: "plus")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                        .frame(width: 24, alignment: .trailing)
-                        .padding([.top,.bottom], kiOSStageViewsRowPad)
-                   } /* VStack buttons */
-                    .padding([.leading,.trailing], kiOSStageViewsRowPad)
-                    .foregroundColor( .accentColor)
-                    .background(Color("ColourControlsBackground"))
-            } /* if isEditing == false */
-            else {
-                VStack {
-                    Image(systemName: "line.3.horizontal")
+            VStack(alignment: .trailing) {
+                Button(action: {
+                    stageEditableData = stage.editableData
+                    isPresentingStageEditView = true
+                }) {
+                    Image(systemName: "square.and.pencil")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
                 }
-                .font(.system(.title2, design: .rounded, weight: .regular))
-                .frame(maxHeight: .infinity)
-                .padding()
-            }
+                .buttonStyle(BorderlessButtonStyle())
+                .frame(width: 24, alignment: .trailing)
+                .padding([.top,.bottom], kiOSStageViewsRowPad)
+                Spacer()
+                Button(action: {
+                    newStageMeta = nil
+                    newStageMeta = NewStageMeta(stageInitiatingIDstr: stage.idStr, duplicate: true, newStage: stage.duplicateWithNewID)
+                }) {
+                    Image(systemName: "doc.on.doc")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .buttonStyle(BorderlessButtonStyle())
+                .frame(width: 24, alignment: .trailing)
+                .padding([.top,.bottom], kiOSStageViewsRowPad)
+                Spacer()
+                Button(action: {
+                    newStageEditableData = Stage()
+                    newStageMeta = nil
+                    isPresentingNewStageEditView = true
+                }) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .buttonStyle(BorderlessButtonStyle())
+                .frame(width: 24, alignment: .trailing)
+                .padding([.top,.bottom], kiOSStageViewsRowPad)
+            } /* VStack buttons */
+            .padding([.leading,.trailing], kiOSStageViewsRowPad)
+            .foregroundColor( .accentColor)
+            .background(Color("ColourControlsBackground"))
         } /* HStack */
         .frame(maxWidth: .infinity)
         .animation(.linear(duration: 0.1), value: isEditing)
@@ -225,7 +198,7 @@ struct StageDisplayView: View {
         .fullScreenCover(isPresented: $showFullSizeUIImage, content: {
             FullScreenImageView(fullSizeUIImage: $fullSizeUIImage, showFullSizeUIImage: $showFullSizeUIImage)
         }) /* fullScreenCover */
-
+        
     } /* body */
     
 }

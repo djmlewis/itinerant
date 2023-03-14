@@ -352,8 +352,22 @@ extension Stage {
         .padding(0.0)
     }
     
-    @ViewBuilder  static func additionalAndSnoozeAlertsHStackForStage(_ stage: Stage) -> some View {
-        VStack(spacing: 0.0) {
+    @ViewBuilder  static func additionalAndSnoozeAlertsHorVStackForDeviceAndStage(_ stage: Stage, isIpadOrMac: Bool) -> some View {
+        if isIpadOrMac {
+            HStack(spacing: 0.0) {
+                additionalAndSnoozeAlertsContentsForStage(stage, isIpadOrMac: isIpadOrMac)
+            }
+            .frame(maxWidth: .infinity)
+        } else {
+            VStack(spacing: 0.0) {
+                additionalAndSnoozeAlertsContentsForStage(stage, isIpadOrMac: isIpadOrMac)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+    
+    
+    @ViewBuilder  static func additionalAndSnoozeAlertsContentsForStage(_ stage: Stage, isIpadOrMac: Bool) -> some View {
             if stage.isPostingRepeatingSnoozeAlerts {
                 HStack(spacing: 4.0) {
                     Image(systemName: "bell.and.waves.left.and.right")
@@ -366,9 +380,8 @@ extension Stage {
                         .foregroundColor(Color("ColourAdditionalAlarmsText"))
                }
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .frame(maxWidth: .infinity, alignment: .center)
                 .padding([.bottom,.top], kiOSStageViewsRowPad)
-                .padding([.leading,.trailing], 8)
+                .modifier(StageActionViewSnoozeAlertsFrame(isiPadOrMac: isIpadOrMac))
                 .background(Color("ColourSnoozeAlarmsBackground"))
             } /* isPostingRepeatingSnoozeAlerts */
             if !stage.additionalDurationsDict.isEmpty {
@@ -377,6 +390,7 @@ extension Stage {
                         Image(systemName: "alarm.waves.left.and.right")
                             .foregroundColor(Color("ColourAdditionalAlarmsImage"))
                             .padding(0.0)
+                            .padding([.leading,.trailing], isIpadOrMac ? 16.0 : 0.0)
                         Spacer()
                         stage.additionalDurationsDisplayString
                    }
@@ -389,8 +403,6 @@ extension Stage {
                 .padding(.trailing, 8)
                 .background(Color("ColourAdditionalAlarmsBackground"))
            } /* additionalDurationsDict */
-        } /* VStack */
-        .frame(maxWidth: .infinity)
     }
     
     
