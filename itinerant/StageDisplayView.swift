@@ -67,10 +67,12 @@ struct StageDisplayView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(stage.title)
                             .font(.system(.title3, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, kiOSStageViewsRowPad)
                             .padding(.top, 6)
+                            .background(Color("ColourControlsBackground"))
                         if !stage.details.isEmpty {
                             Text(stage.details)
                                 .font(.system(.footnote, design: .rounded, weight: .regular))

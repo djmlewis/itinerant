@@ -13,7 +13,7 @@ extension StageEditCommonView {
     var body_quick: some View {
         NavigationStack {
             VStack {
-                Grid(horizontalSpacing: 32) {
+                Grid(horizontalSpacing: 18) {
                     GridRow(alignment: .top) {
                         VStack(alignment: .leading, spacing: 0.0) {
                             VStack(alignment: .center) {
@@ -143,7 +143,7 @@ extension StageEditCommonView {
 
                         } /* end VStack Left */
                         
-                        
+                        // ****  RIGHT COLUMN **** //
                         if untimedComment == false && showRightColumn == true {
                             VStack(alignment: .leading, spacing: 0.0) {/* VStack right side */
                                 /* Duration Pickers */
@@ -155,9 +155,10 @@ extension StageEditCommonView {
                                         Picker("", selection: $timerDirection) {
                                             ForEach(TimerDirection.allCases) { direction in
                                                 Text(direction.rawValue)
+                                                    .font(.system(.caption, design: .rounded, weight: .regular).lowercaseSmallCaps())
                                             }
                                         }
-                                        .padding([.leading, .trailing], 12)
+                                        .padding([.leading, .trailing], 4)
                                         .padding([.bottom,.top], 8)
                                         .pickerStyle(.segmented)
                                         .labelsHidden()
@@ -171,8 +172,9 @@ extension StageEditCommonView {
                                                     }
                                                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                                     .lineLimit(1)
-                                                    .font(.system(.caption, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                                                    .font(.system(.caption, design: .rounded, weight: .regular).lowercaseSmallCaps())
                                                    .padding(0)
+                                                   .background(Color("ColourControlBackground"))
                                                 }
                                                 .padding(0)
                                                 HStack {
@@ -236,7 +238,7 @@ extension StageEditCommonView {
                                         }
                                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                         .lineLimit(1)
-                                        .font(.system(.caption, design: .rounded, weight: .semibold).lowercaseSmallCaps())
+                                        .font(.system(.caption, design: .rounded, weight: .regular).lowercaseSmallCaps())
                                         .padding(0)
                                     }
                                     .padding(.top,8)
@@ -351,7 +353,7 @@ extension StageEditCommonView {
                     } /* GridRow */
                     .textFieldStyle(.roundedBorder)
                 } /* Grid */
-                .padding(32)
+                .padding(24)
             }
             .onChange(of: untimedComment, perform: { newValue in
                 stageEditableData.isCommentOnly = newValue
@@ -382,7 +384,6 @@ extension StageEditCommonView {
                 updateSnoozeDuration()
             })
             .onAppear() {
-                //additionaldurationsDict = stageEditableData.additionalDurationsDict
                 additionaldurationsDictKeys = stageEditableData.additionalDurationsDict.map({ $0.key }).sorted()
                 untimedComment = stageEditableData.isCommentOnly
                 if untimedComment == true {
@@ -414,36 +415,40 @@ extension StageEditCommonView {
                 NavigationStack {
                     Form {
                         Section("Time Of Notification") {
-                            HStack {
-                                Group {
-                                    Text("Hours")
-                                    Text("Minutes")
-                                    Text("Seconds")
-                                }
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                            }
-                            HStack {
-                                Group {
-                                    Picker("", selection: $addedhours) {
-                                        ForEach(0..<24) {index in
-                                            Text("\(index)").tag(index)
+                            VStack(spacing:0.0) {
+                                HStack {
+                                    Group {
+                                        Text("Hours")
+                                        Text("Minutes")
+                                        Text("Seconds")
+                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                                    .font(.system(.caption, design: .rounded, weight: .regular).lowercaseSmallCaps())
+                               }
+                                HStack {
+                                    Group {
+                                        Picker("", selection: $addedhours) {
+                                            ForEach(0..<24) {index in
+                                                Text("\(index)").tag(index)
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        Picker("", selection: $addedmins) {
+                                            ForEach(0..<60) {index in
+                                                Text("\(index)").tag(index)
+                                            }
+                                        }
+                                        .labelsHidden()
+                                        Picker("", selection: $addedsecs) {
+                                            ForEach(0..<60) {index in
+                                                Text("\(index)").tag(index)
+                                            }
                                         }
                                     }
+                                    .pickerStyle(.wheel)
                                     .labelsHidden()
-                                    Picker("", selection: $addedmins) {
-                                        ForEach(0..<60) {index in
-                                            Text("\(index)").tag(index)
-                                        }
-                                    }
-                                    .labelsHidden()
-                                    Picker("", selection: $addedsecs) {
-                                        ForEach(0..<60) {index in
-                                            Text("\(index)").tag(index)
-                                        }
-                                    }
+                                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                                 }
-                                .pickerStyle(.wheel)
-                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                             }
                         }
                         Section("Notification Message") {

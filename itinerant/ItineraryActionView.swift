@@ -91,6 +91,8 @@ extension  ItineraryActionCommonView {
 //        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
+            /* *** set the local Itinerary first *** */
+            if let itinerary = itineraryStore.itineraryForID(id: itineraryLocalCopyID) { itineraryLocalCopy = itinerary }
             // set the first active stage unless we are already active or running
             guard let firstActindx = itineraryLocalCopy.firstIndexActivableStage else { return }
             if !itineraryLocalCopy.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itineraryLocalCopy.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
@@ -111,9 +113,23 @@ extension  ItineraryActionCommonView {
             // prime the stages for a halt action
             stageToHandleHaltActionID = $0
         })
-        .onChange(of: itineraryLocalCopy, perform: {
+        .onChange(of: itineraryLocalCopy, perform: { updateLocalCopy in
+            debugPrint("onChange(of: itineraryLocalCopy")
             // after edit iiOS only
-            _ = itineraryStore.updateItinerary(itinerary: $0) })
+            _ = itineraryStore.updateItinerary(itinerary: updateLocalCopy)
+        })
+        .onChange(of: updatedItineraryEditableData, perform: { updatedData in
+            debugPrint("onChange(of: updatedItineraryEditableData")
+            if let updatedData {
+                DispatchQueue.main.async {
+                    itineraryLocalCopy.updateItineraryEditableData(from: updatedData)
+                    // onChange(of: itineraryLocalCopy will be triggered and itineraryStore notified
+                    itineraryLocalCopy.removeAllSupportFilesForStageIDs(stageIDsToDelete)
+                    stageIDsToDelete = []
+                    resetItineraryStages()
+                }
+            }
+        })
         .fileExporter(isPresented: $fileSaverShown,
                       document: fileSaveDocument,
                       contentType: fileSaveType,
@@ -213,12 +229,10 @@ extension  ItineraryActionCommonView {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save") {
-                                itineraryLocalCopy.removeAllSupportFilesForStageIDs(stageIDsToDelete)
-                                DispatchQueue.main.async {
-                                    itineraryLocalCopy.updateItineraryEditableData(from: itineraryData)
-                                    isPresentingItineraryEditView = false
-                                    resetItineraryStages()
-                                }
+                                updatedItineraryEditableData = nil
+                                updatedItineraryEditableData = itineraryData
+                                isPresentingItineraryEditView = false
+
                             }
                         }
                     }

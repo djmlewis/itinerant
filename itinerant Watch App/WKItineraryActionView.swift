@@ -77,6 +77,8 @@ extension ItineraryActionCommonView {
         } /* ScrollViewReader */
         .navigationTitle(itineraryLocalCopy.title)
         .onAppear() {
+            /* *** set the local Itinerary first *** */
+            if let itinerary = itineraryStore.itineraryForID(id: itineraryLocalCopyID) { itineraryLocalCopy = itinerary }
             if !itineraryLocalCopy.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) && !itineraryLocalCopy.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) && !itineraryLocalCopy.stages.isEmpty {
                 let stageuuid = itineraryLocalCopy.stages[0].idStr
                 uuidStrStagesActiveStr.append(stageuuid)

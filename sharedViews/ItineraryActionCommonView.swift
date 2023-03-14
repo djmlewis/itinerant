@@ -19,7 +19,7 @@ let kDefaultToggleDisclosureDetails = true
 
 
 struct ItineraryActionCommonView: View {
-    @State var itineraryLocalCopy: Itinerary // !! this is passed from ItineraryStore unbound and just a local copy
+    var itineraryLocalCopyID: String // !! this is passed from ItineraryStore unbound and just a local copy
     @Binding var uuidStrStagesActiveStr: String
     @Binding var uuidStrStagesRunningStr: String
     @Binding var dictStageStartDates: [String:String]
@@ -32,6 +32,7 @@ struct ItineraryActionCommonView: View {
     @State var scrollToStageID: String?
     @State var stageToStartRunningID: String?
     
+    @State var itineraryLocalCopy: Itinerary = Itinerary() // !! this is passed from ItineraryStore unbound and just a local copy
 
     @EnvironmentObject var appDelegate: AppDelegate
     @EnvironmentObject var itineraryStore: ItineraryStore
@@ -53,16 +54,19 @@ struct ItineraryActionCommonView: View {
     @State  var openRequestURL: URL?
     @State var showFullSizeUIImage: Bool = false
     @State var fullSizeUIImage: UIImage?
-#else
-    //@State var watchDisclosureDetailsExpanded: Bool = false
+    
+    @State var updatedItineraryEditableData: Itinerary.EditableData?
 
+#else
+
+    
 #endif
     
     
     
     var body: some View {
         body_
-        
+
     } /* View */
     
 }

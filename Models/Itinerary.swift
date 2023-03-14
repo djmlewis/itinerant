@@ -24,20 +24,21 @@ struct Itinerary: Identifiable, Hashable, Equatable, Codable {
     var stages: StageArray
     var imageDataThumbnailActual: Data?
    // runtime
-    var filename: String? { packageFilePath?.fileNameWithoutExtensionFromPath }
     var packageFilePath: String?
     var imageDataFullActual: Data?
     var settingsColoursStruct: SettingsColoursStruct?
-    
+    // calculated
+    var filename: String? { packageFilePath?.fileNameWithoutExtensionFromPath }
+
     // conform to Codable. Covers all persistent & editable
     private enum CodingKeys: String, CodingKey {
-        case id, modificationDate,title,stages
+        case id, modificationDate,title,stages, imageDataThumbnailActual
     }
     // conform to Equatable. As SettingsColoursStruct is Equatable
     // conform to Hashable. As SettingsColoursStruct is Hashable
 
     // these are full inits including UUID which must be done here to be decoded
-    init(id: UUID = UUID(), title: String = kUntitledString, stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil ) {
+    init(id: UUID = UUID(), title: String = kUntitledString, stages: StageArray = [], modificationDate: TimeInterval = nowReferenceDateTimeInterval(), packageFilePath: String? = nil, imageDataThumbnailActual: Data? = nil, imageDataFullActual: Data? = nil, settingsColoursStruct: SettingsColoursStruct? = nil ) {
         self.id = id
         self.title = title
         self.stages = stages
@@ -45,6 +46,7 @@ struct Itinerary: Identifiable, Hashable, Equatable, Codable {
         self.packageFilePath = packageFilePath
         self.imageDataThumbnailActual = imageDataThumbnailActual
         self.imageDataFullActual = imageDataFullActual
+        self.settingsColoursStruct = settingsColoursStruct
     }
 
     init(persistentData: PersistentData, packageFilePath: String? = nil) {
@@ -259,7 +261,7 @@ extension Itinerary {
 
 // MARK: - ItineraryEditableData
 extension Itinerary {
-    struct EditableData {
+    struct EditableData: Equatable, Hashable {
         var title: String = kUntitledString
         var stages: StageArray = []
         var imageDataThumbnailActual: Data?
@@ -273,8 +275,13 @@ extension Itinerary {
             return stages.first(where: { $0.hasIDstr(uuidstr) })
         }
 
+        var lastStageUUIDstr: String? { stages.last?.idStr }
+        var firstStageUUIDstr: String? { stages.first?.idStr }
+
+        
     }
     
+
     var itineraryEditableData: EditableData {
         EditableData(title: title, stages: stagesUpdatedImageFullsize, imageDataThumbnailActual: imageDataThumbnailActual, imageDataFullActual: getFullSizeImageData())
     }
@@ -282,15 +289,17 @@ extension Itinerary {
     mutating func updateItineraryEditableData(from itineraryEditableData: EditableData) {
         title = itineraryEditableData.title.isEmpty ? kUntitledString : itineraryEditableData.title
         stages = itineraryEditableData.stages
+        modificationDate = nowReferenceDateTimeInterval()
         imageDataThumbnailActual = itineraryEditableData.imageDataThumbnailActual
         imageDataFullActual = itineraryEditableData.imageDataFullActual
-        updateModificationDateToNow()
+        
         _ = savePersistentData()
-        writeImageDataToPackage(itineraryEditableData.imageDataFullActual, imageSizeType: .fullsize)
-        itineraryEditableData.stages.forEach { stage in
+        writeImageDataToPackage(imageDataFullActual, imageSizeType: .fullsize)
+        stages.forEach { stage in
             writeStageImageDataToPackage(stage.imageDataFullActual, imageSizeType: .fullsize, stageIDstr: stage.idStr)
         }
     }
+    
     
 }
 

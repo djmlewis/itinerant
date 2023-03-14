@@ -49,52 +49,57 @@ extension StageActionCommonView {
             .frame(maxWidth: .infinity)
             .padding(0)
             .background(stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) ? Color("ColourStageActiveHeading") : Color.clear)
-            if //!stage.details.isEmpty &&
-                (disclosureDetailsExpanded == true ||
+            if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) {
+                HStack{}
+                    .frame(maxWidth: .infinity, minHeight:1)
+                    .padding(0)
+                    .background(Color.white)
+            }
+            if (disclosureDetailsExpanded == true ||
                  stage.isRunning(uuidStrStagesRunningStr: uuidStrStagesRunningStr) ||
                  stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr))
             {
-                ZStack(alignment: .topLeading) {
-                    Text("Hidden")
-                        .opacity(0.0)
-                        .frame(maxWidth: .infinity)
-                        .background(GeometryReader { Color.clear.preference(key: StageActionCommonView.ZStackMeasuringPreferenceKey.self, value: $0.size) } )
-                        .onPreferenceChange(StageActionCommonView.ZStackMeasuringPreferenceKey.self) { detailsMeasuredWidth = $0.width }
-                    UITextViewWrapper(text: $stage.details, calculatedHeight: $calculatedHeight, fontColor: $detailsTextColour, imageMeasuredSize: $imageMeasuredSize, dynamicTypeSize: $textDynamicTypeSize)
-                        .frame(minHeight: calculatedHeight, maxHeight: calculatedHeight)
-                        .padding([.leading, .trailing], kDetailsSidePadding)
-                    if let imagedata = stage.imageDataThumbnailActual,
-                       let uiImage = UIImage(data: imagedata) {
-                        HStack(spacing: 0.0) {
-                            Button(action: {
-                                if let imagedata = getSetStageFullSizeImageData(),
-                                   let uiImage = UIImage(data: imagedata) {
-                                    fullSizeUIImage = uiImage
-                                    showFullSizeUIImage = true
-                                }
-                            }, label: {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                //                                .frame(maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618), maxHeight: calculatedHeight, alignment: .trailing)
-                                    .frame(
-                                        width: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).width,
-                                        height: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).height)
-                                    .fixedSize(horizontal: true, vertical: true) // <-- fix BOTH
-                                // checl height HERE to avoid padding
-                                    .background(GeometryReader { Color.red.preference(key: StageActionCommonView.ImageMeasuringPreferenceKey.self, value: $0.size) } )
-                                    .onPreferenceChange(StageActionCommonView.ImageMeasuringPreferenceKey.self) { imageMeasuredSize = $0 }
-                                    .padding(.top, kFontSizedPadding)
-                                    .padding([.leading], kDetailsSidePadding)
-                            })
-                            .buttonStyle(.borderless)
-                            Spacer() // always LEFT not leading
-                        } /* HStack */
-                        .padding(0)
+                if !stage.details.isEmpty {
+                    ZStack(alignment: .topLeading) {
+                        Text("Hidden")
+                            .opacity(0.0)
+                            .frame(maxWidth: .infinity)
+                            .background(GeometryReader { Color.clear.preference(key: StageActionCommonView.ZStackMeasuringPreferenceKey.self, value: $0.size) } )
+                            .onPreferenceChange(StageActionCommonView.ZStackMeasuringPreferenceKey.self) { detailsMeasuredWidth = $0.width }
+                        UITextViewWrapper(text: $stage.details, calculatedHeight: $calculatedHeight, fontColor: $detailsTextColour, imageMeasuredSize: $imageMeasuredSize, dynamicTypeSize: $textDynamicTypeSize)
+                            .frame(minHeight: calculatedHeight, maxHeight: calculatedHeight)
+                            .padding([.leading, .trailing], kDetailsSidePadding)
+                        if let imagedata = stage.imageDataThumbnailActual,
+                           let uiImage = UIImage(data: imagedata) {
+                            HStack(spacing: 0.0) {
+                                Button(action: {
+                                    if let imagedata = getSetStageFullSizeImageData(),
+                                       let uiImage = UIImage(data: imagedata) {
+                                        fullSizeUIImage = uiImage
+                                        showFullSizeUIImage = true
+                                    }
+                                }, label: {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(
+                                            width: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).width,
+                                            height: sizeForSize(imageSize: uiImage.size, maxHeight: calculatedHeight, maxWidth: detailsMeasuredWidth - (detailsMeasuredWidth / 1.618)).height)
+                                        .fixedSize(horizontal: true, vertical: true) // <-- fix BOTH
+                                    // check height HERE to avoid padding
+                                        .background(GeometryReader { Color.red.preference(key: StageActionCommonView.ImageMeasuringPreferenceKey.self, value: $0.size) } )
+                                        .onPreferenceChange(StageActionCommonView.ImageMeasuringPreferenceKey.self) { imageMeasuredSize = $0 }
+                                        .padding(.top, kFontSizedPadding)
+                                        .padding([.leading], kDetailsSidePadding)
+                                })
+                                .buttonStyle(.borderless)
+                                Spacer() // always LEFT not leading
+                            } /* HStack */
+                            .padding(0)
+                        }
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
-//                .padding(.bottom, kiOSStageViewsRowPad)
             }
             if stage.isCommentOnly == false {
                 HStack {

@@ -127,21 +127,6 @@ struct ItineraryEditView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                     .opacity(0.5)
-                    .padding(.leading,24)
-                Button {
-                    showRightColumn.toggle()
-                } label: {
-                    Image(systemName: showRightColumn ? "decrease.quotelevel" : "quotelevel")
-                }
-                .buttonStyle(.borderless)
-                .controlSize(.regular)
-                .padding(.trailing,24)
-               Button(isEditing ? "Done" : "Edit") {
-                    isEditing.toggle()
-                }
-                .padding(.trailing,36)
-                .buttonStyle(.borderless)
-                .controlSize(.regular)
                 Button {
                     newStageEditableData = Stage()
                     newStageMeta = nil
@@ -149,53 +134,70 @@ struct ItineraryEditView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderless)
                 .controlSize(.regular)
-                .padding(.trailing,24)
             }
+            .padding([.leading,.trailing],24)
 /* *********        STAGES       ************* */
             ScrollViewReader { svrproxy in
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach($itineraryEditableData.stages) { $stage in
-                            if deviceIsIpadOrMac() {
-                                StageEditCommonView(stageEditableData: $stage, showRightColumn: $showRightColumn)
-                                    .background(Color("ColourStageDisplayBackground"))
-                                    .cornerRadius(12)
-                                    .id(stage.idStr)
-                           } else {
-                                StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete)
-                                    .background(Color("ColourStageDisplayBackground"))
-                                    .cornerRadius(12)
-                                    .id(stage.idStr)
+                List {
+                        if deviceIsIpadOrMac() {
+                            ForEach($itineraryEditableData.stages, id: \.self) { $stage in
+                                    StageEditCommonView(stageEditableData: $stage, showRightColumn: $showRightColumn)
+                                        .background(Color("ColourStageDisplayBackground"))
+                                        .cornerRadius(12)
+                                        .id(stage.idStr)
                             }
-                        }
-                        .onMove(perform: isEditing ? { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) } : nil)
-                    }
-                    .padding([.leading,.trailing], 24)
-                    .onChange(of: stageIDtoScrollTo, perform: {
-                        if let id = $0 {
-                            withAnimation {
-                                svrproxy.scrollTo(id)
+                            .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
+                            .onDelete { offsets in
+                                DispatchQueue.main.async {
+                                    // dont delete any files let itineraryactionview do that if we tap save
+                                    offsets.forEach { offset in stageIDsToDelete.append(itineraryEditableData.stages[offset].idStr) }
+                                    withAnimation {
+                                        itineraryEditableData.stages.remove(atOffsets: offsets)
+                                    }
+                                }
                             }
-                        }
-                    })
-                } /* ScrollView */
+                        } else {
+                                ForEach($itineraryEditableData.stages, id: \.self) { $stage in
+                                    StageDisplayView(stage: $stage, newStageMeta: $newStageMeta, isEditing: $isEditing, stageIDtoDelete: $stageIDtoDelete)
+                                        .background(Color("ColourStageDisplayBackground"))
+                                        .listRowInsets(.init(top: stage.idStr == itineraryEditableData.firstStageUUIDstr ? 0.0 : 4.0,
+                                                             leading: 0,
+                                                             bottom: stage.idStr == itineraryEditableData.lastStageUUIDstr ? 0.0 : 4.0,
+                                                             trailing: 0))
+                                        .listRowBackground(Color.clear)
+                                        .listRowSeparator(.hidden)
+                                        .cornerRadius(12)
+                                        .id(stage.idStr)
+                                }
+                                .onMove { itineraryEditableData.stages.move(fromOffsets: $0, toOffset: $1) }
+                                .onDelete { offsets in
+                                    DispatchQueue.main.async {
+                                        // dont delete any files let itineraryactionview do that if we tap save
+                                        offsets.forEach { offset in stageIDsToDelete.append(itineraryEditableData.stages[offset].idStr) }
+                                        withAnimation {
+                                            itineraryEditableData.stages.remove(atOffsets: offsets)
+                                        }
+                                    }
+                                }
+                       }
+                } /* List */
             } /* SVR */
 /* *********        STAGES       ************* */
             .onAppear {
                 selectedImageData = itineraryEditableData.imageDataThumbnailActual
             }
-            .onChange(of: stageIDtoDelete, perform: {
-                guard let idtodelete = $0, let indx = itineraryEditableData.stageIndex(forUUIDstr: idtodelete) else { return }
-                // dont delete any files let itineraryactionview do that if we tap save
-                stageIDsToDelete.append(idtodelete)
-                DispatchQueue.main.async {
-                    withAnimation {
-                        itineraryEditableData.stages.remove(atOffsets: IndexSet(integer: indx))
-                    }
-                }
-            })
+//            .onChange(of: stageIDtoDelete, perform: {
+//                guard let idtodelete = $0, let indx = itineraryEditableData.stageIndex(forUUIDstr: idtodelete) else { return }
+//                // dont delete any files let itineraryactionview do that if we tap save
+//                stageIDsToDelete.append(idtodelete)
+//                DispatchQueue.main.async {
+//                    withAnimation {
+//                        itineraryEditableData.stages.remove(atOffsets: IndexSet(integer: indx))
+//                    }
+//                }
+//            })
             .onChange(of: newStageMeta) { newValue in
                 // must reference itineraryEditableData NOT itinerary which is not edited !!!
                 if let newstagemeta = newValue {

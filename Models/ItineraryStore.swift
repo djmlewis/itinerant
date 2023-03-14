@@ -69,7 +69,7 @@ class ItineraryStore: ObservableObject {
             if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourStageActive }
             return settingsColourStruct.colourStageInactive
         }
-        debugPrint("error stageBackgroundColour")
+        //debugPrint("error stageBackgroundColour")
         return Color.clear
     }
     
@@ -82,7 +82,7 @@ class ItineraryStore: ObservableObject {
             if stage.isActive(uuidStrStagesActiveStr: uuidStrStagesActiveStr) { return settingsColourStruct.colourFontActive }
             return settingsColourStruct.colourFontInactive
         }
-        debugPrint("error stageBackgroundColour")
+        //debugPrint("error stageTextColour")
         return Color.clear
     }
 

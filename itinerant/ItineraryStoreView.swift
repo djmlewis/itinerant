@@ -72,6 +72,12 @@ struct ItineraryStoreView: View {
                                     DispatchQueue.main.async {
                                         var newItinerary = Itinerary(packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title))
                                         newItinerary.updateItineraryEditableData(from: newItineraryEditableData)
+//                                        let newItinerary = Itinerary(
+//                                            itineraryEditableData: newItineraryEditableData,
+//                                            id: UUID(),
+//                                            packageFilePath: dataPackagesDirectoryPathAddingUniqueifiedFileNameWithoutExtension(newItineraryEditableData.title),
+//                                            settingsColoursStruct: appDelegate.settingsColoursObject.settingsColoursStruct)
+//                                        newItinerary.completeUpdateFromEditableData()
                                         itineraryStore.itineraries.append(newItinerary)
                                         itineraryStore.sortItineraries()
                                         isPresentingItineraryEditView = false
@@ -155,8 +161,8 @@ extension ItineraryStoreView {
                 .onDelete(perform: { offsets in deleteItinerariesAtOffsets(offsets) })
             } /* List */
             .navigationDestination(for: String.self) { id in
-                if let itineraryActual = itineraryStore.itineraryForID(id: id) {
-                    ItineraryActionCommonView(itineraryLocalCopy: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                if itineraryStore.itineraryForID(id: id) != nil {
+                    ItineraryActionCommonView(itineraryLocalCopyID: id, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
                 }
             }
             .modifier(ItineraryStoreViewNavTitleToolBar(showSettingsView: $showSettingsView, itineraryStore: itineraryStore, fileImporterShown: $fileImporterShown, fileImportFileType: $fileImportFileType, newItineraryEditableData: $newItineraryEditableData, isPresentingItineraryEditView: $isPresentingItineraryEditView, openRequestURL: $openRequestURL, isPresentingConfirmOpenURL: $isPresentingConfirmOpenURL))
@@ -179,7 +185,7 @@ extension ItineraryStoreView {
             
         } detail: {
             if let itineraryidselected = itineraryIDselected, let itineraryActual = itineraryStore.itineraryForID(id: itineraryidselected) {
-                ItineraryActionCommonView(itineraryLocalCopy: itineraryActual, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
+                ItineraryActionCommonView(itineraryLocalCopyID: itineraryidselected, uuidStrStagesActiveStr: $uuidStrStagesActiveStr, uuidStrStagesRunningStr: $uuidStrStagesRunningStr, dictStageStartDates: $dictStageStartDates, dictStageEndDates: $dictStageEndDates)
                     .id(itineraryActual.idStr)
             }
         } /* detail */
