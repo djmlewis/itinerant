@@ -155,8 +155,12 @@ extension Stage {
     // us func when you want a new init for each call: let value = Stage.staticFunc()  <== use ()
     static func templateStage() -> Stage { Stage(title: "Stage #", details: "Details") }
     
-    var duplicateWithNewID: Stage { Stage(title: title, durationSecsInt: durationSecsInt, additionalDurationsDict: additionalDurationsDict, details: details, snoozeDurationSecs: snoozeDurationSecs, flags: flags) }
-    
+    var duplicateWithNewID: Stage {
+        var newstage = Stage()
+        newstage.updateEditableData(from: self.editableData)
+        return newstage
+        //Stage(title: title, durationSecsInt: durationSecsInt, additionalDurationsDict: additionalDurationsDict, details: details, snoozeDurationSecs: snoozeDurationSecs, flags: flags) }
+    }
     static func templateStageArray() -> StageArray { [Stage.templateStage(), Stage.templateStage(), Stage.templateStage()] }
     //static func emptyStageArray() -> StageArray { [] }
 

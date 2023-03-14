@@ -156,7 +156,7 @@ struct StageDisplayView: View {
         .animation(.linear(duration: 0.1), value: isEditing)
         .fullScreenCover(isPresented: $isPresentingStageEditView) {
             NavigationStack {
-                StageEditCommonView(stageEditableData: $stageEditableData, showRightColumn: .constant(true))
+                StageEditCommonView(stageEditableData: $stageEditableData, showRightColumn: .constant(true), collapseForMoving: .constant(false), newStageMeta: $newStageMeta, stageUUIDToDelete: .constant(nil), itineraryEditableData: nil)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {
@@ -176,7 +176,7 @@ struct StageDisplayView: View {
         }
         .fullScreenCover(isPresented: $isPresentingNewStageEditView) {
             NavigationStack {
-                StageEditCommonView(stageEditableData: $newStageEditableData, showRightColumn: .constant(true))
+                StageEditCommonView(stageEditableData: $newStageEditableData, showRightColumn: .constant(true), collapseForMoving: .constant(false), newStageMeta: $newStageMeta, stageUUIDToDelete: .constant(nil), itineraryEditableData: nil)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") {

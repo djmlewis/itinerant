@@ -11,8 +11,14 @@ import PhotosUI
 
 struct StageEditCommonView: View {
     @Binding var stageEditableData: Stage
+    // quickview
     @Binding var showRightColumn: Bool
-
+    @Binding var collapseForMoving: Bool
+    @Binding var newStageMeta: NewStageMeta?
+    @Binding var stageUUIDToDelete: UUID?
+    var itineraryEditableData: Itinerary.EditableData?
+    
+    @State var showConfirmDeleteStage: Bool =  false
     @State var untimedComment: Bool =  false
     @State var snoozeAlertsOn: Bool =  false
     
@@ -40,7 +46,7 @@ struct StageEditCommonView: View {
     @State var showFullSizeUIImage: Bool = false
     @State var showFullSizeUIImageAlert: Bool = false
 
-    
+
     @ViewBuilder  var bodyForDevice: some View {
         if deviceIsIpadOrMac() {
             body_quick

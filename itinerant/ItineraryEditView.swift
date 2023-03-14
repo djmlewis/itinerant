@@ -18,8 +18,9 @@ struct ItineraryEditView: View {
     @State private var isPresentingNewStageEditView = false
     
     @State private var isEditing: Bool = false
-    @State var stageIDtoScrollTo: String?
-    
+    @State var stageIDtoScrollTo: UUID =  UUID()
+    @State var stageUUIDToDelete: UUID?
+
     @Environment(\.colorScheme) var colorScheme
 
     
@@ -29,6 +30,7 @@ struct ItineraryEditView: View {
     @State var showFullSizeUIImage: Bool = false
 
     @State var showRightColumn: Bool = true
+    @State var collapseForMoving: Bool = false
 
     
     /* *** REMEMBER to EDIT ONLY the var itineraryEditableData and NOT the var itinerary */
@@ -126,15 +128,45 @@ struct ItineraryEditView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.system(.headline, design: .rounded, weight: .semibold).lowercaseSmallCaps())
                     .opacity(0.5)
-                Button {
-                    newStageEditableData = Stage()
-                    newStageMeta = nil
-                    isPresentingNewStageEditView = true
-                } label: {
-                    Image(systemName: "plus")
+                if deviceIsIpadOrMac() {
+                    Button {
+                        collapseForMoving.toggle()
+                    } label: {
+                        Image(systemName: collapseForMoving ?  "rectangle.expand.vertical" : "rectangle.compress.vertical")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.regular)
+                    .padding([.leading], 16)
+                    Button {
+                        showRightColumn.toggle()
+                    } label: {
+                        Image(systemName: showRightColumn ?  "decrease.quotelevel" : "quotelevel")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.regular)
+                    .padding([.leading], 16)
+                    Button {
+                        DispatchQueue.main.async {
+                            let newStage = Stage()
+                            itineraryEditableData.stages.append(newStage)
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.regular)
+                    .padding([.leading], 16)
+               } else {
+                    Button {
+                        newStageEditableData = Stage()
+                        newStageMeta = nil
+                        isPresentingNewStageEditView = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.regular)
                 }
-                .buttonStyle(.borderless)
-                .controlSize(.regular)
             }
             .padding([.leading,.trailing],24)
 /* *********        STAGES       ************* */
@@ -142,7 +174,7 @@ struct ItineraryEditView: View {
                 List {
                     if deviceIsIpadOrMac() {
                         ForEach($itineraryEditableData.stages, id: \.self) { $stage in
-                            StageEditCommonView(stageEditableData: $stage, showRightColumn: $showRightColumn)
+                            StageEditCommonView(stageEditableData: $stage, showRightColumn: $showRightColumn, collapseForMoving: $collapseForMoving, newStageMeta: $newStageMeta, stageUUIDToDelete: $stageUUIDToDelete, itineraryEditableData: itineraryEditableData)
                                 .background(Color("ColourStageDisplayBackground"))
                                 .listRowInsets(.init(top: stage.idStr == itineraryEditableData.firstStageUUIDstr ? 0.0 : 4.0,
                                                      leading: 0,
@@ -151,7 +183,7 @@ struct ItineraryEditView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .cornerRadius(12)
-                                .id(stage.idStr)
+                                .id(stage.id)
                         }
                         .onMove { (from,to) in
                             DispatchQueue.main.async { itineraryEditableData.stages.move(fromOffsets: from, toOffset: to) }
@@ -174,7 +206,7 @@ struct ItineraryEditView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .cornerRadius(12)
-                                .id(stage.idStr)
+                                .id(stage.id)
                         }
                         .onMove { (from,to) in
                             DispatchQueue.main.async { itineraryEditableData.stages.move(fromOffsets: from, toOffset: to) }
@@ -193,25 +225,34 @@ struct ItineraryEditView: View {
             .onAppear {
                 selectedImageData = itineraryEditableData.imageDataThumbnailActual
             }
+            .onChange(of: stageUUIDToDelete) { newValue in
+                if let newValue, let index = itineraryEditableData.stages.firstIndex(where: { $0.id == newValue}) {
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            _ = itineraryEditableData.stages.remove(at: index)
+                        }
+                    }
+                }
+            }
             .onChange(of: newStageMeta) { newValue in
                 // must reference itineraryEditableData NOT itinerary which is not edited !!!
                 if let newstagemeta = newValue {
                     DispatchQueue.main.async {
-                        let id = newstagemeta.newStage.idStr
-                        if let indx = itineraryEditableData.stageIndex(forUUIDstr: newstagemeta.stageInitiatingIDstr) {
-                            itineraryEditableData.stages.insert(newstagemeta.newStage, at: min(indx + 1,itineraryEditableData.stages.endIndex))
-                        } else {
-                            // top level + tapped, not a stage
-                            itineraryEditableData.stages.append(newstagemeta.newStage)
+                        withAnimation(.linear) {
+                            if let indx = itineraryEditableData.stageIndex(forUUIDstr: newstagemeta.stageInitiatingIDstr) {
+                                itineraryEditableData.stages.insert(newstagemeta.newStage, at: min(indx + 1,itineraryEditableData.stages.endIndex))
+                            } else {
+                                // top level + tapped, not a stage
+                                itineraryEditableData.stages.append(newstagemeta.newStage)
+                            }
                         }
-                        stageIDtoScrollTo = id
                         newStageMeta = nil
                     }
                 }
             }
             .fullScreenCover(isPresented: $isPresentingNewStageEditView) {
                 NavigationStack {
-                    StageEditCommonView(stageEditableData: $newStageEditableData, showRightColumn: .constant(true))
+                    StageEditCommonView(stageEditableData: $newStageEditableData, showRightColumn: .constant(true), collapseForMoving: .constant(false), newStageMeta: .constant(nil), stageUUIDToDelete: .constant(nil), itineraryEditableData: nil)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {

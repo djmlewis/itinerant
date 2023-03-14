@@ -278,8 +278,12 @@ extension Itinerary {
         var lastStageUUIDstr: String? { stages.last?.idStr }
         var firstStageUUIDstr: String? { stages.first?.idStr }
         var stagesIDstrs: [String] { stages.map { $0.idStr }}
+        func indexOfStageUUID(_ stageuuid: UUID) -> Int? { stages.firstIndex { $0.id == stageuuid } }
+        func indexStringOfStageUUID(_ stageuuid: UUID) -> String? {
+            if let index = indexOfStageUUID(stageuuid) { return String(format: "#%i", index + 1) }
+            return nil
+        }
 
-        
     }
     
 
